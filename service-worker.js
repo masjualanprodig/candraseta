@@ -5,7 +5,7 @@ const CACHE = 'baituna-static-v2';
 const ASSETS = [
   './', 'index.html', 'style.css', 'components.css', 'responsive.css',
   'config.js', 'supabase.js', 'auth.js', 'router.js', 'permissions.js', 'ui.js',
-  'mosque-service.js', 'team-panel.js', 'dashboard-admin.js', 'dashboard-member.js', 'dashboard-mosque.js', 'app.js',
+  'mosque-service.js', 'public-service.js', 'directory.js', 'team-panel.js', 'dashboard-admin.js', 'dashboard-member.js', 'dashboard-mosque.js', 'app.js',
   'logo.png', 'masjid.svg', 'manifest.json', 'icon-192.png', 'icon-512.png'
 ];
 

@@ -13,10 +13,13 @@ export async function renderMosque(box, mosqueId) {
   const me = getSession() && getSession().user;
   const refresh = () => renderMosque(box, mosqueId);
 
-  const field = (ph, val, max) => h('input', { class: 'in', placeholder: ph, maxlength: String(max), autocomplete: 'off', value: val || '' });
+  const field = (ph, val, max) => h('input', { class: 'in', placeholder: ph, maxlength: String(max), autocomplete: 'off', value: val == null ? '' : String(val) });
   const name = field('Nama masjid *', mosque.name, 150), city = field('Kota/Kabupaten', mosque.city, 80),
         prov = field('Provinsi', mosque.province, 80), phone = field('Telepon resmi', mosque.contact_phone, 30);
   const addr = h('textarea', { class: 'in mt', placeholder: 'Alamat', maxlength: '300' }, mosque.address || '');
+  const desc = h('textarea', { class: 'in mt', placeholder: 'Tentang masjid (sejarah, kegiatan, dll.)', maxlength: '1000' }, mosque.description || '');
+  const fac = field('Fasilitas, pisahkan dengan koma (mis. Parkir, Toilet, Ruang wudhu)', mosque.facilities, 300);
+  const lat = field('Lintang (mis. -6.914744)', mosque.latitude, 12), lng = field('Bujur (mis. 107.609810)', mosque.longitude, 12);
   const btn = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan profil');
   const form = h('form', {
     class: 'panel', novalidate: 'novalidate',
@@ -24,11 +27,18 @@ export async function renderMosque(box, mosqueId) {
       ev.preventDefault();
       const n = name.value.trim();
       if (n.length < 3) { toast('Nama masjid minimal 3 karakter.', true); return; }
+      const num = el => el.value.trim() === '' ? null : Number(el.value.trim().replace(',', '.'));
+      const la = num(lat), lo = num(lng);
+      if ((la === null) !== (lo === null)) { toast('Isi lintang DAN bujur, atau kosongkan keduanya.', true); return; }
+      if (la !== null && (!isFinite(la) || !isFinite(lo) || la < -12 || la > 7 || lo < 94 || lo > 142)) {
+        toast('Koordinat tidak valid untuk wilayah Indonesia. Periksa lintang dan bujur.', true); return;
+      }
       btn.disabled = true;
       try {
         await updateMosqueProfile(mosqueId, {
           name: n, city: city.value.trim() || null, province: prov.value.trim() || null,
-          contact_phone: phone.value.trim() || null, address: addr.value.trim() || null
+          contact_phone: phone.value.trim() || null, address: addr.value.trim() || null,
+          description: desc.value.trim() || null, facilities: fac.value.trim() || null, latitude: la, longitude: lo
         });
         toast('Profil masjid disimpan.');
         await refresh();
@@ -37,7 +47,9 @@ export async function renderMosque(box, mosqueId) {
       }
       btn.disabled = false;
     }
-  }, h('h3', {}, 'Profil masjid'), h('div', { class: 'grid2' }, name, city, prov, phone), addr, btn);
+  }, h('h3', {}, 'Profil masjid'), h('div', { class: 'grid2' }, name, city, prov, phone), addr, desc, fac,
+    h('p', { class: 'hint' }, 'Koordinat: buka Google Maps, tekan lama pada lokasi masjid, lalu salin dua angkanya (lintang lalu bujur). Boleh dikosongkan.'),
+    h('div', { class: 'grid2' }, lat, lng), h('div', { class: 'mt' }, btn));
 
   box.replaceChildren(
     h('h2', {}, mosque.name),

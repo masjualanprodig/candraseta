@@ -8,6 +8,7 @@ import { loadAccess } from './permissions.js';
 import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
+import { openDirectory } from './directory.js';
 
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
@@ -91,6 +92,10 @@ $('register').addEventListener('click', e => {
   e.preventDefault();
   say('Akun pengurus dibuat lewat undangan admin pusat. Pendaftaran jamaah dibuka di tahap berikutnya.', 'info');
 });
+
+/* ===== Direktori publik ===== */
+$('open-directory').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login')); });
+$('nav-dir').addEventListener('click', () => openDirectory('app', () => enterApp()));
 
 /* ===== Reset password ===== */
 $('reset-form').addEventListener('submit', async e => {
