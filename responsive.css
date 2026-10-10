@@ -1,3 +1,4 @@
+/* BAITUNA - responsive.css: penyesuaian ukuran layar + perapian tampilan */
 @media (min-width:768px){
  .card{padding:2.2rem 2rem}.hero-logo{width:130px}.scene{height:40%}
  .scene-login{top:120px}
@@ -6,3 +7,14 @@
  .login{justify-content:center}.card{margin-top:2rem}
 }
 @media (max-height:700px){.login-hero{padding-top:1rem}.hero-logo{width:80px}}
+
+
+.brand-logo,.hero-logo{mix-blend-mode:normal}
+.scene,.scene-login{position:absolute;left:0;right:0;top:auto;bottom:0;height:clamp(150px,24vh,260px);opacity:1;z-index:1;pointer-events:none}
+.scene img{left:50%;transform:translateX(-50%);bottom:34%;width:min(100%,900px);height:auto;object-fit:initial;object-position:initial}
+.wave{height:68%;border-radius:0;box-shadow:none;background:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMTIwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyYTdkNmEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwNDRhM2QiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cGF0aCBkPSJNMCA0NkM4MCA4IDE1MCA3MCAyNDAgNDBTMzUwIDggNDAwIDMwVjEyMEgwWiIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik0wIDQ2QzgwIDggMTUwIDcwIDI0MCA0MFMzNTAgOCA0MDAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0Q0OTgxRiIgc3Ryb2tlLXdpZHRoPSIxLjYiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIvPjwvc3ZnPg==") center/100% 100% no-repeat}
+.login{padding-bottom:clamp(110px,20vh,220px)}
+.card{margin:1.5rem auto 1rem}
+.hero-logo{width:min(34vw,130px)}
+.login-hero{padding-top:max(1.5rem,env(safe-area-inset-top))}
+.btn-social svg{width:24px;height:24px;margin-bottom:.15rem}.btn-social span{line-height:1.2}

@@ -1,0 +1,19 @@
+// BAITUNA - permissions.js
+// Pemeriksaan hak akses untuk ANTARMUKA (kenyamanan pengguna).
+// Keamanan sebenarnya dijaga RLS di database, bukan oleh file ini.
+import { fetchIsSuperAdmin, fetchMemberships } from './mosque-service.js';
+
+export const ROLE_LABEL = {
+  admin_masjid: 'Admin Masjid', ketua_takmir: 'Ketua Takmir', bendahara: 'Bendahara',
+  pengurus_bagian: 'Pengurus Bagian', pengelola_usaha: 'Pengelola Unit Usaha', jamaah: 'Jamaah'
+};
+
+// Mengambil hak akses pengguna: Super Admin platform atau anggota masjid tertentu.
+export async function loadAccess(user) {
+  const isAdmin = await fetchIsSuperAdmin(user.id);
+  const memberships = isAdmin ? [] : await fetchMemberships(user.id);
+  return { isAdmin, memberships };
+}
+
+export const hasRole = (memberships, mosqueId, ...roles) =>
+  memberships.some(m => m.mosques && m.mosques.id === mosqueId && roles.includes(m.role));

@@ -1,0 +1,17 @@
+// BAITUNA - dashboard-member.js
+// Tampilan sementara untuk pengguna non-Super Admin (dashboard per peran dibangun di tahap berikutnya).
+import { h, STATUS_LABEL } from './ui.js';
+import { ROLE_LABEL } from './permissions.js';
+
+export function renderMember(box, memberships) {
+  const rows = memberships.filter(m => m.mosques);
+  box.replaceChildren(
+    h('h2', {}, 'Selamat datang'),
+    rows.length
+      ? h('div', { class: 'panel' }, h('h3', {}, 'Keanggotaan Anda'),
+          rows.map(m => h('div', { class: 'mrow' },
+            h('div', { class: 'minfo' }, h('strong', {}, m.mosques.name), h('div', { class: 'muted' }, ROLE_LABEL[m.role] || m.role)),
+            h('span', { class: 'badge b-' + m.mosques.status }, STATUS_LABEL[m.mosques.status] || m.mosques.status))))
+      : h('div', { class: 'panel' }, h('p', {}, 'Akun Anda belum ditugaskan ke masjid mana pun. Hubungi admin pusat untuk mendapatkan undangan.')),
+    h('p', { class: 'muted' }, 'Dashboard sesuai peran dibangun di tahap berikutnya.'));
+}

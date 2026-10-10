@@ -1,13 +1,32 @@
-// Cache HANYA aset statis. Data pengguna/Supabase tidak pernah disimpan di sini.
-const CACHE = 'baituna-static-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json', '/css/style.css', '/css/components.css', '/css/responsive.css',
-  '/js/app.js', '/js/config.js', '/js/supabase.js', '/js/auth.js', '/js/router.js', '/js/permissions.js',
-  '/assets/logo/logo.png', '/assets/images/masjid.svg', '/assets/icons/icon-192.png', '/assets/icons/icon-512.png'];
-self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
-self.addEventListener('activate', e => e.waitUntil(
-  caches.keys().then(k => Promise.all(k.filter(x => x !== CACHE).map(x => caches.delete(x))))));
+// BAITUNA - service-worker.js
+// Cache aset statis agar aplikasi cepat dan bisa dibuka offline (hanya tampilan dasar).
+// Data Supabase TIDAK pernah disimpan di cache.
+const CACHE = 'baituna-static-v2';
+const ASSETS = [
+  './', 'index.html', 'style.css', 'components.css', 'responsive.css',
+  'config.js', 'supabase.js', 'auth.js', 'router.js', 'permissions.js', 'ui.js',
+  'mosque-service.js', 'dashboard-admin.js', 'dashboard-member.js', 'app.js',
+  'logo.png', 'masjid.svg', 'manifest.json', 'icon-192.png', 'icon-512.png'
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all(ASSETS.map(a => c.add(a).catch(() => {})))));
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    .then(() => self.clients.claim()));
+});
+
+// Jaringan dulu (agar versi terbaru selalu dipakai), cache sebagai cadangan saat offline.
 self.addEventListener('fetch', e => {
-  const u = new URL(e.request.url);
-  if (e.request.method !== 'GET' || u.origin !== location.origin) return; // jangan sentuh API/Supabase
-  e.respondWith(fetch(e.request).catch(() => caches.match(e.request).then(r => r || caches.match('/index.html'))));
+  const req = e.request, url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== location.origin) return; // Supabase & situs lain tidak disentuh
+  e.respondWith(
+    fetch(req).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+      return res;
+    }).catch(() => caches.match(req).then(r => r || caches.match('index.html')))
+  );
 });
