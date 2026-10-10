@@ -19,6 +19,10 @@ export async function renderMosque(box, mosqueId) {
   const addr = h('textarea', { class: 'in mt', placeholder: 'Alamat', maxlength: '300' }, mosque.address || '');
   const desc = h('textarea', { class: 'in mt', placeholder: 'Tentang masjid (sejarah, kegiatan, dll.)', maxlength: '1000' }, mosque.description || '');
   const fac = field('Fasilitas, pisahkan dengan koma (mis. Parkir, Toilet, Ruang wudhu)', mosque.facilities, 300);
+  const tz = h('select', { class: 'in', 'aria-label': 'Zona waktu' },
+    [['Asia/Jakarta', 'WIB (Waktu Indonesia Barat)'], ['Asia/Makassar', 'WITA (Waktu Indonesia Tengah)'], ['Asia/Jayapura', 'WIT (Waktu Indonesia Timur)']]
+      .map(([v, l]) => h('option', { value: v }, l)));
+  tz.value = mosque.timezone || 'Asia/Jakarta';
   const lat = field('Lintang (mis. -6.914744)', mosque.latitude, 12), lng = field('Bujur (mis. 107.609810)', mosque.longitude, 12);
   const btn = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan profil');
   const form = h('form', {
@@ -38,7 +42,7 @@ export async function renderMosque(box, mosqueId) {
         await updateMosqueProfile(mosqueId, {
           name: n, city: city.value.trim() || null, province: prov.value.trim() || null,
           contact_phone: phone.value.trim() || null, address: addr.value.trim() || null,
-          description: desc.value.trim() || null, facilities: fac.value.trim() || null, latitude: la, longitude: lo
+          description: desc.value.trim() || null, facilities: fac.value.trim() || null, latitude: la, longitude: lo, timezone: tz.value
         });
         toast('Profil masjid disimpan.');
         await refresh();
@@ -49,7 +53,8 @@ export async function renderMosque(box, mosqueId) {
     }
   }, h('h3', {}, 'Profil masjid'), h('div', { class: 'grid2' }, name, city, prov, phone), addr, desc, fac,
     h('p', { class: 'hint' }, 'Koordinat: buka Google Maps, tekan lama pada lokasi masjid, lalu salin dua angkanya (lintang lalu bujur). Boleh dikosongkan.'),
-    h('div', { class: 'grid2' }, lat, lng), h('div', { class: 'mt' }, btn));
+    h('div', { class: 'grid2' }, lat, lng),
+    h('p', { class: 'hint' }, 'Zona waktu dipakai untuk menghitung jadwal salat masjid ini.'), tz, h('div', { class: 'mt' }, btn));
 
   box.replaceChildren(
     h('h2', {}, mosque.name),

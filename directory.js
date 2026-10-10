@@ -4,6 +4,7 @@
 import { $, h } from './ui.js';
 import { show } from './router.js';
 import { searchMosques, fetchProvinces, PAGE_SIZE } from './public-service.js';
+import { prayerPanel, calendarPanel } from './schedule-ui.js';
 
 let onBack = () => {};
 let state = { q: '', province: '', items: [], more: false, loaded: false, provinces: null, error: false };
@@ -61,7 +62,7 @@ function renderList() {
           h('button', { class: 'btn-sm ghost', onclick: () => renderDetail(m) }, 'Lihat profil')))),
       state.more ? h('div', { class: 'mt center' }, h('button', { class: 'btn-sm ghost', onclick: () => loadMore() }, 'Muat lebih banyak')) : '');
   }
-  box.replaceChildren(h('h2', {}, 'Direktori Masjid'), search, body);
+  box.replaceChildren(h('h2', {}, 'Direktori Masjid'), calendarPanel(), search, body);
 }
 
 async function loadMore() {
@@ -90,6 +91,7 @@ function renderDetail(m) {
       row('Wilayah', [m.city, m.province].filter(Boolean).join(', ') || 'Belum diisi'),
       row('Kontak resmi', m.contact_phone ? (tel ? h('a', { class: 'link', href: tel }, m.contact_phone) : m.contact_phone) : 'Belum diisi'),
       hasMap ? row('Lokasi', h('a', { class: 'link', href: 'https://www.google.com/maps?q=' + lat + ',' + lng, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps')) : ''),
+    prayerPanel(m),
     m.description ? h('div', { class: 'panel' }, h('h3', {}, 'Tentang masjid'), h('p', { class: 'prewrap' }, m.description)) : '',
     chips.length ? h('div', { class: 'panel' }, h('h3', {}, 'Fasilitas'), h('div', { class: 'chips' }, chips.map(c => h('span', { class: 'chip' }, c)))) : '');
   window.scrollTo(0, 0);

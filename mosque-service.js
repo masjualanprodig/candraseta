@@ -61,7 +61,7 @@ export async function acceptMyInvitations() {
 
 /* ===== Tahap 3: pengelolaan masjid oleh Admin Masjid ===== */
 export async function getMosque(id) {
-  const rows = await db('mosques', { query: 'select=id,name,address,city,province,contact_phone,status,description,facilities,latitude,longitude&id=eq.' + enc(id) });
+  const rows = await db('mosques', { query: 'select=id,name,address,city,province,contact_phone,status,description,facilities,latitude,longitude,timezone&id=eq.' + enc(id) });
   return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
 
@@ -71,7 +71,7 @@ export async function updateMosqueProfile(id, f) {
     method: 'PATCH', query: 'id=eq.' + enc(id), prefer: 'return=representation',
     body: {
       name: f.name, address: f.address, city: f.city, province: f.province, contact_phone: f.contact_phone,
-      description: f.description, facilities: f.facilities, latitude: f.latitude, longitude: f.longitude
+      description: f.description, facilities: f.facilities, latitude: f.latitude, longitude: f.longitude, timezone: f.timezone
     }
   });
   if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 });
