@@ -2,9 +2,13 @@
 // Tampilan sementara untuk pengguna non-Super Admin (dashboard per peran dibangun di tahap berikutnya).
 import { h, STATUS_LABEL } from './ui.js';
 import { ROLE_LABEL } from './permissions.js';
+import { renderMosque } from './dashboard-mosque.js';
 
-export function renderMember(box, memberships) {
+export async function renderMember(box, memberships) {
   const rows = memberships.filter(m => m.mosques);
+  // Admin Masjid dari masjid aktif: tampilkan dashboard pengelolaan (satu masjid; jika lebih, yang pertama).
+  const mine = rows.find(m => m.role === 'admin_masjid' && m.mosques.status === 'active');
+  if (mine) { await renderMosque(box, mine.mosques.id); return; }
   box.replaceChildren(
     h('h2', {}, 'Selamat datang'),
     rows.length

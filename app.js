@@ -48,7 +48,7 @@ async function enterApp() {
     const access = await loadAccess(me);
     if (access.isAdmin) { const role = $('app-role'); role.textContent = 'Super Admin'; role.hidden = false; }
     if (access.isAdmin) await renderAdmin(box);
-    else renderMember(box, access.memberships);
+    else await renderMember(box, access.memberships);
   } catch (e) {
     if (e.status === 401) return;
     console.error(e);

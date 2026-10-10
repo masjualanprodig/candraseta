@@ -84,3 +84,5 @@ select.in{appearance:auto}
 .b-inv-pending{background:#fff3d6;color:#7a5600}
 .b-inv-accepted{background:#e0f2ea;color:#066755}
 .b-inv-revoked{background:#eee;color:#666}
+.mpanel h4.mt2{margin-top:1.1rem}
+.panel .mpanel{border:0;padding:0;background:transparent;margin:0}
