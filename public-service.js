@@ -3,7 +3,7 @@
 // Dibatasi di database (RLS + hak kolom untuk anon), bukan hanya di sini.
 import { request } from './supabase.js';
 
-const COLS = 'id,name,address,city,province,contact_phone,description,facilities,latitude,longitude,timezone';
+const COLS = 'id,name,address,city,province,contact_phone,description,facilities,latitude,longitude,timezone,photo_path';
 export const PAGE_SIZE = 24;
 
 // Menghapus karakter yang merusak sintaks filter PostgREST (koma, kurung, bintang, kutip, dll.).

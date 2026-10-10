@@ -4,16 +4,39 @@
 import { $, h } from './ui.js';
 import { show } from './router.js';
 import { searchMosques, fetchProvinces, PAGE_SIZE } from './public-service.js';
-import { prayerPanel, calendarPanel } from './schedule-ui.js';
+import { prayerPanel } from './schedule-ui.js';
+import { calendarView, calendarSupported } from './calendar-ui.js';
+import { publicPhotoUrl } from './supabase.js';
 
 let onBack = () => {};
-let state = { q: '', province: '', items: [], more: false, loaded: false, provinces: null, error: false };
+let state = { tab: 'dir', q: '', province: '', items: [], more: false, loaded: false, provinces: null, error: false };
 
-export function openDirectory(from, back) {
+export function openDirectory(from, back, tab) {
   onBack = back;
+  if (tab) state.tab = tab;
   $('public-back').textContent = from === 'app' ? 'Kembali' : 'Masuk';
   show('public');
+  if (state.tab === 'cal') { renderCalendar(); return; }
   if (!state.loaded) load(true); else renderList();
+}
+
+function tabs() {
+  const t = (label, key) => h('button', {
+    class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(state.tab === key),
+    onclick: () => { state.tab = key; if (key === 'cal') renderCalendar(); else if (!state.loaded) load(true); else renderList(); }
+  }, label);
+  return h('div', { class: 'tabs', role: 'tablist' }, t('Masjid', 'dir'), t('Kalender Islam', 'cal'));
+}
+
+function renderCalendar() {
+  const box = $('public-content');
+  if (!calendarSupported()) {
+    box.replaceChildren(tabs(), h('div', { class: 'panel' }, h('p', { class: 'muted' }, 'Peramban ini belum mendukung kalender Hijriah. Tanggal Hijriah perlu dikonfirmasi dari pengumuman resmi.')));
+    return;
+  }
+  const v = calendarView();
+  box.replaceChildren(tabs(), v.el);
+  v.mount();
 }
 $('public-back').addEventListener('click', () => onBack());
 
@@ -21,7 +44,7 @@ async function load(reset) {
   const box = $('public-content');
   if (reset) { state.items = []; state.more = false; }
   state.error = false; state.loaded = true;
-  box.replaceChildren(h('p', { class: 'muted center' }, 'Memuat…'));
+  box.replaceChildren(tabs(), h('p', { class: 'muted center' }, 'Memuat…'));
   try {
     if (!state.provinces) state.provinces = await fetchProvinces();
     const rows = await searchMosques({ q: state.q, province: state.province, offset: state.items.length });
@@ -54,6 +77,7 @@ function renderList() {
   } else {
     body = h('div', { class: 'panel' },
       state.items.map(m => h('div', { class: 'mrow' },
+        thumb(m),
         h('div', { class: 'minfo' },
           h('strong', {}, m.name),
           h('div', { class: 'muted' }, [m.city, m.province].filter(Boolean).join(', ') || 'Lokasi belum diisi')),
@@ -62,7 +86,7 @@ function renderList() {
           h('button', { class: 'btn-sm ghost', onclick: () => renderDetail(m) }, 'Lihat profil')))),
       state.more ? h('div', { class: 'mt center' }, h('button', { class: 'btn-sm ghost', onclick: () => loadMore() }, 'Muat lebih banyak')) : '');
   }
-  box.replaceChildren(h('h2', {}, 'Direktori Masjid'), calendarPanel(), search, body);
+  box.replaceChildren(tabs(), search, body);
 }
 
 async function loadMore() {
@@ -74,6 +98,11 @@ async function loadMore() {
 }
 
 // Hanya angka/tanda telepon yang boleh masuk ke tautan tel:.
+function thumb(m) {
+  const u = publicPhotoUrl(m.photo_path);
+  return u ? h('img', { class: 'thumb', src: u, alt: 'Foto ' + m.name, loading: 'lazy' }) : h('div', { class: 'thumb thumb-empty', 'aria-hidden': 'true' });
+}
+
 const telHref = p => /^[0-9+\-\s()]{5,30}$/.test(p || '') ? 'tel:' + p.replace(/[^0-9+]/g, '') : null;
 
 function renderDetail(m) {
@@ -84,6 +113,7 @@ function renderDetail(m) {
   const row = (label, content) => h('div', { class: 'drow' }, h('div', { class: 'muted' }, label), h('div', {}, content));
   $('public-content').replaceChildren(
     h('button', { class: 'btn-sm ghost', onclick: renderList }, '← Daftar masjid'),
+    publicPhotoUrl(m.photo_path) ? h('img', { class: 'hero', src: publicPhotoUrl(m.photo_path), alt: 'Foto ' + m.name }) : '',
     h('h2', { class: 'mt' }, m.name),
     h('span', { class: 'badge b-active' }, 'Terverifikasi'),
     h('div', { class: 'panel' },

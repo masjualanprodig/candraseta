@@ -1,0 +1,36 @@
+// BAITUNA - photo.js
+// Menyiapkan foto masjid: 1 foto, hasil akhir maksimal 2 MB (JPEG/PNG/WebP).
+// Foto diubah ulang lewat kanvas: ukuran diperkecil (sisi terpanjang 1600 px), orientasi dirapikan,
+// dan data tersembunyi (EXIF, termasuk lokasi GPS kamera) otomatis terbuang.
+export const MAX_BYTES = 2 * 1024 * 1024;   // batas yang juga dipasang di Storage
+export const MAX_INPUT = 25 * 1024 * 1024;  // berkas asli yang terlalu besar langsung ditolak
+const MAX_SIDE = 1600;
+
+export const PHOTO_ERRORS = {
+  type: 'Format foto harus JPEG, PNG, atau WebP.',
+  big: 'Berkas terlalu besar (maksimal 25 MB sebelum diperkecil).',
+  decode: 'Foto tidak bisa dibaca. Coba foto lain.',
+  size: 'Foto tetap lebih dari 2 MB setelah diperkecil. Coba foto lain.'
+};
+
+export async function prepareImage(file) {
+  if (!file || !/^image\/(jpeg|png|webp)$/.test(file.type)) throw { code: 'type' };
+  if (file.size > MAX_INPUT) throw { code: 'big' };
+  let bmp;
+  try { bmp = await createImageBitmap(file); } catch (e) { throw { code: 'decode' }; }
+  const scale = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+  const w = Math.max(1, Math.round(bmp.width * scale)), h = Math.max(1, Math.round(bmp.height * scale));
+  const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); // PNG transparan -> latar putih
+  ctx.drawImage(bmp, 0, 0, w, h);
+  if (bmp.close) bmp.close();
+  for (const q of [0.85, 0.75, 0.65, 0.5, 0.4]) {
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', q));
+    if (blob && blob.size <= MAX_BYTES) return { blob, width: w, height: h, originalSize: file.size };
+  }
+  throw { code: 'size' };
+}
+
+// Nama file unik tiap unggahan: "<id-masjid>/<waktu>.jpg" (file lama tidak ditimpa).
+export const newPhotoPath = mosqueId => mosqueId + '/' + Date.now() + '.jpg';

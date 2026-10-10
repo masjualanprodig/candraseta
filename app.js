@@ -94,8 +94,10 @@ $('register').addEventListener('click', e => {
 });
 
 /* ===== Direktori publik ===== */
-$('open-directory').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login')); });
-$('nav-dir').addEventListener('click', () => openDirectory('app', () => enterApp()));
+$('open-directory').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'dir'); });
+$('open-calendar').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'cal'); });
+$('nav-dir').addEventListener('click', () => openDirectory('app', () => enterApp(), 'dir'));
+$('nav-cal').addEventListener('click', () => openDirectory('app', () => enterApp(), 'cal'));
 
 /* ===== Reset password ===== */
 $('reset-form').addEventListener('submit', async e => {

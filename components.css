@@ -105,3 +105,55 @@ select.in{appearance:auto}
 .calpanel summary::-webkit-details-marker{display:none}
 .calpanel summary::after{content:"Lihat hari besar ▾";color:var(--teal);font-weight:700;font-size:.82rem;margin-top:.3rem}
 .calpanel[open] summary::after{content:"Tutup ▴"}
+/* ---- foto masjid ---- */
+.thumb{width:64px;height:64px;border-radius:14px;object-fit:cover;flex:none;background:var(--ivory);border:1px solid var(--line)}
+.thumb-empty{background:var(--ivory) url("logo.png") center/55% no-repeat;opacity:.55}
+.hero{display:block;width:100%;max-height:260px;aspect-ratio:16/9;object-fit:cover;border-radius:22px;border:1px solid var(--line);background:var(--ivory)}
+.photo-prev{display:block;width:100%;max-height:240px;object-fit:cover;border-radius:16px;border:1px solid var(--line)}
+.photo-empty{display:grid;place-items:center;height:120px;border:1.5px dashed var(--line);border-radius:16px;color:var(--sage);font-size:.9rem}
+.mrow .thumb{margin-right:.2rem}
+/* ---- tab & kalender ---- */
+.tabs{display:flex;gap:.4rem;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.25rem;margin:.2rem 0 1rem}
+.tab{flex:1;border:0;border-radius:999px;padding:.55rem .6rem;font:inherit;font-weight:700;font-size:.9rem;background:transparent;color:var(--teal);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--teal);color:#fff}
+.calwrap{background:#fff;border:1px solid var(--line);border-radius:22px;padding:.8rem .5rem 1rem;margin:0 0 1rem}
+.calbar{display:flex;align-items:center;gap:.4rem}
+.calbar .ct{flex:1;text-align:center;min-width:0}
+.calbar .ct b{display:block;font-size:1.2rem;color:var(--teal)}
+.calbar .ct span{display:block;font-size:.74rem;color:var(--sage)}
+.calnav{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:1.5rem;line-height:1;color:var(--teal);cursor:pointer;flex:none}
+.calnav:disabled{opacity:.35;cursor:default}
+.calbar2{display:flex;justify-content:center;margin:.5rem 0 .3rem}
+.caltrack{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;outline-offset:2px}
+.caltrack::-webkit-scrollbar{display:none}
+.calslide{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;min-width:0}
+.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.caldow{text-align:center;font-size:.72rem;font-weight:700;color:var(--sage);padding:.35rem 0}
+.caldow.sun{color:var(--danger)}
+.calcell{min-height:68px;border-radius:10px;padding:.25rem .08rem;display:flex;flex-direction:column;align-items:center;gap:.08rem;background:transparent;border:1px solid transparent;font:inherit;color:var(--teal-d);min-width:0}
+.calcell.blank{pointer-events:none}
+.calcell .g{font-size:.95rem;font-weight:700;width:1.8rem;height:1.8rem;display:grid;place-items:center;border-radius:50%}
+.calcell .hj{font-size:.6rem;color:var(--sage);white-space:nowrap}
+.calcell.sun .g{color:var(--danger)}
+.calcell.today .g{background:var(--teal);color:#fff}
+.calcell.ev{background:#fff8e6;border-color:#f0d9a0;cursor:pointer}
+.calcell.ev:focus-visible{outline:3px solid var(--gold)}
+.calcell .evn{font-size:.54rem;line-height:1.12;font-weight:700;color:#7a5600;text-align:center;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
+.callegend{margin-top:.6rem;padding:0 .4rem}
+.callegend h4{font-size:.95rem;font-weight:800;color:var(--teal);margin:.4rem 0}
+.legrow{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;background:var(--ivory);border:1px solid var(--line);border-radius:14px;padding:.6rem .7rem;margin-bottom:.45rem;font:inherit;color:var(--teal-d);cursor:pointer}
+.legdate{flex:none;width:2.2rem;height:2.2rem;border-radius:50%;background:#fff3d6;color:#7a5600;font-weight:800;display:grid;place-items:center}
+.leginfo{flex:1;display:flex;flex-direction:column;min-width:0;font-size:.9rem}
+.leginfo .muted{font-size:.78rem}
+.legarrow{color:var(--teal);font-size:1.4rem}
+/* ---- popup hari besar ---- */
+.evdlg{width:min(94vw,560px);max-height:88vh;padding:1.2rem 1.2rem 1rem;display:none}
+.evdlg[open]{display:flex;flex-direction:column}
+.evbody{overflow-y:auto;padding-right:.2rem}
+.evbody h3{font-size:1.5rem;margin-bottom:.5rem}
+.evbody h4{font-size:.95rem;font-weight:800;color:var(--teal);margin:1.1rem 0 .4rem}
+.ev-dates{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.8rem}
+.ev-dates>div{background:var(--ivory);border:1px solid var(--line);border-radius:14px;padding:.6rem .8rem;font-size:.9rem}
+.ev-p{line-height:1.6;margin-bottom:.5rem}
+.ev-ul{padding-left:1.2rem;line-height:1.6}
+.ev-note{margin-top:.9rem;background:#fff6e0;color:#7a5600;border-radius:12px;padding:.7rem .9rem;font-size:.88rem;line-height:1.5}

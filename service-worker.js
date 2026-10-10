@@ -1,11 +1,11 @@
 // BAITUNA - service-worker.js
 // Cache aset statis agar aplikasi cepat dan bisa dibuka offline (hanya tampilan dasar).
 // Data Supabase TIDAK pernah disimpan di cache.
-const CACHE = 'baituna-static-v2';
+const CACHE = 'baituna-static-v3';
 const ASSETS = [
   './', 'index.html', 'style.css', 'components.css', 'responsive.css',
   'config.js', 'supabase.js', 'auth.js', 'router.js', 'permissions.js', 'ui.js',
-  'mosque-service.js', 'public-service.js', 'directory.js', 'schedule-ui.js', 'prayer-times.js', 'islamic-calendar.js', 'team-panel.js', 'dashboard-admin.js', 'dashboard-member.js', 'dashboard-mosque.js', 'app.js',
+  'mosque-service.js', 'public-service.js', 'directory.js', 'schedule-ui.js', 'calendar-ui.js', 'photo.js', 'prayer-times.js', 'islamic-calendar.js', 'team-panel.js', 'dashboard-admin.js', 'dashboard-member.js', 'dashboard-mosque.js', 'app.js',
   'logo.png', 'masjid.svg', 'manifest.json', 'icon-192.png', 'icon-512.png'
 ];
 

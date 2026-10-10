@@ -84,3 +84,29 @@ export async function db(table, opts = {}) {
   }
   return r.data;
 }
+
+/* ===== Storage (foto masjid) ===== */
+const PHOTO_BUCKET = 'mosque-photos';
+const encPath = p => String(p).split('/').map(encodeURIComponent).join('/');
+
+// Alamat publik foto (bucket publik). Dikembalikan null jika belum ada foto.
+export const publicPhotoUrl = p => p ? API + '/storage/v1/object/public/' + PHOTO_BUCKET + '/' + encPath(p) : null;
+
+async function storageCall(path, init) {
+  const token = await validToken();
+  if (!token) { expiredHandler(); throw Object.assign(new Error('Tidak ada sesi'), { status: 401 }); }
+  let res;
+  try {
+    res = await fetch(API + '/storage/v1/object/' + PHOTO_BUCKET + '/' + encPath(path),
+      { ...init, headers: { apikey: KEY, Authorization: 'Bearer ' + token, ...(init.headers || {}) } });
+  } catch (e) { throw Object.assign(new Error('offline'), { status: 0 }); }
+  if (res.status === 401) { setSession(null); expiredHandler(); }
+  if (!res.ok) {
+    let msg = ''; try { msg = (await res.json()).message || ''; } catch (e) {}
+    throw Object.assign(new Error(msg || 'HTTP ' + res.status), { status: res.status });
+  }
+}
+export const storageUpload = (path, blob) => storageCall(path, {
+  method: 'POST', body: blob, headers: { 'Content-Type': blob.type, 'x-upsert': 'false', 'cache-control': 'max-age=31536000' }
+});
+export const storageRemove = path => storageCall(path, { method: 'DELETE' });

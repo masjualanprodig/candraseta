@@ -61,7 +61,7 @@ export async function acceptMyInvitations() {
 
 /* ===== Tahap 3: pengelolaan masjid oleh Admin Masjid ===== */
 export async function getMosque(id) {
-  const rows = await db('mosques', { query: 'select=id,name,address,city,province,contact_phone,status,description,facilities,latitude,longitude,timezone&id=eq.' + enc(id) });
+  const rows = await db('mosques', { query: 'select=id,name,address,city,province,contact_phone,status,description,facilities,latitude,longitude,timezone,photo_path&id=eq.' + enc(id) });
   return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
 
@@ -84,4 +84,10 @@ export async function fetchTeam(mosqueId) {
 
 export async function revokeMember(memberId) {
   await db('rpc/revoke_member', { method: 'POST', body: { p_member: memberId } });
+}
+
+// Menyimpan lokasi foto (atau null untuk menghapus). Hasilnya diperiksa agar tidak ada "sukses palsu".
+export async function setMosquePhoto(id, path) {
+  const out = await db('mosques', { method: 'PATCH', query: 'id=eq.' + enc(id), prefer: 'return=representation', body: { photo_path: path } });
+  if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 });
 }

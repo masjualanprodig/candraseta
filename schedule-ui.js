@@ -25,22 +25,3 @@ export function prayerPanel(m, now = Date.now()) {
     h('p', { class: 'hint' }, 'Dihitung otomatis dari koordinat masjid: Subuh ' + METHOD.fajr + '°, Isya ' + METHOD.isha +
       '°, Ashar mazhab Syafi’i, ihtiyat ' + METHOD.ihtiyat + ' menit (acuan Kemenag RI). Bisa berbeda beberapa menit dari jadwal resmi; ikuti pengumuman masjid.'));
 }
-
-export function calendarPanel(now = new Date()) {
-  const y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
-  if (!cal.supported()) {
-    return h('div', { class: 'panel' }, h('h3', {}, 'Kalender Islam'),
-      h('p', { class: 'muted' }, 'Peramban ini belum mendukung kalender Hijriah. Tanggal Hijriah perlu dikonfirmasi dari pengumuman resmi.'));
-  }
-  const today = cal.hijriOf(y, m, d);
-  const events = cal.upcomingEvents(y, m, d, 5);
-  return h('details', { class: 'panel calpanel' },
-    h('summary', {},
-      h('div', {}, h('strong', {}, 'Kalender Islam')),
-      h('div', { class: 'caltoday' }, h('b', {}, cal.masehiText(y, m, d)), h('div', { class: 'muted' }, cal.hijriText(today) + ' (perkiraan)'))),
-    h('h4', { class: 'mt2' }, 'Hari besar mendatang'),
-    events.map(e => h('div', { class: 'irow' },
-      h('div', { class: 'minfo' }, h('strong', {}, e.name), h('div', { class: 'muted' }, cal.masehiText(e.y, e.m, e.d) + ' \u00b7 ' + cal.hijriText(e.hijri))),
-      h('span', { class: 'badge b-pending' }, e.inDays === 0 ? 'Hari ini' : e.inDays + ' hari lagi'))),
-    h('p', { class: 'hint' }, 'Tanggal Hijriah adalah PERKIRAAN (kalender Umm al-Qura) dan perlu dikonfirmasi. Penetapan resmi di Indonesia mengikuti pengumuman Kemenag (sidang isbat) dan bisa berbeda 1\u20132 hari. Pergantian hari saat Maghrib belum diperhitungkan.'));
-}

@@ -1,7 +1,9 @@
 // BAITUNA - dashboard-mosque.js
 // Dashboard Admin Masjid: profil masjid, tim pengurus, dan undangan.
-import { h, toast, hint } from './ui.js';
-import { getMosque, updateMosqueProfile, fetchTeam, listInvitations } from './mosque-service.js';
+import { h, toast, hint, ask } from './ui.js';
+import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, setMosquePhoto } from './mosque-service.js';
+import { prepareImage, newPhotoPath, PHOTO_ERRORS, MAX_BYTES } from './photo.js';
+import { storageUpload, storageRemove, publicPhotoUrl } from './supabase.js';
 import { teamPanel } from './team-panel.js';
 import { getSession } from './supabase.js';
 
@@ -56,9 +58,54 @@ export async function renderMosque(box, mosqueId) {
     h('div', { class: 'grid2' }, lat, lng),
     h('p', { class: 'hint' }, 'Zona waktu dipakai untuk menghitung jadwal salat masjid ini.'), tz, h('div', { class: 'mt' }, btn));
 
+  // ----- Foto masjid (1 foto, maksimal 2 MB) -----
+  const url = publicPhotoUrl(mosque.photo_path);
+  const status = h('p', { class: 'hint' }, '1 foto, maksimal 2 MB (JPEG, PNG, atau WebP). Foto yang lebih besar otomatis diperkecil.');
+  const pick = h('input', { class: 'in', type: 'file', accept: 'image/jpeg,image/png,image/webp', 'aria-label': 'Pilih foto masjid' });
+  const del = mosque.photo_path ? h('button', { class: 'btn-sm alt', type: 'button' }, 'Hapus foto') : '';
+  const lock = on => { pick.disabled = on; if (del) del.disabled = on; };
+  pick.addEventListener('change', async () => {
+    const file = pick.files && pick.files[0]; if (!file) return;
+    lock(true); status.textContent = 'Memproses foto…';
+    let uploaded = null;
+    try {
+      const img = await prepareImage(file);
+      status.textContent = 'Mengunggah…';
+      uploaded = newPhotoPath(mosqueId);
+      await storageUpload(uploaded, img.blob);
+      await setMosquePhoto(mosqueId, uploaded);
+      if (mosque.photo_path) storageRemove(mosque.photo_path).catch(() => {}); // foto lama dibersihkan (jika gagal, tidak mengganggu)
+      toast('Foto masjid disimpan.');
+      await refresh(); return;
+    } catch (e) {
+      if (uploaded) storageRemove(uploaded).catch(() => {}); // unggahan yatim dibersihkan bila penyimpanan lokasi gagal
+      if (e && e.status === 401) return;
+      const msg = e && PHOTO_ERRORS[e.code] ? PHOTO_ERRORS[e.code]
+        : e && e.status === 0 ? 'Tidak ada koneksi internet.'
+        : e && (e.status === 413) ? 'Foto lebih dari 2 MB.'
+        : 'Foto belum tersimpan. ' + hint(e);
+      status.textContent = msg; toast(msg, true);
+    }
+    pick.value = ''; lock(false);
+  });
+  if (del) del.addEventListener('click', async () => {
+    if (!(await ask({ title: 'Hapus foto masjid?', text: 'Foto tidak akan tampil lagi di direktori.', reason: false }))) return;
+    lock(true);
+    try {
+      await setMosquePhoto(mosqueId, null);
+      storageRemove(mosque.photo_path).catch(() => {});
+      toast('Foto dihapus.'); await refresh(); return;
+    } catch (e) { if (e.status !== 401) toast('Foto belum terhapus. ' + hint(e), true); }
+    lock(false);
+  });
+  const photoPanel = h('div', { class: 'panel' }, h('h3', {}, 'Foto masjid'),
+    url ? h('img', { class: 'photo-prev', src: url, alt: 'Foto ' + mosque.name }) : h('div', { class: 'photo-empty' }, 'Belum ada foto'),
+    status, h('div', { class: 'mt' }, pick), del);
+
   box.replaceChildren(
     h('h2', {}, mosque.name),
     h('p', { class: 'muted' }, 'Dashboard Admin Masjid'),
+    photoPanel,
     form,
     h('div', { class: 'panel' }, teamPanel({
       mosqueId, team, invites: allInvites.filter(i => i.mosque_id === mosqueId),
