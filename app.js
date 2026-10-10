@@ -5,6 +5,7 @@ import { show } from './router.js';
 import { onSessionExpired, restoreSession, getSession, setSession, validToken } from './supabase.js';
 import { signIn, signOut, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
 import { loadAccess } from './permissions.js';
+import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
 
@@ -42,6 +43,8 @@ async function enterApp() {
   box.replaceChildren(h('p', { class: 'muted center' }, 'Memuat…'));
   show('app');
   try {
+    const accepted = await acceptMyInvitations();
+    if (accepted > 0) toast('Undangan diterima. Anda kini terdaftar sebagai pengurus.');
     const access = await loadAccess(me);
     if (access.isAdmin) { const role = $('app-role'); role.textContent = 'Super Admin'; role.hidden = false; }
     if (access.isAdmin) await renderAdmin(box);

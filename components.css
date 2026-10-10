@@ -75,3 +75,12 @@ dialog::backdrop{background:rgba(4,40,33,.5)}
 .apphead>div.who{gap:.1rem}
 .apphead .who .muted{font-size:.8rem}
 .rolebadge{align-self:flex-start;background:#e0f2ea;color:var(--teal);border-radius:999px;padding:.12rem .6rem;font-size:.7rem;font-weight:700;letter-spacing:.02em}
+.btn-sm.ghost{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.mpanel{flex:1 1 100%;background:var(--ivory);border:1px solid var(--line);border-radius:16px;padding:.9rem;margin-top:.2rem}
+.mpanel h4{font-size:.95rem;font-weight:800;color:var(--teal);margin-bottom:.6rem}
+select.in{appearance:auto}
+.irow{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:.7rem 0}
+.irow:first-of-type{border-top:0}
+.b-inv-pending{background:#fff3d6;color:#7a5600}
+.b-inv-accepted{background:#e0f2ea;color:#066755}
+.b-inv-revoked{background:#eee;color:#666}

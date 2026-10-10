@@ -50,7 +50,7 @@ export async function readEmailLink() {
     history.replaceState(null, '', location.pathname);
     return { error: p.get('error_code') === 'otp_expired' ? 'Tautan sudah kedaluwarsa. Minta tautan baru.' : 'Tautan tidak valid.' };
   }
-  if (p.get('type') === 'recovery' && p.get('access_token')) {
+  if ((p.get('type') === 'recovery' || p.get('type') === 'invite') && p.get('access_token')) {
     const tok = p.get('access_token');
     const r = await request('/auth/v1/user', { token: tok });
     history.replaceState(null, '', location.pathname);

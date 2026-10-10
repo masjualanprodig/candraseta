@@ -33,3 +33,28 @@ export async function updateMosqueStatus(id, status, reason) {
   });
   if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 });
 }
+
+/* ===== Undangan pengurus ===== */
+export async function listInvitations() {
+  const rows = await db('mosque_invitations', { query: 'select=id,mosque_id,email,role,status,expires_at,created_at&order=created_at.desc' });
+  return Array.isArray(rows) ? rows : [];
+}
+
+export async function createInvitation(mosqueId, email, role) {
+  await db('mosque_invitations', { method: 'POST', prefer: 'return=minimal', body: { mosque_id: mosqueId, email: email.trim().toLowerCase(), role, status: 'pending' } });
+}
+
+export async function revokeInvitation(id) {
+  const out = await db('mosque_invitations', {
+    method: 'PATCH', query: 'id=eq.' + enc(id) + '&status=eq.pending', prefer: 'return=representation', body: { status: 'revoked' }
+  });
+  if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 });
+}
+
+// Dipanggil setelah login. Mengembalikan jumlah undangan yang baru diterima (0 jika tidak ada/belum tersedia).
+export async function acceptMyInvitations() {
+  try {
+    const n = await db('rpc/accept_my_invitations', { method: 'POST', body: {} });
+    return Number(n) || 0;
+  } catch (e) { if (e.status === 401) throw e; return 0; }
+}
