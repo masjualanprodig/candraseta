@@ -97,9 +97,11 @@ $('register').addEventListener('click', e => {
 /* ===== Direktori publik ===== */
 $('open-directory').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'dir'); });
 $('open-agenda').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'info'); });
+$('open-world').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'world'); });
 $('open-calendar').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'cal'); });
 $('nav-dir').addEventListener('click', () => openDirectory('app', () => enterApp(), 'dir'));
 $('nav-info').addEventListener('click', () => openDirectory('app', () => enterApp(), 'info'));
+$('nav-world').addEventListener('click', () => openDirectory('app', () => enterApp(), 'world'));
 $('nav-cal').addEventListener('click', () => openDirectory('app', () => enterApp(), 'cal'));
 
 /* Logo/nama di pojok kiri atas = kembali ke beranda */

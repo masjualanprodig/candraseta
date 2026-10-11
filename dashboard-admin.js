@@ -6,6 +6,8 @@ import { listMosques, createMosque, updateMosqueStatus, listInvitations, fetchTe
 import { INVITE_ROLES } from './permissions.js';
 import { teamPanel } from './team-panel.js';
 import { getSession } from './supabase.js';
+import { renderWorldManager } from './world-ui.js';
+import { icon, ICONS } from './feed-ui.js';
 
 const ACTIONS = {
   approve: { title: 'Aktifkan masjid?', text: 'Masjid akan tampil sebagai masjid terverifikasi. Pastikan identitasnya sudah diperiksa.', reason: false, to: 'active', done: 'Masjid diaktifkan.' },
@@ -92,6 +94,7 @@ export async function renderAdmin(box) {
   box.replaceChildren(
     h('h2', {}, 'Dashboard Super Admin'),
     stats,
+    h('div', { class: 'actions' }, h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => renderAdmin(box)) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia'))),
     form,
     h('div', { class: 'panel' },
       h('h3', {}, 'Daftar masjid (' + list.length + ')'),
