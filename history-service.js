@@ -11,7 +11,7 @@ export async function listHistory() {
   return Array.isArray(r.data) ? r.data : [];
 }
 const one = out => { if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 }); return out[0]; };
-const fields = f => ({ title: f.title, period: f.period, summary: f.summary, body: f.body, source: f.source, sort_order: f.sort_order });
+const fields = f => ({ title: f.title, period: f.period, summary: f.summary, body: f.body, source: f.source });
 
 export async function createHistory(id, f, photoPath) {
   return one(await db('history_entries', { method: 'POST', prefer: 'return=representation', body: { id, ...fields(f), photo_path: photoPath || null } }));

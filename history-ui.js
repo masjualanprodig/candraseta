@@ -75,8 +75,7 @@ export async function renderHistoryManager(box, onBack) {
   let editing = null;
 
   const title = h('input', { class: 'in', placeholder: 'Judul *', maxlength: '150', autocomplete: 'off' });
-  const period = h('input', { class: 'in', placeholder: 'Periode / tahun (mis. abad ke-7 M)', maxlength: '80', autocomplete: 'off' });
-  const order = h('input', { class: 'in', type: 'number', inputmode: 'numeric', min: '0', max: '9999', step: '1', value: '100', 'aria-label': 'Urutan' });
+  const period = h('input', { class: 'in', placeholder: 'Mis. abad ke-7 M', maxlength: '80', autocomplete: 'off' });
   const summary = h('textarea', { class: 'in', placeholder: 'Ringkasan singkat (tampil di daftar, maks. 400 karakter)', maxlength: '400' });
   const body = h('textarea', { class: 'in tall', placeholder: 'Isi tulisan (maks. 10.000 karakter)', maxlength: '10000' });
   const source = h('textarea', { class: 'in', placeholder: 'Sumber / rujukan (kitab, buku, tautan). Sangat disarankan.', maxlength: '500' });
@@ -92,9 +91,7 @@ export async function renderHistoryManager(box, onBack) {
       ev.preventDefault();
       const t = title.value.trim();
       if (t.length < 3) { toast('Judul minimal 3 karakter.', true); return; }
-      const so = order.value.trim() === '' ? 100 : Number(order.value);
-      if (!Number.isInteger(so) || so < 0 || so > 9999) { toast('Urutan harus bilangan bulat 0 sampai 9999.', true); return; }
-      const f = { title: t, period: period.value.trim() || null, summary: summary.value.trim() || null, body: body.value.trim() || null, source: source.value.trim() || null, sort_order: so };
+      const f = { title: t, period: period.value.trim() || null, summary: summary.value.trim() || null, body: body.value.trim() || null, source: source.value.trim() || null };
       const file = pick.files && pick.files[0];
       save.disabled = true;
       let uploaded = null;
@@ -128,14 +125,13 @@ export async function renderHistoryManager(box, onBack) {
       }
       save.disabled = false;
     }
-  }, formTitle, title, h('div', { class: 'grid2' }, period, order),
-    h('p', { class: 'hint' }, 'Urutan: angka kecil tampil lebih dulu (mis. 10, 20, 30). Beri jarak agar mudah menyisipkan.'),
+  }, formTitle, title, h('label', { class: 'hint' }, 'Periode / tahun (tampil sebagai label di kartu)'), period,
     summary, body, source, h('label', { class: 'hint' }, 'Foto'), pick, status,
     h('div', { class: 'mt row-btns' }, save, cancel));
 
   function edit(e) {
     editing = e; formTitle.textContent = 'Ubah: ' + e.title;
-    title.value = e.title; period.value = e.period || ''; order.value = String(e.sort_order);
+    title.value = e.title; period.value = e.period || '';
     summary.value = e.summary || ''; body.value = e.body || ''; source.value = e.source || '';
     if (e.photo_path) status.textContent = 'Foto sudah ada. Pilih foto baru hanya jika ingin menggantinya.';
     cancel.hidden = false; form.scrollIntoView({ behavior: 'smooth', block: 'start' }); title.focus();
@@ -143,7 +139,7 @@ export async function renderHistoryManager(box, onBack) {
 
   const item = e => h('div', { class: 'post wrow' },
     photoUrl(e) ? h('img', { class: 'fi-thumb', src: photoUrl(e), alt: '', loading: 'lazy' }) : h('div', { class: 'fi-thumb wimg-empty', 'aria-hidden': 'true' }),
-    h('div', { class: 'fi-main' }, h('b', {}, e.title), h('div', { class: 'muted' }, (e.period ? e.period + ' · ' : '') + 'urutan ' + e.sort_order),
+    h('div', { class: 'fi-main' }, h('b', {}, e.title), h('div', { class: 'muted' }, e.period || 'Tanpa periode'),
       h('div', { class: 'row-btns mt' },
         h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => edit(e) }, 'Ubah'),
         h('button', { class: 'btn-sm alt', type: 'button', onclick: async () => {
@@ -158,7 +154,7 @@ export async function renderHistoryManager(box, onBack) {
   box.replaceChildren(...[
     onBack ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: onBack }, '← Kembali ke dashboard') : '',
     h('h2', { class: 'mt' }, 'Kelola Sejarah Islam'),
-    h('p', { class: 'muted' }, 'Hanya Super Admin yang bisa menambah, mengubah, dan menghapus. Semua orang bisa membacanya di tab Sejarah. Cantumkan sumber untuk setiap tulisan.'),
+    h('p', { class: 'muted' }, 'Hanya Super Admin yang bisa menambah, mengubah, dan menghapus. Semua orang bisa membacanya di tab Sejarah, berurutan sesuai kapan tulisan dibuat (yang pertama dibuat tampil paling atas). Cantumkan sumber untuk setiap tulisan.'),
     form,
     h('div', { class: 'panel' }, h('h3', {}, 'Daftar (' + rows.length + ')'),
       rows.length ? rows.map(item) : h('p', { class: 'muted' }, 'Belum ada. Tambahkan tulisan sejarah pertama di atas.'))
