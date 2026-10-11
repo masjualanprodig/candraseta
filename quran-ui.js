@@ -9,6 +9,10 @@ const setQari = v => { try { localStorage.setItem(KEY, v); } catch { /* abaikan 
 const SIZES = [1.5, 1.8, 2.1, 2.5, 3];
 const getPref = () => { try { const p = JSON.parse(localStorage.getItem('baituna.quranpref.v1')); return { size: SIZES.includes(p.size) ? p.size : 2.1, font: p.font === 'sch' ? 'sch' : 'amiri' }; } catch { return { size: 2.1, font: 'amiri' }; } };
 const setPref = p => { try { localStorage.setItem('baituna.quranpref.v1', JSON.stringify(p)); } catch { /* abaikan */ } };
+const TSIZES = [0.95, 1.05, 1.2, 1.4, 1.65];
+const LAST = 'baituna.quranlast.v1';
+const getLast = () => { try { const v = JSON.parse(localStorage.getItem(LAST)); return v && Number.isInteger(v.n) && Number.isInteger(v.ayah) && v.n >= 1 && v.n <= 114 && v.ayah >= 1 ? v : null; } catch { return null; } };
+const setLast = (n, ayah) => { try { localStorage.setItem(LAST, JSON.stringify({ n, ayah })); } catch { /* abaikan */ } };
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9؀-ۿ]/g, '');
 
 let player = null; // satu pemutar saja agar tidak ada dua suara bersamaan
@@ -19,7 +23,7 @@ export function quranPage() {
   let surahs = [], q = '';
   stopPlayer();
   const pref = getPref();
-  const applyPref = () => { wrap.style.setProperty('--qsize', pref.size + 'rem'); wrap.dataset.font = pref.font; };
+  const applyPref = () => { wrap.style.setProperty('--qsize', pref.size + 'rem'); wrap.style.setProperty('--qtsize', TSIZES[SIZES.indexOf(pref.size)] + 'rem'); wrap.dataset.font = pref.font; };
   applyPref();
 
   const note = () => h('div', { class: 'panel qnote' }, h('h3', {}, 'Tentang sumber'),
@@ -45,21 +49,25 @@ export function quranPage() {
       col.replaceChildren(...(rows.length ? rows.map(row) : [h('p', { class: 'muted center' }, 'Tidak ada surat yang cocok.')]));
     };
     search.addEventListener('input', () => { q = search.value; fill(); });
-    wrap.replaceChildren(h('h2', { class: 'wtitle' }, 'Al-Qur’an'), h('p', { class: 'muted' }, '114 surat dengan terjemahan Indonesia dan audio per ayat.'), search, col, note());
+    const last = getLast(), ls = last && surahs.find(x => x.number === last.n);
+    const cont = ls && last.ayah <= ls.ayahs ? h('button', { class: 'qcont', type: 'button', onclick: () => open(last.n, last.ayah) },
+      h('span', {}, 'Lanjutkan membaca'), h('b', {}, ls.latin + ' · ayat ' + last.ayah)) : '';
+    wrap.replaceChildren(h('h2', { class: 'wtitle' }, 'Al-Qur’an'), h('p', { class: 'muted' }, '114 surat dengan terjemahan Indonesia dan audio per ayat.'), cont, search, col, note());
     fill();
   }
 
-  async function open(n) {
+  async function open(n, ayah) {
     wrap.replaceChildren(h('p', { class: 'muted center' }, 'Memuat surat…'));
     window.scrollTo(0, 0);
     let data;
     try { data = await loadSurah(n, getQari()); }
-    catch (e) { failure(() => open(n), e && e.code === 'BAD_DATA' ? 'Data surat dari server tidak lengkap, jadi tidak ditampilkan agar tidak salah. Coba lagi nanti.' : ''); return; }
-    read(data);
+    catch (e) { failure(() => open(n, ayah), e && e.code === 'BAD_DATA' ? 'Data surat dari server tidak lengkap, jadi tidak ditampilkan agar tidak salah. Coba lagi nanti.' : ''); return; }
+    read(data, ayah);
   }
 
-  function read(data) {
+  function read(data, startAyah) {
     stopPlayer();
+    { const l = getLast(); const keep = l && l.n === data.number && l.ayah <= data.ayahs.length; setLast(data.number, startAyah || (keep ? l.ayah : 1)); }
     let cur = -1, continuous = false, watch = 0;
     const urls = data.ayahs.map(a => a.audio);
     const cards = [], btns = [];
@@ -76,7 +84,7 @@ export function quranPage() {
       const a = new Audio(urls[i]); player = a; a.preload = 'auto';
       a.onended = () => { if (player !== a) return; if (continuous && i + 1 < urls.length) { play(i + 1); cards[i + 1].scrollIntoView({ block: 'center', behavior: 'smooth' }); } else stopAll(); };
       a.onerror = () => { if (player !== a) return; stopAll(); toast('Audio tidak bisa diputar. Periksa koneksi internet.', true); };
-      mark(i);
+      mark(i); setLast(data.number, i + 1); markStars();
       allBtn.textContent = continuous ? '❚❚ Hentikan' : '▶ Putar semua';
       const p = a.play(); if (p && p.catch) p.catch(() => { if (player === a) { stopAll(); toast('Audio tidak bisa diputar. Ketuk tombol putar sekali lagi.', true); } });
       // Berhenti sendiri bila halaman ditinggalkan (pindah tab).
@@ -99,11 +107,24 @@ export function quranPage() {
     fontSel.value = pref.font;
     fontSel.addEventListener('change', () => { pref.font = fontSel.value; setPref(pref); applyPref(); });
 
+    const stars = [];
+    const markStars = () => { const l = getLast(); stars.forEach((b, k) => { const on = !!l && l.n === data.number && l.ayah === k + 1; b.textContent = on ? '\u2605' : '\u2606'; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }); };
+    const jumpIn = h('input', { class: 'in qjump', type: 'number', inputmode: 'numeric', min: '1', max: String(data.ayahs.length), placeholder: 'Ke ayat (1\u2013' + data.ayahs.length + ')', 'aria-label': 'Nomor ayat tujuan' });
+    const go = () => {
+      const v = Number(jumpIn.value);
+      if (!Number.isInteger(v) || v < 1 || v > data.ayahs.length) { toast('Masukkan nomor ayat 1 sampai ' + data.ayahs.length + '.', true); return; }
+      const c = cards[v - 1]; c.scrollIntoView({ block: 'start', behavior: 'smooth' }); c.classList.add('jump'); setTimeout(() => c.classList.remove('jump'), 2000); jumpIn.blur();
+    };
+    jumpIn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+    const jumpBtn = h('button', { class: 'btn-sm', type: 'button', onclick: go }, 'Pergi');
+
     data.ayahs.forEach((a, i) => {
       const b = h('button', { class: 'qplay', type: 'button', 'aria-label': 'Putar ayat ' + a.n, onclick: () => { if (cur === i && player) stopAll(); else { continuous = false; allBtn.textContent = '▶ Putar semua'; play(i); } } }, '▶');
       btns.push(b);
+      const star = h('button', { class: 'qstar', type: 'button', 'aria-label': 'Tandai ayat ' + a.n + ' sebagai terakhir dibaca', onclick: () => { setLast(data.number, a.n); markStars(); toast('Ditandai: ayat ' + a.n + '.'); } }, '\u2606');
+      stars.push(star);
       cards.push(h('article', { class: 'ayah' },
-        h('div', { class: 'ahead' }, h('span', { class: 'snum sm' }, String(a.n)), b),
+        h('div', { class: 'ahead' }, h('span', { class: 'snum sm' }, String(a.n)), h('span', { class: 'abtns' }, star, b)),
         h('p', { class: 'arab', lang: 'ar', dir: 'rtl' }, a.ar),
         h('p', { class: 'atrans' }, a.id)));
     });
@@ -117,8 +138,11 @@ export function quranPage() {
         data.bismillah ? h('div', { class: 'bism arab', lang: 'ar', dir: 'rtl' }, data.bismillah) : ''),
       h('div', { class: 'qtools' }, sel, allBtn),
       h('div', { class: 'qtools2' }, sizeBtn('A\u2212', -1), sizeBtn('A+', 1), fontSel),
+      h('div', { class: 'qtools2' }, jumpIn, jumpBtn),
       ...cards,
       note());
+    markStars();
+    if (startAyah && startAyah > 1 && cards[startAyah - 1]) requestAnimationFrame(() => { cards[startAyah - 1].scrollIntoView({ block: 'start' }); cards[startAyah - 1].classList.add('jump'); setTimeout(() => cards[startAyah - 1].classList.remove('jump'), 2000); });
   }
 
   function init() {
