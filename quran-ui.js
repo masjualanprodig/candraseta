@@ -6,6 +6,9 @@ import { listSurahs, loadSurah, loadAudio, RECITERS } from './quran-service.js';
 const KEY = 'baituna.qari.v1';
 const getQari = () => { try { const v = localStorage.getItem(KEY); return RECITERS.some(r => r.id === v) ? v : RECITERS[0].id; } catch { return RECITERS[0].id; } };
 const setQari = v => { try { localStorage.setItem(KEY, v); } catch { /* abaikan */ } };
+const SIZES = [1.5, 1.8, 2.1, 2.5, 3];
+const getPref = () => { try { const p = JSON.parse(localStorage.getItem('baituna.quranpref.v1')); return { size: SIZES.includes(p.size) ? p.size : 2.1, font: p.font === 'sch' ? 'sch' : 'amiri' }; } catch { return { size: 2.1, font: 'amiri' }; } };
+const setPref = p => { try { localStorage.setItem('baituna.quranpref.v1', JSON.stringify(p)); } catch { /* abaikan */ } };
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9؀-ۿ]/g, '');
 
 let player = null; // satu pemutar saja agar tidak ada dua suara bersamaan
@@ -15,6 +18,9 @@ export function quranPage() {
   const wrap = h('div', { class: 'quran' }, h('p', { class: 'muted center' }, 'Memuat daftar surat…'));
   let surahs = [], q = '';
   stopPlayer();
+  const pref = getPref();
+  const applyPref = () => { wrap.style.setProperty('--qsize', pref.size + 'rem'); wrap.dataset.font = pref.font; };
+  applyPref();
 
   const note = () => h('div', { class: 'panel qnote' }, h('h3', {}, 'Tentang sumber'),
     h('p', { class: 'muted' }, 'Teks Arab: Utsmani (Tanzil, diverifikasi terhadap Mushaf Madinah). Terjemahan: Bahasa Indonesia. Audio: Mishary Alafasy dan Mahmoud Khalil Al-Husary. Semua dimuat langsung dari AlQuran Cloud; BAITUNA tidak mengubah teksnya.'),
@@ -87,6 +93,12 @@ export function quranPage() {
       sel.disabled = false;
     });
 
+    const step = d => { const k = Math.max(0, Math.min(SIZES.length - 1, SIZES.indexOf(pref.size) + d)); pref.size = SIZES[k]; setPref(pref); applyPref(); };
+    const sizeBtn = (t, d) => h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': d < 0 ? 'Perkecil tulisan Arab' : 'Perbesar tulisan Arab', onclick: () => step(d) }, t);
+    const fontSel = h('select', { class: 'in qsel', 'aria-label': 'Gaya tulisan Arab' }, h('option', { value: 'amiri' }, 'Tulisan: Amiri'), h('option', { value: 'sch' }, 'Tulisan: Scheherazade'));
+    fontSel.value = pref.font;
+    fontSel.addEventListener('change', () => { pref.font = fontSel.value; setPref(pref); applyPref(); });
+
     data.ayahs.forEach((a, i) => {
       const b = h('button', { class: 'qplay', type: 'button', 'aria-label': 'Putar ayat ' + a.n, onclick: () => { if (cur === i && player) stopAll(); else { continuous = false; allBtn.textContent = '▶ Putar semua'; play(i); } } }, '▶');
       btns.push(b);
@@ -104,6 +116,7 @@ export function quranPage() {
         h('span', {}, data.place + ' · ' + data.ayahs.length + ' ayat'),
         data.bismillah ? h('div', { class: 'bism arab', lang: 'ar', dir: 'rtl' }, data.bismillah) : ''),
       h('div', { class: 'qtools' }, sel, allBtn),
+      h('div', { class: 'qtools2' }, sizeBtn('A\u2212', -1), sizeBtn('A+', 1), fontSel),
       ...cards,
       note());
   }

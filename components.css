@@ -278,7 +278,11 @@ textarea.tall{min-height:200px}
 .sinfo{flex:1;display:flex;flex-direction:column;min-width:0}
 .sinfo b{color:var(--teal)}
 .sinfo .muted{font-size:.8rem}
-.sar,.arab,.qh-ar{font-family:'Amiri Quran','Noto Naskh Arabic','Scheherazade New','Traditional Arabic','Geeza Pro',serif}
+@font-face{font-family:'BQ Amiri';src:url('AmiriQuran-Regular.ttf') format('truetype');font-display:swap}
+@font-face{font-family:'BQ Scheherazade';src:url('ScheherazadeNew-Regular.ttf') format('truetype');font-display:swap}
+.quran{--qfont:'BQ Amiri','Amiri Quran','Noto Naskh Arabic',serif;--qsize:2rem}
+.quran[data-font="sch"]{--qfont:'BQ Scheherazade','Scheherazade New','Noto Naskh Arabic',serif}
+.sar,.arab,.qh-ar{font-family:var(--qfont,'BQ Amiri','Noto Naskh Arabic',serif)}
 .sar{font-size:1.35rem;color:var(--teal)}
 .qhero{display:flex;flex-direction:column;align-items:center;gap:.2rem;margin:.8rem 0;padding:1.1rem .8rem;text-align:center;color:#fff;background:linear-gradient(135deg,var(--teal),#0b8a73);border-radius:22px}
 .qhero span{opacity:.9;font-size:.85rem}
@@ -290,7 +294,11 @@ textarea.tall{min-height:200px}
 .ayah.playing{border-color:var(--gold);background:#fffaf0}
 .ahead{display:flex;justify-content:space-between;align-items:center}
 .qplay{width:2.3rem;height:2.3rem;border:0;border-radius:50%;background:var(--teal);color:#fff;font-size:.85rem;cursor:pointer}
-.arab{margin:.6rem 0 .4rem;font-size:1.7rem;line-height:2.3;text-align:right;color:#16322d}
+.arab{margin:.6rem 0 .4rem;font-size:var(--qsize,2rem);line-height:2.5;text-align:right;color:#16322d}
 .atrans{margin:0;color:var(--sage);line-height:1.55}
 .qnote{margin-top:1rem}
 .qhero .bism{margin:.5rem 0 0;text-align:center;color:#fff6dc}
+
+.qtools2{display:flex;gap:.5rem;align-items:center;margin:-.2rem 0 .8rem}
+.qtools2 .qsel{flex:1}
+.qtools2 .btn-sm{min-width:2.8rem;font-size:1rem}
