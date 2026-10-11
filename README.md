@@ -69,3 +69,9 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 
 ### Pembaruan Dzikir (v29)
 - Fitur getar dihapus: di web tidak bisa diandalkan (bergantung pengaturan HP/peramban, tidak ada di iPhone). Tanda target tercapai: lonceng (opsional), warna emas, dan tulisan.
+
+## Jadwal Salat Otomatis (v30)
+- Menu **Lainnya → Jadwal Salat**. Waktu Subuh, Terbit, Dzuhur, Ashar, Maghrib, Isya dihitung **di HP sendiri** (rumus astronomi, parameter Kemenag RI), tanpa API berbayar dan tanpa layanan pihak ketiga.
+- Lokasi: tombol "Gunakan lokasi saya" (GPS HP, hanya setelah diketuk) atau pilih dari 41 kota. Lokasi hanya disimpan di HP (localStorage), tidak dikirim ke server mana pun.
+- Ada hitung mundur ke salat berikutnya. Aplikasi **tidak** membunyikan adzan/pengingat.
+- Hasil hitungan bisa beda beberapa menit dari jadwal resmi Kemenag/masjid; ikuti pengumuman masjid. Koordinat kota adalah perkiraan pusat kota.

@@ -436,3 +436,22 @@ textarea.tall{min-height:200px}
 .tasbih .tinfo{margin:.7rem 0 .2rem}
 .tasbih .tcus{margin:1rem 0 .4rem}
 .tdesc{margin:.6rem 0 0;font-size:.9rem}
+
+/* v30: Jadwal Salat */
+.jadwal .panel{margin-top:.8rem}
+.jor{text-align:center;margin:.9rem 0 .2rem}
+.jerr{color:var(--danger);margin:.6rem 0 0}
+.jhero{text-align:center;background:linear-gradient(135deg,var(--teal) 0,var(--teal-d) 100%);color:#fff;border:0}
+.jlab{display:block;font-size:.9rem;opacity:.9}
+.jname{display:block;font-size:1.6rem;margin:.2rem 0 0}
+.jtime{display:block;font-size:3rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.jin{margin:.2rem 0 0;font-size:1.05rem;opacity:.95}
+.jrows{display:flex;flex-direction:column;gap:.4rem;margin-top:.6rem}
+.jrow{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem .9rem;border:1px solid var(--line);border-radius:14px;background:var(--ivory);font-size:1.05rem}
+.jrow b{font-size:1.3rem;color:var(--teal);font-variant-numeric:tabular-nums}
+.jrow.minor{font-size:.95rem;color:var(--sage)}.jrow.minor b{font-size:1.1rem;color:var(--sage)}
+.jrow.next{border-color:var(--gold);background:#fdf3dc}
+.jrow.now{border-color:var(--teal)}
+.jbadge{display:block;font-style:normal;font-size:.75rem;color:var(--teal);font-weight:700}
+.jwarn{border-color:var(--gold);background:#fdf3dc;color:#6b4a00}
+.jplace{margin:0 0 .6rem;overflow-wrap:anywhere}
