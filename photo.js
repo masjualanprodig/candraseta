@@ -34,3 +34,29 @@ export async function prepareImage(file) {
 
 // Nama file unik tiap unggahan: "<id-masjid>/<waktu>.jpg" (file lama tidak ditimpa).
 export const newPhotoPath = mosqueId => mosqueId + '/' + Date.now() + '.jpg';
+
+/* ===== Foto profil: persegi, maksimal 100 KB ===== */
+export const AVATAR_MAX_BYTES = 100 * 1024; // sama dengan batas bucket "avatars" di Storage
+export const AVATAR_ERRORS = { ...PHOTO_ERRORS, size: 'Foto tetap lebih dari 100 KB setelah diperkecil. Coba foto lain.' };
+// Dipotong persegi dari tengah, diperkecil bertahap (320 -> 256 -> 192 -> 128 px) sampai <= 100 KB; EXIF/GPS terbuang.
+export async function prepareAvatar(file) {
+  if (!file || !/^image\/(jpeg|png|webp)$/.test(file.type)) throw { code: 'type' };
+  if (file.size > MAX_INPUT) throw { code: 'big' };
+  let bmp;
+  try { bmp = await createImageBitmap(file); } catch (e) { throw { code: 'decode' }; }
+  const side = Math.min(bmp.width, bmp.height), sx = (bmp.width - side) / 2, sy = (bmp.height - side) / 2;
+  try {
+    for (const px of [320, 256, 192, 128]) {
+      const canvas = document.createElement('canvas'); canvas.width = canvas.height = px;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, px, px);
+      ctx.drawImage(bmp, sx, sy, side, side, 0, 0, px, px);
+      for (const q of [0.85, 0.7, 0.55, 0.4]) {
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', q));
+        if (blob && blob.size <= AVATAR_MAX_BYTES) return { blob, width: px, height: px, originalSize: file.size };
+      }
+    }
+  } finally { if (bmp.close) bmp.close(); }
+  throw { code: 'size' };
+}
+export const newAvatarPath = userId => userId + '/' + Date.now() + '.jpg';

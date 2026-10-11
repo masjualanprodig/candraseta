@@ -1,17 +1,44 @@
 // BAITUNA - profile-service.js
 // Profil pengguna yang sedang masuk. Hanya nama dan telepon yang bisa diubah, dan hanya milik sendiri (dijaga RLS).
 // Email dan peran tidak diubah dari sini.
-import { db, request, getSession } from './supabase.js';
+import { db, request, getSession, storageUpload, storageRemove, storageBlobUrl, AVATAR_BUCKET } from './supabase.js';
+import { newAvatarPath } from './photo.js';
 
 const enc = encodeURIComponent;
 export async function getMyProfile(userId) {
-  const rows = await db('profiles', { query: 'select=full_name,phone&id=eq.' + enc(userId) });
-  return Array.isArray(rows) && rows[0] ? rows[0] : { full_name: null, phone: null };
+  const rows = await db('profiles', { query: 'select=full_name,phone,avatar_path&id=eq.' + enc(userId) });
+  return Array.isArray(rows) && rows[0] ? rows[0] : { full_name: null, phone: null, avatar_path: null };
 }
 export async function updateMyProfile(userId, f) {
   const out = await db('profiles', { method: 'PATCH', query: 'id=eq.' + enc(userId), prefer: 'return=representation', body: { full_name: f.full_name || null, phone: f.phone || null } });
   if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 });
   return out[0];
+}
+
+/* ===== Foto profil (bucket privat "avatars", folder = id pengguna) ===== */
+const setAvatarPath = async (userId, path) => {
+  const out = await db('profiles', { method: 'PATCH', query: 'id=eq.' + enc(userId), prefer: 'return=representation', body: { avatar_path: path } });
+  if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 });
+  return out[0];
+};
+// Unggah foto baru lalu simpan lokasinya; bila penyimpanan lokasi gagal, file baru dibuang agar tidak menggantung. Foto lama dihapus terakhir.
+export async function saveAvatar(userId, blob, oldPath) {
+  const path = newAvatarPath(userId);
+  await storageUpload(path, blob, AVATAR_BUCKET);
+  try { await setAvatarPath(userId, path); }
+  catch (e) { try { await storageRemove(path, AVATAR_BUCKET); } catch (x) { /* abaikan */ } throw e; }
+  if (oldPath && oldPath !== path) { try { await storageRemove(oldPath, AVATAR_BUCKET); } catch (x) { /* abaikan */ } }
+  return path;
+}
+export async function deleteAvatar(userId, oldPath) {
+  await setAvatarPath(userId, null);
+  if (oldPath) { try { await storageRemove(oldPath, AVATAR_BUCKET); } catch (x) { /* abaikan */ } }
+}
+const urlCache = new Map();
+export async function avatarUrl(path) {
+  if (!path) return null;
+  if (!urlCache.has(path)) urlCache.set(path, storageBlobUrl(path, AVATAR_BUCKET).catch(e => { urlCache.delete(path); throw e; }));
+  return urlCache.get(path);
 }
 
 /* ===== Murni (dites terpisah) ===== */

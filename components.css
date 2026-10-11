@@ -501,3 +501,12 @@ textarea.tall{min-height:200px}
 .appbar .atab{flex:1;border:0;display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.4rem .1rem;border-radius:14px;font:inherit;font-weight:700;font-size:.64rem;color:var(--sage);background:transparent;cursor:pointer}
 .appbar .atab[aria-selected="true"]{background:#e3efea;color:var(--teal)}
 @media(min-width:380px){.appbar{padding-inline:.6rem}.appbar .atab{font-size:.72rem;padding-inline:.2rem}}
+
+/* ===== Foto profil (v36) ===== */
+.pav{overflow:hidden}
+.pav img{width:100%;height:100%;object-fit:cover;display:block}
+.pav-lg{width:5.2rem;height:5.2rem;font-size:1.7rem}
+.avblock{display:flex;align-items:center;gap:1rem;margin-bottom:.6rem}
+.avact{flex:1;min-width:0}
+.avnote{margin:.4rem 0 0;font-size:.82rem}
+.avact .hint{margin:.3rem 0 0}

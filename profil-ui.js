@@ -5,7 +5,8 @@ import { h, toast, hint, ask } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
 import { getSession } from './supabase.js';
 import { loadAccess, ROLE_LABEL } from './permissions.js';
-import { getMyProfile, updateMyProfile, changePassword, cleanName, nameOk, phoneOk, initials, passwordProblem } from './profile-service.js';
+import { getMyProfile, updateMyProfile, changePassword, saveAvatar, deleteAvatar, avatarUrl, cleanName, nameOk, phoneOk, initials, passwordProblem } from './profile-service.js';
+import { prepareAvatar, AVATAR_ERRORS } from './photo.js';
 import { doaPage } from './doa-ui.js';
 import { loadFavs } from './doa-service.js';
 import { loadProgress, loadTasbih, loadSound, saveSound } from './dzikir-service.js';
@@ -13,10 +14,17 @@ import { canSound, chime } from './dzikir-sound.js';
 import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran-ui.js';
 import { listSurahs } from './quran-service.js';
 
-export const APP_VERSION = 'v35';
+export const APP_VERSION = 'v36';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
 const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
+
+// Lingkaran foto profil: inisial dulu, lalu diganti foto bila ada (foto privat diunduh dengan token pengguna).
+function avatarEl(name, email, path, extra) {
+  const el = h('span', { class: 'pav' + (extra ? ' ' + extra : '') }, initials(name, email));
+  if (path) avatarUrl(path).then(url => { if (url && el.isConnected !== false) { el.replaceChildren(h('img', { src: url, alt: 'Foto profil' })); el.classList.add('has-img'); } }).catch(() => {});
+  return el;
+}
 
 export function profilPage({ onSignIn, onLogout } = {}) {
   const wrap = h('div', { class: 'profil' });
@@ -39,7 +47,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
     const roles = !access ? [] : access.isAdmin ? ['Super Admin'] : access.memberships.map(m => (ROLE_LABEL[m.role] || m.role) + (m.mosques ? ' · ' + m.mosques.name : ''));
     const name = profile && cleanName(profile.full_name);
     const card = h('button', { class: 'panel pcard pcard-btn', type: 'button', onclick: go('edit'), 'aria-label': 'Ubah profil' },
-      h('span', { class: 'pav' }, initials(name, me.email)),
+      avatarEl(name, me.email, profile && profile.avatar_path),
       h('div', { class: 'pwho' }, h('b', {}, name || 'Nama belum diisi'), h('span', { class: 'muted' }, me.email || ''),
         roles.length ? h('div', { class: 'proles' }, ...roles.map(r => h('span', { class: 'hperiod' }, r))) : ''),
       icon(ICONS.chev, 'prow-chev'));
@@ -48,11 +56,46 @@ export function profilPage({ onSignIn, onLogout } = {}) {
 
   /* --- Edit profil --- */
   function editView() {
-    const name = h('input', { class: 'in', value: (profile && profile.full_name) || '', maxlength: '120', placeholder: 'Nama lengkap', autocomplete: 'name', 'aria-label': 'Nama lengkap' });
-    const phone = h('input', { class: 'in', value: (profile && profile.phone) || '', maxlength: '30', placeholder: 'Nomor telepon (opsional)', inputmode: 'tel', autocomplete: 'tel', 'aria-label': 'Nomor telepon' });
+    const name = h('input', { class: 'in', value: (profile && profile.full_name) || '', maxlength: '120', placeholder: 'mis. Budi Santoso', autocomplete: 'name', 'aria-label': 'Nama lengkap' });
+    const phone = h('input', { class: 'in', value: (profile && profile.phone) || '', maxlength: '30', placeholder: 'mis. 0812 3456 7890 (opsional)', inputmode: 'tel', autocomplete: 'tel', 'aria-label': 'Nomor telepon' });
     const email = h('input', { class: 'in', value: me.email || '', disabled: 'disabled', 'aria-label': 'Email' });
     const status = h('p', { class: 'hint' });
     const save = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan');
+    // Foto profil: langsung diunggah saat dipilih (tidak menunggu tombol Simpan), maksimal 100 KB.
+    const holder = h('div', { class: 'avwrap' }), avMsg = h('p', { class: 'hint', role: 'status' });
+    let busy = false;
+    const file = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'sr-only', 'aria-label': 'Pilih foto profil' });
+    const pick = h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => file.click() }, 'Pilih foto');
+    const del = h('button', { class: 'btn-sm ghost', type: 'button' }, 'Hapus foto');
+    const paintAv = () => {
+      holder.replaceChildren(avatarEl(cleanName(name.value), me.email, profile && profile.avatar_path, 'pav-lg'));
+      del.hidden = !(profile && profile.avatar_path); pick.textContent = profile && profile.avatar_path ? 'Ganti foto' : 'Pilih foto';
+      pick.disabled = del.disabled = busy;
+    };
+    file.addEventListener('change', async () => {
+      const f = file.files && file.files[0]; file.value = ''; if (!f || busy) return;
+      busy = true; avMsg.textContent = 'Memproses foto…'; paintAv();
+      try {
+        const img = await prepareAvatar(f);
+        const path = await saveAvatar(me.id, img.blob, profile && profile.avatar_path);
+        profile = { ...(profile || {}), avatar_path: path }; avMsg.textContent = ''; toast('Foto profil disimpan.');
+      } catch (e) {
+        if (e && e.status === 401) return;
+        avMsg.textContent = e && e.code && AVATAR_ERRORS[e.code] ? AVATAR_ERRORS[e.code] : e && e.status === 0 ? 'Tidak ada koneksi internet.' : 'Foto belum tersimpan. ' + hint(e);
+      }
+      busy = false; paintAv();
+    });
+    del.addEventListener('click', async () => {
+      if (busy || !(await ask({ title: 'Hapus foto profil?', text: 'Foto Anda akan dihapus. Yang tampil kembali berupa inisial.', reason: false }))) return;
+      busy = true; paintAv();
+      try { await deleteAvatar(me.id, profile && profile.avatar_path); profile = { ...profile, avatar_path: null }; avMsg.textContent = ''; toast('Foto dihapus.'); }
+      catch (e) { if (e && e.status === 401) return; avMsg.textContent = 'Foto belum terhapus. ' + hint(e); }
+      busy = false; paintAv();
+    });
+    name.addEventListener('input', () => { if (!(profile && profile.avatar_path)) paintAv(); });
+    const avBlock = h('div', { class: 'avblock' }, holder, h('div', { class: 'avact' }, h('div', { class: 'row-btns' }, pick, del, file),
+      h('p', { class: 'muted avnote' }, 'Maksimal 100 KB. Foto dipotong persegi dan diperkecil otomatis.'), avMsg));
+    paintAv();
     const form = h('form', { class: 'panel rform', novalidate: 'novalidate', onsubmit: async ev => {
       ev.preventDefault();
       const f = { full_name: cleanName(name.value), phone: phone.value.trim() };
@@ -62,9 +105,9 @@ export function profilPage({ onSignIn, onLogout } = {}) {
       try { profile = await updateMyProfile(me.id, f); toast('Profil disimpan.'); view = 'main'; draw(); window.scrollTo(0, 0); return; }
       catch (e) { if (e && e.status === 401) return; const m = e && e.status === 0 ? 'Tidak ada koneksi internet.' : 'Belum tersimpan. ' + hint(e); status.textContent = m; toast(m, true); }
       save.disabled = false;
-    } }, h('label', { class: 'hint' }, 'Nama lengkap'), name, h('label', { class: 'hint' }, 'Nomor telepon'), phone,
+    } }, avBlock, h('label', { class: 'hint' }, 'Nama lengkap'), name, h('label', { class: 'hint' }, 'Nomor telepon'), phone,
       h('label', { class: 'hint' }, 'Email (tidak bisa diubah di sini)'), email, status, h('div', { class: 'mt row-btns' }, save));
-    return sub('Ubah Profil', form, row(ICONS.lock, 'Ganti password', go('password')));
+    return sub('Ubah Profil', form, h('div', { class: 'panel plist' }, row(ICONS.lock, 'Ganti password', go('password'))));
   }
 
   function passwordView() {

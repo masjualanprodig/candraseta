@@ -97,3 +97,8 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 
 ## Bilah menu bawah (v35)
 - Setelah masuk, deretan tombol di atas diganti **bilah menu bawah yang menempel** (tetap saat digulir): Beranda, Masjid, Qur'an, Lainnya, **Profil** (pojok kanan bawah). Agenda dan Kalender pindah ke menu Lainnya. Pengunjung yang belum masuk tetap memakai bilah lama (Masjid, Agenda, Kalender, Qur'an, Lainnya).
+
+### Foto profil (v36)
+- Ubah profil -> **Pilih/Ganti/Hapus foto**. Dipotong persegi dan diperkecil di HP sampai maksimal 100 KB (JPEG; EXIF/GPS terbuang). Langsung tersimpan saat dipilih.
+- Jalankan **avatar.sql** (aman diulang): kolom `profiles.avatar_path`, bucket PRIVAT `avatars` (batas 100 KB), kebijakan: hanya pemilik yang bisa melihat/mengunggah/menghapus fotonya. Tidak ada tautan publik.
+- Ubah Profil dirapikan: label tidak ganda dengan placeholder, "Ganti password" masuk kartu.

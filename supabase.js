@@ -93,6 +93,7 @@ const encPath = p => String(p).split('/').map(encodeURIComponent).join('/');
 export const publicPhotoUrl = (p, bucket = PHOTO_BUCKET) => p ? API + '/storage/v1/object/public/' + bucket + '/' + encPath(p) : null;
 export const WORLD_BUCKET = 'world-mosque-photos';
 export const ARTICLE_BUCKET = 'article-covers';
+export const AVATAR_BUCKET = 'avatars';
 
 async function storageCall(path, init, bucket = PHOTO_BUCKET) {
   const token = await validToken();
@@ -112,3 +113,16 @@ export const storageUpload = (path, blob, bucket) => storageCall(path, {
   method: 'POST', body: blob, headers: { 'Content-Type': blob.type, 'x-upsert': 'false', 'cache-control': 'max-age=31536000' }
 }, bucket);
 export const storageRemove = (path, bucket) => storageCall(path, { method: 'DELETE' }, bucket);
+
+// Foto dari bucket PRIVAT: diunduh dengan token pengguna lalu dijadikan alamat sementara di perangkat (blob).
+export async function storageBlobUrl(path, bucket) {
+  const token = await validToken();
+  if (!token) { expiredHandler(); throw Object.assign(new Error('Tidak ada sesi'), { status: 401 }); }
+  let res;
+  try { res = await fetch(API + '/storage/v1/object/authenticated/' + bucket + '/' + encPath(path), { headers: { apikey: KEY, Authorization: 'Bearer ' + token } }); }
+  catch (e) { throw Object.assign(new Error('offline'), { status: 0 }); }
+  if (!res.ok) throw Object.assign(new Error('HTTP ' + res.status), { status: res.status });
+  const b = await res.blob();
+  if (!/^image\/(jpeg|png|webp)$/.test(b.type)) throw Object.assign(new Error('bukan gambar'), { status: 415 });
+  return URL.createObjectURL(b);
+}
