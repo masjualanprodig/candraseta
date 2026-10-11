@@ -494,3 +494,10 @@ textarea.tall{min-height:200px}
 .profil .achips{flex-wrap:wrap;overflow:visible;margin:.3rem 0 .6rem;padding:0}
 .profil .panel .hint{margin:.8rem 0 .2rem}
 .profil .panel .btn-sm.alt{margin-top:.9rem}
+#view-app .appbody{padding-bottom:6.5rem}
+
+/* Bilah menu bawah halaman Beranda (setelah masuk): tampilan sama dengan .bottomnav, kelas terpisah agar tidak bentrok */
+.appbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;border:0;border-top:1px solid var(--line);border-radius:0;background:rgba(255,255,255,.97);padding:.35rem .25rem calc(.35rem + env(safe-area-inset-bottom));gap:.3rem}
+.appbar .atab{flex:1;border:0;display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.4rem .1rem;border-radius:14px;font:inherit;font-weight:700;font-size:.64rem;color:var(--sage);background:transparent;cursor:pointer}
+.appbar .atab[aria-selected="true"]{background:#e3efea;color:var(--teal)}
+@media(min-width:380px){.appbar{padding-inline:.6rem}.appbar .atab{font-size:.72rem;padding-inline:.2rem}}

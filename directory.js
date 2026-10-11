@@ -3,6 +3,7 @@
 // Hanya masjid berstatus aktif yang tampil (dijaga database).
 import { $, h } from './ui.js';
 import { show } from './router.js';
+import { getSession } from './supabase.js';
 import { searchMosques, fetchProvinces, PAGE_SIZE } from './public-service.js';
 import { prayerPanel } from './schedule-ui.js';
 import { postsPublic } from './posts-ui.js';
@@ -54,16 +55,24 @@ export function openMosque(m, from, back) {
 const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', more: 'Lainnya' };
 // Halaman yang dibuka dari tab "Lainnya" (tab itu tetap tampak terpilih).
 const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'profil', 'jadwal'];
+// Setelah masuk, Profil ada di bilah bawah; Agenda dan Kalender pindah ke menu Lainnya.
+const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'jadwal'];
 const go = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
 
 function tabs() {
   const sub = document.getElementById('public-sub');
   if (sub) sub.textContent = SUBS[state.tab] || SUBS.dir;
-  const t = (label, key, ic) => h('button', {
-    class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(key === 'more' ? MORE.includes(state.tab) : state.tab === key),
-    onclick: () => go(key)
+  const authed = !!getSession();
+  const t = (label, key, ic, selected, onclick) => h('button', {
+    class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(selected !== undefined ? selected : state.tab === key),
+    onclick: onclick || (() => go(key))
   }, icon(ic), h('span', {}, label));
-  return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Bagian' }, t('Masjid', 'dir', ICONS.mosque), t('Agenda', 'info', ICONS.agenda), t('Kalender', 'cal', ICONS.moon), t('Qur\u2019an', 'quran', ICONS.quran), t('Lainnya', 'more', ICONS.more));
+  if (authed) { // bilah bawah yang sama dengan halaman Beranda: Profil di pojok kanan bawah
+    return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Menu utama' },
+      t('Beranda', 'home', ICONS.home, false, () => $('public-back').click()), t('Masjid', 'dir', ICONS.mosque), t('Qur\u2019an', 'quran', ICONS.quran),
+      t('Lainnya', 'more', ICONS.more, MORE_AUTH.includes(state.tab)), t('Profil', 'profil', ICONS.user));
+  }
+  return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Bagian' }, t('Masjid', 'dir', ICONS.mosque), t('Agenda', 'info', ICONS.agenda), t('Kalender', 'cal', ICONS.moon), t('Qur\u2019an', 'quran', ICONS.quran), t('Lainnya', 'more', ICONS.more, MORE.includes(state.tab)));
 }
 
 function renderMore() {
@@ -71,7 +80,8 @@ function renderMore() {
     h('span', { class: 'mc-ic' }, icon(ic)), h('span', { class: 'mc-tx' }, h('b', {}, title), h('span', { class: 'muted' }, sub)));
   $('public-content').replaceChildren(tabs(), h('h2', { class: 'wtitle' }, 'Lainnya'),
     h('div', { class: 'qlist' },
-      card('profil', ICONS.user, 'Profil & Pengaturan', 'Akun, favorit, pengaturan, dan bantuan'),
+      ...(getSession() ? [card('info', ICONS.agenda, 'Agenda & Pengumuman', 'Kegiatan dan kabar dari masjid'), card('cal', ICONS.moon, 'Kalender Islam', 'Tanggal Masehi dan Hijriah (perkiraan)')]
+        : [card('profil', ICONS.user, 'Profil & Pengaturan', 'Akun, favorit, pengaturan, dan bantuan')]),
       card('jadwal', ICONS.clock, 'Jadwal Salat', 'Waktu salat sesuai lokasi Anda'),
       card('dzikir', ICONS.dzikir, 'Dzikir Pagi & Petang', 'Bacaan dan penghitung ketukan'),
       card('doa', ICONS.doa, 'Doa Shahih', 'Doa sesuai sunnah, lengkap dengan sumber'),

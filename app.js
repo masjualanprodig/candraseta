@@ -9,7 +9,7 @@ import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
 import { openDirectory, openMosque } from './directory.js';
-import { feedPanel } from './feed-ui.js';
+import { feedPanel, icon, ICONS } from './feed-ui.js';
 
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
@@ -106,18 +106,15 @@ $('open-dzikir').addEventListener('click', e => { e.preventDefault(); openDirect
 $('open-history').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'sejarah'); });
 $('open-quran').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'quran'); });
 $('open-calendar').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'cal'); });
-$('nav-dir').addEventListener('click', () => openDirectory('app', () => enterApp(), 'dir'));
-$('nav-info').addEventListener('click', () => openDirectory('app', () => enterApp(), 'info'));
-$('nav-world').addEventListener('click', () => openDirectory('app', () => enterApp(), 'world'));
-$('nav-rukun').addEventListener('click', () => openDirectory('app', () => enterApp(), 'rukun'));
-$('nav-berita').addEventListener('click', () => openDirectory('app', () => enterApp(), 'berita'));
-$('nav-jadwal').addEventListener('click', () => openDirectory('app', () => enterApp(), 'jadwal'));
-$('nav-profil').addEventListener('click', () => openDirectory('app', () => enterApp(), 'profil'));
-$('nav-doa').addEventListener('click', () => openDirectory('app', () => enterApp(), 'doa'));
-$('nav-dzikir').addEventListener('click', () => openDirectory('app', () => enterApp(), 'dzikir'));
-$('nav-history').addEventListener('click', () => openDirectory('app', () => enterApp(), 'sejarah'));
-$('nav-quran').addEventListener('click', () => openDirectory('app', () => enterApp(), 'quran'));
-$('nav-cal').addEventListener('click', () => openDirectory('app', () => enterApp(), 'cal'));
+
+/* Bilah menu bawah (tetap di bawah saat digulir): Beranda, Masjid, Qur'an, Lainnya, Profil (pojok kanan bawah) */
+const appTab = (id, label, ic, onclick, selected) => h('button', { id, class: 'atab', type: 'button', role: 'tab', 'aria-selected': String(!!selected), onclick }, icon(ic), h('span', {}, label));
+$('app-nav').replaceChildren(
+  appTab('nav-home', 'Beranda', ICONS.home, () => { enterApp(); window.scrollTo(0, 0); }, true),
+  appTab('nav-dir', 'Masjid', ICONS.mosque, () => openDirectory('app', () => enterApp(), 'dir')),
+  appTab('nav-quran', 'Qur\u2019an', ICONS.quran, () => openDirectory('app', () => enterApp(), 'quran')),
+  appTab('nav-more', 'Lainnya', ICONS.more, () => openDirectory('app', () => enterApp(), 'more')),
+  appTab('nav-profil', 'Profil', ICONS.user, () => openDirectory('app', () => enterApp(), 'profil')));
 
 /* Logo/nama di pojok kiri atas = kembali ke beranda */
 $('home-app').addEventListener('click', e => { e.preventDefault(); enterApp(); window.scrollTo(0, 0); });

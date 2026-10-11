@@ -94,3 +94,6 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Sudah masuk: kartu profil (inisial, nama, email, peran + masjid), **Ubah profil** (nama, telepon; tabel `profiles`, hanya milik sendiri), **Ganti password** (password lama diperiksa dulu), **Keluar**.
 - Semua pengguna: **Favorit** (doa ★), **Progres saya** (ringkasan di perangkat), **Pengaturan** (ukuran/gaya tulisan Arab, bunyi dzikir, hapus data di perangkat), **Bantuan** (FAQ), **Tentang BAITUNA** (versi, privasi singkat).
 - Belum ada: foto profil, notifikasi (browser tidak bisa menjamin notifikasi/alarm), bookmark artikel.
+
+## Bilah menu bawah (v35)
+- Setelah masuk, deretan tombol di atas diganti **bilah menu bawah yang menempel** (tetap saat digulir): Beranda, Masjid, Qur'an, Lainnya, **Profil** (pojok kanan bawah). Agenda dan Kalender pindah ke menu Lainnya. Pengunjung yang belum masuk tetap memakai bilah lama (Masjid, Agenda, Kalender, Qur'an, Lainnya).
