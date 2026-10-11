@@ -32,3 +32,8 @@ Platform masjid multi-tenant. Stack: HTML5, CSS3, JavaScript modular, PWA, Supab
 SQL (schema, policies, invitations, hardening, tahap3, direktori, jadwal, foto, agenda, dunia, sejarah, seed) ada di folder `sql/` pada repo (tidak dipakai browser).
 
 Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
+
+## Al-Qur'an (tab "Qur'an")
+- Sumber: AlQuran Cloud (gratis, tanpa kunci API): teks Utsmani (Tanzil), terjemahan `id.indonesian`, audio per ayat dari cdn.islamic.network (Alafasy, Husary).
+- Teks tidak disimpan/diubah; data divalidasi sebelum tampil (jumlah ayat, nomor, host audio). Basmalah yang menempel di ayat 1 dipindah ke kepala surat (tampilan saja).
+- Bukan mushaf bertashih Kemenag; lihat catatan "Tentang sumber" di halaman.

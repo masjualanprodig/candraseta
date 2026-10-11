@@ -9,6 +9,7 @@ import { postsPublic } from './posts-ui.js';
 import { feedPanel, icon, ICONS } from './feed-ui.js';
 import { worldGallery } from './world-ui.js';
 import { historyPage } from './history-ui.js';
+import { quranPage } from './quran-ui.js';
 import { calendarView, calendarSupported } from './calendar-ui.js';
 import { publicPhotoUrl } from './supabase.js';
 
@@ -23,6 +24,7 @@ export function openDirectory(from, back, tab) {
   if (state.tab === 'cal') { renderCalendar(); return; }
   if (state.tab === 'info') { renderFeed(); return; }
   if (state.tab === 'world') { renderWorld(); return; }
+  if (state.tab === 'quran') { renderQuran(); return; }
   if (state.tab === 'sejarah') { renderHistory(); return; }
   if (!state.loaded) load(true); else renderList();
 }
@@ -35,16 +37,20 @@ export function openMosque(m, from, back) {
   renderDetail(m, renderFeed, '← Agenda');
 }
 
-const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam' };
+const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam' };
 
 function tabs() {
   const sub = document.getElementById('public-sub');
   if (sub) sub.textContent = SUBS[state.tab] || SUBS.dir;
   const t = (label, key, ic) => h('button', {
     class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(state.tab === key),
-    onclick: () => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); }
+    onclick: () => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); }
   }, icon(ic), h('span', {}, label));
-  return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Bagian' }, t('Masjid', 'dir', ICONS.mosque), t('Agenda', 'info', ICONS.agenda), t('Kalender', 'cal', ICONS.moon), t('Dunia', 'world', ICONS.globe), t('Sejarah', 'sejarah', ICONS.book));
+  return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Bagian' }, t('Masjid', 'dir', ICONS.mosque), t('Agenda', 'info', ICONS.agenda), t('Kalender', 'cal', ICONS.moon), t('Qur\u2019an', 'quran', ICONS.quran), t('Dunia', 'world', ICONS.globe), t('Sejarah', 'sejarah', ICONS.book));
+}
+
+function renderQuran() {
+  $('public-content').replaceChildren(tabs(), quranPage());
 }
 
 function renderHistory() {
