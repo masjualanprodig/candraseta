@@ -9,11 +9,13 @@ import { getSession } from './supabase.js';
 
 const ROLES_FOR_ADMIN_MASJID = ['ketua_takmir', 'bendahara', 'pengurus_bagian', 'pengelola_usaha'];
 
-export async function renderMosque(box, mosqueId) {
+export async function renderMosque(box, mosqueId, view = 'home') {
   const [mosque, team, allInvites] = await Promise.all([getMosque(mosqueId), fetchTeam(mosqueId), listInvitations()]);
   if (!mosque) { box.replaceChildren(h('p', { class: 'muted' }, 'Masjid tidak ditemukan.')); return; }
   const me = getSession() && getSession().user;
-  const refresh = () => renderMosque(box, mosqueId);
+  const refresh = () => renderMosque(box, mosqueId, view);
+  const goHome = () => renderMosque(box, mosqueId, 'home');
+  const goEdit = () => renderMosque(box, mosqueId, 'edit');
 
   const field = (ph, val, max) => h('input', { class: 'in', placeholder: ph, maxlength: String(max), autocomplete: 'off', value: val == null ? '' : String(val) });
   const name = field('Nama masjid *', mosque.name, 150), city = field('Kota/Kabupaten', mosque.city, 80),
@@ -47,7 +49,7 @@ export async function renderMosque(box, mosqueId) {
           description: desc.value.trim() || null, facilities: fac.value.trim() || null, latitude: la, longitude: lo, timezone: tz.value
         });
         toast('Profil masjid disimpan.');
-        await refresh();
+        await goHome();
       } catch (e) {
         if (e.status !== 401) toast('Profil belum tersimpan. ' + hint(e), true);
       }
@@ -102,13 +104,30 @@ export async function renderMosque(box, mosqueId) {
     url ? h('img', { class: 'photo-prev', src: url, alt: 'Foto ' + mosque.name }) : h('div', { class: 'photo-empty' }, 'Belum ada foto'),
     status, h('div', { class: 'mt' }, pick), del);
 
+  const teamBox = h('div', { class: 'panel' }, teamPanel({
+    mosqueId, team, invites: allInvites.filter(i => i.mosque_id === mosqueId),
+    roles: ROLES_FOR_ADMIN_MASJID, canRevokeAdmin: false, selfId: me && me.id, onChange: refresh
+  }));
+
+  if (view === 'edit') {
+    box.replaceChildren(
+      h('button', { class: 'btn-sm ghost', type: 'button', onclick: goHome }, '← Kembali ke dashboard'),
+      h('h2', { class: 'mt' }, 'Edit profil masjid'),
+      h('p', { class: 'muted' }, mosque.name),
+      photoPanel,
+      form);
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  const place = [mosque.address, mosque.city, mosque.province].filter(Boolean).join(', ');
   box.replaceChildren(
     h('h2', {}, mosque.name),
     h('p', { class: 'muted' }, 'Dashboard Admin Masjid'),
-    photoPanel,
-    form,
-    h('div', { class: 'panel' }, teamPanel({
-      mosqueId, team, invites: allInvites.filter(i => i.mosque_id === mosqueId),
-      roles: ROLES_FOR_ADMIN_MASJID, canRevokeAdmin: false, selfId: me && me.id, onChange: refresh
-    })));
+    h('div', { class: 'panel msum' },
+      url ? h('img', { class: 'photo-prev', src: url, alt: 'Foto ' + mosque.name }) : '',
+      h('p', {}, place || 'Alamat belum diisi.'),
+      h('div', { class: 'mt' }, h('button', { class: 'btn-sm', type: 'button', onclick: goEdit }, 'Edit profil & foto masjid'))),
+    teamBox);
+  window.scrollTo(0, 0);
 }
