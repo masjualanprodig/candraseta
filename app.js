@@ -102,6 +102,10 @@ $('nav-dir').addEventListener('click', () => openDirectory('app', () => enterApp
 $('nav-info').addEventListener('click', () => openDirectory('app', () => enterApp(), 'info'));
 $('nav-cal').addEventListener('click', () => openDirectory('app', () => enterApp(), 'cal'));
 
+/* Logo/nama di pojok kiri atas = kembali ke beranda */
+$('home-app').addEventListener('click', e => { e.preventDefault(); enterApp(); window.scrollTo(0, 0); });
+$('home-public').addEventListener('click', e => { e.preventDefault(); $('public-back').click(); window.scrollTo(0, 0); });
+
 /* ===== Reset password ===== */
 $('reset-form').addEventListener('submit', async e => {
   e.preventDefault();
