@@ -157,3 +157,11 @@ select.in{appearance:auto}
 .ev-p{line-height:1.6;margin-bottom:.5rem}
 .ev-ul{padding-left:1.2rem;line-height:1.6}
 .ev-note{margin-top:.9rem;background:#fff6e0;color:#7a5600;border-radius:12px;padding:.7rem .9rem;font-size:.88rem;line-height:1.5}
+
+/* Agenda & pengumuman */
+.row-btns{display:flex;flex-wrap:wrap;gap:.5rem}
+.post{padding:.75rem 0;border-top:1px solid #e3e8e5}
+.post:first-of-type{border-top:0}
+.post-body{white-space:pre-line;margin:.4rem 0 0;overflow-wrap:anywhere}
+.posts h3{margin:0 0 .25rem}
+.post .row-btns{margin-top:.6rem}.post b{display:block;margin-top:.3rem}

@@ -5,6 +5,7 @@ import { $, h } from './ui.js';
 import { show } from './router.js';
 import { searchMosques, fetchProvinces, PAGE_SIZE } from './public-service.js';
 import { prayerPanel } from './schedule-ui.js';
+import { postsPublic } from './posts-ui.js';
 import { calendarView, calendarSupported } from './calendar-ui.js';
 import { publicPhotoUrl } from './supabase.js';
 
@@ -122,6 +123,7 @@ function renderDetail(m) {
       row('Kontak resmi', m.contact_phone ? (tel ? h('a', { class: 'link', href: tel }, m.contact_phone) : m.contact_phone) : 'Belum diisi'),
       hasMap ? row('Lokasi', h('a', { class: 'link', href: 'https://www.google.com/maps?q=' + lat + ',' + lng, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps')) : ''),
     prayerPanel(m),
+    postsPublic(m),
     m.description ? h('div', { class: 'panel' }, h('h3', {}, 'Tentang masjid'), h('p', { class: 'prewrap' }, m.description)) : '',
     chips.length ? h('div', { class: 'panel' }, h('h3', {}, 'Fasilitas'), h('div', { class: 'chips' }, chips.map(c => h('span', { class: 'chip' }, c)))) : '');
   window.scrollTo(0, 0);

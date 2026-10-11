@@ -20,11 +20,12 @@ Platform masjid multi-tenant. Stack: HTML5, CSS3, JavaScript modular, PWA, Supab
 | directory.js / public-service.js | Direktori & profil masjid publik (tanpa login) |
 | prayer-times.js / islamic-calendar.js / schedule-ui.js | Jadwal salat (hitung di perangkat) dan kalender Islam (perkiraan) |
 | calendar-ui.js | Kalender Islam bergaya carousel + popup hari besar |
+| posts-ui.js / post-service.js / post-time.js | Agenda & pengumuman (jamaah melihat, pengurus mengelola); waktu mengikuti zona waktu masjid |
 | photo.js | Foto masjid: cek format, perkecil otomatis ke ≤ 2 MB |
 | team-panel.js | Komponen tim + undangan (dipakai dua dashboard) |
 | app.js | Titik masuk |
 | service-worker.js, manifest.json, icon-*.png, logo.png, masjid.svg | PWA & aset |
 
-SQL (schema, policies, invitations, hardening, tahap3, direktori, jadwal, foto, seed) ada di folder `sql/` pada repo (tidak dipakai browser).
+SQL (schema, policies, invitations, hardening, tahap3, direktori, jadwal, foto, agenda, seed) ada di folder `sql/` pada repo (tidak dipakai browser).
 
 Aturan: jangan pernah menaruh service_role / secret key di file mana pun.

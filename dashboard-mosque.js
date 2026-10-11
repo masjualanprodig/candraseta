@@ -5,6 +5,7 @@ import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, setMosquePh
 import { prepareImage, newPhotoPath, PHOTO_ERRORS, MAX_BYTES } from './photo.js';
 import { storageUpload, storageRemove, publicPhotoUrl } from './supabase.js';
 import { teamPanel } from './team-panel.js';
+import { renderPostsManager } from './posts-ui.js';
 import { getSession } from './supabase.js';
 
 const ROLES_FOR_ADMIN_MASJID = ['ketua_takmir', 'bendahara', 'pengurus_bagian', 'pengelola_usaha'];
@@ -16,6 +17,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const refresh = () => renderMosque(box, mosqueId, view);
   const goHome = () => renderMosque(box, mosqueId, 'home');
   const goEdit = () => renderMosque(box, mosqueId, 'edit');
+  if (view === 'posts') { await renderPostsManager(box, mosque, goHome); return; }
 
   const field = (ph, val, max) => h('input', { class: 'in', placeholder: ph, maxlength: String(max), autocomplete: 'off', value: val == null ? '' : String(val) });
   const name = field('Nama masjid *', mosque.name, 150), city = field('Kota/Kabupaten', mosque.city, 80),
@@ -127,7 +129,9 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     h('div', { class: 'panel msum' },
       url ? h('img', { class: 'photo-prev', src: url, alt: 'Foto ' + mosque.name }) : '',
       h('p', {}, place || 'Alamat belum diisi.'),
-      h('div', { class: 'mt' }, h('button', { class: 'btn-sm', type: 'button', onclick: goEdit }, 'Edit profil & foto masjid'))),
+      h('div', { class: 'mt row-btns' },
+        h('button', { class: 'btn-sm', type: 'button', onclick: goEdit }, 'Edit profil & foto masjid'),
+        h('button', { class: 'btn-sm', type: 'button', onclick: () => renderMosque(box, mosqueId, 'posts') }, 'Agenda & pengumuman'))),
     teamBox);
   window.scrollTo(0, 0);
 }
