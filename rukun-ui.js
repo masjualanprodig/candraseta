@@ -33,7 +33,10 @@ export function rukunPage() {
   let items = [], surahs = null;
 
   function list() {
-    const countOf = k => { const x = items.filter(i => i.pillar === k); return x.length ? x.length + ' isi' : ''; };
+    const countOf = k => {
+      const n = kd => items.filter(i => i.pillar === k && i.kind === kd).length;
+      return [[n('ayat'), 'dalil'], [n('hadits'), 'hadits'], [n('tuntunan'), 'tuntunan']].filter(x => x[0]).map(x => x[0] + ' ' + x[1]).join(' \u00b7 ');
+    };
     const group = g => h('div', {}, h('h3', { class: 'rgroup' }, GROUPS[g] + ' (' + PILLARS.filter(p => p.group === g).length + ')'),
       h('div', { class: 'qlist' }, ...PILLARS.filter(p => p.group === g).map((p, i) => h('button', { class: 'srow', type: 'button', onclick: () => detail(p) },
         h('span', { class: 'snum' }, String(i + 1)), h('span', { class: 'sinfo' }, h('b', {}, p.name), h('span', { class: 'muted' }, countOf(p.key) || 'Segera ditambahkan')),
@@ -96,9 +99,9 @@ export async function renderRukunManager(box, onBack, pillarKey) {
   const preview = h('div', { class: 'dalil', hidden: true });
   const previewBtn = h('button', { class: 'btn-sm ghost', type: 'button' }, 'Lihat pratinjau ayat');
   // hadits + tuntunan
-  const arabic = h('textarea', { class: 'in arab-in', lang: 'ar', dir: 'rtl', placeholder: 'Teks Arab hadits *', maxlength: '4000' });
-  const body = h('textarea', { class: 'in tall', placeholder: 'Terjemahan / isi *', maxlength: '8000' });
-  const source = h('textarea', { class: 'in', placeholder: 'Sumber * (mis. HR. Muslim no. 8, Kitab Iman)', maxlength: '500' });
+  const arabic = h('textarea', { class: 'in arab-in', lang: 'ar', dir: 'rtl', placeholder: 'Teks Arab hadits (wajib)', maxlength: '4000' });
+  const body = h('textarea', { class: 'in tall', placeholder: 'Terjemahan / isi (wajib)', maxlength: '8000' });
+  const source = h('textarea', { class: 'in', placeholder: 'Sumber (wajib), mis. HR. Muslim no. 8, Kitab Iman', maxlength: '500' });
   const grade = h('select', { class: 'in', 'aria-label': 'Derajat hadits' }, h('option', { value: '' }, 'Derajat (pilih)'), h('option', { value: 'Shahih' }, 'Shahih'), h('option', { value: 'Hasan' }, 'Hasan'));
   const title = h('input', { class: 'in', placeholder: 'Judul (opsional)', maxlength: '150', autocomplete: 'off' });
   const fAyat = h('div', {}, h('label', { class: 'hint' }, 'Ayat Al-Qur’an: hanya rujukan yang disimpan. Teks Arab dan terjemahnya diambil otomatis dari layanan Al-Qur’an.'), surahSel, from, to, previewBtn, preview);
@@ -110,7 +113,7 @@ export async function renderRukunManager(box, onBack, pillarKey) {
     const k = kind.value;
     fAyat.hidden = k !== 'ayat'; fHadits.hidden = k !== 'hadits'; fTuntunan.hidden = k !== 'tuntunan';
     if (k === 'hadits') slotH.appendChild(body); else if (k === 'tuntunan') slotT.appendChild(body);
-    body.placeholder = k === 'hadits' ? 'Terjemahan hadits (bahasa Indonesia) *' : 'Isi tuntunan * (maks. 8.000 karakter)';
+    body.placeholder = k === 'hadits' ? 'Terjemahan hadits, bahasa Indonesia (wajib)' : 'Isi tuntunan (wajib, maks. 8.000 karakter)';
   };
   kind.addEventListener('change', place);
 
@@ -135,7 +138,7 @@ export async function renderRukunManager(box, onBack, pillarKey) {
   const cancel = h('button', { class: 'btn-sm ghost', type: 'button', hidden: true, onclick: () => reload() }, 'Batal ubah');
 
   const form = h('form', {
-    class: 'panel', novalidate: 'novalidate',
+    class: 'panel rform', novalidate: 'novalidate',
     onsubmit: async ev => {
       ev.preventDefault();
       const k = editing ? editing.kind : kind.value; let f;
@@ -189,7 +192,7 @@ export async function renderRukunManager(box, onBack, pillarKey) {
     onBack ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: onBack }, '← Kembali ke dashboard') : '',
     h('h2', { class: 'mt' }, 'Kelola Rukun Islam & Iman'),
     h('p', { class: 'muted' }, 'Hanya Super Admin yang bisa mengubah. Pilih rukun, lalu tambahkan dalil, hadits, atau tuntunan. Hadits wajib mencantumkan teks Arab, terjemahan, dan sumber (perawi serta nomor). Sebaiknya diperiksa ustaz sebelum diterbitkan.'),
-    h('label', { class: 'hint' }, 'Rukun'), sel, form,
+    h('label', { class: 'hint mt' }, 'Rukun'), sel, form,
     h('div', { class: 'panel' }, h('h3', {}, 'Isi untuk ' + byKey(sel.value).name + ' (' + mine.length + ')'),
       mine.length ? mine.map(item) : h('p', { class: 'muted' }, 'Belum ada isi.'))
   ].flat());

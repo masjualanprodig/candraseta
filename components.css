@@ -326,3 +326,10 @@ textarea.tall{min-height:200px}
 .hperiod.grade{margin-left:.5rem}
 .arab-in{font-size:1.4rem;line-height:2;min-height:6rem}
 .ic-chev{width:1.2rem;height:1.2rem;color:var(--sage)}
+
+.rform .in,.rform select{display:block;width:100%;margin:.55rem 0 0}
+.rform label.hint{display:block;margin-top:.7rem}
+.rform .tall{min-height:7rem}
+.rform .arab-in{min-height:5.5rem}
+.rform .btn-sm{margin-top:.55rem}
+.rform .dalil{margin-top:.6rem}
