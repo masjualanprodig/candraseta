@@ -11,11 +11,12 @@ import { worldGallery } from './world-ui.js';
 import { historyPage } from './history-ui.js';
 import { rukunPage } from './rukun-ui.js';
 import { quranPage } from './quran-ui.js';
+import { nearbyView } from './nearby-ui.js';
 import { calendarView, calendarSupported } from './calendar-ui.js';
 import { publicPhotoUrl } from './supabase.js';
 
 let onBack = () => {};
-let state = { tab: 'dir', q: '', province: '', items: [], more: false, loaded: false, provinces: null, error: false };
+let state = { tab: 'dir', view: 'list', q: '', province: '', items: [], more: false, loaded: false, provinces: null, error: false };
 
 export function openDirectory(from, back, tab) {
   onBack = back;
@@ -112,8 +113,14 @@ async function load(reset) {
   renderList();
 }
 
+const seg = () => h('div', { class: 'seg', role: 'tablist', 'aria-label': 'Tampilan masjid' },
+  ...[['list', 'Daftar'], ['near', 'Terdekat']].map(([k, label]) => h('button', {
+    class: 'segb', type: 'button', role: 'tab', 'aria-selected': String(state.view === k), onclick: () => { state.view = k; renderList(); window.scrollTo(0, 0); }
+  }, label)));
+
 function renderList() {
   const box = $('public-content');
+  if (state.view === 'near') { box.replaceChildren(tabs(), seg(), nearbyView({ onOpen: m => renderDetail(m, renderList, '← Masjid terdekat') })); return; }
   const q = h('input', { class: 'in', type: 'search', placeholder: 'Cari nama masjid atau kota', maxlength: '60', value: state.q, autocomplete: 'off' });
   const prov = h('select', { class: 'in', 'aria-label': 'Provinsi' },
     h('option', { value: '' }, 'Semua provinsi'),
@@ -144,7 +151,7 @@ function renderList() {
           h('button', { class: 'btn-sm ghost', onclick: () => renderDetail(m) }, 'Lihat profil')))),
       state.more ? h('div', { class: 'mt center' }, h('button', { class: 'btn-sm ghost', onclick: () => loadMore() }, 'Muat lebih banyak')) : '');
   }
-  box.replaceChildren(tabs(), search, body);
+  box.replaceChildren(tabs(), seg(), search, body);
 }
 
 async function loadMore() {

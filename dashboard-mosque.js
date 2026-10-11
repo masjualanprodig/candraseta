@@ -1,5 +1,6 @@
 // BAITUNA - dashboard-mosque.js
 // Dashboard Admin Masjid: profil masjid, tim pengurus, dan undangan.
+import { getPosition } from './nearby-service.js';
 import { h, toast, hint, ask } from './ui.js';
 import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, setMosquePhoto } from './mosque-service.js';
 import { prepareImage, newPhotoPath, PHOTO_ERRORS, MAX_BYTES } from './photo.js';
@@ -32,6 +33,18 @@ export async function renderMosque(box, mosqueId, view = 'home') {
       .map(([v, l]) => h('option', { value: v }, l)));
   tz.value = mosque.timezone || 'Asia/Jakarta';
   const lat = field('Lintang (mis. -6.914744)', mosque.latitude, 12), lng = field('Bujur (mis. 107.609810)', mosque.longitude, 12);
+  const geoMsg = h('p', { class: 'hint' }, '');
+  const geoBtn = h('button', { class: 'btn-sm ghost', type: 'button', onclick: async () => {
+    geoBtn.disabled = true; geoMsg.textContent = 'Mencari lokasi perangkat…';
+    try {
+      const p = await getPosition();
+      lat.value = p.lat.toFixed(6); lng.value = p.lng.toFixed(6);
+      geoMsg.textContent = 'Terisi dari lokasi perangkat' + (p.acc ? ' (akurasi sekitar ' + Math.round(p.acc) + ' m)' : '') + '. Pastikan Anda sedang berada di masjid, lalu tekan Simpan profil.';
+    } catch (e) {
+      geoMsg.textContent = e && e.code === 'denied' ? 'Izin lokasi ditolak. Aktifkan izin lokasi untuk situs ini, lalu coba lagi.' : 'Lokasi perangkat belum tersedia. Isi lintang dan bujur secara manual.';
+    }
+    geoBtn.disabled = false;
+  } }, 'Isi dari lokasi perangkat ini');
   const btn = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan profil');
   const form = h('form', {
     class: 'panel', novalidate: 'novalidate',
@@ -62,6 +75,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   }, h('h3', {}, 'Profil masjid'), h('div', { class: 'grid2' }, name, city, prov, phone), addr, desc, fac,
     h('p', { class: 'hint' }, 'Koordinat: buka Google Maps, tekan lama pada lokasi masjid, lalu salin dua angkanya (lintang lalu bujur). Boleh dikosongkan.'),
     h('div', { class: 'grid2' }, lat, lng),
+    h('div', { class: 'mt' }, geoBtn), geoMsg,
     h('p', { class: 'hint' }, 'Zona waktu dipakai untuk menghitung jadwal salat masjid ini.'), tz, h('div', { class: 'mt' }, btn));
 
   // ----- Foto masjid (1 foto, maksimal 2 MB) -----

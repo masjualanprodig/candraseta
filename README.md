@@ -41,3 +41,10 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 ## Rukun Islam & Iman (menu "Lainnya" → Rukun)
 - SQL: `rukun.sql`. Ayat = hanya rujukan (surat:ayat), teks diambil otomatis; hadits & tuntunan ditulis Super Admin dengan sumber.
 - Bilah bawah kini 5 tab: Masjid, Agenda, Kalender, Qur'an, Lainnya (Rukun, Sejarah, Galeri Dunia).
+
+## Masjid Terdekat (v23)
+- Tab Masjid punya pilihan **Daftar | Terdekat**. Terdekat memakai lokasi perangkat (izin diminta saat tombol ditekan).
+- Lokasi pengguna **tidak dikirim ke server**; jarak (garis lurus) dihitung di perangkat.
+- Hanya masjid aktif yang sudah mengisi titik lokasi (latitude/longitude) yang tampil. Admin Masjid bisa mengisinya lewat tombol "Isi dari lokasi perangkat ini" di Edit profil.
+- Peta: Leaflet (self-hosted, lisensi `LICENSE-Leaflet.txt`) + ubin OpenStreetMap. Pemakaian berat perlu penyedia ubin sendiri.
+- Waktu tempuh berkendara belum ada (butuh layanan rute).

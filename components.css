@@ -333,3 +333,22 @@ textarea.tall{min-height:200px}
 .rform .arab-in{min-height:5.5rem}
 .rform .btn-sm{margin-top:.55rem}
 .rform .dalil{margin-top:.6rem}
+
+/* ===== Masjid terdekat ===== */
+.seg{display:flex;gap:.3rem;padding:.25rem;margin:.2rem 0 .8rem;background:#fff;border:1px solid var(--line);border-radius:999px}
+.segb{flex:1;border:0;border-radius:999px;padding:.55rem .6rem;font:inherit;font-weight:700;font-size:.9rem;background:transparent;color:var(--teal);cursor:pointer}
+.segb[aria-selected="true"]{background:var(--teal);color:#fff}
+.nmap{height:260px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#e8efe9;z-index:0}
+.nmap-off{height:auto;padding:1rem}
+.nhead{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin:.8rem 0 .4rem}
+.nhead .muted{margin:0;font-size:.85rem}
+.nlist{display:flex;flex-direction:column;gap:.6rem;margin-top:.4rem}
+.ncard{display:flex;gap:.8rem;padding:.7rem;background:#fff;border:1px solid var(--line);border-radius:18px}
+.ncard.sel{border-color:var(--gold);background:#fffaf0}
+.ncard .minfo{flex:1;min-width:0}
+.ndist{margin-top:.25rem;color:var(--teal)}
+.ndist b{font-size:1.05rem}
+.ncard .btn-sm{text-decoration:none;display:inline-flex;align-items:center}
+.nmk{background:transparent;border:0}
+.nmk span{display:block;width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--teal);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.hint.err{color:#a1260f}
