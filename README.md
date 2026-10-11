@@ -79,3 +79,9 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 ### Pembaruan Jadwal Salat (v31)
 - Ditambah baris **Imsak** (10 menit sebelum Subuh) dan **Dhuha** (perkiraan 20 menit setelah terbit). Keduanya perkiraan dan tidak dihitung sebagai "salat berikutnya".
 - Lokasi GPS kini menampilkan "Dekat <kota>" bila ada kota dalam daftar yang jaraknya ≤ 50 km (perkiraan garis lurus); jika tidak, hanya koordinat.
+
+## Doa Shahih (v32)
+- Menu **Lainnya → Doa Shahih**: kategori, pencarian, favorit (disimpan di perangkat), dan tombol Salin.
+- Jalankan **doa.sql** di Supabase SQL Editor (aman diulang). Tabel `duas` kosong saat dibuat; tidak ada doa yang diisi otomatis.
+- Dikelola **Super Admin** (dasbor → "Doa Shahih"). Doa dari hadits wajib: teks Arab, terjemahan, sumber (perawi + nomor), derajat (hanya shahih/hasan; dha'if ditolak database), dan keterangan penilai derajat. Ayat Al-Qur'an hanya rujukan; teksnya diambil otomatis dari AlQuran Cloud.
+- Sebaiknya seluruh isi diperiksa ustaz sebelum diumumkan.

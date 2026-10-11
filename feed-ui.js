@@ -26,6 +26,7 @@ export const ICONS = {
   chev: '<path d="M9 6l6 6-6 6"/>',
   more: '<circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+  doa: '<path d="M12 20.5c-4.4-3-7.5-5.6-7.5-9A4.3 4.3 0 0 1 12 8.6a4.3 4.3 0 0 1 7.5 2.9c0 3.4-3.1 6-7.5 9z"/>',
   dzikir: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/>',
   news: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 12.5h8M8 16h5"/>',
   share: '<circle cx="6.5" cy="12" r="2.2"/><circle cx="17.5" cy="6.5" r="2.2"/><circle cx="17.5" cy="17.5" r="2.2"/><path d="M8.5 11l7-3.5M8.5 13l7 3.5"/>',

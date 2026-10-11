@@ -455,3 +455,12 @@ textarea.tall{min-height:200px}
 .jbadge{display:block;font-style:normal;font-size:.75rem;color:var(--teal);font-weight:700}
 .jwarn{border-color:var(--gold);background:#fdf3dc;color:#6b4a00}
 .jplace{margin:0 0 .6rem;overflow-wrap:anywhere}
+
+/* ===== Doa Shahih (v32) ===== */
+.doa .achips{margin-top:.6rem}
+.doa input[type=search]{margin-top:.2rem}
+.dua .dcat{display:block;margin:-.1rem 0 .4rem;font-size:.82rem}
+.hperiod.grade.shahih{background:#e0f2ea;color:var(--teal-d)}
+.hperiod.grade.hasan{background:#fdf0d3;color:#7a5600}
+.dcount{margin:.8rem 0 0;font-size:.85rem}
+.dfav[aria-pressed="true"]{border-color:var(--gold);color:#7a5600}

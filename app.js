@@ -101,6 +101,7 @@ $('open-world').addEventListener('click', e => { e.preventDefault(); openDirecto
 $('open-rukun').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'rukun'); });
 $('open-berita').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'berita'); });
 $('open-jadwal').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'jadwal'); });
+$('open-doa').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'doa'); });
 $('open-dzikir').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'dzikir'); });
 $('open-history').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'sejarah'); });
 $('open-quran').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'quran'); });
@@ -111,6 +112,7 @@ $('nav-world').addEventListener('click', () => openDirectory('app', () => enterA
 $('nav-rukun').addEventListener('click', () => openDirectory('app', () => enterApp(), 'rukun'));
 $('nav-berita').addEventListener('click', () => openDirectory('app', () => enterApp(), 'berita'));
 $('nav-jadwal').addEventListener('click', () => openDirectory('app', () => enterApp(), 'jadwal'));
+$('nav-doa').addEventListener('click', () => openDirectory('app', () => enterApp(), 'doa'));
 $('nav-dzikir').addEventListener('click', () => openDirectory('app', () => enterApp(), 'dzikir'));
 $('nav-history').addEventListener('click', () => openDirectory('app', () => enterApp(), 'sejarah'));
 $('nav-quran').addEventListener('click', () => openDirectory('app', () => enterApp(), 'quran'));
