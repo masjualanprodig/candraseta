@@ -25,6 +25,7 @@ export const ICONS = {
   quran: '<path d="M12 6.5C9.8 4.9 6.8 4.4 4 5v13c2.8-.6 5.8-.1 8 1.5 2.2-1.6 5.2-2.1 8-1.5V5c-2.8-.6-5.8-.1-8 1.5z"/><path d="M12 6.5v13M7 9.5h2M15 9.5h2"/>',
   chev: '<path d="M9 6l6 6-6 6"/>',
   more: '<circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/>',
+  dzikir: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/>',
   news: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 12.5h8M8 16h5"/>',
   share: '<circle cx="6.5" cy="12" r="2.2"/><circle cx="17.5" cy="6.5" r="2.2"/><circle cx="17.5" cy="17.5" r="2.2"/><path d="M8.5 11l7-3.5M8.5 13l7 3.5"/>',
   horn: '<path d="M4 10v4h3l7 4V6l-7 4H4z"/><path d="M17.5 9.5a4 4 0 0 1 0 5"/>'

@@ -10,6 +10,7 @@ import { renderWorldManager } from './world-ui.js';
 import { renderHistoryManager } from './history-ui.js';
 import { renderRukunManager } from './rukun-ui.js';
 import { renderArticleManager } from './articles-ui.js';
+import { renderDhikrManager } from './dzikir-ui.js';
 import { icon, ICONS } from './feed-ui.js';
 
 const ACTIONS = {
@@ -100,7 +101,8 @@ export async function renderAdmin(box) {
     h('div', { class: 'actions' }, h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => renderAdmin(box)) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
       h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),
       h('button', { class: 'act', type: 'button', onclick: () => renderRukunManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Rukun Islam & Iman')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderArticleManager(box, () => renderAdmin(box)) }, icon(ICONS.news), h('span', {}, 'Berita & Artikel Islam'))),
+      h('button', { class: 'act', type: 'button', onclick: () => renderArticleManager(box, () => renderAdmin(box)) }, icon(ICONS.news), h('span', {}, 'Berita & Artikel Islam')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderDhikrManager(box, () => renderAdmin(box)) }, icon(ICONS.dzikir), h('span', {}, 'Dzikir Pagi & Petang'))),
     form,
     h('div', { class: 'panel' },
       h('h3', {}, 'Daftar masjid (' + list.length + ')'),

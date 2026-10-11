@@ -390,3 +390,39 @@ textarea.tall{min-height:200px}
 .achips{margin:.4rem 0 0;padding:.2rem 0 .6rem}
 .rform .grid2{gap:.55rem;margin-top:.55rem}
 .rform .grid2 .in,.rform .grid2 select{margin:0}
+
+/* v27: Dzikir Pagi & Petang + penghitung */
+.dzikir .seg{margin-top:.6rem}
+.dopt{display:flex;align-items:center;gap:.6rem;margin:.2rem 0 .8rem;font-size:.92rem;color:var(--sage)}
+.dopt input{width:22px;height:22px;accent-color:var(--teal);flex:none}
+.dsum{margin-top:.2rem}
+.dsum-t{margin:0 0 .6rem;font-weight:700;color:var(--teal-d);line-height:1.4}
+.dbar{height:10px;border-radius:999px;background:#e0ece6;overflow:hidden;margin:.2rem 0 .8rem}
+.dbar i{display:block;height:100%;width:0;background:var(--teal);border-radius:999px;transition:width .2s ease}
+.dcard{margin-top:.8rem}
+.dcard.done{border-color:var(--teal);background:#f1f8f5}
+.dhead{display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem}
+.dhead .dtitle{flex:1;min-width:0;overflow-wrap:anywhere}
+.dlatin{margin:.3rem 0;font-style:italic;color:var(--sage);line-height:1.6;overflow-wrap:anywhere}
+.dsrc{margin:.5rem 0 0;font-size:.88rem;color:var(--sage);overflow-wrap:anywhere}
+.dnote{margin:.5rem 0 0;font-size:.9rem;color:var(--sage)}
+.dtap,.tbig{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;cursor:pointer;font:inherit}
+.dtap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;width:100%;min-height:68px;margin-top:.9rem;border:0;border-radius:20px;background:var(--teal);color:#fff;padding:.6rem}
+.dtap:active:not(:disabled){transform:scale(.985);background:var(--teal-d)}
+.dtap:disabled{background:#cfe6dc;color:var(--teal-d);cursor:default}
+.dtap-main{font-size:1.15rem;font-weight:800}
+.dtap-sub{font-size:.95rem;opacity:.9}
+.dctl{margin-top:.6rem}
+.tasbih{margin-top:.4rem}
+.tpre{margin:.6rem 0 .2rem;flex-wrap:wrap;overflow:visible}
+.tpre .achip[aria-pressed="true"]{background:var(--teal);color:#fff}
+.tcus{margin:.4rem 0 0;flex-wrap:nowrap}
+.tcus .in{flex:1;min-width:0}
+.tbigwrap{display:grid;place-items:center;margin:1.2rem 0 .6rem}
+.tbig{display:flex;flex-direction:column;align-items:center;justify-content:center;width:min(72vw,280px);aspect-ratio:1;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#0b8a72,var(--teal) 60%,var(--teal-d));color:#fff;box-shadow:0 10px 26px rgba(6,103,85,.35)}
+.tbig:active{transform:scale(.97)}
+.tbig.hit{background:radial-gradient(circle at 35% 30%,#e8b54a,var(--gold) 60%,#a9740f)}
+.tnum{font-size:clamp(3rem,16vw,5rem);font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.tlab{margin-top:.3rem;font-size:1rem;opacity:.85}
+.tinfo{text-align:center;font-weight:700;color:var(--teal-d);margin:.4rem 0}
+.tasbih .dctl{justify-content:center}

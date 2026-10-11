@@ -9,13 +9,13 @@ import { applyReadingPrefs } from './quran-ui.js';
 
 const byKey = k => PILLARS.find(p => p.key === k);
 const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.status === 404);
-const refLabel = (surahs, it) => {
+export const refLabel = (surahs, it) => {
   const s = surahs && surahs.find(x => x.number === it.surah);
   return 'QS. ' + (s ? s.latin : 'Surat ' + it.surah) + ' [' + it.surah + ']: ' + (it.ayah_from === it.ayah_to ? it.ayah_from : it.ayah_from + '–' + it.ayah_to);
 };
 
 // Satu blok dalil Al-Qur'an (dimuat sendiri-sendiri; gagal satu tidak merusak yang lain).
-function ayatBlock(it, surahs) {
+export function ayatBlock(it, surahs) {
   const box = h('div', { class: 'dalil' }, h('p', { class: 'dref' }, refLabel(surahs, it)), h('p', { class: 'muted' }, 'Memuat ayat…'));
   const fill = () => loadAyat(it.surah, it.ayah_from, it.ayah_to).then(rows => {
     box.replaceChildren(h('p', { class: 'dref' }, refLabel(surahs, it)),

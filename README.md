@@ -55,3 +55,10 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Setiap artikel **wajib** mencantumkan penulis/sumber; tautan sumber opsional (hanya http/https).
 - Isi artikel adalah teks biasa (bukan HTML). Gambar sampul opsional, maksimal 2 MB (otomatis diperkecil).
 - Jalankan `berita.sql` sekali di Supabase SQL Editor (aman diulang). Tanpa itu halaman menampilkan petunjuk "belum aktif".
+
+## Dzikir Pagi & Petang (v27)
+- Menu **Lainnya → Dzikir Pagi & Petang**. Tiga tab: Pagi, Petang, Tasbih (penghitung bebas).
+- Setiap bacaan punya tombol ketuk besar dengan target hitungan; hitungan tersimpan di perangkat (localStorage) dan kosong lagi saat ganti hari. Tidak ada hitungan yang dikirim ke server.
+- Bacaan dikelola **Super Admin** (dasbor → "Dzikir Pagi & Petang"). Teks wajib punya Arab, terjemahan, dan sumber. Ayat Al-Qur'an hanya rujukan; teksnya diambil otomatis dari AlQuran Cloud.
+- Jalankan `dzikir.sql` sekali. Tabel sengaja kosong: tidak ada bacaan agama yang diisi otomatis.
+- Getar saat mengetuk dan "jaga layar menyala" hanya muncul bila didukung perangkat (iPhone umumnya tidak mendukung getar).
