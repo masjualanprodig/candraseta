@@ -112,6 +112,7 @@ $('nav-world').addEventListener('click', () => openDirectory('app', () => enterA
 $('nav-rukun').addEventListener('click', () => openDirectory('app', () => enterApp(), 'rukun'));
 $('nav-berita').addEventListener('click', () => openDirectory('app', () => enterApp(), 'berita'));
 $('nav-jadwal').addEventListener('click', () => openDirectory('app', () => enterApp(), 'jadwal'));
+$('nav-profil').addEventListener('click', () => openDirectory('app', () => enterApp(), 'profil'));
 $('nav-doa').addEventListener('click', () => openDirectory('app', () => enterApp(), 'doa'));
 $('nav-dzikir').addEventListener('click', () => openDirectory('app', () => enterApp(), 'dzikir'));
 $('nav-history').addEventListener('click', () => openDirectory('app', () => enterApp(), 'sejarah'));

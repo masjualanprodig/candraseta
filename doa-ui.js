@@ -10,16 +10,24 @@ import { ayatBlock, refLabel } from './rukun-ui.js';
 const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.status === 404);
 const PAGE = 30;
 
+// Bagikan: lembar bagikan perangkat bila ada; jika tidak, buka WhatsApp dengan teks yang sama seperti Salin.
+async function share(text) {
+  try {
+    if (navigator.share) { await navigator.share({ text }); return; }
+    const w = window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer');
+    if (!w) toast('Tidak bisa membuka WhatsApp. Gunakan tombol Salin.', true);
+  } catch (e) { if (e && e.name === 'AbortError') return; toast('Tidak bisa membagikan. Gunakan tombol Salin.', true); }
+}
 async function copy(text) {
   try { await navigator.clipboard.writeText(text); toast('Doa disalin.'); } catch (e) { toast('Tidak bisa menyalin di perangkat ini.', true); }
 }
 
 /* ===== 1. Jamaah ===== */
-export function doaPage() {
+export function doaPage(opts = {}) {
   const wrap = h('div', { class: 'doa' });
   applyReadingPrefs(wrap);
   let items = null, surahs = null, loadErr = null;
-  let cat = 'semua', q = '', shown = PAGE, favs = loadFavs();
+  let cat = opts.cat === 'favorit' ? 'favorit' : 'semua', q = '', shown = PAGE, favs = loadFavs();
   const content = h('div');
   const search = h('input', { class: 'in', type: 'search', placeholder: 'Cari doa (judul, arti, atau sumber)', 'aria-label': 'Cari doa', maxlength: '80', autocomplete: 'off' });
   search.addEventListener('input', () => { q = search.value; shown = PAGE; drawList(); });
@@ -43,7 +51,8 @@ export function doaPage() {
       it.grading ? h('p', { class: 'dsrc' }, h('b', {}, 'Keterangan derajat: '), it.grading) : '',
       it.note ? h('p', { class: 'dnote prewrap' }, it.note) : '',
       h('div', { class: 'row-btns dctl' },
-        it.kind === 'teks' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => copy(copyText(it)) }, 'Salin') : '', favB));
+        it.kind === 'teks' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => copy(copyText(it)) }, 'Salin') : '',
+        it.kind === 'teks' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => share(copyText(it)) }, 'Bagikan') : '', favB));
   }
 
   function drawChips() {

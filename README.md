@@ -85,3 +85,12 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Jalankan **doa.sql** di Supabase SQL Editor (aman diulang). Tabel `duas` kosong saat dibuat; tidak ada doa yang diisi otomatis.
 - Dikelola **Super Admin** (dasbor → "Doa Shahih"). Doa dari hadits wajib: teks Arab, terjemahan, sumber (perawi + nomor), derajat (hanya shahih/hasan; dha'if ditolak database), dan keterangan penilai derajat. Ayat Al-Qur'an hanya rujukan; teksnya diambil otomatis dari AlQuran Cloud.
 - Sebaiknya seluruh isi diperiksa ustaz sebelum diumumkan.
+
+### Pembaruan Doa (v33)
+- Tombol **Bagikan** (lembar bagikan perangkat, atau WhatsApp bila tidak ada) di samping Salin; isinya sama dengan Salin.
+
+## Profil & Pengaturan (v34)
+- Menu **Lainnya → Profil & Pengaturan** (juga tombol **Profil** di bilah menu setelah masuk). Tanpa SQL baru.
+- Sudah masuk: kartu profil (inisial, nama, email, peran + masjid), **Ubah profil** (nama, telepon; tabel `profiles`, hanya milik sendiri), **Ganti password** (password lama diperiksa dulu), **Keluar**.
+- Semua pengguna: **Favorit** (doa ★), **Progres saya** (ringkasan di perangkat), **Pengaturan** (ukuran/gaya tulisan Arab, bunyi dzikir, hapus data di perangkat), **Bantuan** (FAQ), **Tentang BAITUNA** (versi, privasi singkat).
+- Belum ada: foto profil, notifikasi (browser tidak bisa menjamin notifikasi/alarm), bookmark artikel.

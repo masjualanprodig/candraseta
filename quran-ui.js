@@ -9,6 +9,11 @@ const setQari = v => { try { localStorage.setItem(KEY, v); } catch { /* abaikan 
 const SIZES = [1.5, 1.8, 2.1, 2.5, 3];
 const getPref = () => { try { const p = JSON.parse(localStorage.getItem('baituna.quranpref.v1')); return { size: SIZES.includes(p.size) ? p.size : 2.1, font: p.font === 'sch' ? 'sch' : 'amiri' }; } catch { return { size: 2.1, font: 'amiri' }; } };
 const setPref = p => { try { localStorage.setItem('baituna.quranpref.v1', JSON.stringify(p)); } catch { /* abaikan */ } };
+// Dipakai halaman Profil & Pengaturan (ukuran/gaya tulisan Arab dan bacaan terakhir).
+export const READING_SIZES = SIZES;
+export const readingPrefs = () => getPref();
+export const saveReadingPrefs = p => setPref(p);
+export const lastRead = () => getLast();
 const TSIZES = [0.95, 1.05, 1.2, 1.4, 1.65];
 const LAST = 'baituna.quranlast.v1';
 const getLast = () => { try { const v = JSON.parse(localStorage.getItem(LAST)); return v && Number.isInteger(v.n) && Number.isInteger(v.ayah) && v.n >= 1 && v.n <= 114 && v.ayah >= 1 ? v : null; } catch { return null; } };
