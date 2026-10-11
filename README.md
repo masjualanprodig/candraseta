@@ -75,3 +75,7 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Lokasi: tombol "Gunakan lokasi saya" (GPS HP, hanya setelah diketuk) atau pilih dari 41 kota. Lokasi hanya disimpan di HP (localStorage), tidak dikirim ke server mana pun.
 - Ada hitung mundur ke salat berikutnya. Aplikasi **tidak** membunyikan adzan/pengingat.
 - Hasil hitungan bisa beda beberapa menit dari jadwal resmi Kemenag/masjid; ikuti pengumuman masjid. Koordinat kota adalah perkiraan pusat kota.
+
+### Pembaruan Jadwal Salat (v31)
+- Ditambah baris **Imsak** (10 menit sebelum Subuh) dan **Dhuha** (perkiraan 20 menit setelah terbit). Keduanya perkiraan dan tidak dihitung sebagai "salat berikutnya".
+- Lokasi GPS kini menampilkan "Dekat <kota>" bila ada kota dalam daftar yang jaraknya ≤ 50 km (perkiraan garis lurus); jika tidak, hanya koordinat.

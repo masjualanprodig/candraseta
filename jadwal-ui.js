@@ -8,8 +8,21 @@ import { computePrayerTimes, nextPrayer, fmt, fmtCountdown, zoneLabel, inIndones
 import * as cal from './islamic-calendar.js';
 
 const LKEY = 'baituna.loc.v1';
-const NAMES = { fajr: 'Subuh', sunrise: 'Terbit', dhuhr: 'Dzuhur', asr: 'Ashar', maghrib: 'Maghrib', isha: 'Isya' };
-const ROWS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+const NAMES = { imsak: 'Imsak', dhuha: 'Dhuha', fajr: 'Subuh', sunrise: 'Terbit', dhuhr: 'Dzuhur', asr: 'Ashar', maghrib: 'Maghrib', isha: 'Isya' };
+const ROWS = ['imsak', 'fajr', 'sunrise', 'dhuha', 'dhuhr', 'asr', 'maghrib', 'isha'];
+const MINOR = ['imsak', 'sunrise', 'dhuha']; // bukan waktu salat wajib / turunan perkiraan
+// Imsak = 10 menit sebelum Subuh; awal Dhuha = perkiraan 20 menit setelah terbit (bukan penetapan resmi).
+const IMSAK_MIN = 10, DHUHA_MIN = 20;
+// Kota terdekat dari daftar (garis lurus). Hanya perkiraan nama; di luar 50 km tidak disebut.
+function nearestCity(lat, lng) {
+  const r = Math.PI / 180; let best = null, bd = Infinity;
+  for (const c of CITIES) {
+    const a = Math.sin((c.lat - lat) * r / 2) ** 2 + Math.cos(lat * r) * Math.cos(c.lat * r) * Math.sin((c.lng - lng) * r / 2) ** 2;
+    const d = 12742 * Math.asin(Math.sqrt(a));
+    if (d < bd) { bd = d; best = c; }
+  }
+  return best && bd <= 50 ? best.name : null;
+}
 const MSG = {
   denied: 'Izin lokasi ditolak. Anda bisa memilih kota di bawah, atau mengizinkan lokasi di pengaturan peramban lalu coba lagi.',
   unavailable: 'Lokasi belum bisa ditentukan. Pastikan GPS/lokasi HP menyala, lalu coba lagi, atau pilih kota.',
@@ -70,8 +83,10 @@ export function jadwalPage() {
   function result() {
     const now = Date.now(), off = offsetFor(loc, now);
     const day = todayIn(off, now), times = computePrayerTimes(day, loc.lat, loc.lng, off);
+    times.imsak = times.fajr - IMSAK_MIN; times.dhuha = times.sunrise + DHUHA_MIN;
     const np = nextPrayer(now, loc.lat, loc.lng, off);
-    const place = loc.mode === 'city' ? loc.city : 'Lokasi perangkat (' + loc.lat.toFixed(3) + ', ' + loc.lng.toFixed(3) + ')';
+    const near = loc.mode === 'gps' ? nearestCity(loc.lat, loc.lng) : null;
+    const place = loc.mode === 'city' ? loc.city : (near ? 'Dekat ' + near + ' · ' : 'Lokasi perangkat ') + '(' + loc.lat.toFixed(3) + ', ' + loc.lng.toFixed(3) + ')';
     const kids = [];
     if (!isValidTimes(times) || !np) {
       kids.push(h('div', { class: 'panel' }, h('h3', {}, 'Jadwal belum bisa dihitung'),
@@ -90,7 +105,7 @@ export function jadwalPage() {
         h('p', { class: 'muted' }, cal.masehiText(day.y, day.m, day.d) + ' · waktu ' + zoneLabel(off)),
         h('div', { class: 'jrows' }, ROWS.map(k => {
           const isNext = !np.tomorrow && k === np.key;
-          return h('div', { class: 'jrow' + (k === 'sunrise' ? ' minor' : '') + (isNext ? ' next' : '') + (np.current === k ? ' now' : '') },
+          return h('div', { class: 'jrow' + (MINOR.includes(k) ? ' minor' : '') + (isNext ? ' next' : '') + (np.current === k ? ' now' : '') },
             h('span', {}, NAMES[k], np.current === k ? h('i', { class: 'jbadge' }, 'sedang berlangsung') : ''), h('b', {}, fmt(times[k])));
         }))));
       if (loc.mode === 'gps' && inIndonesia(loc.lat, loc.lng) && ![7, 8, 9].includes(off)) {
@@ -110,7 +125,7 @@ export function jadwalPage() {
 
   const note = () => h('div', { class: 'panel qnote' }, h('h3', {}, 'Tentang jadwal ini'),
     h('p', { class: 'muted' }, 'Dihitung di perangkat Anda dengan rumus astronomi, memakai acuan Kemenag RI: Subuh ' + METHOD.fajr + '°, Isya ' + METHOD.isha +
-      '°, Ashar mazhab Syafi’i, ditambah ihtiyat ' + METHOD.ihtiyat + ' menit. Hasilnya bisa berbeda beberapa menit dari jadwal resmi atau pengumuman masjid, jadi ikuti jadwal masjid setempat. Di luar Indonesia, acuan ini bisa berbeda dari otoritas setempat. Aplikasi ini tidak membunyikan adzan atau pengingat otomatis.'));
+      '°, Ashar mazhab Syafi’i, ditambah ihtiyat ' + METHOD.ihtiyat + ' menit. Imsak dihitung ' + IMSAK_MIN + ' menit sebelum Subuh dan awal Dhuha sekitar ' + DHUHA_MIN + ' menit setelah terbit; keduanya perkiraan. Nama kota pada lokasi GPS hanya perkiraan dari daftar kota. Hasilnya bisa berbeda beberapa menit dari jadwal resmi atau pengumuman masjid, jadi ikuti jadwal masjid setempat. Di luar Indonesia, acuan ini bisa berbeda dari otoritas setempat. Aplikasi ini tidak membunyikan adzan atau pengingat otomatis.'));
 
   function draw() {
     const kids = [h('h2', { class: 'wtitle' }, 'Jadwal Salat'),
