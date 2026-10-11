@@ -35,7 +35,11 @@ export function openMosque(m, from, back) {
   renderDetail(m, renderFeed, '← Agenda');
 }
 
+const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam' };
+
 function tabs() {
+  const sub = document.getElementById('public-sub');
+  if (sub) sub.textContent = SUBS[state.tab] || SUBS.dir;
   const t = (label, key, ic) => h('button', {
     class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(state.tab === key),
     onclick: () => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); }
