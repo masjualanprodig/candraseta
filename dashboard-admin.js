@@ -8,6 +8,7 @@ import { teamPanel } from './team-panel.js';
 import { getSession } from './supabase.js';
 import { renderWorldManager } from './world-ui.js';
 import { renderHistoryManager } from './history-ui.js';
+import { renderRukunManager } from './rukun-ui.js';
 import { icon, ICONS } from './feed-ui.js';
 
 const ACTIONS = {
@@ -96,7 +97,8 @@ export async function renderAdmin(box) {
     h('h2', {}, 'Dashboard Super Admin'),
     stats,
     h('div', { class: 'actions' }, h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => renderAdmin(box)) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam'))),
+      h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderRukunManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Rukun Islam & Iman'))),
     form,
     h('div', { class: 'panel' },
       h('h3', {}, 'Daftar masjid (' + list.length + ')'),

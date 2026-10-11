@@ -37,3 +37,7 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Sumber: AlQuran Cloud (gratis, tanpa kunci API): teks Utsmani (Tanzil), terjemahan `id.indonesian`, audio per ayat dari cdn.islamic.network (Alafasy, Husary).
 - Teks tidak disimpan/diubah; data divalidasi sebelum tampil (jumlah ayat, nomor, host audio). Basmalah yang menempel di ayat 1 dipindah ke kepala surat (tampilan saja).
 - Bukan mushaf bertashih Kemenag; lihat catatan "Tentang sumber" di halaman.
+
+## Rukun Islam & Iman (menu "Lainnya" → Rukun)
+- SQL: `rukun.sql`. Ayat = hanya rujukan (surat:ayat), teks diambil otomatis; hadits & tuntunan ditulis Super Admin dengan sumber.
+- Bilah bawah kini 5 tab: Masjid, Agenda, Kalender, Qur'an, Lainnya (Rukun, Sejarah, Galeri Dunia).

@@ -45,6 +45,14 @@ export async function listSurahs() {
 const skeleton = s => s.replace(/[ً-ٰٟۖ-ۭـ]/g, '').replace(/ٱ/g, 'ا');
 const BISM_SKEL = 'بسم الله الرحمن الرحيم';
 
+// Pisahkan basmalah yang menempel di awal ayat 1 (kebiasaan data sumber). Hanya dikenali bila empat kata pertamanya basmalah.
+export function splitBismillah(text, surahNo) {
+  if (surahNo === 1 || surahNo === 9) return { bismillah: '', text };
+  const w = text.trim().split(/\s+/);
+  if (w.length > 4 && skeleton(w.slice(0, 4).join(' ')) === BISM_SKEL) return { bismillah: w.slice(0, 4).join(' '), text: w.slice(4).join(' ') };
+  return { bismillah: '', text };
+}
+
 function audioList(ed, n, count) {
   if (!ed || ed.edition === undefined || !Array.isArray(ed.ayahs) || ed.ayahs.length !== count) throw bad('audio tidak lengkap');
   return ed.ayahs.map((a, i) => {
@@ -69,10 +77,7 @@ export async function loadSurah(n, reciter) {
     const t = tr.ayahs[i];
     if (!a || !t || a.numberInSurah !== i + 1 || t.numberInSurah !== i + 1 || typeof a.text !== 'string' || typeof t.text !== 'string' || !a.text.trim()) throw bad('ayat ' + (i + 1));
     let text = a.text;
-    if (i === 0 && n !== 1 && n !== 9) {
-      const w = text.trim().split(/\s+/);
-      if (w.length > 4 && skeleton(w.slice(0, 4).join(' ')) === BISM_SKEL) { bismillah = w.slice(0, 4).join(' '); text = w.slice(4).join(' '); }
-    }
+    if (i === 0) { const r = splitBismillah(text, n); bismillah = r.bismillah; text = r.text; }
     return { n: i + 1, ar: text, id: t.text, audio: audio[i] };
   });
   return { number: n, name: ar.name, latin: ar.englishName, place: ar.revelationType === 'Medinan' ? 'Madaniyah' : 'Makkiyah', bismillah, reciter: rec, ayahs };
@@ -83,4 +88,30 @@ export async function loadAudio(n, reciter, count) {
   if (!RID.includes(reciter)) throw bad('qari');
   const d = await getJson('/surah/' + n + '/' + reciter);
   return audioList(d, n, count);
+}
+
+// Teks ayat (Arab + terjemah) untuk rujukan "surat:ayat awal-akhir". Satu surat dimuat sekali lalu disimpan di memori.
+const textCache = new Map();
+async function surahText(n) {
+  if (textCache.has(n)) return textCache.get(n);
+  const p = (async () => {
+    const d = await getJson('/surah/' + n + '/editions/' + TEXT_ED + ',' + TRANS_ED);
+    if (!Array.isArray(d) || d.length !== 2) throw bad('edisi tidak lengkap');
+    const ar = d.find(e => e && e.edition && e.edition.identifier === TEXT_ED), tr = d.find(e => e && e.edition && e.edition.identifier === TRANS_ED);
+    if (!ar || !tr || ar.number !== n || !isInt(ar.numberOfAyahs) || [ar, tr].some(e => !Array.isArray(e.ayahs) || e.ayahs.length !== ar.numberOfAyahs)) throw bad('jumlah ayat tidak cocok');
+    return ar.ayahs.map((a, i) => {
+      const t = tr.ayahs[i];
+      if (!a || !t || a.numberInSurah !== i + 1 || t.numberInSurah !== i + 1 || typeof a.text !== 'string' || typeof t.text !== 'string' || !a.text.trim()) throw bad('ayat ' + (i + 1));
+      return { n: i + 1, ar: i === 0 ? splitBismillah(a.text, n).text : a.text, id: t.text };
+    });
+  })();
+  textCache.set(n, p);
+  p.catch(() => textCache.delete(n)); // gagal: boleh dicoba lagi
+  return p;
+}
+export async function loadAyat(n, from, to) {
+  if (!isInt(n) || !isInt(from) || !isInt(to) || n < 1 || n > 114 || from < 1 || to < from || to - from > 5) throw bad('rujukan ayat');
+  const all = await surahText(n);
+  if (to > all.length) throw bad('ayat di luar surat');
+  return all.slice(from - 1, to);
 }

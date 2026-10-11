@@ -311,3 +311,18 @@ textarea.tall{min-height:200px}
 .qstar.on{background:#fff3d6;border-color:var(--gold)}
 .ayah.jump{border-color:var(--gold);box-shadow:0 0 0 3px #f6e2b0}
 .qjump{flex:1;min-width:0}
+
+/* ===== Lainnya + Rukun ===== */
+.morecard{display:flex;align-items:center;gap:.9rem;width:100%;padding:.9rem 1rem;text-align:left;font:inherit;color:inherit;background:#fff;border:1px solid var(--line);border-radius:18px;cursor:pointer}
+.morecard:active{transform:scale(.985)}
+.mc-ic{display:grid;place-items:center;width:2.8rem;height:2.8rem;border-radius:14px;background:#e3efea;color:var(--teal);flex:0 0 auto}
+.mc-tx{display:flex;flex-direction:column}
+.mc-tx b{color:var(--teal)}
+.rgroup{margin:1.2rem 0 .1rem;color:var(--teal)}
+.dalil{padding:.5rem 0;border-bottom:1px dashed var(--line)}
+.dalil:last-child{border-bottom:0}
+.dref{margin:0;font-weight:700;color:var(--teal);font-size:.9rem}
+.dsrc{margin:.2rem 0 0;font-size:.85rem;color:var(--sage)}
+.hperiod.grade{margin-left:.5rem}
+.arab-in{font-size:1.4rem;line-height:2;min-height:6rem}
+.ic-chev{width:1.2rem;height:1.2rem;color:var(--sage)}

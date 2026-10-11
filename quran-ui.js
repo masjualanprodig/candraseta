@@ -152,3 +152,12 @@ export function quranPage() {
   init();
   return wrap;
 }
+
+// Dipakai halaman lain (mis. Rukun Islam & Iman) agar ukuran dan gaya tulisan Arab sama dengan pilihan pengguna di tab Al-Qur'an.
+export function applyReadingPrefs(el) {
+  const p = getPref();
+  el.classList.add('quran');
+  el.style.setProperty('--qsize', p.size + 'rem');
+  el.style.setProperty('--qtsize', TSIZES[SIZES.indexOf(p.size)] + 'rem');
+  el.dataset.font = p.font;
+}
