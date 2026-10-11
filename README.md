@@ -48,3 +48,10 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Hanya masjid aktif yang sudah mengisi titik lokasi (latitude/longitude) yang tampil. Admin Masjid bisa mengisinya lewat tombol "Isi dari lokasi perangkat ini" di Edit profil.
 - Peta: Leaflet (self-hosted, lisensi `LICENSE-Leaflet.txt`) + ubin OpenStreetMap. Pemakaian berat perlu penyedia ubin sendiri.
 - Waktu tempuh berkendara belum ada (butuh layanan rute).
+
+## Berita & Artikel Islam (v25)
+- Menu **Lainnya → Berita & Artikel Islam**. Kartu artikel dengan filter kategori (Khazanah Islam, Tips Islami, Artikel), 12 artikel per muatan.
+- Hanya **Super Admin** yang menulis (dasbor → "Berita & Artikel Islam"). Status Draf/Terbit; jamaah hanya melihat yang Terbit.
+- Setiap artikel **wajib** mencantumkan penulis/sumber; tautan sumber opsional (hanya http/https).
+- Isi artikel adalah teks biasa (bukan HTML). Gambar sampul opsional, maksimal 2 MB (otomatis diperkecil).
+- Jalankan `berita.sql` sekali di Supabase SQL Editor (aman diulang). Tanpa itu halaman menampilkan petunjuk "belum aktif".

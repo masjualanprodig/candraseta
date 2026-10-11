@@ -357,3 +357,31 @@ textarea.tall{min-height:200px}
 .mhero.has-photo{display:block;min-height:0}
 .mhero.has-photo .mhero-img{position:static;display:block;width:100%;height:auto;aspect-ratio:16/9;max-height:240px;object-fit:cover}
 .mhero.has-photo .mhero-txt{padding:.9rem 1.1rem 1rem;background:linear-gradient(135deg,var(--teal) 0,var(--teal-d) 100%)}
+
+/* v25: Berita & Artikel Islam */
+.achips{display:flex;gap:.5rem;overflow-x:auto;padding:.2rem 0 .6rem;margin:.4rem -1rem 0;padding-left:1rem;padding-right:1rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.achips::-webkit-scrollbar{display:none}
+.achip{flex:none;border:0;border-radius:999px;padding:.55rem 1rem;font:inherit;font-weight:700;font-size:.9rem;background:#e0f2ea;color:var(--teal);cursor:pointer;white-space:nowrap}
+.achip[aria-selected="true"]{background:var(--teal);color:#fff}
+.agrid{display:grid;gap:1rem;margin-top:.6rem}
+@media(min-width:700px){.agrid{grid-template-columns:repeat(2,1fr)}}
+.acard{position:relative;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.acard-open{display:block;width:100%;padding:0;text-align:left;font:inherit;color:inherit;background:transparent;border:0;cursor:pointer}
+.acard-open:active{background:#f4f8f6}
+.acover{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#e6eeea}
+.acover-empty{display:grid;place-items:center;color:var(--teal)}
+.abody{padding:.8rem 1rem 1rem}
+.acat{display:inline-block;font-size:.74rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--gold-d,#9a6a0c)}
+.atitle{display:block;margin:.25rem 0 .55rem;font-size:1.08rem;line-height:1.35;color:var(--ink,#16302b);overflow-wrap:anywhere}
+.ameta{display:flex;justify-content:space-between;gap:.8rem;font-size:.8rem;color:var(--sage)}
+.ameta .asrc{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ameta .adate{flex:none}
+.ameta.big{margin:.2rem 0 .8rem;font-size:.88rem}
+.atitle-big{margin:.3rem 0 .2rem;line-height:1.3;overflow-wrap:anywhere}
+.ashare{position:absolute;top:.7rem;right:.7rem;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:999px;background:rgba(0,0,0,.42);color:#fff;cursor:pointer}
+.ashare svg{width:20px;height:20px}
+.chip-draft{background:#f3ead2;color:#8a5d00}
+.news .acat.mt{display:block;margin-top:1rem}
+.news>.btn-sm:not(.ghost){margin-top:.2rem}
+.news>.hint.mt{margin-top:1rem}
+.news>.panel{margin-top:.8rem}

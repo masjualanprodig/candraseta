@@ -92,6 +92,7 @@ const encPath = p => String(p).split('/').map(encodeURIComponent).join('/');
 // Alamat publik foto (bucket publik). Dikembalikan null jika belum ada foto.
 export const publicPhotoUrl = (p, bucket = PHOTO_BUCKET) => p ? API + '/storage/v1/object/public/' + bucket + '/' + encPath(p) : null;
 export const WORLD_BUCKET = 'world-mosque-photos';
+export const ARTICLE_BUCKET = 'article-covers';
 
 async function storageCall(path, init, bucket = PHOTO_BUCKET) {
   const token = await validToken();

@@ -1,11 +1,11 @@
 // BAITUNA - service-worker.js
 // Cache aset statis agar aplikasi cepat dan bisa dibuka offline (hanya tampilan dasar).
 // Data Supabase TIDAK pernah disimpan di cache.
-const CACHE = 'baituna-static-v19';
+const CACHE = 'baituna-static-v20';
 const ASSETS = [
   './', 'index.html', 'style.css', 'components.css', 'responsive.css',
   'config.js', 'supabase.js', 'auth.js', 'router.js', 'permissions.js', 'ui.js',
-  'mosque-service.js', 'public-service.js', 'directory.js', 'schedule-ui.js', 'calendar-ui.js', 'photo.js', 'posts-ui.js', 'feed-ui.js', 'world-ui.js', 'history-ui.js', 'history-service.js', 'quran-ui.js', 'nearby-ui.js', 'nearby-service.js', 'leaflet.js', 'leaflet.css', 'rukun-ui.js', 'rukun-service.js', 'quran-service.js', 'world-service.js', 'post-service.js', 'post-time.js', 'prayer-times.js', 'islamic-calendar.js', 'team-panel.js', 'dashboard-admin.js', 'dashboard-member.js', 'dashboard-mosque.js', 'app.js',
+  'mosque-service.js', 'public-service.js', 'directory.js', 'schedule-ui.js', 'calendar-ui.js', 'photo.js', 'posts-ui.js', 'feed-ui.js', 'world-ui.js', 'history-ui.js', 'history-service.js', 'quran-ui.js', 'nearby-ui.js', 'nearby-service.js', 'leaflet.js', 'leaflet.css', 'articles-ui.js', 'articles-service.js', 'rukun-ui.js', 'rukun-service.js', 'quran-service.js', 'world-service.js', 'post-service.js', 'post-time.js', 'prayer-times.js', 'islamic-calendar.js', 'team-panel.js', 'dashboard-admin.js', 'dashboard-member.js', 'dashboard-mosque.js', 'app.js',
   'AmiriQuran-Regular.ttf', 'ScheherazadeNew-Regular.ttf', 'logo.png', 'masjid.svg', 'manifest.json', 'icon-192.png', 'icon-512.png'
 ];
 
