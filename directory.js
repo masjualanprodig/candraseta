@@ -6,7 +6,7 @@ import { show } from './router.js';
 import { searchMosques, fetchProvinces, PAGE_SIZE } from './public-service.js';
 import { prayerPanel } from './schedule-ui.js';
 import { postsPublic } from './posts-ui.js';
-import { feedPanel } from './feed-ui.js';
+import { feedPanel, icon, ICONS } from './feed-ui.js';
 import { calendarView, calendarSupported } from './calendar-ui.js';
 import { publicPhotoUrl } from './supabase.js';
 
@@ -32,16 +32,16 @@ export function openMosque(m, from, back) {
 }
 
 function tabs() {
-  const t = (label, key) => h('button', {
+  const t = (label, key, ic) => h('button', {
     class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(state.tab === key),
-    onclick: () => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (!state.loaded) load(true); else renderList(); }
-  }, label);
-  return h('div', { class: 'tabs', role: 'tablist' }, t('Masjid', 'dir'), t('Agenda', 'info'), t('Kalender', 'cal'));
+    onclick: () => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); }
+  }, icon(ic), h('span', {}, label));
+  return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Bagian' }, t('Masjid', 'dir', ICONS.mosque), t('Agenda', 'info', ICONS.agenda), t('Kalender', 'cal', ICONS.moon));
 }
 
 function renderFeed() {
   $('public-content').replaceChildren(tabs(),
-    feedPanel({ onOpen: m => renderDetail(m, renderFeed, '← Agenda') }));
+    feedPanel({ hero: true, onOpen: m => renderDetail(m, renderFeed, '← Agenda') }));
 }
 
 function renderCalendar() {

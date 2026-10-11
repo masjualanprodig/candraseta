@@ -50,3 +50,23 @@ export function isUpcoming(post, nowMs, tz) {
   const d = isoToLocal(post.starts_at, tz).slice(0, 10);
   return localToIso(d + 'T23:59', tz) >= new Date(nowMs).toISOString();
 }
+
+// Bagian tanggal untuk blok tanggal: {dow:'Kam', d:15, mon:'Okt'} di zona masjid.
+export function dateParts(iso, tz) {
+  const t = Date.parse(iso); if (isNaN(t)) return null;
+  const d = new Date(t + off(tz) * 3600e3);
+  return { dow: DAY[d.getUTCDay()], d: d.getUTCDate(), mon: MON[d.getUTCMonth()] };
+}
+
+// Selisih hari kalender (zona masjid) antara iso dan sekarang: 0 = hari ini, 1 = besok.
+export function dayDiff(iso, tz, nowMs) {
+  const a = isoToLocal(iso, tz).slice(0, 10), b = isoToLocal(new Date(nowMs).toISOString(), tz).slice(0, 10);
+  return Math.round((Date.parse(a + 'T00:00:00Z') - Date.parse(b + 'T00:00:00Z')) / 86400e3);
+}
+
+// "19.00–21.00 WIB" (bila beda hari: rentang lengkap)
+export function fmtTimes(startIso, endIso, tz) {
+  const full = fmtRange(startIso, endIso, tz);
+  const i = full.indexOf(' · ');
+  return i >= 0 && !full.includes('→') ? full.slice(i + 3) : full;
+}
