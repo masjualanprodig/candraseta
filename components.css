@@ -385,3 +385,8 @@ textarea.tall{min-height:200px}
 .news>.btn-sm:not(.ghost){margin-top:.2rem}
 .news>.hint.mt{margin-top:1rem}
 .news>.panel{margin-top:.8rem}
+
+/* v26: rapikan filter kategori (tidak terpotong di tepi kiri) dan jarak dua pilihan di form artikel */
+.achips{margin:.4rem 0 0;padding:.2rem 0 .6rem}
+.rform .grid2{gap:.55rem;margin-top:.55rem}
+.rform .grid2 .in,.rform .grid2 select{margin:0}
