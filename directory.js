@@ -6,6 +6,7 @@ import { show } from './router.js';
 import { searchMosques, fetchProvinces, PAGE_SIZE } from './public-service.js';
 import { prayerPanel } from './schedule-ui.js';
 import { postsPublic } from './posts-ui.js';
+import { feedPanel } from './feed-ui.js';
 import { calendarView, calendarSupported } from './calendar-ui.js';
 import { publicPhotoUrl } from './supabase.js';
 
@@ -18,15 +19,29 @@ export function openDirectory(from, back, tab) {
   $('public-back').textContent = from === 'app' ? 'Kembali' : 'Masuk';
   show('public');
   if (state.tab === 'cal') { renderCalendar(); return; }
+  if (state.tab === 'info') { renderFeed(); return; }
   if (!state.loaded) load(true); else renderList();
+}
+
+// Membuka profil satu masjid langsung (mis. dari beranda agenda).
+export function openMosque(m, from, back) {
+  onBack = back; state.tab = 'info';
+  $('public-back').textContent = from === 'app' ? 'Kembali' : 'Masuk';
+  show('public');
+  renderDetail(m, renderFeed, '← Agenda');
 }
 
 function tabs() {
   const t = (label, key) => h('button', {
     class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(state.tab === key),
-    onclick: () => { state.tab = key; if (key === 'cal') renderCalendar(); else if (!state.loaded) load(true); else renderList(); }
+    onclick: () => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (!state.loaded) load(true); else renderList(); }
   }, label);
-  return h('div', { class: 'tabs', role: 'tablist' }, t('Masjid', 'dir'), t('Kalender Islam', 'cal'));
+  return h('div', { class: 'tabs', role: 'tablist' }, t('Masjid', 'dir'), t('Agenda', 'info'), t('Kalender', 'cal'));
+}
+
+function renderFeed() {
+  $('public-content').replaceChildren(tabs(),
+    feedPanel({ onOpen: m => renderDetail(m, renderFeed, '← Agenda') }));
 }
 
 function renderCalendar() {
@@ -106,14 +121,14 @@ function thumb(m) {
 
 const telHref = p => /^[0-9+\-\s()]{5,30}$/.test(p || '') ? 'tel:' + p.replace(/[^0-9+]/g, '') : null;
 
-function renderDetail(m) {
+function renderDetail(m, back = renderList, backLabel = '← Daftar masjid') {
   const chips = String(m.facilities || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 20);
   const lat = Number(m.latitude), lng = Number(m.longitude);
   const hasMap = m.latitude !== null && m.longitude !== null && isFinite(lat) && isFinite(lng);
   const tel = telHref(m.contact_phone);
   const row = (label, content) => h('div', { class: 'drow' }, h('div', { class: 'muted' }, label), h('div', {}, content));
   $('public-content').replaceChildren(
-    h('button', { class: 'btn-sm ghost', onclick: renderList }, '← Daftar masjid'),
+    h('button', { class: 'btn-sm ghost', onclick: back }, backLabel),
     publicPhotoUrl(m.photo_path) ? h('img', { class: 'hero', src: publicPhotoUrl(m.photo_path), alt: 'Foto ' + m.name }) : '',
     h('h2', { class: 'mt' }, m.name),
     h('span', { class: 'badge b-active' }, 'Terverifikasi'),

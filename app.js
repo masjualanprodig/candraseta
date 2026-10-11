@@ -8,7 +8,8 @@ import { loadAccess } from './permissions.js';
 import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
-import { openDirectory } from './directory.js';
+import { openDirectory, openMosque } from './directory.js';
+import { feedPanel } from './feed-ui.js';
 
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
@@ -95,8 +96,10 @@ $('register').addEventListener('click', e => {
 
 /* ===== Direktori publik ===== */
 $('open-directory').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'dir'); });
+$('open-agenda').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'info'); });
 $('open-calendar').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'cal'); });
 $('nav-dir').addEventListener('click', () => openDirectory('app', () => enterApp(), 'dir'));
+$('nav-info').addEventListener('click', () => openDirectory('app', () => enterApp(), 'info'));
 $('nav-cal').addEventListener('click', () => openDirectory('app', () => enterApp(), 'cal'));
 
 /* ===== Reset password ===== */
@@ -120,8 +123,17 @@ $('reset-form').addEventListener('submit', async e => {
 /* ===== Logout ===== */
 $('logout-btn').addEventListener('click', async () => {
   await signOut();
-  clearApp(); show('login');
+  clearApp(); show('login'); loginFeed();
 });
+
+/* ===== Agenda terdekat di halaman masuk (tanpa login) ===== */
+function loginFeed() {
+  $('login-feed').replaceChildren(feedPanel({
+    limit: 3, only: 'agenda',
+    onOpen: m => openMosque(m, 'login', () => show('login')),
+    more: h('p', { class: 'muted center' }, h('a', { href: '#', class: 'link', onclick: e => { e.preventDefault(); openDirectory('login', () => show('login'), 'info'); } }, 'Lihat semua agenda & pengumuman'))
+  }));
+}
 
 /* ===== Start ===== */
 async function start() {
@@ -135,7 +147,7 @@ async function start() {
   await wait;
   if (link && link.recovery) { show('reset'); return; }
   if (getSession()) { enterApp(); return; }
-  show('login');
+  show('login'); loginFeed();
   if (link && link.error) say(link.error);
 }
 

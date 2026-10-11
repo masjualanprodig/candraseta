@@ -23,3 +23,17 @@ export async function fetchProvinces() {
   const r = await request('/rest/v1/rpc/public_provinces', { method: 'POST', body: {} });
   return r.ok && Array.isArray(r.data) ? r.data.map(x => x.province).filter(Boolean) : [];
 }
+
+// Agenda & pengumuman TERBARU dari semua masjid aktif (beranda umum).
+const PCOLS = 'id,mosque_id,kind,title,body,location,starts_at,ends_at,published_at,created_at';
+const EMBED = 'mosques!inner(' + COLS + ')';
+export async function fetchFeed(nowMs = Date.now()) {
+  const since = new Date(nowMs - 36 * 3600e3).toISOString(); // agenda yang baru lewat masih dicek lagi di perangkat (isUpcoming)
+  const base = '/rest/v1/mosque_posts?select=' + PCOLS + ',' + EMBED + '&status=eq.published';
+  const [a, i] = await Promise.all([
+    request(base + '&kind=eq.agenda&starts_at=gte.' + encodeURIComponent(since) + '&order=starts_at.asc&limit=40'),
+    request(base + '&kind=eq.pengumuman&order=published_at.desc&limit=15')
+  ]);
+  if (!a.ok || !i.ok) throw Object.assign(new Error('gagal memuat'), { status: (a.ok ? i : a).status });
+  return { agenda: Array.isArray(a.data) ? a.data : [], info: Array.isArray(i.data) ? i.data : [] };
+}

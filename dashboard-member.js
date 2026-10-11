@@ -5,6 +5,9 @@ import { ROLE_LABEL } from './permissions.js';
 import { renderMosque } from './dashboard-mosque.js';
 import { getMosque } from './mosque-service.js';
 import { renderPostsManager } from './posts-ui.js';
+import { feedPanel } from './feed-ui.js';
+import { openMosque } from './directory.js';
+
 
 export async function renderMember(box, memberships) {
   const rows = memberships.filter(m => m.mosques);
@@ -25,5 +28,7 @@ export async function renderMember(box, memberships) {
             h('div', { class: 'minfo' }, h('strong', {}, m.mosques.name), h('div', { class: 'muted' }, ROLE_LABEL[m.role] || m.role)),
             h('span', { class: 'badge b-' + m.mosques.status }, STATUS_LABEL[m.mosques.status] || m.mosques.status))))
       : h('div', { class: 'panel' }, h('p', {}, 'Akun Anda belum ditugaskan ke masjid mana pun. Hubungi admin pusat untuk mendapatkan undangan.')),
+    h('h3', { class: 'mt' }, 'Kegiatan masjid terbaru'),
+    feedPanel({ limit: 10, onOpen: m => openMosque(m, 'app', () => renderMember(box, memberships)) }),
     h('p', { class: 'muted' }, 'Dashboard sesuai peran dibangun di tahap berikutnya.'));
 }
