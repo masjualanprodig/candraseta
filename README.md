@@ -62,3 +62,8 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Bacaan dikelola **Super Admin** (dasbor → "Dzikir Pagi & Petang"). Teks wajib punya Arab, terjemahan, dan sumber. Ayat Al-Qur'an hanya rujukan; teksnya diambil otomatis dari AlQuran Cloud.
 - Jalankan `dzikir.sql` sekali. Tabel sengaja kosong: tidak ada bacaan agama yang diisi otomatis.
 - Getar saat mengetuk dan "jaga layar menyala" hanya muncul bila didukung perangkat (iPhone umumnya tidak mendukung getar).
+
+### Pembaruan Dzikir (v28)
+- Bunyi lonceng dua nada saat target tercapai (bawaan nyala) dan detak pelan tiap ketukan (bawaan mati), dibuat lewat Web Audio tanpa berkas audio. Di iPhone, tombol senyap menutup bunyi ini.
+- Tombol "Tes getar" untuk memeriksa apakah HP menerima perintah getar.
+- Tasbih: info target di atas lingkaran, lingkaran lebih kecil agar tombol -1/Ulang tetap terlihat.

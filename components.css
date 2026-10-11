@@ -426,3 +426,13 @@ textarea.tall{min-height:200px}
 .tlab{margin-top:.3rem;font-size:1rem;opacity:.85}
 .tinfo{text-align:center;font-weight:700;color:var(--teal-d);margin:.4rem 0}
 .tasbih .dctl{justify-content:center}
+
+/* v28: opsi bunyi/getar + tata letak Tasbih ringkas (info target di atas lingkaran) */
+.dopts{margin:.2rem 0 .6rem}
+.dopt-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap}
+.dopt-row .dopt{margin:.2rem 0}
+.tbigwrap{margin:.5rem 0 .4rem}
+.tbig{width:min(62vw,240px)}
+.tasbih .tinfo{margin:.7rem 0 .2rem}
+.tasbih .tcus{margin:1rem 0 .4rem}
+.tdesc{margin:.6rem 0 0;font-size:.9rem}

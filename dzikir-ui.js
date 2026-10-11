@@ -4,7 +4,8 @@
 // Hitungan hanya disimpan di perangkat pengguna (tidak dikirim ke server).
 import { h, toast, hint, ask } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
-import { SESSIONS, KINDS, listDhikr, createDhikr, updateDhikr, deleteDhikr, bump, undo, clampCount, loadProgress, saveProgress, loadTasbih, saveTasbih, loadHaptic, saveHaptic } from './dzikir-service.js';
+import { SESSIONS, KINDS, listDhikr, createDhikr, updateDhikr, deleteDhikr, bump, undo, clampCount, loadProgress, saveProgress, loadTasbih, saveTasbih, loadHaptic, saveHaptic, loadSound, saveSound } from './dzikir-service.js';
+import { canSound, tick, chime } from './dzikir-sound.js';
 import { listSurahs, loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
 import { ayatBlock, refLabel } from './rukun-ui.js';
@@ -21,6 +22,7 @@ export function dzikirPage() {
   let items = null, surahs = null, loadErr = null;
   let prog = loadProgress();
   let haptic = loadHaptic();
+  let sound = loadSound();
   let wake = null, wakeOn = false;
   const content = h('div');
 
@@ -62,7 +64,9 @@ export function dzikirPage() {
     tap.addEventListener('click', () => {
       const before = n(), next = bump(before, target);
       if (next === before) return;
-      setN(s, it, next); buzz(haptic, next >= target ? [60, 40, 60] : 15); paint(); refresh();
+      setN(s, it, next); buzz(haptic, next >= target ? [60, 40, 60] : 15);
+      if (next >= target) { if (sound.done) chime(); } else if (sound.tap) tick();
+      paint(); refresh();
     });
     undoB.addEventListener('click', () => { setN(s, it, undo(n())); paint(); refresh(); });
     resetB.addEventListener('click', () => { setN(s, it, 0); paint(); refresh(); });
@@ -129,7 +133,10 @@ export function dzikirPage() {
     };
     big.addEventListener('click', () => {
       st = { ...st, count: st.count + 1 }; saveTasbih(st);
-      buzz(haptic, st.target > 0 && st.count === st.target ? [80, 50, 80] : 12); paint();
+      const hit = st.target > 0 && st.count === st.target;
+      buzz(haptic, hit ? [80, 50, 80] : 12);
+      if (hit) { if (sound.done) chime(); } else if (sound.tap) tick();
+      paint();
     });
     undoB.addEventListener('click', () => { st = { ...st, count: undo(st.count) }; saveTasbih(st); paint(); });
     resetB.addEventListener('click', async () => {
@@ -155,9 +162,12 @@ export function dzikirPage() {
       opts.push(h('label', { class: 'dopt' }, cb, h('span', {}, 'Jaga layar tetap menyala (bila didukung perangkat)')));
     }
     return h('div', { class: 'tasbih' },
-      h('p', { class: 'muted' }, 'Penghitung bebas untuk dzikir apa saja. Ketuk lingkaran untuk menambah satu hitungan. Hitungan tersimpan di perangkat ini.'),
-      presets, h('div', { class: 'row-btns tcus' }, custom, setCustom),
-      h('div', { class: 'tbigwrap' }, big), info, bar, h('div', { class: 'row-btns dctl' }, undoB, resetB), ...opts);
+      presets, info, bar,
+      h('div', { class: 'tbigwrap' }, big),
+      h('div', { class: 'row-btns dctl' }, undoB, resetB),
+      h('div', { class: 'row-btns tcus' }, custom, setCustom),
+      ...opts,
+      h('p', { class: 'muted tdesc' }, 'Penghitung bebas untuk dzikir apa saja. Ketuk lingkaran untuk menambah satu hitungan. Hitungan tersimpan di perangkat ini.'));
   }
 
   const note = () => h('div', { class: 'panel qnote' }, h('h3', {}, 'Tentang halaman ini'),
@@ -168,11 +178,20 @@ export function dzikirPage() {
       h('button', { class: 'segb', type: 'button', role: 'tab', 'aria-selected': String(tab === k), onclick: () => { if (tab !== k) { tab = k; draw(); } } }, l)));
     const kids = [h('h2', { class: 'wtitle' }, 'Dzikir Pagi & Petang'),
       h('p', { class: 'muted' }, 'Ketuk tombol untuk menghitung bacaan Anda.'), seg];
+    const opt = (label, checked, onchange) => { const cb = h('input', { type: 'checkbox' }); cb.checked = checked; cb.addEventListener('change', () => onchange(cb.checked)); return h('label', { class: 'dopt' }, cb, h('span', {}, label)); };
+    const opts = [];
     if (canVibrate()) {
-      const cb = h('input', { type: 'checkbox' }); cb.checked = haptic;
-      cb.addEventListener('change', () => { haptic = cb.checked; saveHaptic(haptic); buzz(haptic, 20); });
-      kids.push(h('label', { class: 'dopt' }, cb, h('span', {}, 'Getar saat mengetuk')));
+      opts.push(h('div', { class: 'dopt-row' }, opt('Getar saat mengetuk', haptic, v => { haptic = v; saveHaptic(v); buzz(v, 20); }),
+        h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => {
+          let r = false; try { r = navigator.vibrate(300); } catch (e) {}
+          toast(r ? 'Perintah getar terkirim. Jika HP tidak bergetar, periksa pengaturan getar/sentuhan di HP, mode hemat baterai, atau izin situs di peramban.' : 'Peramban menolak perintah getar. Periksa pengaturan peramban atau HP Anda.', !r);
+        } }, 'Tes getar')));
+    } else opts.push(h('p', { class: 'hint' }, 'Perangkat atau peramban ini tidak mendukung getar. Anda bisa memakai bunyi.'));
+    if (canSound()) {
+      opts.push(opt('Bunyi lonceng saat target tercapai', sound.done, v => { sound = { ...sound, done: v }; saveSound(sound); if (v) chime(); }));
+      opts.push(opt('Bunyi detak tiap ketukan (pelan)', sound.tap, v => { sound = { ...sound, tap: v }; saveSound(sound); if (v) tick(); }));
     }
+    kids.push(h('div', { class: 'dopts' }, ...opts));
     kids.push(tab === 'tasbih' ? tasbihView() : sessionView(tab), note());
     content.replaceChildren(...kids);
   }

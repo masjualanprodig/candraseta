@@ -39,7 +39,7 @@ export const bump = (cur, target) => { const c = Math.max(0, Math.floor(Number(c
 export const undo = cur => Math.max(0, Math.floor(Number(cur) || 0) - 1);
 export const clampCount = (v, target) => { const n = Math.max(0, Math.floor(Number(v) || 0)); return target > 0 ? Math.min(n, target) : n; };
 
-const PKEY = 'baituna.dzikir.v1', TKEY = 'baituna.tasbih.v1', HKEY = 'baituna.haptic.v1';
+const PKEY = 'baituna.dzikir.v1', TKEY = 'baituna.tasbih.v1', HKEY = 'baituna.haptic.v1', SKEY = 'baituna.sound.v1';
 // Hitungan dzikir pagi/petang disimpan di perangkat dan otomatis kosong saat ganti hari (jam perangkat).
 export function loadProgress(now = new Date()) {
   try {
@@ -59,3 +59,9 @@ export function loadTasbih() {
 export function saveTasbih(s) { try { localStorage.setItem(TKEY, JSON.stringify(s)); } catch (e) {} }
 export function loadHaptic() { try { return localStorage.getItem(HKEY) !== '0'; } catch (e) { return true; } }
 export function saveHaptic(on) { try { localStorage.setItem(HKEY, on ? '1' : '0'); } catch (e) {} }
+// Bunyi: lonceng saat target tercapai (bawaan nyala), detak tiap ketukan (bawaan mati).
+export function loadSound() {
+  try { const o = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (o && typeof o === 'object') return { done: o.done !== false, tap: o.tap === true }; } catch (e) {}
+  return { done: true, tap: false };
+}
+export function saveSound(v) { try { localStorage.setItem(SKEY, JSON.stringify({ done: !!v.done, tap: !!v.tap })); } catch (e) {} }
