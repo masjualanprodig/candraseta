@@ -129,3 +129,11 @@ Satu tombol putar untuk seluruh lantunan (bukan per nama), lengkap dengan geser 
 - Berkas: `audio/asma/full.mp3` (folder `audio` baru; unggah bersama berkas lain). Tidak disimpan offline (4,6 MB), jadi butuh internet.
 - Pengaturan di `asmaul-husna-audio.json`, bagian `"full"`: `file`, `title`, `source`, `license`. Hapus bagian `"full"` bila ingin kartunya hilang.
 - Penting: lisensi berkas ini BELUM terverifikasi (hanya klaim "no copyright" di judul). Isi `source` dan `license` dengan data asli (nama kanal/pelantun, tautan, izin) begitu diketahui, dan minta ustaz memeriksa isi serta pelafalannya.
+
+## Penjelasan & audio Asmaul Husna bisa diubah Super Admin (v41)
+- Jalankan `asma.sql` sekali di Supabase SQL Editor (membuat 2 tabel kosong + bucket publik `asma-audio`, maks. 15 MB).
+- Dashboard Super Admin -> "Penjelasan & Audio Asmaul Husna":
+  - Penjelasan dan arti tiap nama dapat diubah. Isi bawaan tidak ditimpa: tombol "Kembalikan ke bawaan" menghapus perubahan.
+  - Audio lantunan: ganti berkas (MP3/M4A/OGG/WAV, maks. 15 MB) serta judul, sumber, dan lisensi. "Kembalikan ke audio bawaan" menghapus unggahan.
+- Selama tabel kosong atau belum dibuat, aplikasi memakai isi bawaan (`asmaul-husna.json` dan `audio/asma/full.mp3`).
+- Audio per nama (001.mp3 dst) masih lewat berkas di `audio/asma/` + `asmaul-husna-audio.json`.

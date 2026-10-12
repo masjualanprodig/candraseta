@@ -51,6 +51,41 @@ export function parseFull(j) {
 export async function loadAudioFull() {
   try { const r = await fetch(AUDIO_URL); if (!r.ok) return null; return parseFull(await r.json()); } catch (e) { return null; }
 }
+/* ===== Perubahan dari Super Admin (pure; datanya diambil di asma-edit-service.js) ===== */
+export const EDIT_MAX = { penjelasan: 1500, arti: 200 };
+export function cleanEdits(rows) {
+  const out = {};
+  if (!Array.isArray(rows)) return out;
+  for (const r of rows) {
+    if (!r || !Number.isInteger(r.no) || r.no < 1 || r.no > 99) continue;
+    if (typeof r.penjelasan !== 'string' || r.penjelasan.trim().length < 10 || r.penjelasan.length > EDIT_MAX.penjelasan) continue;
+    const arti = typeof r.arti === 'string' && r.arti.trim().length >= 2 && r.arti.length <= EDIT_MAX.arti ? r.arti.trim() : null;
+    out[r.no] = { penjelasan: r.penjelasan.trim(), arti };
+  }
+  return out;
+}
+// Mengembalikan daftar nama baru; nama yang diubah diberi edited:true. Data bawaan tidak dimodifikasi.
+export function applyEdits(names, rows) {
+  const e = cleanEdits(rows);
+  return names.map(n => e[n.no] ? { ...n, penjelasan: e[n.no].penjelasan, arti: e[n.no].arti || n.arti, edited: true } : n);
+}
+export const AUDIO_FILE_OK = /^full\/[A-Za-z0-9._-]{1,80}$/;
+export const AUDIO_MAX_BYTES = 15 * 1024 * 1024;
+export const AUDIO_EXT = /\.(mp3|m4a|ogg|wav)$/i;
+// Gabungkan audio bawaan (boleh null) dengan pengaturan dari server (boleh null). urlOf(path) -> alamat publik.
+export function mergeFull(base, setting, urlOf) {
+  const s = setting && typeof setting === 'object' ? setting : null;
+  const t = (v, d, max) => typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : d;
+  const uploaded = s && typeof s.file_path === 'string' && AUDIO_FILE_OK.test(s.file_path) ? urlOf(s.file_path) : null;
+  if (!base && !uploaded) return null;
+  return {
+    src: uploaded || base.src,
+    title: t(s && s.title, base ? base.title : 'Lantunan Asmaul Husna', 150),
+    source: s && s.source != null ? t(s.source, '', 500) : (base ? base.source : ''),
+    license: s && s.license != null ? t(s.license, '', 500) : (base ? base.license : ''),
+    uploaded: !!uploaded
+  };
+}
 export async function loadAudioMap() {
   try { const r = await fetch(AUDIO_URL); if (!r.ok) return {}; return parseAudio(await r.json()); } catch (e) { return {}; }
 }

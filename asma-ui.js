@@ -1,7 +1,8 @@
 // BAITUNA - asma-ui.js
 // Asmaul Husna: daftar + pencarian, detail, favorit, tandai hafal, kuis hafalan, dan audio (tampil hanya bila berkas suara tersedia).
 import { h, toast } from './ui.js';
-import { loadAsma, loadAudioMap, loadAudioFull, matches, loadProgress, saveProgress, toggleFav, toggleHafal, recordQuiz, scoreOf, makeQuiz, shareText, QUIZ_LEN, PASS } from './asma-service.js';
+import { loadAsma, loadAudioMap, applyEdits, matches, loadProgress, saveProgress, toggleFav, toggleHafal, recordQuiz, scoreOf, makeQuiz, shareText, QUIZ_LEN, PASS } from './asma-service.js';
+import { loadEdits, loadFullAudio } from './asma-edit-service.js';
 import { loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
 
@@ -250,7 +251,7 @@ export function asmaPage() {
   }
   function load() {
     loadErr = null; data = null; draw();
-    Promise.all([loadAsma(), loadAudioMap(), loadAudioFull()]).then(([d, map, full]) => { data = d; player = makePlayer(map, onAudio); if (full) fullBox = fullCard(full, () => player.stop()); draw(); }).catch(e => { loadErr = e || new Error('x'); draw(); });
+    Promise.all([loadAsma(), loadAudioMap(), loadFullAudio(), loadEdits()]).then(([d, map, full, edits]) => { data = { ...d, names: applyEdits(d.names, edits) }; player = makePlayer(map, onAudio); if (full) fullBox = fullCard(full, () => player.stop()); draw(); }).catch(e => { loadErr = e || new Error('x'); draw(); });
   }
   const watch = setInterval(() => { if (!wrap.isConnected) { clearInterval(watch); if (player) player.stop(); } }, 2000);
   wrap.append(content); load();

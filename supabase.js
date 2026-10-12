@@ -94,6 +94,7 @@ export const publicPhotoUrl = (p, bucket = PHOTO_BUCKET) => p ? API + '/storage/
 export const WORLD_BUCKET = 'world-mosque-photos';
 export const ARTICLE_BUCKET = 'article-covers';
 export const AVATAR_BUCKET = 'avatars';
+export const ASMA_BUCKET = 'asma-audio';
 
 async function storageCall(path, init, bucket = PHOTO_BUCKET) {
   const token = await validToken();
