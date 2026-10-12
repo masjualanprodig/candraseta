@@ -4,6 +4,7 @@
 import { h, toast, hint, ask } from './ui.js';
 import { SLOTS, GRADES, listSunnah, createSunnah, updateSunnah, deleteSunnah, matches, copyText, loadDone, saveDone, toggleDone } from './sunnah-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
+import { REMINDER_KEYS } from './sunnah-link.js';
 
 const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.status === 404);
 const PAGE = 30;
@@ -45,6 +46,7 @@ export function sunnahPage() {
     art.append(
       h('div', { class: 'dhead' }, h('b', { class: 'dtitle' }, it.title), h('span', { class: 'hperiod grade ' + it.grade }, GRADES[it.grade] || '')),
       h('span', { class: 'dcat muted' }, SLOTS[it.time_slot] || SLOTS.harian),
+      it.reminder_key && REMINDER_KEYS[it.reminder_key] ? h('span', { class: 'dcat muted sunnah-link' }, ' · Dipakai di Notifikasi dan Kalender: ' + REMINDER_KEYS[it.reminder_key]) : '',
       h('p', { class: 'atrans prewrap' }, it.body),
       it.arabic ? h('p', { class: 'arab', lang: 'ar', dir: 'rtl' }, it.arabic) : '',
       it.latin ? h('p', { class: 'dlatin' }, it.latin) : '',
@@ -76,7 +78,7 @@ export function sunnahPage() {
   }
 
   const note = () => h('div', { class: 'panel qnote' }, h('h3', {}, 'Tentang halaman ini'),
-    h('p', { class: 'muted' }, 'Amalan sunnah adalah amalan yang dianjurkan, bukan pengganti kewajiban. Setiap amalan ditulis oleh admin pusat BAITUNA dengan menyebut sumber hadits, derajat (shahih atau hasan), dan siapa yang menilai derajat tersebut. Amalan yang derajatnya lemah tidak dimuat. Tanyakan kepada ustaz atau ulama yang terpercaya untuk tata cara, waktu, dan keutamaannya. BAITUNA tidak menentukan batas waktu ibadah dan tidak mengirim pengingat otomatis.'));
+    h('p', { class: 'muted' }, 'Amalan sunnah adalah amalan yang dianjurkan, bukan pengganti kewajiban. Setiap amalan ditulis oleh admin pusat BAITUNA dengan menyebut sumber hadits, derajat (shahih atau hasan), dan siapa yang menilai derajat tersebut. Amalan yang derajatnya lemah tidak dimuat. Tanyakan kepada ustaz atau ulama yang terpercaya untuk tata cara, waktu, dan keutamaannya. BAITUNA tidak menentukan batas waktu ibadah. Pengingat di menu Notifikasi hanya muncul saat aplikasi terbuka.'));
 
   function draw() { content.replaceChildren(h('h2', { class: 'wtitle' }, 'Amalan Sunnah Harian'), h('p', { class: 'muted' }, 'Amalan yang dianjurkan, lengkap dengan sumber dan derajatnya.'), sum, search, chipsBox, list, note()); paintSum(); drawChips(); drawList(); }
   function load() { loadErr = null; items = null; draw(); listSunnah().then(r => { items = r; draw(); }).catch(e => { loadErr = e || new Error('x'); draw(); }); }
@@ -106,6 +108,7 @@ export async function renderSunnahManager(box, onBack) {
   const grade = h('select', { class: 'in', 'aria-label': 'Derajat hadits' }, h('option', { value: '' }, 'Pilih derajat hadits…'), ...Object.keys(GRADES).map(k => h('option', { value: k }, GRADES[k])));
   const grading = h('textarea', { class: 'in', rows: '2', placeholder: 'Keterangan derajat: siapa yang menilai dan di kitab apa (wajib)', maxlength: '500', 'aria-label': 'Keterangan derajat' });
   const note = h('textarea', { class: 'in', placeholder: 'Keterangan singkat (opsional)', maxlength: '1000' });
+  const rkey = h('select', { class: 'in', 'aria-label': 'Terkait pengingat' }, h('option', { value: '' }, 'Tidak terkait pengingat'), ...Object.keys(REMINDER_KEYS).map(k => h('option', { value: k }, REMINDER_KEYS[k])));
   const lab = (t, el) => h('label', { class: 'flab' }, h('span', { class: 'hint' }, t), el);
   const formTitle = h('h3', {}, 'Tambah amalan'), status = h('p', { class: 'hint' }, '');
   const save = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan');
@@ -113,6 +116,7 @@ export async function renderSunnahManager(box, onBack) {
   const form = h('form', { class: 'panel rform', novalidate: 'novalidate', onsubmit: async ev => {
     ev.preventDefault();
     const f = { time_slot: slotSel.value, title: title.value.trim(), body: body.value.trim(), arabic: arabic.value.trim(), latin: latin.value.trim(), source: source.value.trim(), grade: grade.value, grading: grading.value.trim(), note: note.value.trim() };
+    if (rkey.value) f.reminder_key = rkey.value; else if (editing && editing.reminder_key) f.reminder_key = ''; // kosong hanya dikirim bila sebelumnya terisi
     if (!editing) f.sort_order = 100; // urutan otomatis: yang lama tampil dulu
     if (f.title.length < 3) { toast('Judul minimal 3 huruf.', true); return; }
     if (f.body.length < 10) { toast('Penjelasan minimal 10 huruf.', true); return; }
@@ -123,17 +127,18 @@ export async function renderSunnahManager(box, onBack) {
     try { if (editing) await updateSunnah(editing.id, f); else await createSunnah(f); toast(editing ? 'Perubahan disimpan.' : 'Amalan ditambahkan.'); await reload(); return; }
     catch (e) { if (e && e.status === 401) return; const m = e && e.status === 0 ? 'Tidak ada koneksi internet.' : 'Belum tersimpan. ' + hint(e); status.textContent = m; toast(m, true); }
     save.disabled = false;
-  } }, formTitle, lab('Waktu', slotSel), lab('Judul amalan *', title), lab('Penjelasan *', body), lab('Teks Arab (opsional)', arabic), lab('Teks Latin (opsional)', latin), lab('Sumber (perawi dan nomor) *', source), lab('Derajat hadits *', grade), lab('Keterangan derajat (penilai dan kitab) *', grading), lab('Keterangan singkat (opsional)', note),
+  } }, formTitle, lab('Waktu', slotSel), lab('Judul amalan *', title), lab('Penjelasan *', body), lab('Teks Arab (opsional)', arabic), lab('Teks Latin (opsional)', latin), lab('Sumber (perawi dan nomor) *', source), lab('Derajat hadits *', grade), lab('Keterangan derajat (penilai dan kitab) *', grading), lab('Keterangan singkat (opsional)', note), lab('Terkait pengingat (opsional): Notifikasi dan Kalender akan menampilkan isi amalan ini untuk pengingat yang dipilih', rkey),
     status, h('div', { class: 'mt row-btns' }, save, cancel));
 
   function edit(e) {
     editing = e; formTitle.textContent = 'Ubah amalan';
     slotSel.value = e.time_slot; title.value = e.title; body.value = e.body; arabic.value = e.arabic || ''; latin.value = e.latin || '';
-    source.value = e.source; grade.value = e.grade; grading.value = e.grading; note.value = e.note || '';
+    source.value = e.source; grade.value = e.grade; grading.value = e.grading; note.value = e.note || ''; rkey.value = e.reminder_key && REMINDER_KEYS[e.reminder_key] ? e.reminder_key : '';
     cancel.hidden = false; form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   const item = it => h('div', { class: 'post' }, h('div', { class: 'fi-main' },
     h('span', { class: 'hperiod' }, GRADES[it.grade]), ' ', h('b', {}, it.title),
+    it.reminder_key && REMINDER_KEYS[it.reminder_key] ? h('div', { class: 'muted' }, 'Terkait pengingat: ' + REMINDER_KEYS[it.reminder_key]) : '',
     h('div', { class: 'muted' }, (it.body || '').slice(0, 90) + ((it.body || '').length > 90 ? '…' : '')),
     h('div', { class: 'row-btns mt' },
       h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => edit(it) }, 'Ubah'),

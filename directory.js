@@ -113,7 +113,7 @@ function renderMore() {
 }
 
 function renderJadwal() {
-  $('public-content').replaceChildren(tabs(), jadwalPage());
+  $('public-content').replaceChildren(tabs(), jadwalPage({ go }));
 }
 
 function renderProfil() {

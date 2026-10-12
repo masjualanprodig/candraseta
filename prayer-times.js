@@ -115,3 +115,8 @@ export function zoneLabel(off) {
 }
 // Perkiraan kasar: apakah koordinat berada di wilayah Indonesia?
 export const inIndonesia = (lat, lng) => lat >= -11.5 && lat <= 6.5 && lng >= 94.5 && lng <= 141.5;
+
+// Konstanta bersama (Jadwal Salat dan Notifikasi memakai angka yang sama): perkiraan, bukan penetapan resmi.
+export const IMSAK_MIN = 10;      // Imsak = 10 menit sebelum Subuh
+export const DHUHA_MIN = 20;      // awal Dhuha = 20 menit setelah terbit
+export const DHUHA_END_MIN = 15;  // akhir Dhuha = 15 menit sebelum Dzuhur

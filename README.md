@@ -223,3 +223,19 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - **Data gerhana (`gerhana-data.js`):** hanya memuat gerhana yang SUDAH terverifikasi dari sumber (BMKG/Langit Selatan); tanggal gerhana tidak dihitung atau ditebak. Saat ini hanya sampai 2026: tidak ada gerhana yang terlihat dari Indonesia setelah 3 Maret 2026. **Tambahkan baris baru** setelah BMKG mengumumkan gerhana berikutnya (tidak perlu SQL; cukup ubah berkas ini dan upload).
 - **Notifikasi:** pengingat salat Dhuha (terbit + 20 menit sampai menjelang Dzuhur) dan Tahajud (awal sepertiga malam terakhir, dihitung dari Maghrib hingga Subuh; perkiraan), hitung mundur Ramadan (tonggak 100/60/30/14/7/3/1 hari, pengingat HP pukul 08.00), jenis baru "Salat gerhana dan amalan sunnah lain". Semua bisa dimatikan satu per satu.
 - Tidak ada SQL baru. Keterangan amalan perlu ditinjau ustaz.
+
+## Tambahan v54: fitur saling berkolaborasi (Jadwal Salat, Amalan Sunnah Harian, Notifikasi, Kalender)
+- **Jalankan dulu `sunnah_link.sql`** di Supabase SQL Editor (butuh `sunnah.sql` sudah pernah dijalankan; aman diulang; tidak mengisi data). Menambah kolom opsional `reminder_key` pada Amalan Sunnah. Tanpa SQL ini aplikasi tetap jalan, tetapi keterangan memakai teks umum berlabel.
+- **Salat wajib:** pengingat Notifikasi mengambil waktunya otomatis dari Jadwal Salat (lokasi dan hitungan yang sama; konstanta Imsak/Dhuha satu sumber di `prayer-times.js`). Jadwal Salat kini punya panel "Pengingat salat" yang memakai pengaturan yang SAMA dengan menu Notifikasi (Subuh, Dzuhur, Ashar, Maghrib, Isya, Dhuha, Tahajud).
+- **Amalan sunnah (puasa, Dhuha, Tahajud, gerhana, Id, malam ganjil, Jumat):** Super Admin memilih "Terkait pengingat (opsional)" pada tiap amalan di Kelola Amalan Sunnah Harian. Notifikasi dan Kalender lalu menampilkan isi, SUMBER, dan DERAJAT dari amalan itu. Bila belum diisi, tampil keterangan umum aplikasi dengan label: "Keterangan umum aplikasi; rujukan hadits belum diisi di Amalan Sunnah Harian."
+- **Kategori baru "Amalan sunnah harian sesuai waktu":** kelompok waktu (Subuh, Pagi, Dhuha, Siang, Sore, Malam, Sebelum tidur) dari data Super Admin, dengan jam mulai mengikuti Jadwal Salat (hanya penanda awal, bukan batas ibadah), judul amalan, dan hitungan centang hari ini (centang dari halaman Amalan Sunnah Harian). Pengingat HP per kelompok bisa dimatikan satu per satu dan dilewati bila semua sudah dicentang.
+- Batas jujur: pengingat HP tetap hanya berbunyi saat BAITUNA terbuka. Isi amalan 100% dari data admin; aplikasi tidak menambah dalil sendiri. Perlu ditinjau ustaz sebelum rilis.
+- Tes: `unit_link.mjs` (22), `link_browser_test.py` (25), SQL `sl_tests.sql` (11).
+
+## Tambahan v55: kebiasaan pribadi jamaah (tiap orang berbeda)
+- Isi dalil/sumber tetap hanya diisi Super Admin. Namun **waktu dan pilihan ibadah diatur sendiri oleh setiap jamaah** di Notifikasi > Pengaturan > "Kebiasaan saya", tersimpan hanya di perangkat masing-masing (tanpa SQL, tanpa akun):
+  - Awal waktu Dhuha: 15/20/30/45 menit setelah terbit (juga dipakai di Jadwal Salat).
+  - Tahajud: sepertiga malam terakhir (otomatis) atau jam pilihan sendiri.
+  - Puasa yang dikerjakan: Senin, Kamis, Ayyamul Bidh, Arafah, Tasu’a, Asyura, 6 Syawal, Ramadan masing-masing bisa dimatikan.
+  - Pengingat pribadi: sampai 8 pengingat (nama, jam, hari) buatan sendiri; berbunyi saat BAITUNA terbuka dan tidak butuh lokasi.
+- Tes: `unit_pribadi.mjs` (18), tambahan di `link_browser_test.py` (kini 37).

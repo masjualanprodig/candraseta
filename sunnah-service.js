@@ -9,15 +9,19 @@ export const SLOTS = { subuh: 'Subuh', pagi: 'Pagi', dhuha: 'Dhuha', siang: 'Sia
 export const GRADES = { shahih: 'Shahih', hasan: 'Hasan' };
 
 const COLS = 'id,time_slot,title,body,arabic,latin,source,grade,grading,note,sort_order,created_at';
+const COLS_LINK = COLS + ',reminder_key'; // kolom v54 (sunnah_link.sql); bila belum dijalankan, dibaca tanpa kolom ini
 const enc = encodeURIComponent;
 
 export async function listSunnah() {
-  const r = await request('/rest/v1/sunnah_items?select=' + COLS + '&order=sort_order.asc,created_at.asc&limit=1000');
+  const q = c => request('/rest/v1/sunnah_items?select=' + c + '&order=sort_order.asc,created_at.asc&limit=1000');
+  let r = await q(COLS_LINK);
+  if (!r.ok && r.status === 400) r = await q(COLS);
   if (!r.ok) throw Object.assign(new Error('gagal memuat'), { status: r.status, code: r.data && r.data.code });
   return Array.isArray(r.data) ? r.data : [];
 }
 const one = out => { if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 }); return out[0]; };
-const fieldsOf = f => ({ time_slot: f.time_slot, title: f.title, body: f.body, arabic: f.arabic || null, latin: f.latin || null, source: f.source, grade: f.grade, grading: f.grading, note: f.note || null, sort_order: f.sort_order });
+// reminder_key hanya dikirim bila diisi/diubah (f.reminder_key undefined = jangan sentuh kolom, agar aman sebelum sunnah_link.sql dijalankan).
+const fieldsOf = f => { const o = { time_slot: f.time_slot, title: f.title, body: f.body, arabic: f.arabic || null, latin: f.latin || null, source: f.source, grade: f.grade, grading: f.grading, note: f.note || null, sort_order: f.sort_order }; if (f.reminder_key !== undefined) o.reminder_key = f.reminder_key || null; return o; };
 export const createSunnah = async f => one(await db('sunnah_items', { method: 'POST', prefer: 'return=representation', body: fieldsOf(f) }));
 export const updateSunnah = async (id, f) => one(await db('sunnah_items', { method: 'PATCH', query: 'id=eq.' + enc(id), prefer: 'return=representation', body: fieldsOf(f) }));
 export const deleteSunnah = async id => { one(await db('sunnah_items', { method: 'DELETE', query: 'id=eq.' + enc(id), prefer: 'return=representation' })); };

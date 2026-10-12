@@ -6,21 +6,33 @@ import { $, h } from './ui.js';
 import * as cal from './islamic-calendar.js';
 import { fastingFor, LEVEL_LABEL, NONE_TEXT, FAST_GROUPS, fastingLabel, ramadanStatus, daysText } from './puasa-service.js';
 import { amalanFor, hasMark, GERHANA_INFO, ECLIPSE_DATA_UNTIL } from './amalan-service.js';
+import { rkeyOf, refsFor, brief, loadLinks } from './sunnah-link.js';
+import { GRADES } from './sunnah-service.js';
 
 const BEFORE = 12, AFTER = 24; // rentang bulan yang bisa digeser dari bulan ini
 const DOW = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
-function fastingBox(f) {
+// Satu butir puasa/amalan. Bila admin sudah mengisi Amalan Sunnah Harian untuk butir ini, isi, sumber, dan derajatnya
+// dipakai; bila belum, keterangan umum aplikasi dipakai dan diberi tanda yang jelas.
+function entryLi(x, idx) {
+  const rk = rkeyOf(x.key), refs = idx && rk ? refsFor(idx, rk) : [];
+  if (refs.length) return h('li', { class: 'ev-linked' }, h('b', {}, x.name + '. '), ...refs.map(r => h('div', { class: 'ev-ref' },
+    h('p', { class: 'ev-p prewrap' }, brief(r.body, 400)),
+    h('p', { class: 'muted' }, 'Sumber: ' + r.source + ' · Derajat: ' + (GRADES[r.grade] || '') + (r.grading ? ' (' + r.grading + ')' : '')))));
+  return h('li', {}, h('b', {}, x.name + '. '), x.desc, idx && rk ? h('div', { class: 'muted ev-gen' }, 'Keterangan umum aplikasi; rujukan hadits belum diisi di Amalan Sunnah Harian.') : '');
+}
+
+function fastingBox(f, idx) {
   const lv = f.level;
   return h('div', { class: 'fast-box fl-' + lv },
     h('h4', {}, 'Amalan puasa'),
     h('span', { class: 'fast-badge fl-' + lv }, LEVEL_LABEL[lv]),
     f.items.length
-      ? h('ul', { class: 'ev-ul' }, f.items.map(x => h('li', {}, h('b', {}, x.name + '. '), x.desc)))
+      ? h('ul', { class: 'ev-ul' }, f.items.map(x => entryLi(x, idx)))
       : h('p', { class: 'ev-p' }, NONE_TEXT));
 }
 
-function dayDialog(date) {
+function dayDialog(date, idx, again) {
   const ev = date.ev, f = date.fast;
   const dlg = $('ev-dlg');
   const body = $('ev-body');
@@ -30,8 +42,8 @@ function dayDialog(date) {
     h('div', { class: 'ev-dates' },
       h('div', {}, h('div', { class: 'muted' }, 'Masehi'), h('b', {}, cal.masehiText(date.y, date.m, date.d))),
       h('div', {}, h('div', { class: 'muted' }, 'Hijriah'), h('b', {}, date.h ? cal.hijriText(date.h) : 'Tidak tersedia'))),
-    fastingBox(f),
-    date.extra && date.extra.length ? h('div', { class: 'fast-box extra-box' }, h('h4', {}, 'Amalan sunnah lainnya'), h('ul', { class: 'ev-ul' }, date.extra.map(x => h('li', {}, h('b', {}, x.name + '. '), x.desc)))) : '',
+    fastingBox(f, idx),
+    date.extra && date.extra.length ? h('div', { class: 'fast-box extra-box' }, h('h4', {}, 'Amalan sunnah lainnya'), h('ul', { class: 'ev-ul' }, date.extra.map(x => entryLi(x, idx)))) : '',
     ev ? [h('h4', {}, 'Tentang'),
       ev.about.map(p => h('p', { class: 'ev-p' }, p)),
       h('h4', {}, 'Yang umumnya dilakukan'),
@@ -40,7 +52,10 @@ function dayDialog(date) {
     h('p', { class: 'hint' }, 'Tanggal dihitung dari kalender Umm al-Qura dan bisa berbeda 1–2 hari dari penetapan resmi di Indonesia (Kemenag). Keterangan puasa bersifat ringkas; untuk rincian hukum, tanyakan kepada ustaz.')
   ].flat());
   if (!dlg.open) dlg.showModal();
+  if (again) return;
   body.scrollTop = 0;
+  const key = date.y + '-' + date.m + '-' + date.d; body.dataset.d = key;
+  loadLinks().then(i => { if (dlg.open && body.dataset.d === key) dayDialog(date, i, true); });
 }
 $('ev-close').addEventListener('click', () => $('ev-dlg').close());
 $('ev-dlg').addEventListener('click', e => { if (e.target === $('ev-dlg')) $('ev-dlg').close(); }); // klik latar menutup
