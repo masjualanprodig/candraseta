@@ -518,3 +518,6 @@ textarea.tall{min-height:200px}
 .sunnah-check{margin-top:.7rem}
 .sunnah-priv{margin:.5rem 0 0;font-size:.82rem}
 .sunnah .dsum{margin-top:.6rem}
+/* v37b: label di atas kolom formulir Amalan Sunnah */
+.rform .flab{display:block;margin-top:.7rem}
+.rform .flab>.hint{display:block;margin:0 0 .25rem}

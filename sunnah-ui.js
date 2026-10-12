@@ -102,19 +102,18 @@ export async function renderSunnahManager(box, onBack) {
   const body = h('textarea', { class: 'in tall', placeholder: 'Penjelasan amalan dalam bahasa Indonesia (wajib)', maxlength: '4000', 'aria-label': 'Penjelasan' });
   const arabic = h('textarea', { class: 'in arab-in', lang: 'ar', dir: 'rtl', placeholder: 'Teks Arab (opsional, bila berupa doa/dzikir)', maxlength: '4000' });
   const latin = h('textarea', { class: 'in', placeholder: 'Teks Latin (opsional)', maxlength: '4000' });
-  const source = h('textarea', { class: 'in', placeholder: 'Sumber, mis. HR. Muslim no. … (wajib)', maxlength: '500', 'aria-label': 'Sumber' });
+  const source = h('textarea', { class: 'in', rows: '2', placeholder: 'Sumber, mis. HR. Muslim no. … (wajib)', maxlength: '500', 'aria-label': 'Sumber' });
   const grade = h('select', { class: 'in', 'aria-label': 'Derajat hadits' }, h('option', { value: '' }, 'Pilih derajat hadits…'), ...Object.keys(GRADES).map(k => h('option', { value: k }, GRADES[k])));
-  const grading = h('textarea', { class: 'in', placeholder: 'Keterangan derajat: siapa yang menilai dan di kitab apa (wajib)', maxlength: '500', 'aria-label': 'Keterangan derajat' });
+  const grading = h('textarea', { class: 'in', rows: '2', placeholder: 'Keterangan derajat: siapa yang menilai dan di kitab apa (wajib)', maxlength: '500', 'aria-label': 'Keterangan derajat' });
   const note = h('textarea', { class: 'in', placeholder: 'Keterangan singkat (opsional)', maxlength: '1000' });
-  const order = h('input', { class: 'in', type: 'number', inputmode: 'numeric', min: '0', max: '9999', value: '100', 'aria-label': 'Urutan' });
+  const lab = (t, el) => h('label', { class: 'flab' }, h('span', { class: 'hint' }, t), el);
   const formTitle = h('h3', {}, 'Tambah amalan'), status = h('p', { class: 'hint' }, '');
   const save = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan');
   const cancel = h('button', { class: 'btn-sm ghost', type: 'button', hidden: true, onclick: reload }, 'Batal ubah');
   const form = h('form', { class: 'panel rform', novalidate: 'novalidate', onsubmit: async ev => {
     ev.preventDefault();
-    const so = Number(order.value);
-    if (!Number.isInteger(so) || so < 0 || so > 9999) { toast('Urutan harus bilangan bulat 0 sampai 9999.', true); return; }
-    const f = { time_slot: slotSel.value, title: title.value.trim(), body: body.value.trim(), arabic: arabic.value.trim(), latin: latin.value.trim(), source: source.value.trim(), grade: grade.value, grading: grading.value.trim(), note: note.value.trim(), sort_order: so };
+    const f = { time_slot: slotSel.value, title: title.value.trim(), body: body.value.trim(), arabic: arabic.value.trim(), latin: latin.value.trim(), source: source.value.trim(), grade: grade.value, grading: grading.value.trim(), note: note.value.trim() };
+    if (!editing) f.sort_order = 100; // urutan otomatis: yang lama tampil dulu
     if (f.title.length < 3) { toast('Judul minimal 3 huruf.', true); return; }
     if (f.body.length < 10) { toast('Penjelasan minimal 10 huruf.', true); return; }
     if (f.source.length < 3) { toast('Sumber wajib diisi (perawi dan nomor hadits).', true); return; }
@@ -124,13 +123,13 @@ export async function renderSunnahManager(box, onBack) {
     try { if (editing) await updateSunnah(editing.id, f); else await createSunnah(f); toast(editing ? 'Perubahan disimpan.' : 'Amalan ditambahkan.'); await reload(); return; }
     catch (e) { if (e && e.status === 401) return; const m = e && e.status === 0 ? 'Tidak ada koneksi internet.' : 'Belum tersimpan. ' + hint(e); status.textContent = m; toast(m, true); }
     save.disabled = false;
-  } }, formTitle, slotSel, title, body, arabic, latin, source, grade, grading, note,
-    h('label', { class: 'hint' }, 'Urutan (angka kecil tampil lebih dulu)'), order, status, h('div', { class: 'mt row-btns' }, save, cancel));
+  } }, formTitle, lab('Waktu', slotSel), lab('Judul amalan *', title), lab('Penjelasan *', body), lab('Teks Arab (opsional)', arabic), lab('Teks Latin (opsional)', latin), lab('Sumber (perawi dan nomor) *', source), lab('Derajat hadits *', grade), lab('Keterangan derajat (penilai dan kitab) *', grading), lab('Keterangan singkat (opsional)', note),
+    status, h('div', { class: 'mt row-btns' }, save, cancel));
 
   function edit(e) {
     editing = e; formTitle.textContent = 'Ubah amalan';
     slotSel.value = e.time_slot; title.value = e.title; body.value = e.body; arabic.value = e.arabic || ''; latin.value = e.latin || '';
-    source.value = e.source; grade.value = e.grade; grading.value = e.grading; note.value = e.note || ''; order.value = String(e.sort_order);
+    source.value = e.source; grade.value = e.grade; grading.value = e.grading; note.value = e.note || '';
     cancel.hidden = false; form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   const item = it => h('div', { class: 'post' }, h('div', { class: 'fi-main' },
