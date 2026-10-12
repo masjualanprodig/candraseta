@@ -76,21 +76,22 @@ export function kiblatPage({ go } = {}) {
     if (!wrap.isConnected) { stop(); return; }
     let hd = null;
     if (Number.isFinite(ev.webkitCompassHeading)) hd = norm360(ev.webkitCompassHeading); // iOS: sudah mengarah ke utara magnetik
-    else if (ev.alpha != null) { if (ev.type === 'deviceorientation' && ev.absolute !== true && !absSeen) return; hd = headingFrom(ev.alpha, ev.beta, ev.gamma); }
+    // Hanya sumber ABSOLUT (terhadap utara) yang dipakai. Peristiwa "deviceorientation" biasa di Android Chrome bersifat relatif
+    // (nol di sembarang arah) dan bila ikut dipakai akan mengacaukan arah; karena itu diabaikan.
+    else if (ev.alpha != null && (ev.type === 'deviceorientationabsolute' || ev.absolute === true)) hd = headingFrom(ev.alpha, ev.beta, ev.gamma);
+    else return;
     if (hd == null) return;
     if (timer) { clearTimeout(timer); timer = null; }
     sensor = 'on'; heading = smoothAngle(heading, hd, 0.3); paintDial(); updateBtn();
   }
-  let absSeen = false;
-  const onAbs = ev => { absSeen = true; onOrient(ev); };
-  function stop() { window.removeEventListener('deviceorientationabsolute', onAbs, true); window.removeEventListener('deviceorientation', onOrient, true); if (timer) { clearTimeout(timer); timer = null; } }
+  function stop() { window.removeEventListener('deviceorientationabsolute', onOrient, true); window.removeEventListener('deviceorientation', onOrient, true); if (timer) { clearTimeout(timer); timer = null; } }
   async function start() {
     if (typeof window === 'undefined' || typeof DeviceOrientationEvent === 'undefined') { sensor = 'none'; paintDial(); updateBtn(); return; }
     if (needsPermission()) {
       try { const r = await DeviceOrientationEvent.requestPermission(); if (r !== 'granted') { sensor = 'denied'; paintDial(); updateBtn(); return; } } catch (e) { sensor = 'denied'; paintDial(); updateBtn(); return; }
     }
-    stop(); sensor = 'wait'; absSeen = false;
-    window.addEventListener('deviceorientationabsolute', onAbs, true);
+    stop(); sensor = 'wait';
+    window.addEventListener('deviceorientationabsolute', onOrient, true);
     window.addEventListener('deviceorientation', onOrient, true);
     timer = setTimeout(() => { if (sensor !== 'on') { sensor = 'none'; paintDial(); updateBtn(); } }, 3500);
     updateBtn();
@@ -125,7 +126,7 @@ export function kiblatPage({ go } = {}) {
     const stage = h('div', { class: 'qb-stage' }, h('div', { class: 'qb-top' }, h('b', { id: 'qb-bearing' }, bearing != null ? Math.round(bearing) + '°' : '—'), h('span', { class: 'muted' }, bearing != null ? windName(bearing) + ' dari utara' : '')), dialSvg(), badge);
     readout.root = stage;
     wrap.replaceChildren(h('h2', { class: 'wtitle' }, 'Arah Kiblat'), h('p', { class: 'muted' }, 'Putar HP hingga Ka’bah berada tepat di atas, dengan HP dipegang datar.'),
-      stage, hint,
+      stage, h('p', { class: 'muted center qb-now' }, 'Arah HP sekarang: ', headTxt), hint,
       h('div', { class: 'row-btns qb-ctl' }, btn),
       h('div', { class: 'panel qb-info' }, h('div', { class: 'qb-ic' }, (() => { const s = svg('svg', { viewBox: '0 0 30 30', width: 34, height: 34, 'aria-hidden': 'true' }, kaaba(15, 15, 26)); return s; })()),
         h('div', {}, h('b', { id: 'qb-arah' }, bearing != null ? Math.round(bearing) + '° ' + windName(bearing) : 'Anda berada di Makkah'), h('div', { class: 'muted' }, 'Makkah, Arab Saudi' + (km != null && km > 0.5 ? ' · sekitar ' + Math.round(km).toLocaleString('id-ID') + ' km' : '')),

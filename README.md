@@ -256,3 +256,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Sensor: Android memakai `deviceorientationabsolute`, iOS memakai `webkitCompassHeading` dan butuh ketukan "Aktifkan kompas" untuk izin. Tanpa sensor, aplikasi memberi arah dalam derajat untuk dipakai dengan kompas lain.
 - Batas jujur: kompas HP menunjuk utara magnetik dan tidak dikoreksi; ketepatan bergantung sensor HP dan bisa meleset beberapa derajat. Selalu cocokkan dengan penanda kiblat masjid. Belum diuji di HP asli.
 - Tanpa SQL. Tes: `unit_qibla.mjs` (15), `qibla_browser_test.py` (21).
+
+## Perbaikan v59: kompas kiblat
+- Perbaikan: di Android Chrome, sensor mengirim dua jenis peristiwa (absolut dan relatif). Peristiwa relatif ikut terbaca sehingga arah kompas bisa melenceng jauh. Kini hanya sumber absolut (terhadap utara) yang dipakai; bila hanya ada sumber relatif, aplikasi jujur menyatakan sensor kompas tidak terdeteksi.
+- Ditambahkan tulisan "Arah HP sekarang: N°" agar bisa dibandingkan dengan aplikasi kompas lain.
