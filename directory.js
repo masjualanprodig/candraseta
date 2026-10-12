@@ -18,6 +18,7 @@ import { sunnahPage } from './sunnah-ui.js';
 import { belajarPage } from './belajar-ui.js';
 import { asmaPage } from './asma-ui.js';
 import { trackerPage } from './tracker-ui.js';
+import { zakatPage } from './zakat-ui.js';
 import { profilPage } from './profil-ui.js';
 import { jadwalPage } from './jadwal-ui.js';
 import { quranPage } from './quran-ui.js';
@@ -46,6 +47,7 @@ export function openDirectory(from, back, tab) {
   if (state.tab === 'belajar') { renderBelajar(); return; }
   if (state.tab === 'asma') { renderAsma(); return; }
   if (state.tab === 'tracker') { renderTracker(); return; }
+  if (state.tab === 'zakat') { renderZakat(); return; }
   if (state.tab === 'profil') { renderProfil(); return; }
   if (state.tab === 'jadwal') { renderJadwal(); return; }
   if (state.tab === 'more') { renderMore(); return; }
@@ -60,12 +62,12 @@ export function openMosque(m, from, back) {
   renderDetail(m, renderFeed, '← Agenda');
 }
 
-const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', sunnah: 'Amalan Sunnah Harian', belajar: 'Belajar Membaca Al-Qur\u2019an', asma: 'Asmaul Husna', tracker: 'Tracker Ibadah Harian', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', more: 'Lainnya' };
+const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', sunnah: 'Amalan Sunnah Harian', belajar: 'Belajar Membaca Al-Qur\u2019an', asma: 'Asmaul Husna', tracker: 'Tracker Ibadah Harian', zakat: 'Kalkulator Zakat', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', more: 'Lainnya' };
 // Halaman yang dibuka dari tab "Lainnya" (tab itu tetap tampak terpilih).
-const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'profil', 'jadwal'];
+const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'profil', 'jadwal'];
 // Setelah masuk, Profil ada di bilah bawah; Agenda dan Kalender pindah ke menu Lainnya.
-const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'jadwal'];
-const go = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
+const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'jadwal'];
+const go = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
 
 function tabs() {
   const sub = document.getElementById('public-sub');
@@ -93,6 +95,7 @@ function renderMore() {
       card('belajar', ICONS.belajar, 'Belajar Membaca Al-Qur\u2019an', 'Dari huruf hijaiyah sampai lancar, ada kuis dan nilai'),
       card('asma', ICONS.asma, 'Asmaul Husna', '99 nama Allah: arti, favorit, dan kuis hafalan'),
       card('tracker', ICONS.tracker, 'Tracker Ibadah Harian', 'Catatan pribadi: salat, Al-Qur’an, amalan, dan pengingat'),
+      card('zakat', ICONS.zakat, 'Kalkulator Zakat', 'Zakat maal dan penghasilan, nisab, haul, dan rujukan'),
       card('jadwal', ICONS.clock, 'Jadwal Salat', 'Waktu salat sesuai lokasi Anda'),
       card('dzikir', ICONS.dzikir, 'Dzikir Pagi & Petang', 'Bacaan dan penghitung ketukan'),
       card('doa', ICONS.doa, 'Doa Shahih', 'Doa sesuai sunnah, lengkap dengan sumber'),
@@ -109,6 +112,10 @@ function renderJadwal() {
 
 function renderProfil() {
   $('public-content').replaceChildren(tabs(), profilPage({ onSignIn: () => $('public-back').click(), onLogout: () => $('logout-btn').click() }));
+}
+
+function renderZakat() {
+  $('public-content').replaceChildren(tabs(), zakatPage());
 }
 
 function renderTracker() {

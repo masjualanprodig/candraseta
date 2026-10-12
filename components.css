@@ -725,3 +725,48 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .mushaf[data-theme="gelap"] .mf-bar,.mushaf[data-theme="gelap"] .mf-tr,.mushaf[data-theme="gelap"] .mf-resume{background:#14221e;border-color:#2f5a4e;color:#dfe9e2}
 .mushaf[data-theme="gelap"] .mf-bar .atrans,.mushaf[data-theme="gelap"] .mf-trp,.mushaf[data-theme="gelap"] .mf-resume .hint{color:#c5d3c9}
 .mushaf[data-theme="gelap"] .mf-ref,.mushaf[data-theme="gelap"] .mf-tr summary{color:#8fd1bf}
+/* v47: Kalkulator Zakat */
+.zakat .zk-sec{margin:.7rem 0}
+.zk-h{margin:0 0 .6rem;color:#066755}
+.zk-tabs{display:flex;gap:.4rem;overflow-x:auto;padding:.2rem 0 .5rem;margin:.2rem 0;scrollbar-width:none}
+.zk-tabs::-webkit-scrollbar{display:none}
+.zk-tab{flex:none;border:1.5px solid #cfdcd8;background:#fff;color:#066755;border-radius:999px;padding:.55rem 1rem;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
+.zk-tab.on{background:#066755;color:#fff;border-color:#066755}
+.zk-note{font-size:.85rem;color:#5F7A74;line-height:1.5;margin:.35rem 0}
+.zk-warn{font-size:.82rem;color:#8a5a00;background:#fbf3df;border:1px solid #ecd9a6;border-radius:12px;padding:.5rem .7rem;margin:.4rem 0;line-height:1.45}
+.zk-f{display:block;margin:.75rem 0 0}
+.zk-l{display:block;font-weight:700;font-size:.9rem;color:#044a3d}
+.zk-help{display:block;font-size:.78rem;color:#5F7A74;margin:.1rem 0 .25rem;line-height:1.4}
+.zk-wrap{display:flex;align-items:center;gap:.5rem;margin-top:.3rem}
+.zk-u{flex:none;min-width:2.4rem;color:#5F7A74;font-weight:700;font-size:.85rem}
+.zk-in{text-align:right}
+.zk-row{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0}
+.zk-sub{margin:.9rem 0 .2rem}
+.zk-radios{display:flex;flex-direction:column;gap:.45rem;margin:.45rem 0}
+.zk-rd{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:.1rem;border:1.5px solid #cfdcd8;background:#fff;color:#044a3d;border-radius:14px;padding:.6rem .8rem;font:inherit;cursor:pointer}
+.zk-rd span{font-size:.78rem;color:#5F7A74;font-weight:400;line-height:1.35}
+.zk-rd.on{border-color:#066755;background:#e7f2ef}
+.zk-chk{display:flex;gap:.6rem;align-items:flex-start;margin:.8rem 0 0;font-size:.85rem;line-height:1.45;color:#044a3d}
+.zk-chk input{margin-top:.2rem;width:1.1rem;height:1.1rem;flex:none}
+.zk-res{margin:1rem 0}
+.zk-chip{border-radius:14px;padding:.7rem .9rem;font-weight:700;font-size:.9rem;line-height:1.4;margin:.4rem 0}
+.zk-chip.neutral{background:#eef2f0;color:#044a3d;border:1px solid #dfe6e1}
+.zk-chip.info{background:#fbf3df;color:#6b4a00;border:1px solid #ecd9a6}
+.zk-chip.due{background:#e7f2ef;color:#044a3d;border:1px solid #bcd9d1}
+.zk-tb{width:100%;border-collapse:collapse;margin:.5rem 0;font-size:.88rem}
+.zk-tb td{padding:.45rem .2rem;border-bottom:1px solid #eef2f0;vertical-align:top}
+.zk-tb td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.zk-tb tr.sum td{font-weight:800;color:#066755}
+.zk-tb small{color:#5F7A74}
+.zk-big{display:flex;flex-direction:column;align-items:center;gap:.2rem;background:#066755;color:#fff;border-radius:18px;padding:1rem;margin:.7rem 0;text-align:center}
+.zk-big span{font-size:.85rem;opacity:.9}
+.zk-big b{font-size:1.7rem;color:#f3d28a}
+.zk-ctx{background:#f5f8f6;border-radius:14px;padding:.7rem .9rem;margin:.6rem 0;font-size:.84rem;line-height:1.5}
+.zk-ctx ul,.zk-ul{padding-left:1.1rem;margin:.35rem 0}
+.zk-ctx li,.zk-ul li{margin:.35rem 0}
+.zk-amil{font-size:.8rem;color:#5F7A74;border-left:3px solid #D4981F;padding-left:.7rem;margin:.8rem 0;line-height:1.5}
+.zk-ref{background:#fbfaf5;border:1px solid #ecd9a6;border-radius:14px;padding:.7rem .9rem;margin:.7rem 0;font-size:.85rem}
+.zk-det{border-top:1px solid #eef2f0;padding:.5rem 0}
+.zk-det summary{font-weight:700;cursor:pointer;color:#066755}
+.zk-haulout{margin:.5rem 0}
+.zakat a{color:#066755;font-weight:700}

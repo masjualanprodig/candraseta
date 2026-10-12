@@ -171,3 +171,12 @@ Di tab Al-Qur'an ada dua mode: "Per ayat" (seperti sebelumnya) dan "Mushaf (per 
 
 ## Perbaikan geser (v46)
 Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan (tidak lagi loncat ke atas). Halaman lama tetap tampak redup selama halaman baru dimuat. Pindah lewat tombol ‹ › atau "Pergi" tetap kembali ke atas.
+
+## Kalkulator Zakat (v47)
+- Menu Lainnya → Kalkulator Zakat. Empat tab: **Zakat Maal**, **Penghasilan**, **Nisab & Haul**, **Dasar & Rujukan**.
+- Nisab dari harga emas yang diisi pengguna (85 gram × harga); aplikasi tidak mengambil harga dari internet. Nilai acuan BAZNAS 2026 (dikutip dari pemberitaan, BELUM diverifikasi ke dokumen resmi) bisa diisi dengan satu tombol; pengguna diminta mengecek ke baznas.go.id.
+- Zakat maal: status dibedakan (di bawah nisab / belum haul / wajib / wajib bila haul terpenuhi). Pilihan yang diperselisihkan ulama (perhiasan yang dipakai, pengurangan utang) menampilkan hasil pilihan pengguna beserta hasil pilihan sebaliknya.
+- Zakat penghasilan: pilihan dasar (kotor / setelah kebutuhan pokok) dan periode (bulanan / tahunan); nisab bulanan = 1/12 nisab tahunan.
+- Pembantu tanggal haul (Masehi + Hijriah, perkiraan).
+- Privasi: hanya harga dan pilihan metode yang disimpan di perangkat (`baituna.zakat.v1`, ikut terhapus oleh "Hapus data di perangkat ini"); jumlah harta/penghasilan tidak disimpan dan tidak dikirim.
+- Tanpa teks Qur'an/hadits dari ingatan: ayat hanya disebut nomornya. Isi sebaiknya ditinjau ustaz/amil sebelum rilis.
