@@ -108,3 +108,11 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Centang hanya tersimpan di perangkat (`baituna.sunnah.v1`) dan kosong lagi besok. Tidak ada pengingat/alarm.
 - **Hanya Super Admin** yang bisa menambah/mengubah/menghapus (Dasbor -> Amalan Sunnah Harian). Setiap amalan wajib: judul, penjelasan, sumber, derajat (shahih/hasan saja; dha'if ditolak database), dan keterangan siapa yang menilai.
 - Jalankan **sunnah.sql** (aman diulang). Tabel awalnya KOSONG; isi dari sumber yang Anda periksa dan sebaiknya ditinjau ustaz sebelum diumumkan.
+
+## Belajar Membaca Al-Qur'an (v38)
+- Menu **Lainnya -> Belajar Membaca Al-Qur'an** (juga ubin di halaman masuk). 8 level: (1) 28 huruf hijaiyah + makhraj, (2) huruf bersambung, (3) harakat, (4) tanwin, (5) sukun & tasydid, (6) mad thabi'i, (7) hukum bacaan dasar (nun sukun/tanwin, mim sukun, qalqalah), (8) membaca 13 surat pendek.
+- **Materi sudah ada di aplikasi** (tidak perlu diisi). Level 1-7 punya kuis 10 soal acak, lulus bila nilai >= 80%, ada bintang dan nilai terbaik. Level 8: tandai "sudah lancar" per surat (penilaian sendiri); ayat dimuat dari AlQuran Cloud, tidak diketik aplikasi.
+- **Tanda pengingat**: banner "Lanjutkan di Level N" + "terakhir belajar ... lalu"; setelah 3 hari tidak belajar banner berubah jadi pengingat. Hanya tampil saat halaman dibuka (bukan notifikasi/alarm).
+- Kemajuan hanya di perangkat (`baituna.belajar.v1`), ikut terhapus oleh "Hapus data di perangkat ini".
+- **Super Admin hanya MENAMBAH materi tambahan** per level (Dasbor -> Materi Belajar Qur'an), wajib dengan sumber. Jalankan **belajar.sql** (aman diulang; tabel awalnya kosong).
+- Belum ada: suara huruf, kemajuan antar-perangkat. Sebaiknya ustaz memeriksa materi sebelum diumumkan.

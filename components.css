@@ -521,3 +521,46 @@ textarea.tall{min-height:200px}
 /* v37b: label di atas kolom formulir Amalan Sunnah */
 .rform .flab{display:block;margin-top:.7rem}
 .rform .flab>.hint{display:block;margin:0 0 .25rem}
+/* v38: Belajar Membaca Al-Qur'an */
+.bj-ar{font-family:var(--qfont,'BQ Amiri','Noto Naskh Arabic',serif);direction:rtl;unicode-bidi:isolate;color:#16322d}
+.bj-ar.big{font-size:1.9rem;line-height:2.1}
+.bj-ar.huge{font-size:4rem;line-height:2}
+.bj-ar.inl{font-size:1.35rem;line-height:2}
+.bj-remind{border-left:4px solid var(--gold,#D4981F)}
+.bj-remind.late{background:#fff8e8}
+.bj-remind.ok{border-left-color:#066755}
+.bj-priv{font-size:.8rem;margin:.5rem 0 0}
+button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;margin:.5rem 0}
+.bj-level.next{border-color:#066755;box-shadow:0 0 0 1px #066755 inset}
+.bj-num{flex:none;width:2.4rem;height:2.4rem;border-radius:50%;background:#e3f0ed;color:#066755;display:grid;place-items:center;font-weight:700}
+.bj-level.pass .bj-num{background:#066755;color:#fff}
+.bj-lt{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.bj-st{font-size:.85rem;color:#066755}
+.bj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(5.2rem,1fr));gap:.5rem;margin:.6rem 0}
+.bj-cell{background:#fff;border:1px solid #dce7e4;border-radius:14px;text-align:center;padding:.3rem .2rem}
+.bj-cell .bj-ar{display:block}
+.bj-sub{display:block;font-size:.8rem;color:#5F7A74}
+.bj-twrap{overflow-x:auto;margin:.6rem 0}
+.bj-table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden}
+.bj-table th,.bj-table td{border-bottom:1px solid #e6eeec;padding:.25rem .5rem;font-size:.9rem;text-align:left}
+.bj-table td.c{text-align:center}
+.bj-q{text-align:center}
+.bj-prompt{font-weight:600}
+.bj-qglyph{margin:.2rem 0 .6rem}
+.bj-opts{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.6rem 0}
+.bj-opt{font:inherit;font-size:1.05rem;padding:.7rem .4rem;min-height:3.2rem;border:2px solid #dce7e4;border-radius:14px;background:#fff;color:#16322d;cursor:pointer}
+.bj-opt:disabled{cursor:default}
+.bj-opt.ok{border-color:#066755;background:#e3f0ed}
+.bj-opt.bad{border-color:#b3412f;background:#fbe9e5}
+.bj-fb{margin:.4rem 0 .8rem;text-align:left;padding:.6rem .8rem;border-radius:12px}
+.bj-fb.ok{background:#e3f0ed}.bj-fb.bad{background:#fbe9e5}
+.bj-result{text-align:center}
+.bj-score{display:block;font-size:3rem;color:#066755}
+.bj-result.try .bj-score{color:#b3412f}
+.bj-stars{font-size:1.8rem;color:#D4981F;margin:.2rem 0}
+.bj-srow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between}
+.bj-ayat .arab{margin:.2rem 0}
+.bj-extra{border-top:1px solid #e6eeec;padding-top:.5rem;margin-top:.5rem}
+.bj-table .bj-ar.big,.bj-cell .bj-ar.big{display:block;line-height:2;padding-bottom:.55rem}
+.bj-table td.c .bj-sub{margin-top:.15rem;padding-bottom:.2rem}
+.bj-cell .bj-sub{padding-bottom:.2rem}

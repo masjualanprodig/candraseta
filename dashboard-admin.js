@@ -13,6 +13,7 @@ import { renderArticleManager } from './articles-ui.js';
 import { renderDhikrManager } from './dzikir-ui.js';
 import { renderDuaManager } from './doa-ui.js';
 import { renderSunnahManager } from './sunnah-ui.js';
+import { renderBelajarManager } from './belajar-ui.js';
 import { icon, ICONS } from './feed-ui.js';
 
 const ACTIONS = {
@@ -106,7 +107,8 @@ export async function renderAdmin(box) {
       h('button', { class: 'act', type: 'button', onclick: () => renderArticleManager(box, () => renderAdmin(box)) }, icon(ICONS.news), h('span', {}, 'Berita & Artikel Islam')),
       h('button', { class: 'act', type: 'button', onclick: () => renderDhikrManager(box, () => renderAdmin(box)) }, icon(ICONS.dzikir), h('span', {}, 'Dzikir Pagi & Petang')),
       h('button', { class: 'act', type: 'button', onclick: () => renderDuaManager(box, () => renderAdmin(box)) }, icon(ICONS.doa), h('span', {}, 'Doa Shahih')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderSunnahManager(box, () => renderAdmin(box)) }, icon(ICONS.sunnah), h('span', {}, 'Amalan Sunnah Harian'))),
+      h('button', { class: 'act', type: 'button', onclick: () => renderSunnahManager(box, () => renderAdmin(box)) }, icon(ICONS.sunnah), h('span', {}, 'Amalan Sunnah Harian')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderBelajarManager(box, () => renderAdmin(box)) }, icon(ICONS.belajar), h('span', {}, 'Materi Belajar Qur’an'))),
     form,
     h('div', { class: 'panel' },
       h('h3', {}, 'Daftar masjid (' + list.length + ')'),

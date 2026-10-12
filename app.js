@@ -101,6 +101,7 @@ $('open-world').addEventListener('click', e => { e.preventDefault(); openDirecto
 $('open-rukun').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'rukun'); });
 $('open-berita').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'berita'); });
 $('open-jadwal').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'jadwal'); });
+$('open-belajar').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'belajar'); });
 $('open-sunnah').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'sunnah'); });
 $('open-doa').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'doa'); });
 $('open-dzikir').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'dzikir'); });
