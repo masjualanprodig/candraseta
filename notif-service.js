@@ -15,6 +15,7 @@ import { fmtWhen, isUpcoming, dayDiff } from './post-time.js';
 import { listProducts, priceText } from './market-service.js';
 import { rkeyOf, loadLinks, slotAnchors, SLOT_ORDER } from './sunnah-link.js';
 import { SLOTS, loadDone } from './sunnah-service.js';
+import { load as loadTracker } from './tracker-service.js';
 
 export const KEY = 'baituna.notif.v1', SEEN_KEY = 'baituna.notifseen.v1', LOC_KEY = 'baituna.loc.v1';
 
@@ -230,14 +231,20 @@ export function harianItems(now, loc, S, idx, done) {
   return out;
 }
 
+// Pengingat dari Tracker Ibadah Harian (jam harian, tiap hari) ikut digabung agar semua pengingat pribadi satu tempat.
+export function trackerReminders() {
+  try { return loadTracker().reminders.filter(r => r.on).map(r => ({ id: 'tr-' + String(r.id).replace(/[^a-z0-9]/gi, '').slice(0, 14), label: r.label, time: r.time, days: [0, 1, 2, 3, 4, 5, 6], src: 'tracker' })); } catch (e) { return []; }
+}
+export const allCustom = S => [...S.custom, ...trackerReminders()];
+
 // ---- 2e. Pengingat pribadi buatan pengguna (hari ini) ----
 export function customItems(now, loc, S) {
-  if (!S.cats.pribadi || !S.custom.length) return [];
+  const all = allCustom(S); if (!S.cats.pribadi || !all.length) return [];
   const off = loc ? loc.off : -new Date(now).getTimezoneOffset() / 60, day = todayIn(off, now), dow = dowOf(day.y, day.m, day.d);
-  const list = S.custom.filter(c => c.days.includes(dow)).map(c => { const [hh, mm] = c.time.split(':').map(Number); return { c, at: startOfDay(day, off) + (hh * 60 + mm) * 60000 }; }).sort((a, b) => a.at - b.at);
+  const list = all.filter(c => c.days.includes(dow)).map(c => { const [hh, mm] = c.time.split(':').map(Number); return { c, at: startOfDay(day, off) + (hh * 60 + mm) * 60000 }; }).sort((a, b) => a.at - b.at);
   let nextDone = false;
   return list.map(({ c, at }) => { let state = at <= now ? 'past' : 'later'; if (state === 'later' && !nextDone) { state = 'next'; nextDone = true; }
-    return { id: 'pribadi-' + c.id + '-' + dayKey(day), cat: 'pribadi', title: c.label + ' · ' + c.time, text: state === 'past' ? 'Waktu pengingat sudah lewat.' : 'Pengingat pribadi hari ini.', at, state, silent: true }; });
+    return { id: 'pribadi-' + c.id + '-' + dayKey(day), cat: 'pribadi', title: c.label + ' · ' + c.time, text: (state === 'past' ? 'Waktu pengingat sudah lewat.' : 'Pengingat pribadi hari ini.') + (c.src === 'tracker' ? ' (dibuat di Tracker Ibadah Harian)' : ''), at, state, silent: true }; });
 }
 
 // ---- 3. Pengingat yang bisa berbunyi saat aplikasi terbuka ----
@@ -247,7 +254,7 @@ export function dueReminders(now, loc, S, horizon = 26 * 3600e3, ctx = null) {
   const off = loc ? loc.off : -new Date(now).getTimezoneOffset() / 60, today = todayIn(off, now);
   for (let k = 0; k <= 2; k++) {
     const dt = dayAdd(today, k);
-    if (S.cats.pribadi) for (const c of S.custom) {
+    if (S.cats.pribadi) for (const c of allCustom(S)) {
       if (!c.days.includes(dowOf(dt.y, dt.m, dt.d))) continue;
       const [hh, mm] = c.time.split(':').map(Number), at = startOfDay(dt, off) + (hh * 60 + mm) * 60000;
       if (at > now && at <= now + horizon) out.push({ id: 'rem-pribadi-' + c.id + '-' + dayKey(dt), at, title: c.label, body: 'Pengingat pribadi Anda (' + c.time + ').' });

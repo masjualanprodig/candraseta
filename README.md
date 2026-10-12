@@ -239,3 +239,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
   - Puasa yang dikerjakan: Senin, Kamis, Ayyamul Bidh, Arafah, Tasu’a, Asyura, 6 Syawal, Ramadan masing-masing bisa dimatikan.
   - Pengingat pribadi: sampai 8 pengingat (nama, jam, hari) buatan sendiri; berbunyi saat BAITUNA terbuka dan tidak butuh lokasi.
 - Tes: `unit_pribadi.mjs` (18), tambahan di `link_browser_test.py` (kini 37).
+
+## Tambahan v56: pengingat Tracker menyatu dengan Notifikasi
+- Pengingat yang aktif di Tracker Ibadah Harian (mis. "Shalat Tahajud 21:00") kini ikut tampil di Notifikasi > "Pengingat pribadi saya" dan berbunyi lewat mesin pengingat yang sama (saat BAITUNA terbuka). Tanpa SQL.
+- Waktu Tahajud/Dhuha yang dihitung tetap diatur di Notifikasi > Pengaturan > Kebiasaan saya.

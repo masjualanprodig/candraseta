@@ -128,6 +128,7 @@ export function notifPage({ go } = {}) {
       h('button', { class: 'btn-sm alt', type: 'button', 'aria-label': 'Hapus pengingat ' + c.label, onclick: () => { S.custom = S.custom.filter(x => x.id !== c.id); commit(); localItems(); render(); } }, 'Hapus')));
     return h('div', { class: 'panel', id: 'ns-custom' }, h('h3', {}, 'Pengingat pribadi saya'),
       h('p', { class: 'muted' }, 'Buat pengingat sesuai kebiasaan Anda sendiri (mis. dzikir, tilawah, atau puasa pilihan). Hanya tersimpan di perangkat ini dan berbunyi saat BAITUNA terbuka.'),
+      N.trackerReminders().length ? h('p', { class: 'muted', id: 'ns-tr-note' }, N.trackerReminders().length + ' pengingat dari Tracker Ibadah Harian ikut tampil di Kabar dan berbunyi di sini. ', go ? h('button', { class: 'linkbtn', type: 'button', onclick: () => go('tracker') }, 'Kelola di Tracker') : '') : '',
       ...list, label, time, h('div', { class: 'nt-days' }, ...dayBoxes.map(x => x[1])), add);
   }
 

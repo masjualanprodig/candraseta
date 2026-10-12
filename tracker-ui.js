@@ -127,7 +127,7 @@ export function trackerPage() {
         if (nx === data) { toast(data.reminders.length >= T.MAX_REMINDERS ? 'Maksimal ' + T.MAX_REMINDERS + ' pengingat.' : 'Isi nama dan jam pengingat.', true); return; }
         commit(nx); draw();
       } }, label, time, h('button', { class: 'btn-sm', type: 'submit' }, 'Tambah')),
-      h('p', { class: 'hint' }, 'Pengingat muncul di halaman ini ketika Anda membuka BAITUNA setelah jam yang dipilih. Aplikasi web tidak bisa memastikan alarm berbunyi saat tertutup. Untuk alarm yang berbunyi sendiri, ketuk "Tambah ke kalender" lalu buka berkasnya di aplikasi kalender HP (berulang setiap hari).'));
+      h('p', { class: 'hint' }, 'Pengingat yang aktif di sini juga ikut tampil di menu Notifikasi. Pengingat muncul di halaman ini ketika Anda membuka BAITUNA setelah jam yang dipilih. Aplikasi web tidak bisa memastikan alarm berbunyi saat tertutup. Untuk alarm yang berbunyi sendiri, ketuk "Tambah ke kalender" lalu buka berkasnya di aplikasi kalender HP (berulang setiap hari).'));
   }
 
   function settingsSec() {
