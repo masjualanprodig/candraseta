@@ -156,18 +156,21 @@ export function mushafPage(opts) {
     if (!Number.isInteger(n) || n < 1 || n > PAGES) return;
     stopAudio(); page = n; pin.value = String(n);
     prev.disabled = n <= 1; next.disabled = n >= PAGES;
-    body.replaceChildren(h('p', { class: 'muted center' }, 'Memuat halaman ' + n + '…'));
+    const keepPos = !!from, y0 = window.scrollY;
+    if (keepPos) { body.style.minHeight = body.offsetHeight + 'px'; body.style.opacity = '.45'; }
+    else body.replaceChildren(h('p', { class: 'muted center' }, 'Memuat halaman ' + n + '…'));
     let d;
     try { d = await loadPage(n, qari()); }
     catch (e) {
       if (page !== n) return;
+      body.style.minHeight = ''; body.style.opacity = '';
       body.replaceChildren(h('div', { class: 'empty' }, h('p', { class: 'muted' }, e && e.code === 'BAD_DATA' ? 'Data halaman dari server tidak lengkap, jadi tidak ditampilkan agar tidak salah. Coba lagi nanti.' : navigator.onLine === false ? 'Tidak ada internet, dan halaman ini belum pernah dibuka sehingga belum tersimpan di perangkat. Sambungkan internet, lalu coba lagi.' : 'Halaman belum bisa dimuat. Periksa koneksi internet, lalu coba lagi.'), h('button', { class: 'btn-sm', type: 'button', onclick: () => show(n, focus) }, 'Coba lagi')));
       return;
     }
     if (page !== n) return; // pengguna sudah pindah halaman lagi
     data = d; savePage(n); render(d, focus); drawResume();
     const art = body.querySelector('.mf-page'); if (art && from) art.classList.add(from === 'l' ? 'from-l' : 'from-r');
-    window.scrollTo(0, 0);
+    if (keepPos) { body.style.minHeight = ''; body.style.opacity = ''; window.scrollTo(0, y0); } else window.scrollTo(0, 0);
     offlinePageCount().then(c => { const el = root.querySelector('.mf-offcount'); if (el) el.textContent = c ? 'Tersimpan untuk dibaca tanpa internet: ' + c + ' halaman.' : ''; });
     if (navigator.onLine !== false) setTimeout(() => { if (page === n && root.isConnected) { if (n < PAGES) loadPage(n + 1, qari()).catch(() => {}); if (n > 1) loadPage(n - 1, qari()).catch(() => {}); } }, 1200);
   }

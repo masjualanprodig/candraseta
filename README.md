@@ -168,3 +168,6 @@ Di tab Al-Qur'an ada dua mode: "Per ayat" (seperti sebelumnya) dan "Mushaf (per 
 - **Jaga layar tetap menyala** (Wake Lock; hanya jika browser mendukung), dilepas saat pindah mode.
 - **Geser untuk pindah halaman**: bawaan mengikuti mushaf (geser ke kanan = halaman berikutnya); arah bisa dibalik. Tombol ‹ › kecil tetap ada sebagai cadangan.
 - "Hapus data di perangkat ini" juga menghapus simpanan offline. Service worker tidak menghapus simpanan Qur'an saat pembaruan.
+
+## Perbaikan geser (v46)
+Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan (tidak lagi loncat ke atas). Halaman lama tetap tampak redup selama halaman baru dimuat. Pindah lewat tombol ‹ › atau "Pergi" tetap kembali ke atas.
