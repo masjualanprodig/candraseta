@@ -698,3 +698,30 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .mf-rt{display:flex;flex-direction:column}
 .mf-a.mark{background:#fbf0c8}
 .mf-no.flag{background:#b89a45;border-color:#b89a45;color:#fff}
+/* v45: mushaf - tema, geser, offline */
+.mf-body{touch-action:pan-y pinch-zoom}
+.mf-arrow{flex:0 0 2.8rem;min-width:2.8rem;font-size:1.3rem;padding-left:0;padding-right:0}
+.mf-opts{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 .6rem}
+.mf-off{margin:0;padding:.35rem .8rem;background:#fbf3df;color:#6b5412;font-size:.8rem;text-align:center}
+.mf-offcount{margin:.4rem 0 0}
+@keyframes mfl{from{opacity:.2;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes mfr{from{opacity:.2;transform:translateX(28px)}to{opacity:1;transform:none}}
+.mf-page.from-l{animation:mfl .22s ease-out}
+.mf-page.from-r{animation:mfr .22s ease-out}
+@media (prefers-reduced-motion:reduce){.mf-page.from-l,.mf-page.from-r{animation:none}}
+.mushaf[data-theme="krem"] .mf-page{background:#f4e8c9;border-color:#c9b57a;box-shadow:inset 0 0 0 4px #f4e8c9,inset 0 0 0 5px #dccb97}
+.mushaf[data-theme="krem"] .mf-text,.mushaf[data-theme="krem"] .mf-bism{color:#2b2316}
+.mushaf[data-theme="krem"] .mf-a.sel{background:#e5dab5}
+.mushaf[data-theme="gelap"] .mf-page{background:#0f1a17;border-color:#3c4d45;box-shadow:inset 0 0 0 4px #0f1a17,inset 0 0 0 5px #2a3a33}
+.mushaf[data-theme="gelap"] .mf-ph{background:#0b3b33}
+.mushaf[data-theme="gelap"] .mf-text,.mushaf[data-theme="gelap"] .mf-bism{color:#e7eee5}
+.mushaf[data-theme="gelap"] .mf-head{background:linear-gradient(#3a2f10,#2c230b);border-color:#8a7330;color:#f0dca0}
+.mushaf[data-theme="gelap"] .mf-no{border-color:#c8a959;color:#e8cf86}
+.mushaf[data-theme="gelap"] .mf-no.flag{background:#b89a45;border-color:#b89a45;color:#10140f}
+.mushaf[data-theme="gelap"] .mf-a.sel{background:#1f3a33}
+.mushaf[data-theme="gelap"] .mf-a.playing,.mushaf[data-theme="gelap"] .mf-a.mark{background:#3a3313}
+.mushaf[data-theme="gelap"] .mf-pf{color:#8b9a8f}
+.mushaf[data-theme="gelap"] .mf-off{background:#2b2410;color:#e8cf86}
+.mushaf[data-theme="gelap"] .mf-bar,.mushaf[data-theme="gelap"] .mf-tr,.mushaf[data-theme="gelap"] .mf-resume{background:#14221e;border-color:#2f5a4e;color:#dfe9e2}
+.mushaf[data-theme="gelap"] .mf-bar .atrans,.mushaf[data-theme="gelap"] .mf-trp,.mushaf[data-theme="gelap"] .mf-resume .hint{color:#c5d3c9}
+.mushaf[data-theme="gelap"] .mf-ref,.mushaf[data-theme="gelap"] .mf-tr summary{color:#8fd1bf}

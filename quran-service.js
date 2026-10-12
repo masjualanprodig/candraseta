@@ -28,16 +28,46 @@ async function getJson(path) {
   return j.data;
 }
 
+/* ===== Simpanan offline (Cache Storage di perangkat). Hanya data yang sudah lolos pemeriksaan yang disimpan. ===== */
+export const OFFLINE_CACHE = 'baituna-quran-v1';
+const MAX_PAGES_STORED = 150;
+const okKey = k => /^(surahs|page\/\d{1,3}\/[a-z.]{3,20}|ayah\/\d{1,3}:\d{1,3})$/.test(k);
+async function storeGet(key) {
+  try {
+    if (typeof caches === 'undefined' || !okKey(key)) return null;
+    const c = await caches.open(OFFLINE_CACHE), r = await c.match('/__q/' + key);
+    return r ? await r.json() : null;
+  } catch { return null; }
+}
+async function storePut(key, obj) {
+  try {
+    if (typeof caches === 'undefined' || !okKey(key)) return;
+    const c = await caches.open(OFFLINE_CACHE);
+    await c.put('/__q/' + key, new Response(JSON.stringify(obj), { headers: { 'content-type': 'application/json' } }));
+    if (key.startsWith('page/')) { // batasi jumlah halaman tersimpan: yang paling lama dibuang
+      const ks = (await c.keys()).filter(r => r.url.includes('/__q/page/'));
+      for (let i = 0; i < ks.length - MAX_PAGES_STORED; i++) await c.delete(ks[i]);
+    }
+  } catch { /* penyimpanan penuh atau tidak didukung: abaikan */ }
+}
+export async function offlinePageCount() {
+  try { if (typeof caches === 'undefined') return 0; const c = await caches.open(OFFLINE_CACHE); return (await c.keys()).filter(r => r.url.includes('/__q/page/')).length; } catch { return 0; }
+}
+export async function clearOfflineQuran() { try { if (typeof caches !== 'undefined') await caches.delete(OFFLINE_CACHE); } catch { /* abaikan */ } }
+const okSurahList = o => Array.isArray(o) && o.length === 114 && o.every((s, i) => s && s.number === i + 1 && isInt(s.ayahs) && s.ayahs >= 3 && typeof s.name === 'string' && typeof s.latin === 'string');
+
 let surahCache = null;
 export async function listSurahs() {
   if (surahCache) return surahCache;
-  const d = await getJson('/surah');
+  let d;
+  try { d = await getJson('/surah'); }
+  catch (e) { const c = await storeGet('surahs'); if (okSurahList(c)) return (surahCache = c); throw e; }
   if (!Array.isArray(d) || d.length !== 114) throw bad('daftar surat tidak lengkap');
   const out = d.map((s, i) => {
     if (!s || s.number !== i + 1 || !isInt(s.numberOfAyahs) || s.numberOfAyahs < 3 || typeof s.name !== 'string' || typeof s.englishName !== 'string') throw bad('surat ' + (i + 1));
     return { number: s.number, name: s.name, latin: s.englishName, ayahs: s.numberOfAyahs, place: s.revelationType === 'Medinan' ? 'Madaniyah' : 'Makkiyah' };
   });
-  surahCache = out;
+  surahCache = out; storePut('surahs', out);
   return out;
 }
 
@@ -148,7 +178,10 @@ export async function loadPage(n, reciter) {
   if (!isInt(n) || n < 1 || n > PAGES) throw bad('nomor halaman');
   const rec = RID.includes(reciter) ? reciter : RID[0], key = n + '|' + rec;
   if (pageCache.has(key)) return pageCache.get(key);
+  const okPageObj = o => !!o && o.page === n && Array.isArray(o.ayahs) && o.ayahs.length >= 1 && o.ayahs.length <= MAX_PAGE_AYAH && o.ayahs.every((a, i) => a && isInt(a.g) && isInt(a.s) && a.s >= 1 && a.s <= 114 && isInt(a.n) && a.n >= 1 && typeof a.ar === 'string' && a.ar.trim() && typeof a.bism === 'string' && typeof a.id === 'string' && typeof a.audio === 'string' && a.audio.startsWith(AUDIO_HOST) && a.audio.endsWith('.mp3') && isInt(a.juz) && (i === 0 || a.g === o.ayahs[i - 1].g + 1));
+  const fromStore = async err => { const c = await storeGet('page/' + n + '/' + rec); if (!okPageObj(c)) throw err; const sl = await listSurahs(); return { page: n, reciter: rec, ayahs: c.ayahs, surahs: [...new Set(c.ayahs.map(a => a.s))].map(s => sl[s - 1]), juz: [...new Set(c.ayahs.map(a => a.juz).filter(Boolean))], offline: true }; };
   const p = (async () => {
+   try {
     const cum = await cumulative();
     const d = await pageEditions(n, rec);
     const by = id => d.find(e => e && e.edition && e.edition.identifier === id);
@@ -172,7 +205,9 @@ export async function loadPage(n, reciter) {
     });
     const surahs = await listSurahs();
     const out = { page: n, reciter: rec, ayahs, surahs: [...new Set(ayahs.map(a => a.s))].map(s => surahs[s - 1]), juz: [...new Set(ayahs.map(a => a.juz).filter(Boolean))] };
+    storePut('page/' + n + '/' + rec, { page: n, ayahs });
     return out;
+   } catch (e) { return fromStore(e); } // gagal (mis. tanpa internet): pakai salinan tersimpan bila ada
   })();
   pageCache.set(key, p);
   p.catch(() => pageCache.delete(key)); // gagal: boleh dicoba lagi
@@ -184,7 +219,9 @@ const ayahPageCache = new Map();
 export async function pageOfAyah(s, a) {
   if (!isInt(s) || !isInt(a) || s < 1 || s > 114 || a < 1) throw bad('rujukan ayat');
   const k = s + ':' + a; if (ayahPageCache.has(k)) return ayahPageCache.get(k);
-  const d = await getJson('/ayah/' + k + '/' + TEXT_ED);
+  let d;
+  try { d = await getJson('/ayah/' + k + '/' + TEXT_ED); }
+  catch (e) { const c = await storeGet('ayah/' + k); if (c && isInt(c.page) && c.page >= 1 && c.page <= PAGES) { ayahPageCache.set(k, c.page); return c.page; } throw e; }
   if (!d || !isInt(d.page) || d.page < 1 || d.page > PAGES || (d.numberInSurah !== undefined && d.numberInSurah !== a)) throw bad('halaman ayat');
-  ayahPageCache.set(k, d.page); return d.page;
+  ayahPageCache.set(k, d.page); storePut('ayah/' + k, { page: d.page }); return d.page;
 }

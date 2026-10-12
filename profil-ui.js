@@ -1,6 +1,7 @@
 // BAITUNA - profil-ui.js
 // Halaman Profil & Pengaturan. Bagian akun (nama, telepon, password) hanya untuk yang sudah masuk.
 // Favorit, progres, dan pengaturan tampilan hanya tersimpan di perangkat ini (tidak dikirim ke server).
+import { clearOfflineQuran } from './quran-service.js';
 import { h, toast, hint, ask } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
 import { getSession } from './supabase.js';
@@ -14,9 +15,9 @@ import { canSound, chime } from './dzikir-sound.js';
 import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran-ui.js';
 import { listSurahs } from './quran-service.js';
 
-export const APP_VERSION = 'v44';
+export const APP_VERSION = 'v45';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
-const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.quranmode.v1'];
+const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
 
 // Lingkaran foto profil: inisial dulu, lalu diganti foto bila ada (foto privat diunduh dengan token pengguna).
@@ -162,8 +163,9 @@ export function profilPage({ onSignIn, onLogout } = {}) {
          opt('Bunyi detak tiap ketukan (pelan)', sound.tap, v => { sound = { ...sound, tap: v }; saveSound(sound); })]
       : [h('p', { class: 'hint' }, 'Perangkat atau peramban ini tidak mendukung bunyi.')];
     const wipe = h('button', { class: 'btn-sm alt', type: 'button', onclick: async () => {
-      if (!(await ask({ title: 'Hapus data di perangkat ini?', text: 'Favorit, hitungan dzikir dan tasbih, lokasi jadwal salat, serta pengaturan tampilan akan dihapus dari perangkat ini. Akun Anda tidak terpengaruh.', reason: false }))) return;
+      if (!(await ask({ title: 'Hapus data di perangkat ini?', text: 'Favorit, hitungan dzikir dan tasbih, lokasi jadwal salat, serta pengaturan tampilan dan halaman Al-Qur’an yang tersimpan untuk dibaca tanpa internet akan dihapus dari perangkat ini. Akun Anda tidak terpengaruh.', reason: false }))) return;
       DEVICE_KEYS.forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* abaikan */ } });
+      await clearOfflineQuran();
       toast('Data di perangkat ini dihapus.'); draw();
     } }, 'Hapus data di perangkat ini');
     return sub('Pengaturan',

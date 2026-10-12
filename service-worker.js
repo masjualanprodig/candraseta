@@ -1,7 +1,7 @@
 // BAITUNA - service-worker.js
 // Cache aset statis agar aplikasi cepat dan bisa dibuka offline (hanya tampilan dasar).
 // Data Supabase TIDAK pernah disimpan di cache.
-const CACHE = 'baituna-static-v37';
+const CACHE = 'baituna-static-v38';
 const ASSETS = [
   './', 'index.html', 'style.css', 'components.css', 'responsive.css',
   'config.js', 'supabase.js', 'auth.js', 'router.js', 'permissions.js', 'ui.js',
@@ -15,7 +15,7 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && !k.startsWith('baituna-quran')).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 

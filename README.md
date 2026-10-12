@@ -161,3 +161,10 @@ Di tab Al-Qur'an ada dua mode: "Per ayat" (seperti sebelumnya) dan "Mushaf (per 
 - Ketuk ayat -> "Selesai baca di sini": nomor ayat berwarna emas dan ayat ber-highlight; tersimpan surat, ayat, dan halaman.
 - Banner "Terakhir dibaca: ... · Hal. N" di atas halaman dengan tombol "Lanjutkan" (atau "Ke penanda" bila sedang di halamannya) dan "Hapus penanda".
 - Satu penanda saja; menandai ayat lain memindahkannya. Dipakai bersama mode per ayat (kunci `baituna.quranlast.v1`).
+
+## Mushaf: offline, tema, layar menyala, geser (v45)
+- **Baca tanpa internet**: halaman mushaf yang pernah dibuka disimpan di perangkat (Cache API `baituna-quran-v1`, maks. 150 halaman). Halaman sebelum/sesudahnya diambil otomatis saat online. Halaman yang belum tersimpan memberi pesan jelas saat offline.
+- **Tema baca**: terang, krem, gelap (hanya halaman baca).
+- **Jaga layar tetap menyala** (Wake Lock; hanya jika browser mendukung), dilepas saat pindah mode.
+- **Geser untuk pindah halaman**: bawaan mengikuti mushaf (geser ke kanan = halaman berikutnya); arah bisa dibalik. Tombol ‹ › kecil tetap ada sebagai cadangan.
+- "Hapus data di perangkat ini" juga menghapus simpanan offline. Service worker tidak menghapus simpanan Qur'an saat pembaruan.

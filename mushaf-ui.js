@@ -3,9 +3,15 @@
 // Teks dari AlQuran Cloud (lihat quran-service.js). Ini tampilan alat bantu baca, bukan gambar mushaf cetak yang ditashih:
 // pemenggalan baris mengikuti lebar layar, sedangkan isi halaman dan urutan ayat mengikuti Mushaf Madinah.
 import { h, toast } from './ui.js';
-import { loadPage, pageOfAyah, PAGES, AUDIO_HOST, RECITERS } from './quran-service.js';
+import { loadPage, pageOfAyah, offlinePageCount, PAGES, AUDIO_HOST, RECITERS } from './quran-service.js';
 
 const PKEY = 'baituna.quranpage.v1', LAST = 'baituna.quranlast.v1', QKEY = 'baituna.qari.v1';
+const THEMES = [['terang', 'Terang'], ['krem', 'Krem'], ['gelap', 'Gelap']];
+const lsGet = (k, ok, d) => { try { const v = localStorage.getItem(k); return ok(v) ? v : d; } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch { /* abaikan */ } };
+const getTheme = () => lsGet('baituna.mushaftheme.v1', v => THEMES.some(t => t[0] === v), 'terang');
+const getAwake = () => lsGet('baituna.mushafawake.v1', v => v === '1', '0') === '1';
+const getSwipe = () => lsGet('baituna.mushafswipe.v1', v => v === 'rtl' || v === 'ltr', 'rtl');
 const MSIZES = [1.2, 1.4, 1.65, 1.9, 2.3];
 const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 export const savedPage = () => { try { const v = Number(localStorage.getItem(PKEY)); return Number.isInteger(v) && v >= 1 && v <= PAGES ? v : 1; } catch { return 1; } };
@@ -28,10 +34,24 @@ export function mushafPage(opts) {
   const { surahs } = opts;
   const root = h('div', { class: 'mushaf' });
   let page = opts.startPage || savedPage(), data = null, sel = -1, cur = -1, audio = null, watch = 0, seq = false, sizeIdx = opts.sizeIdx;
+  let theme = getTheme(), awake = getAwake(), swipeDir = getSwipe(), lock = null, guard = 0;
+  root.dataset.theme = theme;
   const applySize = () => root.style.setProperty('--msize', MSIZES[sizeIdx] + 'rem');
   applySize();
   const stopAudio = () => { seq = false; if (audio) { try { audio.pause(); } catch { /* */ } audio.onended = audio.onerror = null; audio = null; } clearInterval(watch); watch = 0; mark(-1); playBtn.textContent = '▶ Putar halaman'; };
-  root.__stop = stopAudio;
+  /* ---- layar tetap menyala (Wake Lock) ---- */
+  const wlOk = typeof navigator !== 'undefined' && 'wakeLock' in navigator;
+  async function acquire() {
+    if (!awake || !wlOk || lock || document.visibilityState !== 'visible') return;
+    try { const l = await navigator.wakeLock.request('screen'); lock = l; l.addEventListener('release', () => { if (lock === l) lock = null; }); if (!awake) release(); }
+    catch { lock = null; }
+  }
+  function release() { const l = lock; lock = null; if (l) { try { l.release(); } catch { /* */ } } }
+  const onVis = () => { if (document.visibilityState === 'visible') acquire(); };
+  document.addEventListener('visibilitychange', onVis);
+  const teardown = () => { release(); document.removeEventListener('visibilitychange', onVis); clearInterval(guard); guard = 0; };
+  guard = setInterval(() => { if (!root.isConnected) { stopAudio(); teardown(); } }, 1000);
+  root.__stop = () => { stopAudio(); teardown(); };
 
   /* ---- kontrol ---- */
   const surahSel = h('select', { class: 'in qsel', 'aria-label': 'Pilih surat' }, h('option', { value: '' }, 'Lompat ke surat…'), ...surahs.map(s => h('option', { value: String(s.number) }, s.number + '. ' + s.latin)));
@@ -39,10 +59,19 @@ export function mushafPage(opts) {
   const pin = h('input', { class: 'in qjump', type: 'number', inputmode: 'numeric', min: '1', max: String(PAGES), 'aria-label': 'Nomor halaman', placeholder: '1–' + PAGES });
   const goPin = () => { const v = Number(pin.value); if (!Number.isInteger(v) || v < 1 || v > PAGES) { toast('Masukkan nomor halaman 1 sampai ' + PAGES + '.', true); return; } show(v); };
   pin.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); goPin(); } });
-  const prev = h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Halaman sebelumnya', onclick: () => show(page - 1) }, '‹ Sebelum');
-  const next = h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Halaman berikutnya', onclick: () => show(page + 1) }, 'Lanjut ›');
+  const prev = h('button', { class: 'btn-sm ghost mf-arrow', type: 'button', 'aria-label': 'Halaman sebelumnya', onclick: () => show(page - 1, null, 'r') }, '‹');
+  const next = h('button', { class: 'btn-sm ghost mf-arrow', type: 'button', 'aria-label': 'Halaman berikutnya', onclick: () => show(page + 1, null, 'l') }, '›');
   const playBtn = h('button', { class: 'btn-sm', type: 'button', onclick: () => { if (seq) stopAudio(); else if (data) { seq = true; play(sel >= 0 ? sel : 0); } } }, '▶ Putar halaman');
   const sizeBtn = (t, d) => h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': d < 0 ? 'Perkecil tulisan' : 'Perbesar tulisan', onclick: () => { sizeIdx = opts.onSize(d); applySize(); } }, t);
+  const themeBtns = THEMES.map(([k, l]) => h('button', { class: 'achip', type: 'button', 'data-theme-btn': k, 'aria-pressed': String(theme === k), onclick: () => { theme = k; lsSet('baituna.mushaftheme.v1', k); root.dataset.theme = k; themeBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeBtn === k))); } }, l));
+  const awakeBtn = h('button', { class: 'achip', type: 'button', id: 'mf-awake', 'aria-pressed': String(awake && wlOk), onclick: () => {
+    if (!wlOk) { toast('Perangkat atau peramban ini belum mendukung layar tetap menyala.', true); return; }
+    awake = !awake; lsSet('baituna.mushafawake.v1', awake ? '1' : '0'); awakeBtn.setAttribute('aria-pressed', String(awake));
+    if (awake) { acquire(); toast('Layar akan tetap menyala selama Anda membaca.'); } else { release(); toast('Layar kembali mengikuti pengaturan HP.'); } } }, 'Layar tetap menyala');
+  if (!wlOk) awakeBtn.title = 'Tidak didukung di perangkat ini';
+  const swipeBtn = h('button', { class: 'achip', type: 'button', id: 'mf-swipe', onclick: () => { swipeDir = swipeDir === 'rtl' ? 'ltr' : 'rtl'; lsSet('baituna.mushafswipe.v1', swipeDir); drawSwipe(); } });
+  const drawSwipe = () => { swipeBtn.textContent = swipeDir === 'rtl' ? 'Geser kanan = berikutnya' : 'Geser kiri = berikutnya'; swipeBtn.setAttribute('aria-label', 'Arah geser: ' + swipeBtn.textContent + '. Ketuk untuk membalik.'); };
+  drawSwipe();
   const quick = h('div', { class: 'mf-quick' }, ...QUICK.map(([s, a, l]) => h('button', { class: 'achip', type: 'button', onclick: () => jump(s, a) }, l)));
   const body = h('div', { class: 'mf-body' }), bar = h('div', { class: 'mf-bar', hidden: true }), resume = h('div', { class: 'mf-resume', hidden: true, role: 'status' });
   function drawResume() {
@@ -110,9 +139,11 @@ export function mushafPage(opts) {
       para.append(sp, ' ');
     });
     const names = d.surahs.map(s => s.latin).join(' · ');
+    const off = d.offline ? h('p', { class: 'mf-off' }, 'Dibaca dari simpanan di perangkat (tanpa internet). Audio membutuhkan internet.') : '';
     const juz = d.juz.length ? 'Juz ' + d.juz.join('–') : '';
     body.replaceChildren(h('article', { class: 'mf-page' },
       h('header', { class: 'mf-ph' }, h('span', {}, juz), h('span', { class: 'mf-pn' }, names), h('span', {}, 'Hal. ' + d.page)),
+      off,
       h('div', { class: 'mf-content' }, ...parts),
       h('footer', { class: 'mf-pf' }, String(d.page))),
       h('details', { class: 'panel mf-tr' }, h('summary', {}, 'Terjemahan halaman ini'),
@@ -121,7 +152,7 @@ export function mushafPage(opts) {
     if (focus) { const i = d.ayahs.findIndex(a => a.s === focus.surah && a.n === focus.ayah); if (i >= 0) { select(i); const el = body.querySelectorAll('.mf-a')[i]; if (el && el.scrollIntoView) setTimeout(() => el.scrollIntoView({ block: 'center' }), 50); } }
   }
 
-  async function show(n, focus) {
+  async function show(n, focus, from) {
     if (!Number.isInteger(n) || n < 1 || n > PAGES) return;
     stopAudio(); page = n; pin.value = String(n);
     prev.disabled = n <= 1; next.disabled = n >= PAGES;
@@ -130,21 +161,41 @@ export function mushafPage(opts) {
     try { d = await loadPage(n, qari()); }
     catch (e) {
       if (page !== n) return;
-      body.replaceChildren(h('div', { class: 'empty' }, h('p', { class: 'muted' }, e && e.code === 'BAD_DATA' ? 'Data halaman dari server tidak lengkap, jadi tidak ditampilkan agar tidak salah. Coba lagi nanti.' : 'Halaman belum bisa dimuat. Periksa koneksi internet, lalu coba lagi.'), h('button', { class: 'btn-sm', type: 'button', onclick: () => show(n, focus) }, 'Coba lagi')));
+      body.replaceChildren(h('div', { class: 'empty' }, h('p', { class: 'muted' }, e && e.code === 'BAD_DATA' ? 'Data halaman dari server tidak lengkap, jadi tidak ditampilkan agar tidak salah. Coba lagi nanti.' : navigator.onLine === false ? 'Tidak ada internet, dan halaman ini belum pernah dibuka sehingga belum tersimpan di perangkat. Sambungkan internet, lalu coba lagi.' : 'Halaman belum bisa dimuat. Periksa koneksi internet, lalu coba lagi.'), h('button', { class: 'btn-sm', type: 'button', onclick: () => show(n, focus) }, 'Coba lagi')));
       return;
     }
     if (page !== n) return; // pengguna sudah pindah halaman lagi
     data = d; savePage(n); render(d, focus); drawResume();
+    const art = body.querySelector('.mf-page'); if (art && from) art.classList.add(from === 'l' ? 'from-l' : 'from-r');
     window.scrollTo(0, 0);
+    offlinePageCount().then(c => { const el = root.querySelector('.mf-offcount'); if (el) el.textContent = c ? 'Tersimpan untuk dibaca tanpa internet: ' + c + ' halaman.' : ''; });
+    if (navigator.onLine !== false) setTimeout(() => { if (page === n && root.isConnected) { if (n < PAGES) loadPage(n + 1, qari()).catch(() => {}); if (n > 1) loadPage(n - 1, qari()).catch(() => {}); } }, 1200);
   }
+
+  /* ---- geser untuk pindah halaman (arah bawaan mengikuti mushaf: geser ke kanan = halaman berikutnya) ---- */
+  let sx = 0, sy = 0, stt = 0, sid = null, swiped = false;
+  body.addEventListener('pointerdown', e => { if (!e.isPrimary) return; sx = e.clientX; sy = e.clientY; stt = Date.now(); sid = e.pointerId; swiped = false; });
+  body.addEventListener('pointercancel', () => { sid = null; });
+  body.addEventListener('pointerup', e => {
+    if (e.pointerId !== sid) return; sid = null;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Date.now() - stt > 900 || Math.abs(dx) < 60 || Math.abs(dx) < 1.6 * Math.abs(dy)) return;
+    swiped = true;
+    const nextWanted = swipeDir === 'rtl' ? dx > 0 : dx < 0, target = page + (nextWanted ? 1 : -1);
+    if (target < 1 || target > PAGES) { toast(target < 1 ? 'Ini halaman pertama.' : 'Ini halaman terakhir.'); return; }
+    show(target, null, dx > 0 ? 'l' : 'r');
+  });
+  body.addEventListener('click', e => { if (swiped) { e.stopPropagation(); e.preventDefault(); swiped = false; } }, true);
 
   root.append(
     h('div', { class: 'qtools' }, surahSel, playBtn),
     h('div', { class: 'mf-nav' }, prev, pin, h('button', { class: 'btn-sm', type: 'button', onclick: goPin }, 'Pergi'), next),
     quick,
-    h('div', { class: 'qtools2' }, sizeBtn('A−', -1), sizeBtn('A+', 1), h('span', { class: 'hint' }, 'Ketuk ayat untuk terjemahan dan audio')),
+    h('div', { class: 'qtools2' }, sizeBtn('A−', -1), sizeBtn('A+', 1), h('span', { class: 'hint' }, 'Geser halaman untuk pindah. Ketuk ayat untuk terjemahan dan audio.')),
+    h('div', { class: 'mf-opts', role: 'group', 'aria-label': 'Tampilan membaca' }, ...themeBtns, awakeBtn, swipeBtn),
     resume, body, bar,
-    h('p', { class: 'muted mf-note' }, 'Tampilan teks mushaf dari AlQuran Cloud (Utsmani, Mushaf Madinah). Pemenggalan baris mengikuti lebar layar, bukan gambar mushaf cetak. Untuk rujukan resmi gunakan mushaf bertanda tashih Kemenag.'));
-  show(page, opts.focus); drawResume();
+    h('p', { class: 'hint mf-offcount' }, ''),
+    h('p', { class: 'muted mf-note' }, 'Halaman yang pernah dibuka, serta halaman sebelum dan sesudahnya, otomatis tersimpan di perangkat agar bisa dibaca tanpa internet. Tema berlaku untuk halaman bacaan. Tampilan teks mushaf dari AlQuran Cloud (Utsmani, Mushaf Madinah). Pemenggalan baris mengikuti lebar layar, bukan gambar mushaf cetak. Untuk rujukan resmi gunakan mushaf bertanda tashih Kemenag.'));
+  show(page, opts.focus); drawResume(); acquire();
   return root;
 }
