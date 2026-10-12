@@ -1,0 +1,1012 @@
+{
+ "meta": {
+  "judul": "Asmaul Husna",
+  "versi": 1,
+  "sumberDaftar": "Daftar 99 nama (urutan, tulisan Arab, dan nama Latin) mengikuti daftar yang paling populer di Indonesia. Dicocokkan dengan dua daftar terbitan NU Online (Mahbib Khoiron, 21 September 2021) dan CNBC Indonesia (12 April 2022). Ulama berbeda pendapat tentang jumlah dan perincian nama-nama Allah; 99 adalah pendapat yang paling populer.",
+  "sumberArti": "Arti dan penjelasan singkat disusun tim BAITUNA dari arti lazim nama-nama tersebut dan belum ditinjau ustaz. Penjelasan hanya menerangkan makna bahasa; tidak memuat keutamaan atau khasiat tertentu.",
+  "ayatUmum": [
+   {
+    "surah": 7,
+    "from": 180,
+    "to": 180
+   },
+   {
+    "surah": 59,
+    "from": 22,
+    "to": 24
+   }
+  ]
+ },
+ "names": [
+  {
+   "id": "asma-001",
+   "no": 1,
+   "arab": "الرَّحْمَنُ",
+   "latin": "Ar-Rahman",
+   "arti": "Maha Pengasih",
+   "penjelasan": "Kasih sayang-Nya luas dan meliputi seluruh makhluk.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-002",
+   "no": 2,
+   "arab": "الرَّحِيمُ",
+   "latin": "Ar-Rahim",
+   "arti": "Maha Penyayang",
+   "penjelasan": "Kasih sayang-Nya terus tercurah, dan secara khusus tertuju kepada orang-orang beriman.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-003",
+   "no": 3,
+   "arab": "الْمَلِكُ",
+   "latin": "Al-Malik",
+   "arti": "Maha Merajai",
+   "penjelasan": "Dialah Raja yang memiliki dan mengatur seluruh alam; semua makhluk berada di bawah kekuasaan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-004",
+   "no": 4,
+   "arab": "الْقُدُّوسُ",
+   "latin": "Al-Quddus",
+   "arti": "Maha Suci",
+   "penjelasan": "Suci dari segala kekurangan, cela, dan sifat yang tidak layak bagi-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-005",
+   "no": 5,
+   "arab": "السَّلَامُ",
+   "latin": "As-Salam",
+   "arti": "Maha Pemberi Keselamatan",
+   "penjelasan": "Selamat dari segala kekurangan, dan sumber keselamatan serta kedamaian bagi makhluk-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-006",
+   "no": 6,
+   "arab": "الْمُؤْمِنُ",
+   "latin": "Al-Mu'min",
+   "arti": "Maha Pemberi Keamanan",
+   "penjelasan": "Memberi rasa aman kepada hamba-Nya dan membenarkan janji-janji-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-007",
+   "no": 7,
+   "arab": "الْمُهَيْمِنُ",
+   "latin": "Al-Muhaimin",
+   "arti": "Maha Memelihara",
+   "penjelasan": "Menjaga, mengawasi, dan memelihara seluruh makhluk-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-008",
+   "no": 8,
+   "arab": "الْعَزِيزُ",
+   "latin": "Al-'Aziz",
+   "arti": "Maha Perkasa",
+   "penjelasan": "Memiliki keperkasaan; tidak ada yang dapat mengalahkan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-009",
+   "no": 9,
+   "arab": "الْجَبَّارُ",
+   "latin": "Al-Jabbar",
+   "arti": "Maha Kuasa",
+   "penjelasan": "Kehendak-Nya pasti terlaksana, dan Dia memperbaiki keadaan hamba-Nya yang lemah.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-010",
+   "no": 10,
+   "arab": "الْمُتَكَبِّرُ",
+   "latin": "Al-Mutakabbir",
+   "arti": "Maha Megah",
+   "penjelasan": "Memiliki keagungan dan kebesaran yang tidak layak disandang makhluk.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-011",
+   "no": 11,
+   "arab": "الْخَالِقُ",
+   "latin": "Al-Khaliq",
+   "arti": "Maha Pencipta",
+   "penjelasan": "Menciptakan segala sesuatu dari ketiadaan, menurut ukuran dan kehendak-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-012",
+   "no": 12,
+   "arab": "الْبَارِئُ",
+   "latin": "Al-Bari'",
+   "arti": "Maha Mengadakan",
+   "penjelasan": "Mengadakan makhluk dengan sempurna, bebas dari ketidakserasian.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-013",
+   "no": 13,
+   "arab": "الْمُصَوِّرُ",
+   "latin": "Al-Mushawwir",
+   "arti": "Maha Membentuk Rupa",
+   "penjelasan": "Membentuk rupa setiap makhluk dengan bentuk yang berbeda-beda.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-014",
+   "no": 14,
+   "arab": "الْغَفَّارُ",
+   "latin": "Al-Ghaffar",
+   "arti": "Maha Pengampun",
+   "penjelasan": "Berulang kali menutupi dan mengampuni dosa hamba yang kembali kepada-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-015",
+   "no": 15,
+   "arab": "الْقَهَّارُ",
+   "latin": "Al-Qahhar",
+   "arti": "Maha Menundukkan",
+   "penjelasan": "Menundukkan segala sesuatu di bawah kekuasaan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-016",
+   "no": 16,
+   "arab": "الْوَهَّابُ",
+   "latin": "Al-Wahhab",
+   "arti": "Maha Pemberi Karunia",
+   "penjelasan": "Memberi karunia dan nikmat yang melimpah tanpa mengharap balasan.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-017",
+   "no": 17,
+   "arab": "الرَّزَّاقُ",
+   "latin": "Ar-Razzaq",
+   "arti": "Maha Pemberi Rezeki",
+   "penjelasan": "Menjamin dan memberi rezeki kepada seluruh makhluk.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-018",
+   "no": 18,
+   "arab": "الْفَتَّاحُ",
+   "latin": "Al-Fattah",
+   "arti": "Maha Pembuka",
+   "penjelasan": "Membuka pintu rahmat dan rezeki, serta memutuskan perkara dengan adil.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-019",
+   "no": 19,
+   "arab": "الْعَلِيمُ",
+   "latin": "Al-'Alim",
+   "arti": "Maha Mengetahui",
+   "penjelasan": "Ilmu-Nya meliputi segala sesuatu, yang tampak maupun yang tersembunyi.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-020",
+   "no": 20,
+   "arab": "الْقَابِضُ",
+   "latin": "Al-Qabidh",
+   "arti": "Maha Menyempitkan",
+   "penjelasan": "Menyempitkan rezeki atau keadaan menurut hikmah-Nya. Nama ini biasa disebut berpasangan dengan Al-Basith.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-021",
+   "no": 21,
+   "arab": "الْبَاسِطُ",
+   "latin": "Al-Basith",
+   "arti": "Maha Melapangkan",
+   "penjelasan": "Melapangkan rezeki dan keadaan menurut hikmah-Nya. Nama ini biasa disebut berpasangan dengan Al-Qabidh.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-022",
+   "no": 22,
+   "arab": "الْخَافِضُ",
+   "latin": "Al-Khafidh",
+   "arti": "Maha Merendahkan",
+   "penjelasan": "Merendahkan siapa yang dikehendaki-Nya dengan keadilan. Nama ini biasa disebut berpasangan dengan Ar-Rafi'.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-023",
+   "no": 23,
+   "arab": "الرَّافِعُ",
+   "latin": "Ar-Rafi'",
+   "arti": "Maha Meninggikan",
+   "penjelasan": "Meninggikan derajat siapa yang dikehendaki-Nya. Nama ini biasa disebut berpasangan dengan Al-Khafidh.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-024",
+   "no": 24,
+   "arab": "الْمُعِزُّ",
+   "latin": "Al-Mu'izz",
+   "arti": "Maha Memuliakan",
+   "penjelasan": "Memberikan kemuliaan kepada siapa yang dikehendaki-Nya. Nama ini biasa disebut berpasangan dengan Al-Mudzill.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-025",
+   "no": 25,
+   "arab": "الْمُذِلُّ",
+   "latin": "Al-Mudzill",
+   "arti": "Maha Menghinakan",
+   "penjelasan": "Menimpakan kehinaan kepada siapa yang dikehendaki-Nya dengan adil. Nama ini biasa disebut berpasangan dengan Al-Mu'izz.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-026",
+   "no": 26,
+   "arab": "السَّمِيعُ",
+   "latin": "As-Sami'",
+   "arti": "Maha Mendengar",
+   "penjelasan": "Mendengar segala suara dan doa, sekecil apa pun.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-027",
+   "no": 27,
+   "arab": "الْبَصِيرُ",
+   "latin": "Al-Bashir",
+   "arti": "Maha Melihat",
+   "penjelasan": "Melihat segala sesuatu tanpa ada yang luput dari pandangan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-028",
+   "no": 28,
+   "arab": "الْحَكَمُ",
+   "latin": "Al-Hakam",
+   "arti": "Maha Menetapkan Hukum",
+   "penjelasan": "Menetapkan putusan yang adil di antara makhluk-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-029",
+   "no": 29,
+   "arab": "الْعَدْلُ",
+   "latin": "Al-'Adl",
+   "arti": "Maha Adil",
+   "penjelasan": "Menempatkan segala sesuatu pada tempatnya dan tidak pernah berbuat zalim.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-030",
+   "no": 30,
+   "arab": "اللَّطِيفُ",
+   "latin": "Al-Lathif",
+   "arti": "Maha Lembut",
+   "penjelasan": "Lembut dalam perbuatan-Nya dan mengetahui hal-hal yang paling halus.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-031",
+   "no": 31,
+   "arab": "الْخَبِيرُ",
+   "latin": "Al-Khabir",
+   "arti": "Maha Mengenal",
+   "penjelasan": "Mengetahui hakikat dan seluk-beluk segala sesuatu dengan mendalam.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-032",
+   "no": 32,
+   "arab": "الْحَلِيمُ",
+   "latin": "Al-Halim",
+   "arti": "Maha Penyantun",
+   "penjelasan": "Tidak tergesa-gesa menghukum meski hamba-Nya berbuat salah.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-033",
+   "no": 33,
+   "arab": "الْعَظِيمُ",
+   "latin": "Al-'Azhim",
+   "arti": "Maha Agung",
+   "penjelasan": "Memiliki keagungan yang tidak terjangkau oleh akal makhluk.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-034",
+   "no": 34,
+   "arab": "الْغَفُورُ",
+   "latin": "Al-Ghafur",
+   "arti": "Maha Pengampun",
+   "penjelasan": "Mengampuni dosa hamba-Nya dengan ampunan yang luas.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-035",
+   "no": 35,
+   "arab": "الشَّكُورُ",
+   "latin": "Asy-Syakur",
+   "arti": "Maha Mensyukuri",
+   "penjelasan": "Membalas amal kecil hamba-Nya dengan balasan yang berlipat.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-036",
+   "no": 36,
+   "arab": "الْعَلِيُّ",
+   "latin": "Al-'Aliyy",
+   "arti": "Maha Tinggi",
+   "penjelasan": "Tinggi dalam zat, sifat, dan kekuasaan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-037",
+   "no": 37,
+   "arab": "الْكَبِيرُ",
+   "latin": "Al-Kabir",
+   "arti": "Maha Besar",
+   "penjelasan": "Maha Besar dalam zat, sifat, dan kekuasaan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-038",
+   "no": 38,
+   "arab": "الْحَفِيظُ",
+   "latin": "Al-Hafizh",
+   "arti": "Maha Menjaga",
+   "penjelasan": "Menjaga alam semesta dan amal hamba-Nya; tidak ada yang luput dari penjagaan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-039",
+   "no": 39,
+   "arab": "الْمُقِيتُ",
+   "latin": "Al-Muqit",
+   "arti": "Maha Pemberi Kecukupan",
+   "penjelasan": "Memberi makanan dan kebutuhan pokok kepada setiap makhluk.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-040",
+   "no": 40,
+   "arab": "الْحَسِيبُ",
+   "latin": "Al-Hasib",
+   "arti": "Maha Membuat Perhitungan",
+   "penjelasan": "Menghitung amal hamba-Nya, dan mencukupi hamba yang bertawakal kepada-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-041",
+   "no": 41,
+   "arab": "الْجَلِيلُ",
+   "latin": "Al-Jalil",
+   "arti": "Maha Luhur",
+   "penjelasan": "Memiliki sifat-sifat kebesaran dan keluhuran.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-042",
+   "no": 42,
+   "arab": "الْكَرِيمُ",
+   "latin": "Al-Karim",
+   "arti": "Maha Pemurah",
+   "penjelasan": "Banyak memberi dan mulia dalam pemberian-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-043",
+   "no": 43,
+   "arab": "الرَّقِيبُ",
+   "latin": "Ar-Raqib",
+   "arti": "Maha Mengawasi",
+   "penjelasan": "Mengawasi seluruh gerak dan keadaan makhluk-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-044",
+   "no": 44,
+   "arab": "الْمُجِيبُ",
+   "latin": "Al-Mujib",
+   "arti": "Maha Mengabulkan",
+   "penjelasan": "Menjawab doa dan permohonan hamba-Nya menurut hikmah-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-045",
+   "no": 45,
+   "arab": "الْوَاسِعُ",
+   "latin": "Al-Wasi'",
+   "arti": "Maha Luas",
+   "penjelasan": "Luas karunia, rahmat, dan ilmu-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-046",
+   "no": 46,
+   "arab": "الْحَكِيمُ",
+   "latin": "Al-Hakim",
+   "arti": "Maha Bijaksana",
+   "penjelasan": "Setiap ciptaan dan ketetapan-Nya mengandung hikmah.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-047",
+   "no": 47,
+   "arab": "الْوَدُودُ",
+   "latin": "Al-Wadud",
+   "arti": "Maha Mengasihi",
+   "penjelasan": "Mencintai hamba-Nya yang taat dan dicintai oleh mereka.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-048",
+   "no": 48,
+   "arab": "الْمَجِيدُ",
+   "latin": "Al-Majid",
+   "arti": "Maha Mulia",
+   "penjelasan": "Memiliki kemuliaan yang luas dan kemurahan yang besar. Dalam tulisan Arab berbeda dengan nomor 65.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-049",
+   "no": 49,
+   "arab": "الْبَاعِثُ",
+   "latin": "Al-Ba'its",
+   "arti": "Maha Membangkitkan",
+   "penjelasan": "Membangkitkan makhluk dari kubur pada hari kiamat.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-050",
+   "no": 50,
+   "arab": "الشَّهِيدُ",
+   "latin": "Asy-Syahid",
+   "arti": "Maha Menyaksikan",
+   "penjelasan": "Menyaksikan segala sesuatu; tidak ada yang tersembunyi dari-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-051",
+   "no": 51,
+   "arab": "الْحَقُّ",
+   "latin": "Al-Haqq",
+   "arti": "Maha Benar",
+   "penjelasan": "Keberadaan-Nya pasti, dan firman serta janji-Nya adalah benar.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-052",
+   "no": 52,
+   "arab": "الْوَكِيلُ",
+   "latin": "Al-Wakil",
+   "arti": "Maha Memelihara Urusan",
+   "penjelasan": "Tempat bersandar dan menyerahkan urusan; Dia mengurus keperluan hamba-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-053",
+   "no": 53,
+   "arab": "الْقَوِيُّ",
+   "latin": "Al-Qawiyy",
+   "arti": "Maha Kuat",
+   "penjelasan": "Memiliki kekuatan sempurna dan tidak pernah lemah.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-054",
+   "no": 54,
+   "arab": "الْمَتِينُ",
+   "latin": "Al-Matin",
+   "arti": "Maha Kokoh",
+   "penjelasan": "Kuat dan kokoh, tidak disentuh keletihan.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-055",
+   "no": 55,
+   "arab": "الْوَلِيُّ",
+   "latin": "Al-Waliyy",
+   "arti": "Maha Melindungi",
+   "penjelasan": "Pelindung dan penolong bagi hamba-Nya yang beriman.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-056",
+   "no": 56,
+   "arab": "الْحَمِيدُ",
+   "latin": "Al-Hamid",
+   "arti": "Maha Terpuji",
+   "penjelasan": "Terpuji dalam zat, sifat, dan perbuatan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-057",
+   "no": 57,
+   "arab": "الْمُحْصِي",
+   "latin": "Al-Muhshi",
+   "arti": "Maha Menghitung",
+   "penjelasan": "Menghitung segala sesuatu dengan teliti, tidak ada yang terlewat.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-058",
+   "no": 58,
+   "arab": "الْمُبْدِئُ",
+   "latin": "Al-Mubdi'",
+   "arti": "Maha Memulai",
+   "penjelasan": "Memulai penciptaan makhluk tanpa contoh sebelumnya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-059",
+   "no": 59,
+   "arab": "الْمُعِيدُ",
+   "latin": "Al-Mu'id",
+   "arti": "Maha Mengembalikan",
+   "penjelasan": "Mengembalikan makhluk setelah binasa. Nama ini biasa disebut berpasangan dengan Al-Mubdi'.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-060",
+   "no": 60,
+   "arab": "الْمُحْيِي",
+   "latin": "Al-Muhyi",
+   "arti": "Maha Menghidupkan",
+   "penjelasan": "Memberi kehidupan kepada makhluk.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-061",
+   "no": 61,
+   "arab": "الْمُمِيتُ",
+   "latin": "Al-Mumit",
+   "arti": "Maha Mematikan",
+   "penjelasan": "Menetapkan kematian bagi makhluk menurut waktu-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-062",
+   "no": 62,
+   "arab": "الْحَيُّ",
+   "latin": "Al-Hayy",
+   "arti": "Maha Hidup",
+   "penjelasan": "Hidup dengan kehidupan yang sempurna, tanpa awal dan tanpa akhir.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-063",
+   "no": 63,
+   "arab": "الْقَيُّومُ",
+   "latin": "Al-Qayyum",
+   "arti": "Maha Mandiri",
+   "penjelasan": "Berdiri sendiri tanpa memerlukan siapa pun, dan mengurus seluruh makhluk-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-064",
+   "no": 64,
+   "arab": "الْوَاجِدُ",
+   "latin": "Al-Wajid",
+   "arti": "Maha Menemukan",
+   "penjelasan": "Tidak kekurangan sesuatu pun; apa yang dikehendaki-Nya selalu ada pada-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-065",
+   "no": 65,
+   "arab": "الْمَاجِدُ",
+   "latin": "Al-Majid",
+   "arti": "Maha Mulia",
+   "penjelasan": "Memiliki kemuliaan dan keluhuran. Dalam tulisan Arab berbeda dengan nomor 48.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-066",
+   "no": 66,
+   "arab": "الْوَاحِدُ",
+   "latin": "Al-Wahid",
+   "arti": "Maha Esa",
+   "penjelasan": "Esa dalam zat, sifat, dan perbuatan-Nya; tidak ada sekutu bagi-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-067",
+   "no": 67,
+   "arab": "الْأَحَدُ",
+   "latin": "Al-Ahad",
+   "arti": "Maha Tunggal",
+   "penjelasan": "Tunggal; tidak ada yang menyerupai atau menyamai-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-068",
+   "no": 68,
+   "arab": "الصَّمَدُ",
+   "latin": "Ash-Shamad",
+   "arti": "Tempat Bergantung",
+   "penjelasan": "Tempat seluruh makhluk bergantung dan memohon, sedangkan Dia tidak bergantung kepada siapa pun.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-069",
+   "no": 69,
+   "arab": "الْقَادِرُ",
+   "latin": "Al-Qadir",
+   "arti": "Maha Menentukan",
+   "penjelasan": "Mampu atas segala sesuatu; tidak ada yang melemahkan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-070",
+   "no": 70,
+   "arab": "الْمُقْتَدِرُ",
+   "latin": "Al-Muqtadir",
+   "arti": "Maha Berkuasa",
+   "penjelasan": "Kekuasaan-Nya sempurna dan meliputi segala sesuatu.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-071",
+   "no": 71,
+   "arab": "الْمُقَدِّمُ",
+   "latin": "Al-Muqaddim",
+   "arti": "Maha Mendahulukan",
+   "penjelasan": "Mendahulukan siapa atau apa yang dikehendaki-Nya. Nama ini biasa disebut berpasangan dengan Al-Mu'akhkhir.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-072",
+   "no": 72,
+   "arab": "الْمُؤَخِّرُ",
+   "latin": "Al-Mu'akhkhir",
+   "arti": "Maha Mengakhirkan",
+   "penjelasan": "Mengakhirkan siapa atau apa yang dikehendaki-Nya. Nama ini biasa disebut berpasangan dengan Al-Muqaddim.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-073",
+   "no": 73,
+   "arab": "الْأَوَّلُ",
+   "latin": "Al-Awwal",
+   "arti": "Maha Awal",
+   "penjelasan": "Tidak ada sesuatu sebelum-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-074",
+   "no": 74,
+   "arab": "الْآخِرُ",
+   "latin": "Al-Akhir",
+   "arti": "Maha Akhir",
+   "penjelasan": "Tidak ada sesuatu setelah-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-075",
+   "no": 75,
+   "arab": "الظَّاهِرُ",
+   "latin": "Azh-Zhahir",
+   "arti": "Maha Nyata",
+   "penjelasan": "Keberadaan-Nya nyata dengan bukti-bukti ciptaan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-076",
+   "no": 76,
+   "arab": "الْبَاطِنُ",
+   "latin": "Al-Bathin",
+   "arti": "Maha Tersembunyi",
+   "penjelasan": "Zat-Nya tidak terjangkau oleh pandangan, dan Dia mengetahui yang tersembunyi.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-077",
+   "no": 77,
+   "arab": "الْوَالِي",
+   "latin": "Al-Wali",
+   "arti": "Maha Memerintah",
+   "penjelasan": "Mengatur dan menguasai urusan seluruh makhluk. Berbeda dengan Al-Waliyy pada nomor 55.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-078",
+   "no": 78,
+   "arab": "الْمُتَعَالِي",
+   "latin": "Al-Muta'ali",
+   "arti": "Maha Menjulang",
+   "penjelasan": "Mahatinggi, jauh di atas segala kekurangan dan sifat makhluk.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-079",
+   "no": 79,
+   "arab": "الْبَرُّ",
+   "latin": "Al-Barr",
+   "arti": "Maha Dermawan",
+   "penjelasan": "Banyak berbuat baik dan melimpahkan kebaikan kepada hamba-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-080",
+   "no": 80,
+   "arab": "التَّوَّابُ",
+   "latin": "At-Tawwab",
+   "arti": "Maha Penerima Tobat",
+   "penjelasan": "Menerima tobat hamba-Nya berulang kali dan memberi taufik untuk bertobat.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-081",
+   "no": 81,
+   "arab": "الْمُنْتَقِمُ",
+   "latin": "Al-Muntaqim",
+   "arti": "Maha Pemberi Balasan",
+   "penjelasan": "Memberi balasan setimpal kepada pelaku kezaliman dan kemaksiatan yang terus berlanjut.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-082",
+   "no": 82,
+   "arab": "الْعَفُوُّ",
+   "latin": "Al-'Afuww",
+   "arti": "Maha Pemaaf",
+   "penjelasan": "Menghapus dosa dan tidak menghukum hamba yang telah dimaafkan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-083",
+   "no": 83,
+   "arab": "الرَّءُوفُ",
+   "latin": "Ar-Ra'uf",
+   "arti": "Maha Belas Kasih",
+   "penjelasan": "Sangat lembut dan penuh belas kasih kepada hamba-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-084",
+   "no": 84,
+   "arab": "مَالِكُ الْمُلْكِ",
+   "latin": "Malikul Mulk",
+   "arti": "Penguasa Kerajaan",
+   "penjelasan": "Pemilik seluruh kekuasaan; Dia memberikan kekuasaan kepada siapa yang dikehendaki-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-085",
+   "no": 85,
+   "arab": "ذُو الْجَلَالِ وَالْإِكْرَامِ",
+   "latin": "Dzul Jalali wal Ikram",
+   "arti": "Pemilik Keagungan dan Kemuliaan",
+   "penjelasan": "Memiliki keagungan, dan memuliakan hamba-Nya yang dikehendaki.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-086",
+   "no": 86,
+   "arab": "الْمُقْسِطُ",
+   "latin": "Al-Muqsith",
+   "arti": "Maha Mengadili",
+   "penjelasan": "Menegakkan keadilan dan memberi keputusan yang adil bagi yang terzalimi.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-087",
+   "no": 87,
+   "arab": "الْجَامِعُ",
+   "latin": "Al-Jami'",
+   "arti": "Maha Mengumpulkan",
+   "penjelasan": "Mengumpulkan seluruh makhluk pada hari yang telah dijanjikan.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-088",
+   "no": 88,
+   "arab": "الْغَنِيُّ",
+   "latin": "Al-Ghaniyy",
+   "arti": "Maha Kaya",
+   "penjelasan": "Tidak membutuhkan apa pun dari makhluk, sedangkan semua makhluk membutuhkan-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-089",
+   "no": 89,
+   "arab": "الْمُغْنِي",
+   "latin": "Al-Mughni",
+   "arti": "Maha Pemberi Kekayaan",
+   "penjelasan": "Mencukupkan kebutuhan hamba-Nya dengan karunia-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-090",
+   "no": 90,
+   "arab": "الْمَانِعُ",
+   "latin": "Al-Mani'",
+   "arti": "Maha Mencegah",
+   "penjelasan": "Mencegah sesuatu dari siapa yang dikehendaki-Nya menurut hikmah-Nya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-091",
+   "no": 91,
+   "arab": "الضَّارُّ",
+   "latin": "Adh-Dharr",
+   "arti": "Maha Pemberi Mudarat",
+   "penjelasan": "Menetapkan musibah atau mudarat menurut hikmah-Nya. Nama ini biasa disebut berpasangan dengan An-Nafi'.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-092",
+   "no": 92,
+   "arab": "النَّافِعُ",
+   "latin": "An-Nafi'",
+   "arti": "Maha Pemberi Manfaat",
+   "penjelasan": "Menetapkan manfaat dan kebaikan bagi makhluk-Nya. Nama ini biasa disebut berpasangan dengan Adh-Dharr.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-093",
+   "no": 93,
+   "arab": "النُّورُ",
+   "latin": "An-Nur",
+   "arti": "Maha Bercahaya",
+   "penjelasan": "Pemberi cahaya dan petunjuk bagi langit dan bumi.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-094",
+   "no": 94,
+   "arab": "الْهَادِي",
+   "latin": "Al-Hadi",
+   "arti": "Maha Pemberi Petunjuk",
+   "penjelasan": "Memberi petunjuk kepada hamba-Nya menuju kebenaran.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-095",
+   "no": 95,
+   "arab": "الْبَدِيعُ",
+   "latin": "Al-Badi'",
+   "arti": "Maha Pencipta Tanpa Contoh",
+   "penjelasan": "Menciptakan sesuatu yang baru tanpa contoh sebelumnya.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-096",
+   "no": 96,
+   "arab": "الْبَاقِي",
+   "latin": "Al-Baqi",
+   "arti": "Maha Kekal",
+   "penjelasan": "Kekal; keberadaan-Nya tidak berakhir.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-097",
+   "no": 97,
+   "arab": "الْوَارِثُ",
+   "latin": "Al-Warits",
+   "arti": "Maha Mewarisi",
+   "penjelasan": "Tetap kekal setelah seluruh makhluk binasa, dan kepada-Nyalah segala sesuatu kembali.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-098",
+   "no": 98,
+   "arab": "الرَّشِيدُ",
+   "latin": "Ar-Rasyid",
+   "arti": "Maha Pandai",
+   "penjelasan": "Bimbingan dan pengaturan-Nya tepat dan lurus.",
+   "ayat": null,
+   "audio": null
+  },
+  {
+   "id": "asma-099",
+   "no": 99,
+   "arab": "الصَّبُورُ",
+   "latin": "Ash-Shabur",
+   "arti": "Maha Sabar",
+   "penjelasan": "Tidak tergesa-gesa menghukum pelaku maksiat, dan memberi waktu bagi hamba-Nya untuk kembali.",
+   "ayat": null,
+   "audio": null
+  }
+ ]
+}

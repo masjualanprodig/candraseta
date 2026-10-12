@@ -116,3 +116,10 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Kemajuan hanya di perangkat (`baituna.belajar.v1`), ikut terhapus oleh "Hapus data di perangkat ini".
 - **Super Admin hanya MENAMBAH materi tambahan** per level (Dasbor -> Materi Belajar Qur'an), wajib dengan sumber. Jalankan **belajar.sql** (aman diulang; tabel awalnya kosong).
 - Belum ada: suara huruf, kemajuan antar-perangkat. Sebaiknya ustaz memeriksa materi sebelum diumumkan.
+
+## Asmaul Husna (v39)
+- Menu **Lainnya -> Asmaul Husna** (juga ubin di halaman masuk). **Tanpa SQL** (data statis).
+- Daftar 99 nama (Arab, Latin, arti), pencarian (Arab tanpa harakat, Latin, arti), filter Favorit / Belum hafal, halaman detail (Arab besar, penjelasan singkat, sebelumnya/berikutnya), favorit, tandai hafal, Salin/Bagikan, kuis hafalan 10 soal. Kembali dari detail mengembalikan pencarian dan posisi gulir.
+- Data: `asmaul-husna.json` (99 nama + sumber). Urutan, tulisan Arab, dan nama Latin dicocokkan dengan daftar NU Online dan CNBC Indonesia; arti dan penjelasan disusun tim BAITUNA dan **belum ditinjau ustaz**. Ayat umum (QS. 7:180 dan 59:22-24) dimuat dari AlQuran Cloud, bukan diketik.
+- **Audio**: tombol suara hanya muncul untuk nomor yang terdaftar di `asmaul-husna-audio.json` (saat ini kosong). Cara menambah: taruh berkas (mp3/m4a/ogg/wav) di folder `audio/asma/`, lalu daftarkan, mis. `{"basePath":"audio/asma/","files":{"1":"001.mp3","2":"002.mp3"}}`. Gunakan rekaman yang berizin. Fitur Putar/Jeda/Berhenti/Ulang/Putar berurutan sudah ada. Audio tidak di-cache offline.
+- Favorit, hafalan, nilai kuis hanya di perangkat (`baituna.asma.v1`).
