@@ -200,3 +200,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - **WAJIB** jalankan ulang `pasar.sql` di Supabase SQL Editor sebelum memakai v50 (aman diulang; foto lama otomatis dipindah ke kolom baru `photos`). Kolom `photo_path` tidak dipakai lagi.
 - Mengubah alamat atau foto membuat produk kembali menunggu verifikasi.
 - Catatan: bucket foto bersifat publik, jadi foto produk yang belum disetujui bisa dibuka jika alamat berkasnya diketahui.
+
+## Penyempurnaan Pasar Umat (v51)
+- Menu bawah dibuat solid (teks di belakangnya tidak tembus lagi).
+- Tombol **Bagikan produk** di halaman produk (menu bagikan HP, atau WhatsApp jika tidak tersedia). Pesan memuat nama, harga, penjual, dan alamat aplikasi; belum ada tautan langsung ke produk.
+- Catatan privasi nomor WhatsApp di formulir profil penjual.
+- Tidak ada perubahan SQL.

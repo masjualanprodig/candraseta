@@ -116,6 +116,11 @@ export function marketPage(opts = {}) {
           h('h2', { class: 'mk-h' }, p.title), h('p', { class: 'mk-price' }, M.priceText(p.price, p.price_note)),
           h('p', { class: 'mk-desc' }, p.description),
           p.address ? h('div', { class: 'mk-addr', id: 'mk-addr' }, h('b', {}, 'Alamat'), h('p', {}, p.address)) : '',
+          h('div', { class: 'mk-share' }, h('button', { class: 'btn-sm ghost', type: 'button', id: 'mk-share', onclick: async () => {
+            const text = 'Lihat di Pasar Umat BAITUNA: ' + p.title + ' (' + M.priceText(p.price, p.price_note) + ')' + (s ? ' dari ' + s.name : '') + '. Buka ' + location.origin + ' lalu pilih Lainnya > Pasar Umat.';
+            try { if (navigator.share) { await navigator.share({ title: p.title, text }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+            window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+          } }, 'Bagikan produk')),
           h('div', { class: 'mk-halal' }, h('b', {}, 'Pernyataan penjual'), h('p', {}, 'Penjual menyatakan produk/jasa ini halal dan tidak melanggar aturan.' + (p.halal_note ? ' Keterangan: ' + p.halal_note : '')),
             h('p', { class: 'mk-fine' }, 'Ini pernyataan penjual. Pemeriksaan Super Admin menilai kelayakan tayang, bukan sertifikasi halal. Pembeli tetap dianjurkan memastikan sendiri.'))),
         s ? h('section', { class: 'panel mk-seller' }, h('h3', {}, 'Penjual'), h('b', {}, s.name), s.city ? h('p', { class: 'muted' }, s.city) : '', s.mosque_id ? h('p', { class: 'muted', id: 'mk-mosque' }) : '',
@@ -229,6 +234,7 @@ export function marketPage(opts = {}) {
     const err = h('p', { class: 'mk-err', role: 'alert', hidden: 'true' });
     const name = inp('mk-name', 'Nama usaha / penjual', vals.name, { maxlength: String(M.LIM.sname[1]) });
     const wa = inp('mk-wa-in', 'Nomor WhatsApp (hanya terlihat oleh pengguna yang sudah masuk)', vals.whatsapp ? M.waDisplay(vals.whatsapp) : '', { inputmode: 'tel', placeholder: '0812 3456 7890' });
+    const waNote = h('p', { class: 'mk-fine', id: 'mk-wa-note' }, 'Nomor tidak ditampilkan kepada tamu. Pengguna yang sudah masuk dapat melihatnya dan menghubungi Anda lewat WhatsApp.');
     const city = inp('mk-city', 'Kota (opsional)', vals.city, { maxlength: String(M.LIM.city[1]) });
     const other = inp('mk-other', 'Kontak lain, mis. Instagram (opsional)', vals.other_contact, { maxlength: String(M.LIM.other) });
     const bio = h('textarea', { class: 'in', id: 'mk-bio', rows: '4', maxlength: String(M.LIM.bio), 'aria-label': 'Tentang usaha' }); bio.value = vals.bio || '';
@@ -254,7 +260,7 @@ export function marketPage(opts = {}) {
       catch (e) { err.textContent = e && e.code === '23505' ? 'Anda sudah punya profil penjual.' : msgOf(e); err.hidden = false; save.disabled = false; }
     } }, ex ? 'Simpan perubahan' : 'Buat profil penjual');
     return [back('← Kembali', () => go(ex ? 'my' : 'list')),
-      h('section', { class: 'panel' }, h('h3', {}, ex ? 'Ubah profil penjual' : 'Buat profil penjual'), name, wa, city, other,
+      h('section', { class: 'panel' }, h('h3', {}, ex ? 'Ubah profil penjual' : 'Buat profil penjual'), name, wa, waNote, city, other,
         h('label', { class: 'flab' }, h('span', { class: 'hint' }, 'Tentang usaha (opsional)'), bio),
         h('div', { class: 'mk-sub2' }, h('span', { class: 'hint' }, 'Jamaah masjid (opsional)'), mq, mres, mcur, clearM),
         ex ? '' : h('label', { class: 'mk-chk' }, agree, h('span', {}, ['Saya setuju dengan ', h('a', { href: '#', onclick: e => { e.preventDefault(); go('rules'); } }, 'Aturan Pasar Umat'), ' dan bertanggung jawab atas keaslian produk/jasa saya.'])),
