@@ -40,6 +40,17 @@ export function parseAudio(j) {
   }
   return out;
 }
+export function parseFull(j) {
+  const f = j && typeof j === 'object' ? j.full : null, base = j && j.basePath;
+  if (!f || typeof f !== 'object' || typeof base !== 'string') return null;
+  if (!/^[A-Za-z0-9_\-/]{1,60}\/$/.test(base) || base.startsWith('/') || base.includes('..')) return null;
+  if (typeof f.file !== 'string' || !/^[A-Za-z0-9_\-]{1,40}\.(mp3|m4a|ogg|wav)$/.test(f.file)) return null;
+  const t = (v, d) => typeof v === 'string' && v.trim() ? v.trim().slice(0, 300) : d;
+  return { src: './' + base + f.file, title: t(f.title, 'Lantunan Asmaul Husna'), source: t(f.source, ''), license: t(f.license, '') };
+}
+export async function loadAudioFull() {
+  try { const r = await fetch(AUDIO_URL); if (!r.ok) return null; return parseFull(await r.json()); } catch (e) { return null; }
+}
 export async function loadAudioMap() {
   try { const r = await fetch(AUDIO_URL); if (!r.ok) return {}; return parseAudio(await r.json()); } catch (e) { return {}; }
 }

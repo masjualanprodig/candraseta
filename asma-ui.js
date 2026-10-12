@@ -1,7 +1,7 @@
 // BAITUNA - asma-ui.js
 // Asmaul Husna: daftar + pencarian, detail, favorit, tandai hafal, kuis hafalan, dan audio (tampil hanya bila berkas suara tersedia).
 import { h, toast } from './ui.js';
-import { loadAsma, loadAudioMap, matches, loadProgress, saveProgress, toggleFav, toggleHafal, recordQuiz, scoreOf, makeQuiz, shareText, QUIZ_LEN, PASS } from './asma-service.js';
+import { loadAsma, loadAudioMap, loadAudioFull, matches, loadProgress, saveProgress, toggleFav, toggleHafal, recordQuiz, scoreOf, makeQuiz, shareText, QUIZ_LEN, PASS } from './asma-service.js';
 import { loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
 
@@ -46,10 +46,58 @@ function makePlayer(map, notify) {
   };
 }
 
+/* ---- lantunan lengkap: satu berkas, satu pemutar sendiri ---- */
+const fmt = t => { if (!Number.isFinite(t) || t < 0) return '0:00'; const m = Math.floor(t / 60), s = Math.floor(t % 60); return m + ':' + String(s).padStart(2, '0'); };
+function fullCard(full, onOther) {
+  const el = new Audio(); el.preload = 'none';
+  let st = 'idle';
+  const btn = h('button', { class: 'as-aud big', type: 'button' }, ICON.play);
+  const stopB = h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Berhenti' }, 'Berhenti');
+  const seek = h('input', { type: 'range', class: 'as-seek', min: '0', max: '1000', value: '0', 'aria-label': 'Posisi lantunan' });
+  const time = h('span', { class: 'muted as-time' }, '0:00');
+  const stat = h('p', { class: 'muted as-fst', role: 'status' }, '');
+  seek.disabled = true; stopB.disabled = true;
+  const paint = () => {
+    btn.className = 'as-aud big ' + st; btn.textContent = st === 'loading' ? ICON.load : st === 'playing' ? ICON.pause : st === 'error' ? ICON.replay : ICON.play;
+    btn.setAttribute('aria-label', (st === 'playing' ? 'Jeda ' : 'Putar ') + full.title);
+    stopB.disabled = st === 'idle'; seek.disabled = !(el.duration > 0) || st === 'idle' || st === 'error';
+    stat.textContent = st === 'loading' ? 'Memuat audio…' : st === 'playing' ? 'Memutar…' : st === 'paused' ? 'Dijeda' : st === 'error' ? (navigator.onLine === false ? 'Audio membutuhkan koneksi internet.' : 'Audio belum bisa diputar. Periksa koneksi, lalu coba lagi.') : '';
+  };
+  const tick = () => { const d = el.duration; time.textContent = fmt(el.currentTime) + (d > 0 && Number.isFinite(d) ? ' / ' + fmt(d) : ''); if (d > 0 && Number.isFinite(d) && document.activeElement !== seek) seek.value = String(Math.round(el.currentTime / d * 1000)); };
+  const fail = () => { st = 'error'; paint(); };
+  const go = () => { if (navigator.onLine === false) { fail(); return; } const p = el.play(); if (p && p.catch) p.catch(e => { if (e && e.name === 'AbortError') return; fail(); }); };
+  btn.addEventListener('click', () => {
+    if (st === 'playing') { el.pause(); return; }
+    onOther(); // hentikan audio per nama bila sedang berbunyi
+    if (st === 'paused') { go(); return; }
+    st = 'loading'; paint();
+    if (!el.src || el.error) el.src = full.src;
+    go();
+  });
+  stopB.addEventListener('click', () => { st = 'idle'; el.pause(); try { el.currentTime = 0; } catch (e) {} tick(); seek.value = '0'; paint(); });
+  seek.addEventListener('input', () => { const d = el.duration; if (d > 0 && Number.isFinite(d)) { el.currentTime = seek.value / 1000 * d; tick(); } });
+  el.addEventListener('playing', () => { st = 'playing'; paint(); });
+  el.addEventListener('pause', () => { if (st === 'playing') { st = 'paused'; paint(); } });
+  el.addEventListener('ended', () => { st = 'idle'; try { el.currentTime = 0; } catch (e) {} tick(); seek.value = '0'; paint(); });
+  el.addEventListener('timeupdate', tick); el.addEventListener('loadedmetadata', () => { tick(); paint(); });
+  el.addEventListener('error', () => { if (st !== 'idle') fail(); });
+  paint();
+  const box = h('div', { class: 'panel as-full' },
+    h('p', { class: 'as-ft' }, full.title),
+    h('div', { class: 'as-frow' }, btn, h('div', { class: 'as-fmid' }, seek, time), stopB),
+    stat,
+    h('details', { class: 'as-fsrc' }, h('summary', {}, 'Sumber & catatan'),
+      full.source ? h('p', { class: 'muted' }, 'Sumber: ' + full.source) : '',
+      full.license ? h('p', { class: 'muted' }, 'Lisensi: ' + full.license) : '',
+      h('p', { class: 'muted' }, 'Isi dan pelafalan lantunan ini belum ditinjau ustaz.')));
+  box.__stop = () => { st = 'idle'; el.pause(); paint(); };
+  return box;
+}
+
 export function asmaPage() {
   const wrap = h('div', { class: 'asma' });
   applyReadingPrefs(wrap);
-  let data = null, loadErr = null, prog = loadProgress(), player = null;
+  let data = null, loadErr = null, prog = loadProgress(), player = null, fullBox = null;
   let view = 'list', q = '', filter = 'semua', detailNo = null, scrollY = 0, quiz = null, ayat = null;
   const save = () => { if (!saveProgress(prog)) toast('Belum bisa disimpan di perangkat ini.', true); };
   const byNo = n => data.names[n - 1];
@@ -76,7 +124,7 @@ export function asmaPage() {
       n && s !== 'error' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => player.toggle(n) }, s === 'playing' ? 'Jeda' : 'Lanjut') : '',
       h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => player.stop() }, 'Berhenti'));
   }
-  const onAudio = () => { paintNow(); if (view === 'list') drawList(); else if (view === 'detail') drawDetail(); };
+  const onAudio = () => { if (fullBox && player.active() && player.state(player.current()) !== 'idle' && player.state(player.current()) !== 'error') fullBox.__stop(); paintNow(); if (view === 'list') drawList(); else if (view === 'detail') drawDetail(); };
 
   /* ---- daftar ---- */
   function paintSum() {
@@ -117,7 +165,7 @@ export function asmaPage() {
   function drawListView() {
     view = 'list';
     content.replaceChildren(h('h2', { class: 'wtitle' }, 'Asmaul Husna'), h('p', { class: 'muted' }, ' 99 nama Allah yang baik. Pelajari, tandai yang sudah hafal, lalu uji diri dengan kuis.'),
-      sum, now, search, chips, list, note());
+      sum, fullBox || '', now, search, chips, list, note());
     paintSum(); drawChips(); paintNow(); drawList();
   }
 
@@ -202,7 +250,7 @@ export function asmaPage() {
   }
   function load() {
     loadErr = null; data = null; draw();
-    Promise.all([loadAsma(), loadAudioMap()]).then(([d, map]) => { data = d; player = makePlayer(map, onAudio); draw(); }).catch(e => { loadErr = e || new Error('x'); draw(); });
+    Promise.all([loadAsma(), loadAudioMap(), loadAudioFull()]).then(([d, map, full]) => { data = d; player = makePlayer(map, onAudio); if (full) fullBox = fullCard(full, () => player.stop()); draw(); }).catch(e => { loadErr = e || new Error('x'); draw(); });
   }
   const watch = setInterval(() => { if (!wrap.isConnected) { clearInterval(watch); if (player) player.stop(); } }, 2000);
   wrap.append(content); load();

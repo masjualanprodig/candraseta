@@ -123,3 +123,9 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Data: `asmaul-husna.json` (99 nama + sumber). Urutan, tulisan Arab, dan nama Latin dicocokkan dengan daftar NU Online dan CNBC Indonesia; arti dan penjelasan disusun tim BAITUNA dan **belum ditinjau ustaz**. Ayat umum (QS. 7:180 dan 59:22-24) dimuat dari AlQuran Cloud, bukan diketik.
 - **Audio**: tombol suara hanya muncul untuk nomor yang terdaftar di `asmaul-husna-audio.json` (saat ini kosong). Cara menambah: taruh berkas (mp3/m4a/ogg/wav) di folder `audio/asma/`, lalu daftarkan, mis. `{"basePath":"audio/asma/","files":{"1":"001.mp3","2":"002.mp3"}}`. Gunakan rekaman yang berizin. Fitur Putar/Jeda/Berhenti/Ulang/Putar berurutan sudah ada. Audio tidak di-cache offline.
 - Favorit, hafalan, nilai kuis hanya di perangkat (`baituna.asma.v1`).
+
+## Lantunan Asmaul Husna lengkap (v40)
+Satu tombol putar untuk seluruh lantunan (bukan per nama), lengkap dengan geser posisi, jeda, dan berhenti.
+- Berkas: `audio/asma/full.mp3` (folder `audio` baru; unggah bersama berkas lain). Tidak disimpan offline (4,6 MB), jadi butuh internet.
+- Pengaturan di `asmaul-husna-audio.json`, bagian `"full"`: `file`, `title`, `source`, `license`. Hapus bagian `"full"` bila ingin kartunya hilang.
+- Penting: lisensi berkas ini BELUM terverifikasi (hanya klaim "no copyright" di judul). Isi `source` dan `license` dengan data asli (nama kanal/pelantun, tautan, izin) begitu diketahui, dan minta ustaz memeriksa isi serta pelafalannya.
