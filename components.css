@@ -694,3 +694,7 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .mf-nav .btn-sm{white-space:nowrap;padding-left:.7rem;padding-right:.7rem}
 .mf-nav .qjump{flex:1 1 3.5rem!important;min-width:3.5rem!important;width:auto!important}
 .mushaf{padding-bottom:1rem}
+.mf-resume{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;background:#fbf3df;border:1px solid #ecd9a6;border-radius:14px;padding:.55rem .8rem;margin:.2rem 0 .6rem}
+.mf-rt{display:flex;flex-direction:column}
+.mf-a.mark{background:#fbf0c8}
+.mf-no.flag{background:#b89a45;border-color:#b89a45;color:#fff}

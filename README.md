@@ -156,3 +156,8 @@ Di tab Al-Qur'an ada dua mode: "Per ayat" (seperti sebelumnya) dan "Mushaf (per 
 - Dari bacaan per ayat ada tombol "Buka di mode mushaf (per halaman)".
 - Sumber: AlQuran Cloud (endpoint /page, /ayah). Surat tiap ayat dihitung dari nomor ayat global dan jumlah ayat 114 surat (total harus 6236); data yang janggal ditolak dan tidak ditampilkan.
 - Ini bukan gambar mushaf cetak: pemenggalan baris mengikuti lebar layar. Tidak perlu SQL.
+
+## Penanda "terakhir dibaca" di mode mushaf (v44)
+- Ketuk ayat -> "Selesai baca di sini": nomor ayat berwarna emas dan ayat ber-highlight; tersimpan surat, ayat, dan halaman.
+- Banner "Terakhir dibaca: ... · Hal. N" di atas halaman dengan tombol "Lanjutkan" (atau "Ke penanda" bila sedang di halamannya) dan "Hapus penanda".
+- Satu penanda saja; menandai ayat lain memindahkannya. Dipakai bersama mode per ayat (kunci `baituna.quranlast.v1`).

@@ -10,7 +10,16 @@ const MSIZES = [1.2, 1.4, 1.65, 1.9, 2.3];
 const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 export const savedPage = () => { try { const v = Number(localStorage.getItem(PKEY)); return Number.isInteger(v) && v >= 1 && v <= PAGES ? v : 1; } catch { return 1; } };
 const savePage = n => { try { localStorage.setItem(PKEY, String(n)); } catch { /* abaikan */ } };
-const setLast = (s, a) => { try { localStorage.setItem(LAST, JSON.stringify({ n: s, ayah: a })); } catch { /* abaikan */ } };
+const setLast = (s, a, page) => { try { localStorage.setItem(LAST, JSON.stringify(page ? { n: s, ayah: a, page } : { n: s, ayah: a })); } catch { /* abaikan */ } };
+const clearLast = () => { try { localStorage.removeItem(LAST); } catch { /* abaikan */ } };
+// Penanda "terakhir dibaca" (kunci yang sama dengan mode per ayat). Dibuang bila tidak masuk akal untuk surat tersebut.
+const getMark = surahs => {
+  try {
+    const v = JSON.parse(localStorage.getItem(LAST)), s = v && surahs[v.n - 1];
+    if (!v || !Number.isInteger(v.n) || !Number.isInteger(v.ayah) || !s || v.ayah < 1 || v.ayah > s.ayahs) return null;
+    return { n: v.n, ayah: v.ayah, page: Number.isInteger(v.page) && v.page >= 1 && v.page <= PAGES ? v.page : 0 };
+  } catch { return null; }
+};
 const qari = () => { try { const v = localStorage.getItem(QKEY); return RECITERS.some(r => r.id === v) ? v : RECITERS[0].id; } catch { return RECITERS[0].id; } };
 const QUICK = [[1, 1, 'Al-Fatihah'], [2, 255, 'Ayat Kursi'], [18, 1, 'Al-Kahf'], [36, 1, 'Yasin'], [55, 1, 'Ar-Rahman'], [56, 1, 'Al-Waqi’ah'], [67, 1, 'Al-Mulk']];
 
@@ -35,7 +44,18 @@ export function mushafPage(opts) {
   const playBtn = h('button', { class: 'btn-sm', type: 'button', onclick: () => { if (seq) stopAudio(); else if (data) { seq = true; play(sel >= 0 ? sel : 0); } } }, '▶ Putar halaman');
   const sizeBtn = (t, d) => h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': d < 0 ? 'Perkecil tulisan' : 'Perbesar tulisan', onclick: () => { sizeIdx = opts.onSize(d); applySize(); } }, t);
   const quick = h('div', { class: 'mf-quick' }, ...QUICK.map(([s, a, l]) => h('button', { class: 'achip', type: 'button', onclick: () => jump(s, a) }, l)));
-  const body = h('div', { class: 'mf-body' }), bar = h('div', { class: 'mf-bar', hidden: true });
+  const body = h('div', { class: 'mf-body' }), bar = h('div', { class: 'mf-bar', hidden: true }), resume = h('div', { class: 'mf-resume', hidden: true, role: 'status' });
+  function drawResume() {
+    const mk = getMark(surahs);
+    if (!mk) { resume.hidden = true; resume.replaceChildren(); return; }
+    const s = surahs[mk.n - 1], here = !!data && data.ayahs.some(a => a.s === mk.n && a.n === mk.ayah);
+    resume.hidden = false;
+    resume.replaceChildren(
+      h('div', { class: 'mf-rt' }, h('span', { class: 'hint' }, 'Terakhir dibaca'), h('b', {}, s.latin + ' ayat ' + mk.ayah + (mk.page ? ' · Hal. ' + mk.page : ''))),
+      h('div', { class: 'row-btns' },
+        h('button', { class: 'btn-sm', type: 'button', id: 'mf-resume', onclick: () => { if (mk.page) show(mk.page, { surah: mk.n, ayah: mk.ayah }); else jump(mk.n, mk.ayah); } }, here ? 'Ke penanda' : 'Lanjutkan'),
+        h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { clearLast(); drawResume(); if (data) render(data); toast('Penanda dihapus.'); } }, 'Hapus penanda')));
+  }
 
   async function jump(s, a) {
     try { const p = await pageOfAyah(s, a); await show(p, { surah: s, ayah: a }); }
@@ -67,12 +87,15 @@ export function mushafPage(opts) {
       h('div', { class: 'row-btns' },
         h('button', { class: 'btn-sm', type: 'button', onclick: () => { seq = false; play(i); } }, '▶ Putar ayat'),
         h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { seq = true; play(i); } }, 'Putar dari sini'),
-        h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { setLast(a.s, a.n); toast('Ditandai terakhir dibaca: ' + s.latin + ' ayat ' + a.n + '.'); } }, 'Tandai terakhir dibaca')));
+        (() => { const mk = getMark(surahs), on = !!mk && mk.n === a.s && mk.ayah === a.n;
+          return h('button', { class: 'btn-sm' + (on ? ' ghost' : ''), type: 'button', id: 'mf-mark', onclick: () => {
+            if (on) { clearLast(); toast('Penanda dihapus.'); } else { setLast(a.s, a.n, data.page); toast('Tersimpan. Besok lanjut dari ' + s.latin + ' ayat ' + a.n + '.'); }
+            const keep = sel; render(data); select(keep); drawResume(); }, 'aria-pressed': String(on) }, on ? 'Hapus penanda' : 'Selesai baca di sini'); })()));
   }
 
   /* ---- gambar halaman ---- */
   function render(d, focus) {
-    const parts = []; let para = null;
+    const parts = []; let para = null; const mk = getMark(surahs);
     d.ayahs.forEach((a, i) => {
       if (a.n === 1) {
         const s = surahs[a.s - 1]; para = null;
@@ -80,7 +103,8 @@ export function mushafPage(opts) {
         if (a.bism) parts.push(h('div', { class: 'mf-bism arab', lang: 'ar', dir: 'rtl' }, a.bism));
       }
       if (!para) { para = h('p', { class: 'mf-text arab', lang: 'ar', dir: 'rtl' }); parts.push(para); }
-      const sp = h('span', { class: 'mf-a', 'data-g': String(a.g), role: 'button', tabindex: '0', 'aria-label': 'Ayat ' + a.n + ' ' + surahs[a.s - 1].latin }, a.ar + ' ', h('span', { class: 'mf-no', 'aria-hidden': 'true' }, toAr(a.n)));
+      const isMark = !!mk && mk.n === a.s && mk.ayah === a.n;
+      const sp = h('span', { class: 'mf-a' + (isMark ? ' mark' : ''), 'data-g': String(a.g), role: 'button', tabindex: '0', 'aria-label': 'Ayat ' + a.n + ' ' + surahs[a.s - 1].latin + (isMark ? ' (penanda terakhir dibaca)' : '') }, a.ar + ' ', h('span', { class: 'mf-no' + (isMark ? ' flag' : ''), 'aria-hidden': 'true' }, toAr(a.n)));
       sp.addEventListener('click', () => select(sel === i ? -1 : i));
       sp.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(sel === i ? -1 : i); } });
       para.append(sp, ' ');
@@ -110,7 +134,7 @@ export function mushafPage(opts) {
       return;
     }
     if (page !== n) return; // pengguna sudah pindah halaman lagi
-    data = d; savePage(n); render(d, focus);
+    data = d; savePage(n); render(d, focus); drawResume();
     window.scrollTo(0, 0);
   }
 
@@ -119,8 +143,8 @@ export function mushafPage(opts) {
     h('div', { class: 'mf-nav' }, prev, pin, h('button', { class: 'btn-sm', type: 'button', onclick: goPin }, 'Pergi'), next),
     quick,
     h('div', { class: 'qtools2' }, sizeBtn('A−', -1), sizeBtn('A+', 1), h('span', { class: 'hint' }, 'Ketuk ayat untuk terjemahan dan audio')),
-    body, bar,
+    resume, body, bar,
     h('p', { class: 'muted mf-note' }, 'Tampilan teks mushaf dari AlQuran Cloud (Utsmani, Mushaf Madinah). Pemenggalan baris mengikuti lebar layar, bukan gambar mushaf cetak. Untuk rujukan resmi gunakan mushaf bertanda tashih Kemenag.'));
-  show(page, opts.focus);
+  show(page, opts.focus); drawResume();
   return root;
 }
