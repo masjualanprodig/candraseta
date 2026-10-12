@@ -137,3 +137,13 @@ Satu tombol putar untuk seluruh lantunan (bukan per nama), lengkap dengan geser 
   - Audio lantunan: ganti berkas (MP3/M4A/OGG/WAV, maks. 15 MB) serta judul, sumber, dan lisensi. "Kembalikan ke audio bawaan" menghapus unggahan.
 - Selama tabel kosong atau belum dibuat, aplikasi memakai isi bawaan (`asmaul-husna.json` dan `audio/asma/full.mp3`).
 - Audio per nama (001.mp3 dst) masih lewat berkas di `audio/asma/` + `asmaul-husna-audio.json`.
+
+## Tracker Ibadah Harian (v42)
+Halaman pribadi dan opsional (Lainnya -> Tracker Ibadah Harian). Semua data hanya di perangkat (`baituna.tracker.v1`), tidak ada tabel server, tidak perlu SQL.
+- Salat wajib: centang 5 waktu per hari; opsi "libur hari ini" (udzur/sakit/safar) yang tidak dihitung.
+- Target membaca Al-Qur'an: dalam halaman per hari (0 = tanpa target), dicatat dengan tombol + dan -.
+- Zikir & amalan: daftar milik pengguna sendiri (nama saja, ada contoh nama) plus catatan harian.
+- Ringkasan 7 dan 30 hari: hanya hitungan "tercatat". Tanpa skor, peringkat, atau streak.
+- Pengingat: banner di halaman saat aplikasi dibuka setelah jam yang dipilih, dan tombol "Tambah ke kalender" (.ics, berulang harian) untuk alarm sungguhan lewat aplikasi kalender HP. Aplikasi web tidak bisa menjamin alarm saat tertutup.
+- Bagian bisa disembunyikan; data tidak hilang. "Hapus semua catatan tracker" dan "Hapus data di perangkat ini" menghapus semuanya.
+- Catatan hanya bisa diisi sampai 30 hari ke belakang; data lebih dari 400 hari dipangkas otomatis.

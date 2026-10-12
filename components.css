@@ -614,3 +614,56 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .am-lt{flex:1;min-width:0}
 .am-big{font-family:'BQ Amiri','Noto Naskh Arabic',serif;font-size:2.4rem;text-align:center;margin:.2rem 0}
 .am-audio{width:100%;margin:.5rem 0}
+/* v42: Tracker Ibadah Harian */
+.tracker .tk-sec{margin:.7rem 0}
+.tk-h{margin:0 0 .6rem;color:#066755}
+.tk-date{display:flex;align-items:center;gap:.6rem;margin:.7rem 0}
+.tk-dtx{flex:1;display:flex;flex-direction:column;text-align:center}
+.tk-nav{width:2.6rem;height:2.6rem;border-radius:50%;border:1.5px solid #cfdcd8;background:#fff;font-size:1.5rem;line-height:1;color:#066755;cursor:pointer}
+.tk-nav:disabled{opacity:.35;cursor:default}
+.tk-due{background:#fbf3df;border:1px solid #ecd9a6;border-radius:14px;padding:.6rem .8rem;margin:.6rem 0}
+.tk-duerow{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap}
+.tk-salats{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:.5rem}
+.tk-salat,.tk-itog{display:flex;align-items:center;gap:.6rem;background:#fff;border:1.5px solid #cfdcd8;border-radius:14px;padding:.7rem .8rem;font:inherit;font-weight:600;color:#33524b;cursor:pointer;text-align:left;min-height:3rem}
+.tk-salat.on,.tk-itog.on{background:#e3f0ed;border-color:#066755;color:#066755}
+.tk-salat:disabled{opacity:.5;cursor:default}
+.tk-chk{width:1.5rem;height:1.5rem;border-radius:50%;border:2px solid #b5c8c3;display:inline-flex;align-items:center;justify-content:center;font-size:.95rem;flex:none;color:#fff}
+.on>.tk-chk{background:#066755;border-color:#066755}
+.tk-sum{margin:.5rem 0 0}
+.tk-off{display:flex;gap:.5rem;align-items:flex-start;margin-top:.6rem;font-size:.9rem;color:#5F7A74}
+.tk-off input{margin-top:.2rem;width:1.1rem;height:1.1rem;accent-color:#066755}
+.tk-stepper{display:flex;align-items:center;justify-content:center;gap:1.2rem;margin:.3rem 0 .6rem}
+.tk-step{width:3rem;height:3rem;border-radius:50%;border:1.5px solid #066755;background:#fff;color:#066755;font-size:1.6rem;line-height:1;cursor:pointer}
+.tk-step:disabled{opacity:.35;cursor:default}
+.tk-val{display:flex;flex-direction:column;align-items:center;min-width:5rem}
+.tk-val b{font-size:2rem;color:#066755;line-height:1.1}
+.tk-trow{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.7rem}
+.tk-trow .hint{flex:1 1 100%}
+.tk-num{width:6rem}
+.tk-items{display:flex;flex-direction:column;gap:.45rem;margin-bottom:.6rem}
+.tk-item{display:flex;gap:.4rem;align-items:center}
+.tk-item .tk-itog{flex:1}
+.tk-x{width:2.4rem;height:2.4rem;border-radius:50%;border:1px solid #dfe8e5;background:#fff;color:#5F7A74;cursor:pointer;flex:none}
+.tk-add{display:flex;gap:.5rem;margin:.4rem 0}
+.tk-add .in{flex:1;min-width:0}
+.tk-time{flex:0 0 7.5rem!important}
+.tk-sug{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
+.tk-week{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem;margin:.6rem 0}
+.tk-wd{display:flex;flex-direction:column;align-items:center;gap:.25rem;background:#fff;border:1px solid #dfe8e5;border-radius:12px;padding:.4rem .1rem;font:inherit;cursor:pointer}
+.tk-wd.cur{border-color:#066755;background:#e3f0ed}
+.tk-dn{font-size:.72rem;color:#5F7A74}
+.tk-dots{display:flex;flex-direction:column;gap:2px}
+.tk-dots i{width:.5rem;height:.5rem;border-radius:50%;background:#dfe8e5;display:block}
+.tk-dots i.on{background:#066755}
+.tk-dq{font-size:.68rem;color:#5F7A74;min-height:1em}
+.tk-month{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:.6rem 0}
+.tk-month i{aspect-ratio:1;border-radius:6px;background:#e9efed;display:block}
+.tk-month i.has{background:#066755}
+.tk-lines{margin:.4rem 0;padding-left:1.1rem;line-height:1.7}
+.tk-rems{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.4rem}
+.tk-rem{border:1px solid #dfe8e5;border-radius:12px;padding:.6rem .7rem;background:#fff}
+.tk-rem.off{opacity:.6}
+.tk-racts{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.4rem}
+.tk-rform{flex-wrap:wrap}
+.tk-rform .in:first-child{flex:1 1 100%}
+.tk-rform .tk-time{flex:1 1 8rem!important}
