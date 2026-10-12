@@ -5,6 +5,7 @@ import { listPublicPosts, listManagedPosts, createPost, updatePost, setPostStatu
 import { localToIso, isoToLocal, fmtWhen, fmtRange, isUpcoming } from './post-time.js';
 
 const KIND = { agenda: 'Agenda', pengumuman: 'Pengumuman' };
+const TOPIC = { umum: 'Umum', kajian: 'Kajian', sosial: 'Program sosial' };
 
 /* ===== 1. Untuk jamaah (tanpa login) ===== */
 export function postsPublic(m, now = Date.now()) {
@@ -53,6 +54,7 @@ export async function renderPostsManager(box, mosque, onBack) {
   let editing = null; // kiriman yang sedang diubah
 
   const kind = h('select', { class: 'in', 'aria-label': 'Jenis' }, h('option', { value: 'agenda' }, 'Agenda (kegiatan berjadwal)'), h('option', { value: 'pengumuman' }, 'Pengumuman'));
+  const topic = h('select', { class: 'in', 'aria-label': 'Jenis kabar (untuk Pusat Notifikasi jamaah)' }, h('option', { value: 'umum' }, 'Kabar umum'), h('option', { value: 'kajian' }, 'Kajian / pengajian'), h('option', { value: 'sosial' }, 'Program sosial'));
   const title = h('input', { class: 'in', placeholder: 'Judul *', maxlength: '150', autocomplete: 'off' });
   const body = h('textarea', { class: 'in', placeholder: 'Keterangan (opsional)', maxlength: '2000' });
   const place = h('input', { class: 'in', placeholder: 'Tempat (mis. Aula utama)', maxlength: '150', autocomplete: 'off' });
@@ -72,7 +74,7 @@ export async function renderPostsManager(box, mosque, onBack) {
   async function submit(status) {
     const t = title.value.trim();
     if (t.length < 3) { toast('Judul minimal 3 karakter.', true); return; }
-    const f = { kind: kind.value, title: t, body: body.value.trim() || null, location: null, starts_at: null, ends_at: null, status };
+    const f = { kind: kind.value, topic: topic.value, title: t, body: body.value.trim() || null, location: null, starts_at: null, ends_at: null, status };
     if (f.kind === 'agenda') {
       f.starts_at = localToIso(startsAt.value, tz);
       if (!f.starts_at) { toast('Isi waktu mulai agenda.', true); return; }
@@ -97,19 +99,19 @@ export async function renderPostsManager(box, mosque, onBack) {
 
   function edit(p) {
     editing = p; formTitle.textContent = 'Ubah ' + KIND[p.kind].toLowerCase();
-    kind.value = p.kind; kind.disabled = true; title.value = p.title; body.value = p.body || ''; place.value = p.location || '';
+    kind.value = p.kind; kind.disabled = true; topic.value = p.topic || 'umum'; title.value = p.title; body.value = p.body || ''; place.value = p.location || '';
     startsAt.value = p.starts_at ? isoToLocal(p.starts_at, tz) : ''; endsAt.value = p.ends_at ? isoToLocal(p.ends_at, tz) : '';
     btnCancel.hidden = false; sync(); form.scrollIntoView({ behavior: 'smooth', block: 'start' }); title.focus();
   }
 
-  const form = h('div', { class: 'panel' }, formTitle, kind, title, body, agendaBox,
+  const form = h('div', { class: 'panel' }, formTitle, kind, topic, h('p', { class: 'hint' }, 'Jenis kabar menentukan pengelompokan di Pusat Notifikasi jamaah sekitar masjid.'), title, body, agendaBox,
     h('div', { class: 'mt row-btns' }, btnPub, btnDraft, btnCancel));
   sync();
 
   const item = p => {
     const live = p.status === 'published';
     return h('div', { class: 'post' },
-      h('div', {}, h('span', { class: 'badge b-' + (live ? 'active' : 'draft') }, live ? 'Terbit' : 'Draf'), ' ', h('span', { class: 'badge' }, KIND[p.kind])),
+      h('div', {}, h('span', { class: 'badge b-' + (live ? 'active' : 'draft') }, live ? 'Terbit' : 'Draf'), ' ', h('span', { class: 'badge' }, KIND[p.kind]), ' ', p.topic && p.topic !== 'umum' ? h('span', { class: 'badge' }, TOPIC[p.topic]) : ''),
       h('b', {}, p.title),
       p.kind === 'agenda' && p.starts_at ? h('div', { class: 'muted' }, fmtRange(p.starts_at, p.ends_at, tz)) : '',
       p.location ? h('div', { class: 'muted' }, 'Tempat: ' + p.location) : '',

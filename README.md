@@ -206,3 +206,20 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Tombol **Bagikan produk** di halaman produk (menu bagikan HP, atau WhatsApp jika tidak tersedia). Pesan memuat nama, harga, penjual, dan alamat aplikasi; belum ada tautan langsung ke produk.
 - Catatan privasi nomor WhatsApp di formulir profil penjual.
 - Tidak ada perubahan SQL.
+
+## Notifikasi Terpusat & kalender puasa (v52)
+**Pusat Notifikasi** (Lainnya → Notifikasi, juga ubin di halaman masuk):
+- Berisi: waktu salat hari ini, pengingat puasa (Senin–Kamis, Ayyamul Bidh, Ramadan, Arafah, Tasu'a/Asyura, 6 Syawal, hari raya dan hari yang dilarang berpuasa), kajian dan program sosial dari masjid terdekat, pengumuman masjid, dan produk baru Pasar Umat.
+- Pengguna mengatur sendiri: jenis notifikasi, waktu salat yang ditampilkan, kelompok puasa, jarak masjid (5–50 km), dan pengingat HP. Semua pengaturan disimpan di perangkat (`baituna.notif.v1`, status dibaca `baituna.notifseen.v1`).
+- **Batasan jujur:** daftar dihitung saat halaman dibuka. Pengingat HP (opsional, perlu izin) hanya berbunyi **selama BAITUNA terbuka** di peramban. Notifikasi saat aplikasi tertutup membutuhkan server push (tahap tersendiri) dan belum ada. Azan yang pasti berbunyi tetap sebaiknya memakai aplikasi azan/alarm HP.
+- Lokasi memakai pilihan di Jadwal Salat dan tidak dikirim ke server; hanya daftar id masjid terdekat yang diminta.
+
+**SQL (jalankan sebelum memakai v52):** `notif.sql` menambah kolom `topic` (umum/kajian/sosial) pada `mosque_posts`. Pengurus memilih jenis kabar di formulir Agenda & Pengumuman. Aman diulang. Kabar lama otomatis "umum".
+
+**Kalender Islam:** setiap tanggal kini bisa diketuk dan bertanda puasa (teal = wajib, emas = sunnah, berongga = dianjurkan, merah = dilarang). Tanggal tanpa puasa khusus menampilkan penjelasan tersendiri. Legenda bulan menampilkan daftar puasa. Isi keterangan puasa ringkas dan umum; **perlu ditinjau ustaz** sebelum rilis. Tanggal Hijriah tetap perkiraan (Umm al-Qura).
+
+## Tambahan v53: amalan sunnah lain, Dhuha, Tahajud, hitung mundur Ramadan
+- **Kalender:** tanda belah ketupat untuk salat gerhana, salat Id (1 Syawal, 10 Zulhijah), dan malam ganjil sepuluh malam terakhir Ramadan; hari Jumat punya keterangan amalan (tanpa tanda). Di atas kalender ada hitung mundur Ramadan (hari dan pekan, tanggal perkiraan).
+- **Data gerhana (`gerhana-data.js`):** hanya memuat gerhana yang SUDAH terverifikasi dari sumber (BMKG/Langit Selatan); tanggal gerhana tidak dihitung atau ditebak. Saat ini hanya sampai 2026: tidak ada gerhana yang terlihat dari Indonesia setelah 3 Maret 2026. **Tambahkan baris baru** setelah BMKG mengumumkan gerhana berikutnya (tidak perlu SQL; cukup ubah berkas ini dan upload).
+- **Notifikasi:** pengingat salat Dhuha (terbit + 20 menit sampai menjelang Dzuhur) dan Tahajud (awal sepertiga malam terakhir, dihitung dari Maghrib hingga Subuh; perkiraan), hitung mundur Ramadan (tonggak 100/60/30/14/7/3/1 hari, pengingat HP pukul 08.00), jenis baru "Salat gerhana dan amalan sunnah lain". Semua bisa dimatikan satu per satu.
+- Tidak ada SQL baru. Keterangan amalan perlu ditinjau ustaz.

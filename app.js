@@ -10,6 +10,7 @@ import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
 import { openDirectory, openMosque } from './directory.js';
 import { feedPanel, icon, ICONS } from './feed-ui.js';
+import { armReminders } from './notif-service.js';
 
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
@@ -101,6 +102,7 @@ $('open-world').addEventListener('click', e => { e.preventDefault(); openDirecto
 $('open-rukun').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'rukun'); });
 $('open-berita').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'berita'); });
 $('open-jadwal').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'jadwal'); });
+$('open-notif').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'notif'); });
 $('open-market').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'market'); });
 $('open-tracker').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'tracker'); });
 $('open-asma').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'asma'); });
@@ -179,3 +181,5 @@ const syncOnline = () => { bar.hidden = navigator.onLine; };
 addEventListener('online', syncOnline); addEventListener('offline', syncOnline); syncOnline();
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('service-worker.js').catch(() => {}));
 start();
+
+armReminders(); // pengingat HP hanya aktif jika pengguna mengizinkan, dan hanya selama aplikasi terbuka
