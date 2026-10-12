@@ -127,11 +127,26 @@ export function haulDate(y, m, d) {
 }
 
 /* ---------- pengaturan (hanya harga & pilihan; tanpa angka kekayaan) ---------- */
-export const defaults = () => ({ v: 1, gold: 0, silver: 0, nisabYear: 0, basis: 'bruto', period: 'bulan', jewel: 'exclude', debt: true });
+export const FITRAH_KG_DEFAULT = 2.5, MAX_JIWA = 999;
+// Zakat fitrah: jiwa x takaran (kg beras) x harga beras. Takaran bawaan 2,5 kg hanyalah acuan umum; pengguna diminta mengikuti penetapan BAZNAS/Kemenag setempat.
+export function fitrah(jiwa, kg, price) {
+  const n = Math.min(MAX_JIWA, Math.max(0, Math.floor(Number(jiwa) || 0)));
+  const k = Number(kg) > 0 ? Math.min(Number(kg), 10) : 0, p = Number(price) > 0 ? Number(price) : 0;
+  const kgTotal = Math.round(n * k * 100) / 100;
+  const perJiwa = Math.round(k * p);
+  return { jiwa: n, kgPerJiwa: k, kgTotal, price: p, perJiwa, uang: n && k && p ? Math.round(n * k * p) : 0, status: !n ? 'empty' : !k ? 'no-kg' : !p ? 'no-price' : 'ok' };
+}
+export function summaryFitrah(r) {
+  const L = ['Perkiraan Zakat Fitrah (alat bantu, bukan fatwa)', 'Jumlah jiwa: ' + r.jiwa, 'Takaran per jiwa: ' + r.kgPerJiwa + ' kg beras', 'Total beras: ' + r.kgTotal + ' kg'];
+  if (r.uang) L.push('Harga beras: ' + rp(r.price) + ' per kg', 'Jika dibayar dengan uang: ' + rp(r.uang) + ' (' + rp(r.perJiwa) + ' per jiwa)');
+  L.push('Ikuti penetapan BAZNAS/Kemenag setempat dan tanyakan ke amil/ustaz.'); return L.join('\n');
+}
+export const defaults = () => ({ v: 1, gold: 0, silver: 0, nisabYear: 0, basis: 'bruto', period: 'bulan', jewel: 'exclude', debt: true, rice: 0, riceKg: FITRAH_KG_DEFAULT });
 export function sanitize(o) {
   const d = defaults(); if (!o || typeof o !== 'object') return d;
   const n = v => (Number.isFinite(v) && v >= 0 && v <= MAX_RP ? Math.round(v) : 0);
-  d.gold = n(o.gold); d.silver = n(o.silver); d.nisabYear = n(o.nisabYear);
+  d.gold = n(o.gold); d.silver = n(o.silver); d.nisabYear = n(o.nisabYear); d.rice = n(o.rice);
+  if (Number.isFinite(o.riceKg) && o.riceKg > 0 && o.riceKg <= 10) d.riceKg = Math.round(o.riceKg * 100) / 100;
   if (o.basis === 'neto') d.basis = 'neto';
   if (o.period === 'tahun') d.period = 'tahun';
   if (o.jewel === 'include') d.jewel = 'include';

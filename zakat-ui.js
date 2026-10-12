@@ -4,12 +4,12 @@ import { h, toast } from './ui.js';
 import * as Z from './zakat-service.js';
 import { HIJRI_MONTH, MASEHI_MONTH } from './islamic-calendar.js';
 
-const TABS = [['maal', 'Zakat Maal'], ['hasil', 'Penghasilan'], ['nisab', 'Nisab & Haul'], ['dasar', 'Dasar & Rujukan']];
+const TABS = [['maal', 'Zakat Maal'], ['hasil', 'Penghasilan'], ['fitrah', 'Zakat Fitrah'], ['nisab', 'Nisab & Haul'], ['dasar', 'Dasar & Rujukan']];
 
 export function zakatPage() {
   const wrap = h('div', { class: 'zakat' });
   let cfg = Z.load(), tab = 'maal';
-  const vals = { cash: '', goldGram: '', jewelWornGram: '', silverGram: '', securities: '', receivable: '', trade: '', other: '', debt: '', rutin: '', tidakRutin: '', kebutuhan: '' };
+  const vals = { cash: '', goldGram: '', jewelWornGram: '', silverGram: '', securities: '', receivable: '', trade: '', other: '', debt: '', rutin: '', tidakRutin: '', kebutuhan: '', jiwa: '' };
   let haul = 'unsure';
   const persist = () => { if (!Z.save(cfg)) toast('Pengaturan belum bisa disimpan di perangkat ini.', true); };
 
@@ -18,13 +18,13 @@ export function zakatPage() {
   const sec = (title, ...k) => h('section', { class: 'panel zk-sec' }, h('h3', { class: 'zk-h' }, title), ...k);
 
   function money(key, label, help, kind) {
-    const isGram = kind === 'gram';
+    const isGram = kind === 'gram', isInt = kind === 'jiwa';
     const inp = h('input', { class: 'in zk-in', type: 'text', inputmode: isGram ? 'decimal' : 'numeric', autocomplete: 'off', 'aria-label': label, placeholder: isGram ? '0' : '0', 'data-k': key });
     inp.value = vals[key];
     inp.addEventListener('input', () => { vals[key] = inp.value; recalc(); });
-    if (!isGram) inp.addEventListener('blur', () => { const n = Z.parseRp(inp.value); inp.value = n ? Z.fmtNum(n) : ''; vals[key] = inp.value; });
+    if (!isGram && !isInt) inp.addEventListener('blur', () => { const n = Z.parseRp(inp.value); inp.value = n ? Z.fmtNum(n) : ''; vals[key] = inp.value; });
     return h('label', { class: 'zk-f' }, h('span', { class: 'zk-l' }, label), help ? h('span', { class: 'zk-help' }, help) : '',
-      h('span', { class: 'zk-wrap' }, h('span', { class: 'zk-u' }, isGram ? 'gram' : 'Rp'), inp));
+      h('span', { class: 'zk-wrap' }, h('span', { class: 'zk-u' }, isGram ? 'gram' : isInt ? 'orang' : 'Rp'), inp));
   }
   function radios(name, cur, items, onPick) {
     return h('div', { class: 'zk-radios', role: 'radiogroup' }, ...items.map(([v, label, sub]) => {
@@ -43,9 +43,11 @@ export function zakatPage() {
     const nb = h('input', { class: 'in zk-in', type: 'text', inputmode: 'numeric', id: 'zk-nisab', 'aria-label': 'Nisab penghasilan per tahun dari BAZNAS', placeholder: 'opsional' });
     nb.value = cfg.nisabYear ? Z.fmtNum(cfg.nisabYear) : '';
     const info = h('p', { class: 'zk-note', id: 'zk-nisabinfo', role: 'status' });
+    const sumEl = h('span', { class: 'zk-sum', id: 'zk-pricesum' });
     const upd = () => {
       cfg.gold = Z.parseRp(g.value); cfg.silver = Z.parseRp(s.value); cfg.nisabYear = Z.parseRp(nb.value); persist();
       const ny = Z.nisabPenghasilanTahun(cfg.gold, cfg.nisabYear);
+      sumEl.textContent = cfg.gold ? 'Nisab maal ' + Z.rp(Z.nisabEmas(cfg.gold)) + (ny ? ' · penghasilan ' + Z.rp(ny) + '/tahun' : '') + ' · ubah' : (ny ? 'Nisab penghasilan ' + Z.rp(ny) + '/tahun · ubah' : 'Isi harga emas dulu');
       info.textContent = cfg.gold ? 'Nisab maal (85 gram emas): ' + Z.rp(Z.nisabEmas(cfg.gold)) + (ny ? '. Nisab penghasilan: ' + Z.rp(ny) + ' per tahun (' + Z.rp(ny / 12) + ' per bulan).' : '') :
         (ny ? 'Nisab penghasilan: ' + Z.rp(ny) + ' per tahun (' + Z.rp(ny / 12) + ' per bulan). Isi harga emas untuk menghitung nisab maal.' : 'Isi harga emas per gram terlebih dahulu agar nisab bisa dihitung.');
       recalc();
@@ -53,13 +55,15 @@ export function zakatPage() {
     for (const e of [g, s, nb]) { e.addEventListener('input', upd); e.addEventListener('blur', () => { const n = Z.parseRp(e.value); e.value = n ? Z.fmtNum(n) : ''; }); }
     const useRef = h('button', { class: 'btn-sm ghost', type: 'button', id: 'zk-useref', onclick: () => { nb.value = Z.fmtNum(Z.BAZNAS_REF.tahun); upd(); toast('Nilai acuan BAZNAS ' + Z.BAZNAS_REF.year + ' dimasukkan. Mohon cek ke baznas.go.id.'); } }, 'Isi dengan acuan BAZNAS ' + Z.BAZNAS_REF.year);
     setTimeout(upd, 0);
-    return h('section', { class: 'panel zk-sec', id: 'zk-prices' }, h('h3', { class: 'zk-h' }, 'Harga emas & nisab'),
+    const box = h('details', { class: 'panel zk-sec zk-fold', id: 'zk-prices' }, h('summary', {}, h('b', {}, 'Harga emas & nisab'), sumEl),
       note('Nisab dihitung dari harga emas hari ini. Aplikasi tidak mengambil harga dari internet, jadi isi sendiri dari sumber yang Anda percaya (mis. toko emas resmi atau situs BAZNAS).'),
       h('label', { class: 'zk-f' }, h('span', { class: 'zk-l' }, 'Harga emas murni (24 karat) per gram'), h('span', { class: 'zk-wrap' }, h('span', { class: 'zk-u' }, 'Rp'), g)),
       h('label', { class: 'zk-f' }, h('span', { class: 'zk-l' }, 'Harga perak per gram (jika punya perak)'), h('span', { class: 'zk-wrap' }, h('span', { class: 'zk-u' }, 'Rp'), s)),
       h('label', { class: 'zk-f' }, h('span', { class: 'zk-l' }, 'Nisab penghasilan per tahun dari BAZNAS (opsional)'), h('span', { class: 'zk-help' }, 'Bila diisi, dipakai untuk zakat penghasilan menggantikan 85 gram × harga emas.'), h('span', { class: 'zk-wrap' }, h('span', { class: 'zk-u' }, 'Rp'), nb)),
       h('div', { class: 'zk-row' }, useRef), info,
       note('Hanya harga dan pilihan metode yang diingat di perangkat ini. Jumlah harta dan penghasilan Anda tidak disimpan dan tidak dikirim ke mana pun.'));
+    if (!cfg.gold && !cfg.nisabYear) box.open = true;
+    return box;
   }
 
   /* ---------- hasil (diperbarui tanpa menggambar ulang isian) ---------- */
@@ -141,7 +145,25 @@ export function zakatPage() {
     kids.push(h('div', { class: 'zk-row' }, copyBtn(Z.summaryPenghasilan(r))), AMIL);
     res.replaceChildren(...kids); current = r;
   }
-  function recalc() { if (tab === 'maal') drawMaal(); else if (tab === 'hasil') drawHasil(); else if (tab === 'nisab' && nisabSec && nisabSec.isConnected) { const n = buildNisabSec(); nisabSec.replaceWith(n); nisabSec = n; } }
+  function drawFitrah() {
+    const r = Z.fitrah(Z.parseRp(vals.jiwa), cfg.riceKg, cfg.rice), kids = [];
+    if (r.status === 'empty') kids.push(chip('info', 'Isi jumlah jiwa yang zakat fitrahnya Anda tunaikan'));
+    else {
+      kids.push(chip('due', r.jiwa + ' jiwa × ' + r.kgPerJiwa + ' kg beras = ' + r.kgTotal + ' kg'));
+      if (r.status === 'ok') {
+        kids.push(table([['Takaran per jiwa', r.kgPerJiwa + ' kg beras'], ['Harga beras', Z.rp(r.price) + ' per kg'], ['Per jiwa (dengan uang)', Z.rp(r.perJiwa)], ['Jumlah jiwa', String(r.jiwa), 'sum']]));
+        kids.push(h('div', { class: 'zk-big' }, h('span', {}, 'Zakat fitrah jika dibayar dengan uang'), h('b', { id: 'zk-amount' }, Z.rp(r.uang))));
+      } else kids.push(note('Isi harga beras per kg di atas untuk melihat jumlahnya dalam uang. Bila membayar dengan beras, yang perlu dikeluarkan adalah ', h('b', {}, r.kgTotal + ' kg'), '.'));
+    }
+    kids.push(h('div', { class: 'zk-ctx' }, h('b', {}, 'Catatan'), h('ul', {},
+      h('li', {}, 'Zakat fitrah wajib atas setiap muslim, termasuk anak-anak dan bayi yang lahir sebelum waktunya; kepala keluarga menunaikannya untuk yang menjadi tanggungannya.'),
+      h('li', {}, 'Waktunya sejak awal Ramadan hingga sebelum salat Idulfitri. Dibayar sesudah salat Id, nilainya menurut sebagian besar ulama menjadi sedekah biasa.'),
+      h('li', {}, 'Takaran dan harga ditetapkan BAZNAS atau Kemenag setempat tiap tahun. Takaran 2,5 kg adalah acuan umum; ubah sesuai ketetapan di daerah Anda.'),
+      h('li', {}, 'Dengan uang: sebagian ulama membolehkan (dipakai BAZNAS dan Kemenag di Indonesia), sebagian lain mensyaratkan makanan pokok. Pakailah beras yang sama kualitasnya dengan yang biasa Anda makan.'))));
+    kids.push(h('div', { class: 'zk-row' }, r.jiwa ? copyBtn(Z.summaryFitrah(r)) : ''), AMIL);
+    res.replaceChildren(...kids); current = r;
+  }
+  function recalc() { if (tab === 'fitrah') drawFitrah(); else if (tab === 'maal') drawMaal(); else if (tab === 'hasil') drawHasil(); else if (tab === 'nisab' && nisabSec && nisabSec.isConnected) { const n = buildNisabSec(); nisabSec.replaceWith(n); nisabSec = n; } }
 
   /* ---------- tab: maal ---------- */
   function maalTab() {
@@ -181,6 +203,25 @@ export function zakatPage() {
         money('rutin', 'Penghasilan rutin per bulan', 'Gaji, honor, penghasilan usaha bersih/kotor sesuai metode'),
         money('tidakRutin', yr ? 'Penghasilan tidak rutin setahun' : 'Penghasilan tidak rutin bulan ini', yr ? 'Bonus, THR, komisi, dan sejenisnya selama setahun' : 'Bonus, THR, komisi bila Anda terima bulan ini'),
         cfg.basis === 'neto' ? money('kebutuhan', 'Kebutuhan pokok per bulan', 'Pangan, sandang, papan, pendidikan, kesehatan, cicilan kebutuhan pokok') : ''),
+      res
+    ];
+  }
+
+  /* ---------- tab: fitrah ---------- */
+  function fitrahTab() {
+    const kg = h('input', { class: 'in zk-in', type: 'text', inputmode: 'decimal', id: 'zk-ricekg', 'aria-label': 'Takaran beras per jiwa (kg)' });
+    kg.value = String(cfg.riceKg).replace('.', ',');
+    const rice = h('input', { class: 'in zk-in', type: 'text', inputmode: 'numeric', id: 'zk-rice', 'aria-label': 'Harga beras per kg' });
+    rice.value = cfg.rice ? Z.fmtNum(cfg.rice) : '';
+    kg.addEventListener('input', () => { const v = Z.parseGram(kg.value); if (v > 0 && v <= 10) { cfg.riceKg = Math.round(v * 100) / 100; persist(); } recalc(); });
+    rice.addEventListener('input', () => { cfg.rice = Z.parseRp(rice.value); persist(); recalc(); });
+    rice.addEventListener('blur', () => { rice.value = cfg.rice ? Z.fmtNum(cfg.rice) : ''; });
+    return [
+      sec('Zakat fitrah',
+        note('Zakat fitrah ditunaikan menjelang Idulfitri, sekali setahun, untuk tiap jiwa. Berbeda dari zakat maal, tidak ada nisab dan haul.'),
+        money('jiwa', 'Jumlah jiwa', 'Diri sendiri dan tanggungan yang Anda zakati', 'jiwa'),
+        h('label', { class: 'zk-f' }, h('span', { class: 'zk-l' }, 'Takaran beras per jiwa'), h('span', { class: 'zk-help' }, 'Acuan umum 2,5 kg. Ikuti ketetapan BAZNAS/Kemenag di daerah Anda.'), h('span', { class: 'zk-wrap' }, h('span', { class: 'zk-u' }, 'kg'), kg)),
+        h('label', { class: 'zk-f' }, h('span', { class: 'zk-l' }, 'Harga beras per kg'), h('span', { class: 'zk-help' }, 'Beras yang biasa Anda makan, atau yang ditetapkan lembaga zakat setempat.'), h('span', { class: 'zk-wrap' }, h('span', { class: 'zk-u' }, 'Rp'), rice))),
       res
     ];
   }
@@ -235,7 +276,7 @@ export function zakatPage() {
           h('li', {}, 'Zakat penghasilan: penghasilan (dikurangi kebutuhan pokok bila memilih metode itu) dibandingkan dengan nisab bulanan atau tahunan sesuai pilihan. Bila mencapai nisab, zakatnya 2,5%.'),
           h('li', {}, 'Bila hasilnya bergantung pada pilihan yang diperselisihkan ulama (perhiasan, utang, kebutuhan pokok), aplikasi menampilkan hasil dengan pilihan Anda beserta pilihan sebaliknya.'))),
       sec('Yang belum tercakup',
-        h('p', { class: 'zk-note' }, 'Kalkulator ini belum menghitung zakat fitrah, zakat pertanian, zakat peternakan, zakat rikaz/barang temuan, atau kondisi khusus seperti harta warisan, harta bersama, dan usaha dengan akad tertentu. Untuk itu tanyakan langsung ke amil atau ustaz.')),
+        h('p', { class: 'zk-note' }, 'Kalkulator ini belum menghitung zakat pertanian, zakat peternakan, zakat rikaz/barang temuan, atau kondisi khusus seperti harta warisan, harta bersama, dan usaha dengan akad tertentu. Untuk itu tanyakan langsung ke amil atau ustaz.')),
       sec('Perbedaan pendapat ulama',
         det('Perhiasan emas yang dipakai', h('p', { class: 'zk-note' }, 'Mayoritas ulama (Maliki, Syafi’i, Hanbali) berpendapat perhiasan mubah yang dipakai wajar tidak dizakati. Ulama Hanafi berpendapat tetap dizakati. Perhiasan yang disimpan sebagai tabungan atau investasi dizakati menurut semuanya.')),
         det('Utang', h('p', { class: 'zk-note' }, 'Sebagian ulama dan lembaga zakat mengurangkan utang yang jatuh tempo dari harta sebelum dibandingkan dengan nisab; sebagian lain tidak mengurangkannya. Karena itu kalkulator ini menampilkan hasil kedua pilihan.')),
@@ -258,9 +299,9 @@ export function zakatPage() {
 
   function draw() {
     const tabs = h('div', { class: 'zk-tabs', role: 'tablist' }, ...TABS.map(([k, l]) => h('button', { class: 'zk-tab' + (tab === k ? ' on' : ''), type: 'button', role: 'tab', 'aria-selected': tab === k ? 'true' : 'false', 'data-t': k, onclick: () => { tab = k; draw(); window.scrollTo(0, 0); } }, l)));
-    const body = tab === 'maal' ? maalTab() : tab === 'hasil' ? hasilTab() : tab === 'nisab' ? nisabTab() : dasarTab();
+    const body = tab === 'maal' ? maalTab() : tab === 'hasil' ? hasilTab() : tab === 'fitrah' ? fitrahTab() : tab === 'nisab' ? nisabTab() : dasarTab();
     wrap.replaceChildren(h('h2', { class: 'wtitle' }, 'Kalkulator Zakat'), tabs, ...body);
-    if (tab === 'maal') drawMaal(); else if (tab === 'hasil') drawHasil();
+    if (tab === 'maal') drawMaal(); else if (tab === 'hasil') drawHasil(); else if (tab === 'fitrah') drawFitrah();
   }
   draw();
   return wrap;

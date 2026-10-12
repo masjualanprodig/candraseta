@@ -180,3 +180,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Pembantu tanggal haul (Masehi + Hijriah, perkiraan).
 - Privasi: hanya harga dan pilihan metode yang disimpan di perangkat (`baituna.zakat.v1`, ikut terhapus oleh "Hapus data di perangkat ini"); jumlah harta/penghasilan tidak disimpan dan tidak dikirim.
 - Tanpa teks Qur'an/hadits dari ingatan: ayat hanya disebut nomornya. Isi sebaiknya ditinjau ustaz/amil sebelum rilis.
+
+## Zakat: tampilan ringkas & Zakat Fitrah (v48)
+- Kotak "Harga emas & nisab" terlipat dengan ringkasan satu baris setelah harga diisi (terbuka otomatis bila belum diisi); lima tab tidak lagi terpotong di layar sempit.
+- Tab **Zakat Fitrah**: jiwa × takaran beras × harga beras. Takaran 2,5 kg hanya acuan umum (bisa diubah, diingat di perangkat), ikuti BAZNAS/Kemenag setempat. Jumlah jiwa tidak disimpan. Dicatat perbedaan pendapat uang vs makanan pokok.

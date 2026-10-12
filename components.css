@@ -728,9 +728,8 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 /* v47: Kalkulator Zakat */
 .zakat .zk-sec{margin:.7rem 0}
 .zk-h{margin:0 0 .6rem;color:#066755}
-.zk-tabs{display:flex;gap:.4rem;overflow-x:auto;padding:.2rem 0 .5rem;margin:.2rem 0;scrollbar-width:none}
-.zk-tabs::-webkit-scrollbar{display:none}
-.zk-tab{flex:none;border:1.5px solid #cfdcd8;background:#fff;color:#066755;border-radius:999px;padding:.55rem 1rem;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
+.zk-tabs{display:flex;flex-wrap:wrap;gap:.4rem;padding:.2rem 0 .5rem;margin:.2rem 0}
+.zk-tab{border:1.5px solid #cfdcd8;background:#fff;color:#066755;border-radius:999px;padding:.5rem .85rem;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
 .zk-tab.on{background:#066755;color:#fff;border-color:#066755}
 .zk-note{font-size:.85rem;color:#5F7A74;line-height:1.5;margin:.35rem 0}
 .zk-warn{font-size:.82rem;color:#8a5a00;background:#fbf3df;border:1px solid #ecd9a6;border-radius:12px;padding:.5rem .7rem;margin:.4rem 0;line-height:1.45}
@@ -770,3 +769,10 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .zk-det summary{font-weight:700;cursor:pointer;color:#066755}
 .zk-haulout{margin:.5rem 0}
 .zakat a{color:#066755;font-weight:700}
+
+/* v48 */
+.zk-fold>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:.15rem}
+.zk-fold>summary::-webkit-details-marker{display:none}
+.zk-fold>summary b{color:#066755;font-size:1.05rem}
+.zk-sum{font-size:.82rem;color:#5F7A74}
+.zk-fold[open]>summary{margin-bottom:.4rem}
