@@ -14,6 +14,7 @@ import { renderDhikrManager } from './dzikir-ui.js';
 import { renderDuaManager } from './doa-ui.js';
 import { renderSunnahManager } from './sunnah-ui.js';
 import { renderAsmaManager } from './asma-admin-ui.js';
+import { renderMarketManager } from './market-admin-ui.js';
 import { renderBelajarManager } from './belajar-ui.js';
 import { icon, ICONS } from './feed-ui.js';
 
@@ -102,7 +103,8 @@ export async function renderAdmin(box) {
   box.replaceChildren(
     h('h2', {}, 'Dashboard Super Admin'),
     stats,
-    h('div', { class: 'actions' }, h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => renderAdmin(box)) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
+    h('div', { class: 'actions' }, h('button', { class: 'act', type: 'button', id: 'adm-market', onclick: () => renderMarketManager(box, () => renderAdmin(box)) }, icon(ICONS.market), h('span', {}, 'Verifikasi Pasar Umat')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => renderAdmin(box)) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
       h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),
       h('button', { class: 'act', type: 'button', onclick: () => renderRukunManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Rukun Islam & Iman')),
       h('button', { class: 'act', type: 'button', onclick: () => renderArticleManager(box, () => renderAdmin(box)) }, icon(ICONS.news), h('span', {}, 'Berita & Artikel Islam')),

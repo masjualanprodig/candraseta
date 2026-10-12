@@ -184,3 +184,19 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Zakat: tampilan ringkas & Zakat Fitrah (v48)
 - Kotak "Harga emas & nisab" terlipat dengan ringkasan satu baris setelah harga diisi (terbuka otomatis bila belum diisi); lima tab tidak lagi terpotong di layar sempit.
 - Tab **Zakat Fitrah**: jiwa × takaran beras × harga beras. Takaran 2,5 kg hanya acuan umum (bisa diubah, diingat di perangkat), ikuti BAZNAS/Kemenag setempat. Jumlah jiwa tidak disimpan. Dicatat perbedaan pendapat uang vs makanan pokok.
+
+## Pasar Umat (v49) - tahap katalog
+- **Jalankan `pasar.sql`** di Supabase SQL Editor SEBELUM memakai fitur ini (butuh schema, policies, dan direktori sudah terpasang). Tanpa itu halaman menampilkan "Pasar Umat belum aktif".
+- Pengunjung: melihat katalog produk yang SUDAH DISETUJUI (kategori Makanan Halal, Pakaian Muslim, Buku, Jasa, Usaha Lainnya), mencari, melihat profil penjual. Nomor WhatsApp hanya terlihat oleh pengguna yang sudah masuk (dijaga database, bukan hanya tampilan).
+- Pengguna masuk: membuat profil penjual (satu per akun), mengajukan produk (1 foto, maks 2 MB), mengubah stok, melapor produk.
+- Verifikasi: produk baru dan setiap perubahan isi (nama, harga, deskripsi, foto, kategori, keterangan halal) menunggu Super Admin. Penjual tidak bisa menyetujui sendiri (dijaga trigger database). Makanan wajib memuat keterangan halal; semua produk wajib ada pernyataan halal/sah dari penjual.
+- Super Admin: Dashboard -> "Verifikasi Pasar Umat": Menunggu / Laporan / Tayang / Ditolak. Menolak dan menangguhkan penjual wajib beralasan.
+- Batas: 40 produk per penjual, maks 10 menunggu verifikasi, maks 10 laporan per pengguna per hari.
+- Belum ada: pemesanan di dalam aplikasi, ulasan, riwayat transaksi, pembayaran online (tahap berikutnya).
+
+## Pasar Umat: alamat & sampai 5 foto (v50)
+- Setiap produk punya kolom **Alamat** (opsional, maks. 200 huruf) dan **sampai 5 foto** (foto toko atau produk), **masing-masing maksimal 100 KB**. Foto diperkecil otomatis di HP sebelum diunggah; data lokasi (EXIF) dibuang. Server juga membatasi ukuran berkas 100 KB.
+- Transaksi tetap langsung ke WhatsApp penjual.
+- **WAJIB** jalankan ulang `pasar.sql` di Supabase SQL Editor sebelum memakai v50 (aman diulang; foto lama otomatis dipindah ke kolom baru `photos`). Kolom `photo_path` tidak dipakai lagi.
+- Mengubah alamat atau foto membuat produk kembali menunggu verifikasi.
+- Catatan: bucket foto bersifat publik, jadi foto produk yang belum disetujui bisa dibuka jika alamat berkasnya diketahui.

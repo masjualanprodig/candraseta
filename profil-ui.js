@@ -15,7 +15,7 @@ import { canSound, chime } from './dzikir-sound.js';
 import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran-ui.js';
 import { listSurahs } from './quran-service.js';
 
-export const APP_VERSION = 'v48';
+export const APP_VERSION = 'v50';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
 const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];

@@ -60,3 +60,30 @@ export async function prepareAvatar(file) {
   throw { code: 'size' };
 }
 export const newAvatarPath = userId => userId + '/' + Date.now() + '.jpg';
+
+/* ===== Foto produk/toko Pasar Umat: maksimal 100 KB per foto ===== */
+export const PRODUCT_MAX_BYTES = 100 * 1024; // sama dengan batas bucket "market-photos" di Storage
+export const PRODUCT_ERRORS = { ...PHOTO_ERRORS, size: 'Foto tetap lebih dari 100 KB setelah diperkecil. Coba foto lain.' };
+// Perbandingan sisi dipertahankan; sisi terpanjang diperkecil bertahap (1280 -> 1024 -> 800 -> 640 -> 480 px) dan kualitas diturunkan
+// sampai <= 100 KB. EXIF/GPS terbuang.
+export async function prepareProductPhoto(file) {
+  if (!file || !/^image\/(jpeg|png|webp)$/.test(file.type)) throw { code: 'type' };
+  if (file.size > MAX_INPUT) throw { code: 'big' };
+  let bmp;
+  try { bmp = await createImageBitmap(file); } catch (e) { throw { code: 'decode' }; }
+  try {
+    for (const side of [1280, 1024, 800, 640, 480]) {
+      const scale = Math.min(1, side / Math.max(bmp.width, bmp.height));
+      const w = Math.max(1, Math.round(bmp.width * scale)), h = Math.max(1, Math.round(bmp.height * scale));
+      const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(bmp, 0, 0, w, h);
+      for (const q of [0.8, 0.7, 0.6, 0.5, 0.4, 0.3]) {
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', q));
+        if (blob && blob.size <= PRODUCT_MAX_BYTES) return { blob, width: w, height: h, originalSize: file.size };
+      }
+    }
+  } finally { if (bmp.close) bmp.close(); }
+  throw { code: 'size' };
+}
