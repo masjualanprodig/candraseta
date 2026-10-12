@@ -115,3 +115,76 @@ export async function loadAyat(n, from, to) {
   if (to > all.length) throw bad('ayat di luar surat');
   return all.slice(from - 1, to);
 }
+
+/* ===== Mode Mushaf: teks bersambung per halaman (604 halaman Mushaf Madinah) =====
+   Nomor halaman, juz, dan pembagian ayat datang dari AlQuran Cloud. Surat tiap ayat dihitung dari nomor ayat global
+   (nomor 1..6236) dan daftar jumlah ayat 114 surat, lalu dicocokkan dengan numberInSurah. BAITUNA tidak mengetik teks Qur'an. */
+export const PAGES = 604, TOTAL_AYAH = 6236;
+const MAX_PAGE_AYAH = 80;
+let cumCache = null;
+async function cumulative() {
+  if (cumCache) return cumCache;
+  const s = await listSurahs();
+  const c = [0]; s.forEach(x => c.push(c[c.length - 1] + x.ayahs));
+  if (c[114] !== TOTAL_AYAH) throw bad('jumlah ayat total tidak cocok');
+  return (cumCache = c);
+}
+function locate(g, cum) { // nomor ayat global -> { s: nomor surat, n: nomor ayat dalam surat }
+  if (!isInt(g) || g < 1 || g > TOTAL_AYAH) return null;
+  let lo = 0, hi = 113;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (cum[mid] < g) lo = mid; else hi = mid - 1; }
+  return { s: lo + 1, n: g - cum[lo] };
+}
+const pageCache = new Map();
+async function pageEditions(n, rec) {
+  try {
+    const d = await getJson('/page/' + n + '/editions/' + TEXT_ED + ',' + TRANS_ED + ',' + rec);
+    if (Array.isArray(d) && d.length === 3) return d;
+  } catch (e) { if (e && e.code === 'NETWORK') throw e; }
+  // Cadangan: tiga permintaan terpisah bila titik akhir gabungan tidak tersedia.
+  return Promise.all([TEXT_ED, TRANS_ED, rec].map(ed => getJson('/page/' + n + '/' + ed)));
+}
+export async function loadPage(n, reciter) {
+  if (!isInt(n) || n < 1 || n > PAGES) throw bad('nomor halaman');
+  const rec = RID.includes(reciter) ? reciter : RID[0], key = n + '|' + rec;
+  if (pageCache.has(key)) return pageCache.get(key);
+  const p = (async () => {
+    const cum = await cumulative();
+    const d = await pageEditions(n, rec);
+    const by = id => d.find(e => e && e.edition && e.edition.identifier === id);
+    const ar = by(TEXT_ED), tr = by(TRANS_ED), au = by(rec);
+    if (!ar || !tr || !au) throw bad('edisi hilang');
+    const L = Array.isArray(ar.ayahs) ? ar.ayahs.length : 0;
+    if (L < 1 || L > MAX_PAGE_AYAH || [tr, au].some(e => !Array.isArray(e.ayahs) || e.ayahs.length !== L)) throw bad('jumlah ayat halaman tidak cocok');
+    let prev = 0;
+    const ayahs = ar.ayahs.map((a, i) => {
+      const t = tr.ayahs[i], u = au.ayahs[i];
+      if (!a || !t || !u || !isInt(a.number) || a.number !== t.number || a.number !== u.number) throw bad('nomor ayat tidak cocok');
+      if (i > 0 && a.number !== prev + 1) throw bad('ayat tidak berurutan');
+      prev = a.number;
+      if (a.page !== undefined && a.page !== n) throw bad('halaman ayat tidak cocok');
+      const loc = locate(a.number, cum);
+      if (!loc || (a.numberInSurah !== undefined && a.numberInSurah !== loc.n)) throw bad('nomor ayat dalam surat tidak cocok');
+      if (typeof a.text !== 'string' || !a.text.trim() || typeof t.text !== 'string' || typeof u.audio !== 'string' || !u.audio.startsWith(AUDIO_HOST) || !u.audio.endsWith('.mp3')) throw bad('isi ayat ' + a.number);
+      let text = a.text, bism = '';
+      if (loc.n === 1) { const r = splitBismillah(text, loc.s); bism = r.bismillah; text = r.text; }
+      return { g: a.number, s: loc.s, n: loc.n, ar: text, bism, id: t.text, audio: u.audio, juz: isInt(a.juz) && a.juz >= 1 && a.juz <= 30 ? a.juz : 0 };
+    });
+    const surahs = await listSurahs();
+    const out = { page: n, reciter: rec, ayahs, surahs: [...new Set(ayahs.map(a => a.s))].map(s => surahs[s - 1]), juz: [...new Set(ayahs.map(a => a.juz).filter(Boolean))] };
+    return out;
+  })();
+  pageCache.set(key, p);
+  p.catch(() => pageCache.delete(key)); // gagal: boleh dicoba lagi
+  if (pageCache.size > 12) pageCache.delete(pageCache.keys().next().value);
+  return p;
+}
+// Halaman mushaf tempat sebuah ayat berada (untuk lompat ke surat / ayat tertentu).
+const ayahPageCache = new Map();
+export async function pageOfAyah(s, a) {
+  if (!isInt(s) || !isInt(a) || s < 1 || s > 114 || a < 1) throw bad('rujukan ayat');
+  const k = s + ':' + a; if (ayahPageCache.has(k)) return ayahPageCache.get(k);
+  const d = await getJson('/ayah/' + k + '/' + TEXT_ED);
+  if (!d || !isInt(d.page) || d.page < 1 || d.page > PAGES || (d.numberInSurah !== undefined && d.numberInSurah !== a)) throw bad('halaman ayat');
+  ayahPageCache.set(k, d.page); return d.page;
+}

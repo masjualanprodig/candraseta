@@ -1,7 +1,8 @@
 // BAITUNA - quran-ui.js
 // Halaman Al-Qur'an: daftar 114 surat, baca teks Arab + terjemahan, dengarkan per ayat atau berurutan.
 import { h, toast } from './ui.js';
-import { listSurahs, loadSurah, loadAudio, RECITERS } from './quran-service.js';
+import { listSurahs, loadSurah, loadAudio, pageOfAyah, RECITERS } from './quran-service.js';
+import { mushafPage, savedPage } from './mushaf-ui.js';
 
 const KEY = 'baituna.qari.v1';
 const getQari = () => { try { const v = localStorage.getItem(KEY); return RECITERS.some(r => r.id === v) ? v : RECITERS[0].id; } catch { return RECITERS[0].id; } };
@@ -18,6 +19,9 @@ const TSIZES = [0.95, 1.05, 1.2, 1.4, 1.65];
 const LAST = 'baituna.quranlast.v1';
 const getLast = () => { try { const v = JSON.parse(localStorage.getItem(LAST)); return v && Number.isInteger(v.n) && Number.isInteger(v.ayah) && v.n >= 1 && v.n <= 114 && v.ayah >= 1 ? v : null; } catch { return null; } };
 const setLast = (n, ayah) => { try { localStorage.setItem(LAST, JSON.stringify({ n, ayah })); } catch { /* abaikan */ } };
+const MKEY = 'baituna.quranmode.v1';
+const getMode = () => { try { return localStorage.getItem(MKEY) === 'mushaf' ? 'mushaf' : 'ayat'; } catch { return 'ayat'; } };
+const setMode = v => { try { localStorage.setItem(MKEY, v); } catch { /* abaikan */ } };
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9؀-ۿ]/g, '');
 
 let player = null; // satu pemutar saja agar tidak ada dua suara bersamaan
@@ -40,8 +44,20 @@ export function quranPage() {
       h('button', { class: 'btn-sm', type: 'button', onclick: retry }, 'Coba lagi')));
   }
 
+  let mushafEl = null;
+  const modeBar = active => h('div', { class: 'achips qmode', role: 'tablist', 'aria-label': 'Mode baca' },
+    h('button', { class: 'achip', type: 'button', role: 'tab', 'data-mode': 'ayat', 'aria-selected': String(active === 'ayat'), onclick: () => { setMode('ayat'); list(); } }, 'Per ayat'),
+    h('button', { class: 'achip', type: 'button', role: 'tab', 'data-mode': 'mushaf', 'aria-selected': String(active === 'mushaf'), onclick: () => showMushaf() }, 'Mushaf (per halaman)'));
+  function showMushaf(startPage, focus) {
+    stopPlayer(); if (mushafEl && mushafEl.__stop) mushafEl.__stop();
+    setMode('mushaf');
+    mushafEl = mushafPage({ surahs, startPage: startPage || savedPage(), focus, sizeIdx: SIZES.indexOf(pref.size), onSize: d => { const k = Math.max(0, Math.min(SIZES.length - 1, SIZES.indexOf(pref.size) + d)); pref.size = SIZES[k]; setPref(pref); applyPref(); return k; } });
+    wrap.replaceChildren(h('h2', { class: 'wtitle' }, 'Al-Qur’an'), modeBar('mushaf'), mushafEl);
+    window.scrollTo(0, 0);
+  }
+
   function list() {
-    stopPlayer();
+    stopPlayer(); if (mushafEl && mushafEl.__stop) mushafEl.__stop(); mushafEl = null;
     const search = h('input', { class: 'in', type: 'search', placeholder: 'Cari surat (nama atau nomor)', maxlength: '40', value: q, autocomplete: 'off', 'aria-label': 'Cari surat' });
     const col = h('div', { class: 'qlist' });
     const row = s => h('button', { class: 'srow', type: 'button', onclick: () => open(s.number) },
@@ -57,7 +73,7 @@ export function quranPage() {
     const last = getLast(), ls = last && surahs.find(x => x.number === last.n);
     const cont = ls && last.ayah <= ls.ayahs ? h('button', { class: 'qcont', type: 'button', onclick: () => open(last.n, last.ayah) },
       h('span', {}, 'Lanjutkan membaca'), h('b', {}, ls.latin + ' · ayat ' + last.ayah)) : '';
-    wrap.replaceChildren(h('h2', { class: 'wtitle' }, 'Al-Qur’an'), h('p', { class: 'muted' }, '114 surat dengan terjemahan Indonesia dan audio per ayat.'), cont, search, col, note());
+    wrap.replaceChildren(h('h2', { class: 'wtitle' }, 'Al-Qur’an'), modeBar('ayat'), h('p', { class: 'muted' }, '114 surat dengan terjemahan Indonesia dan audio per ayat.'), cont, search, col, note());
     fill();
   }
 
@@ -144,6 +160,7 @@ export function quranPage() {
       h('div', { class: 'qtools' }, sel, allBtn),
       h('div', { class: 'qtools2' }, sizeBtn('A\u2212', -1), sizeBtn('A+', 1), fontSel),
       h('div', { class: 'qtools2' }, jumpIn, jumpBtn),
+      h('div', { class: 'qtools2' }, h('button', { class: 'btn-sm ghost', type: 'button', id: 'to-mushaf', onclick: async () => { const l = getLast(); const at = l && l.n === data.number ? l.ayah : 1; try { const p = await pageOfAyah(data.number, at); stopAll(); showMushaf(p, { surah: data.number, ayah: at }); } catch { toast('Belum bisa membuka mode mushaf. Periksa koneksi internet.', true); } } }, 'Buka di mode mushaf (per halaman)')),
       ...cards,
       note());
     markStars();
@@ -152,7 +169,7 @@ export function quranPage() {
 
   function init() {
     wrap.replaceChildren(h('p', { class: 'muted center' }, 'Memuat daftar surat…'));
-    listSurahs().then(r => { surahs = r; list(); }).catch(() => failure(init));
+    listSurahs().then(r => { surahs = r; if (getMode() === 'mushaf') showMushaf(); else list(); }).catch(() => failure(init));
   }
   init();
   return wrap;

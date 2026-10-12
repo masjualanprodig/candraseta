@@ -14,9 +14,9 @@ import { canSound, chime } from './dzikir-sound.js';
 import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran-ui.js';
 import { listSurahs } from './quran-service.js';
 
-export const APP_VERSION = 'v42';
+export const APP_VERSION = 'v43';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
-const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1'];
+const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.quranmode.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
 
 // Lingkaran foto profil: inisial dulu, lalu diganti foto bila ada (foto privat diunduh dengan token pengguna).

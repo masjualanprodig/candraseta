@@ -147,3 +147,12 @@ Halaman pribadi dan opsional (Lainnya -> Tracker Ibadah Harian). Semua data hany
 - Pengingat: banner di halaman saat aplikasi dibuka setelah jam yang dipilih, dan tombol "Tambah ke kalender" (.ics, berulang harian) untuk alarm sungguhan lewat aplikasi kalender HP. Aplikasi web tidak bisa menjamin alarm saat tertutup.
 - Bagian bisa disembunyikan; data tidak hilang. "Hapus semua catatan tracker" dan "Hapus data di perangkat ini" menghapus semuanya.
 - Catatan hanya bisa diisi sampai 30 hari ke belakang; data lebih dari 400 hari dipangkas otomatis.
+
+## Mode Mushaf (v43)
+Di tab Al-Qur'an ada dua mode: "Per ayat" (seperti sebelumnya) dan "Mushaf (per halaman)".
+- Mushaf: teks Arab bersambung per halaman 1-604 (Mushaf Madinah), nomor ayat di ujung ayat, kotak judul surat, header Juz dan Halaman, justify rata kanan-kiri.
+- Lompat ke surat, ke nomor halaman, atau pintasan (Al-Fatihah, Ayat Kursi, Al-Kahf, Yasin, Ar-Rahman, Al-Waqi'ah, Al-Mulk). Halaman terakhir dan mode tersimpan di perangkat.
+- Ketuk ayat: terjemahan, putar ayat, putar dari ayat itu, tandai terakhir dibaca. "Putar halaman" memutar semua ayat halaman itu berurutan.
+- Dari bacaan per ayat ada tombol "Buka di mode mushaf (per halaman)".
+- Sumber: AlQuran Cloud (endpoint /page, /ayah). Surat tiap ayat dihitung dari nomor ayat global dan jumlah ayat 114 surat (total harus 6236); data yang janggal ditolak dan tidak ditampilkan.
+- Ini bukan gambar mushaf cetak: pemenggalan baris mengikuti lebar layar. Tidak perlu SQL.
