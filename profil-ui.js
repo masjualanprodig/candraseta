@@ -14,8 +14,9 @@ import { loadProgress, loadTasbih, loadSound, saveSound } from './dzikir-service
 import { canSound, chime } from './dzikir-sound.js';
 import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran-ui.js';
 import { listSurahs } from './quran-service.js';
+import { legalView } from './page-ui.js';
 
-export const APP_VERSION = 'v56';
+export const APP_VERSION = 'v57';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
 const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1', 'baituna.notif.v1', 'baituna.notifseen.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
@@ -191,13 +192,17 @@ export function profilPage({ onSignIn, onLogout } = {}) {
       h('p', {}, 'Platform digital untuk masjid: direktori, agenda dan pengumuman, jadwal salat, Al-Qur’an, dzikir, doa, dan bacaan Islami.'),
       h('p', { class: 'muted' }, 'Versi ' + APP_VERSION)),
     h('div', { class: 'panel' }, h('h3', {}, 'Privasi singkat'),
-      h('p', { class: 'muted' }, 'Lokasi, favorit, hitungan dzikir, dan pengaturan tampilan hanya disimpan di perangkat Anda. Data akun (nama, telepon, peran) disimpan di server dan hanya bisa diubah oleh pemiliknya. Teks Al-Qur’an dimuat dari AlQuran Cloud dan tidak diubah. Konten doa, dzikir, dan artikel dimasukkan admin pusat dengan sumber yang jelas dan sebaiknya diperiksa ustaz.')));
+      h('p', { class: 'muted' }, 'Lokasi, favorit, hitungan dzikir, dan pengaturan tampilan hanya disimpan di perangkat Anda. Data akun (nama, telepon, peran) disimpan di server dan hanya bisa diubah oleh pemiliknya. Teks Al-Qur’an dimuat dari AlQuran Cloud dan tidak diubah. Konten doa, dzikir, dan artikel dimasukkan admin pusat dengan sumber yang jelas dan sebaiknya diperiksa ustaz.'),
+      h('button', { class: 'btn-sm ghost', type: 'button', id: 'about-privasi', onclick: go('privasi') }, 'Baca Privasi & Disclaimer lengkap')));
+
+  let legal = null;
+  const privasiView = () => { legal = legalView('privasi', () => !!(access && access.isAdmin)); return [back(), legal]; };
 
   function main() {
     const items = [];
     if (me) items.push(row(ICONS.user, 'Ubah profil', go('edit')), row(ICONS.lock, 'Ganti password', go('password')));
     items.push(row(ICONS.bookmark, 'Favorit', go('fav')), row(ICONS.progress, 'Progres saya', go('progres')),
-      row(ICONS.gear, 'Pengaturan', go('settings')), row(ICONS.help, 'Bantuan', go('help')), row(ICONS.about, 'Tentang BAITUNA', go('about')));
+      row(ICONS.gear, 'Pengaturan', go('settings')), row(ICONS.help, 'Bantuan', go('help')), row(ICONS.about, 'Tentang BAITUNA', go('about')), row(ICONS.shield, 'Privasi & Disclaimer', go('privasi')));
     return [h('h2', { class: 'wtitle' }, 'Profil'), loadErr ? h('p', { class: 'hint' }, 'Data profil belum bisa dimuat. Periksa koneksi.') : '', headCard(),
       h('div', { class: 'panel plist' }, ...items),
       me ? h('button', { class: 'btn-sm alt pout', type: 'button', onclick: () => onLogout && onLogout() }, 'Keluar') : '',
@@ -206,12 +211,12 @@ export function profilPage({ onSignIn, onLogout } = {}) {
 
   function draw() {
     const kids = view === 'edit' && me ? editView() : view === 'password' && me ? passwordView() : view === 'fav' ? favView() : view === 'progres' ? progresView()
-      : view === 'settings' ? settingsView() : view === 'help' ? helpView() : view === 'about' ? aboutView() : main();
+      : view === 'settings' ? settingsView() : view === 'help' ? helpView() : view === 'about' ? aboutView() : view === 'privasi' ? privasiView() : main();
     wrap.replaceChildren(...kids);
   }
   draw();
   if (me) {
-    Promise.all([getMyProfile(me.id).catch(() => { loadErr = true; return null; }), loadAccess(me).catch(() => null)]).then(([p, a]) => { if (p) profile = p; access = a; if (view === 'main') draw(); });
+    Promise.all([getMyProfile(me.id).catch(() => { loadErr = true; return null; }), loadAccess(me).catch(() => null)]).then(([p, a]) => { if (p) profile = p; access = a; if (view === 'main') draw(); else if (view === 'privasi' && legal) legal.redraw(); });
   }
   return wrap;
 }

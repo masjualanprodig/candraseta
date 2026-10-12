@@ -243,3 +243,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v56: pengingat Tracker menyatu dengan Notifikasi
 - Pengingat yang aktif di Tracker Ibadah Harian (mis. "Shalat Tahajud 21:00") kini ikut tampil di Notifikasi > "Pengingat pribadi saya" dan berbunyi lewat mesin pengingat yang sama (saat BAITUNA terbuka). Tanpa SQL.
 - Waktu Tahajud/Dhuha yang dihitung tetap diatur di Notifikasi > Pengaturan > Kebiasaan saya.
+
+## Tambahan v57: halaman Privasi & Disclaimer
+- Menu baru di Profil: **Privasi & Disclaimer** (tepat setelah Tentang BAITUNA; juga tombol di halaman Tentang). Bisa dibaca siapa saja, termasuk tamu.
+- **Hanya Super Admin yang bisa mengubah** (tombol "Ubah halaman ini"; dijaga RLS di server, bukan hanya tombol). Format teks sederhana: `## Judul bagian`, `- butir daftar`, baris kosong = paragraf. Tidak ada HTML (tag ditampilkan sebagai teks biasa). Ada "Kembalikan ke teks bawaan".
+- Jalankan `halaman.sql` di Supabase untuk mengaktifkan penyimpanan. Tanpa SQL itu, atau bila gagal memuat, halaman tetap menampilkan **teks bawaan sementara** (`page-defaults.js`). Teks bawaan adalah rancangan awal, bukan nasihat hukum; perlu ditinjau pengelola/penasihat hukum.
+- Tes: `page_browser_test.py` (18), SQL `hl_tests.sql` (20).
