@@ -249,3 +249,10 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - **Hanya Super Admin yang bisa mengubah** (tombol "Ubah halaman ini"; dijaga RLS di server, bukan hanya tombol). Format teks sederhana: `## Judul bagian`, `- butir daftar`, baris kosong = paragraf. Tidak ada HTML (tag ditampilkan sebagai teks biasa). Ada "Kembalikan ke teks bawaan".
 - Jalankan `halaman.sql` di Supabase untuk mengaktifkan penyimpanan. Tanpa SQL itu, atau bila gagal memuat, halaman tetap menampilkan **teks bawaan sementara** (`page-defaults.js`). Teks bawaan adalah rancangan awal, bukan nasihat hukum; perlu ditinjau pengelola/penasihat hukum.
 - Tes: `page_browser_test.py` (18), SQL `hl_tests.sql` (20).
+
+## Tambahan v58: Arah Kiblat (kompas)
+- Menu baru **Arah Kiblat** (ubin di halaman masuk, kartu di Lainnya, tombol di Jadwal Salat). Piringan kompas berputar mengikuti sensor HP; lambang Ka'bah muncul di arah kiblat; saat HP menghadap kiblat (selisih ≤ 3°) tampil "Arah kiblat tepat" dan HP bergetar singkat.
+- Arah dihitung di perangkat dengan rumus lingkaran besar ke Ka'bah (21.4225° LU, 39.8262° BT) dari lokasi yang sama dengan Jadwal Salat (`baituna.loc.v1`); lokasi tidak dikirim ke server. Jakarta ≈ 295°, jarak ≈ 7.920 km.
+- Sensor: Android memakai `deviceorientationabsolute`, iOS memakai `webkitCompassHeading` dan butuh ketukan "Aktifkan kompas" untuk izin. Tanpa sensor, aplikasi memberi arah dalam derajat untuk dipakai dengan kompas lain.
+- Batas jujur: kompas HP menunjuk utara magnetik dan tidak dikoreksi; ketepatan bergantung sensor HP dan bisa meleset beberapa derajat. Selalu cocokkan dengan penanda kiblat masjid. Belum diuji di HP asli.
+- Tanpa SQL. Tes: `unit_qibla.mjs` (15), `qibla_browser_test.py` (21).

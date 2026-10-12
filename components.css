@@ -891,3 +891,17 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .calcell[data-ex="1"]{box-shadow:inset 0 0 0 1px #b9d6cd}
 .extra-box{background:#f1f7f5}
 .ram-count{margin:.6rem 0 .2rem;padding:.55rem .75rem;border-radius:12px;background:#e9f3ef;font-weight:700;color:var(--teal-d);text-align:center}
+
+/* ===== Arah Kiblat ===== */
+.qb-stage{position:relative;max-width:340px;margin:1rem auto .4rem;padding:.4rem .4rem 1rem;border-radius:28px;background:radial-gradient(circle at 50% 55%,#f7f2e4 0,#fbfaf5 70%);text-align:center}
+.qb-top{display:flex;flex-direction:column;align-items:center;gap:.1rem;padding:.2rem 0 .5rem}
+.qb-top b{font-size:1.9rem;font-weight:800;color:var(--teal);letter-spacing:.02em}
+.qb-svg{width:100%;height:auto;display:block;touch-action:none}
+.qb-stage.aligned{background:radial-gradient(circle at 50% 55%,#dff3e8 0,#f1faf4 75%);box-shadow:0 0 0 3px var(--teal) inset}
+.qb-badge{display:inline-block;margin-top:.3rem;padding:.35rem .9rem;border-radius:999px;background:var(--teal);color:#fff;font-weight:800;font-size:.95rem}
+.qb-hint{text-align:center;font-size:1.02rem;line-height:1.5;margin:.4rem 0;color:var(--ink,#1f2d2a)}
+.qb-ctl{justify-content:center}
+.qb-info{display:flex;gap:.9rem;align-items:center}
+.qb-info .qb-ic{flex:none;width:48px;height:48px;border-radius:14px;background:#f1ecdd;display:flex;align-items:center;justify-content:center}
+.qb-or{text-align:center;margin:.5rem 0}
+.qb-loc select{width:100%;margin-bottom:.6rem}

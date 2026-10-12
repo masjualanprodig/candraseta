@@ -118,7 +118,8 @@ export function jadwalPage({ go } = {}) {
       h('p', { class: 'jplace' }, h('b', {}, 'Lokasi: '), place),
       h('div', { class: 'row-btns' },
         h('button', { class: 'btn-sm ghost', type: 'button', onclick: useGps }, busy ? 'Mencari…' : 'Perbarui lokasi'),
-        h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { picking = true; draw(); } }, 'Ganti kota')),
+        h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { picking = true; draw(); } }, 'Ganti kota'),
+        go ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'jd-kiblat', onclick: () => go('kiblat') }, 'Arah Kiblat') : ''),
       err ? h('p', { class: 'hint jerr', role: 'alert' }, err) : ''));
     kids.push(reminderPanel());
     kids.push(note());

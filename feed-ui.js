@@ -27,6 +27,7 @@ export const ICONS = {
   more: '<circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
   zakat: '<circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v10.4M9.4 9.5c0-1 1.2-1.6 2.6-1.6s2.6.6 2.6 1.6-1.2 1.5-2.6 1.8-2.6.8-2.6 1.8 1.2 1.7 2.6 1.7 2.6-.7 2.6-1.7"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
   bell: '<path d="M6 17.5V11a6 6 0 0 1 12 0v6.5l1.5 1.5h-15z"/><path d="M10 21h4"/>',
   market: '<path d="M4 9l1.5-4.5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/><path d="M5.5 12v7.5h13V12M10 19.5v-4h4v4"/>',
   tracker: '<rect x="4" y="4.5" width="16" height="16" rx="3"/><path d="M8 3v3M16 3v3M8 13l2.6 2.6L16 10"/>',
