@@ -102,3 +102,9 @@ Aturan: jangan pernah menaruh service_role / secret key di file mana pun.
 - Ubah profil -> **Pilih/Ganti/Hapus foto**. Dipotong persegi dan diperkecil di HP sampai maksimal 100 KB (JPEG; EXIF/GPS terbuang). Langsung tersimpan saat dipilih.
 - Jalankan **avatar.sql** (aman diulang): kolom `profiles.avatar_path`, bucket PRIVAT `avatars` (batas 100 KB), kebijakan: hanya pemilik yang bisa melihat/mengunggah/menghapus fotonya. Tidak ada tautan publik.
 - Ubah Profil dirapikan: label tidak ganda dengan placeholder, "Ganti password" masuk kartu.
+
+## Amalan Sunnah Harian (v37)
+- Menu **Lainnya -> Amalan Sunnah Harian** (juga ubin di halaman masuk). Jamaah bisa mencari, memfilter per waktu (Subuh, Pagi, Dhuha, Siang, Sore, Malam, Sebelum tidur, Sepanjang hari), mencentang "Sudah saya kerjakan hari ini", Salin dan Bagikan.
+- Centang hanya tersimpan di perangkat (`baituna.sunnah.v1`) dan kosong lagi besok. Tidak ada pengingat/alarm.
+- **Hanya Super Admin** yang bisa menambah/mengubah/menghapus (Dasbor -> Amalan Sunnah Harian). Setiap amalan wajib: judul, penjelasan, sumber, derajat (shahih/hasan saja; dha'if ditolak database), dan keterangan siapa yang menilai.
+- Jalankan **sunnah.sql** (aman diulang). Tabel awalnya KOSONG; isi dari sumber yang Anda periksa dan sebaiknya ditinjau ustaz sebelum diumumkan.

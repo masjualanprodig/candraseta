@@ -510,3 +510,11 @@ textarea.tall{min-height:200px}
 .avact{flex:1;min-width:0}
 .avnote{margin:.4rem 0 0;font-size:.82rem}
 .avact .hint{margin:.3rem 0 0}
+
+/* ===== Amalan Sunnah Harian (v37) ===== */
+.sunnah .achips{margin-top:.6rem}
+.sunnah input[type=search]{margin-top:.2rem}
+.sunnah-card .dcat{display:block;margin:-.1rem 0 .4rem;font-size:.82rem}
+.sunnah-check{margin-top:.7rem}
+.sunnah-priv{margin:.5rem 0 0;font-size:.82rem}
+.sunnah .dsum{margin-top:.6rem}

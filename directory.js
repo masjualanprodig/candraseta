@@ -14,6 +14,7 @@ import { rukunPage } from './rukun-ui.js';
 import { articlesPage } from './articles-ui.js';
 import { dzikirPage } from './dzikir-ui.js';
 import { doaPage } from './doa-ui.js';
+import { sunnahPage } from './sunnah-ui.js';
 import { profilPage } from './profil-ui.js';
 import { jadwalPage } from './jadwal-ui.js';
 import { quranPage } from './quran-ui.js';
@@ -38,6 +39,7 @@ export function openDirectory(from, back, tab) {
   if (state.tab === 'berita') { renderBerita(); return; }
   if (state.tab === 'dzikir') { renderDzikir(); return; }
   if (state.tab === 'doa') { renderDoa(); return; }
+  if (state.tab === 'sunnah') { renderSunnah(); return; }
   if (state.tab === 'profil') { renderProfil(); return; }
   if (state.tab === 'jadwal') { renderJadwal(); return; }
   if (state.tab === 'more') { renderMore(); return; }
@@ -52,12 +54,12 @@ export function openMosque(m, from, back) {
   renderDetail(m, renderFeed, '← Agenda');
 }
 
-const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', more: 'Lainnya' };
+const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', sunnah: 'Amalan Sunnah Harian', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', more: 'Lainnya' };
 // Halaman yang dibuka dari tab "Lainnya" (tab itu tetap tampak terpilih).
-const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'profil', 'jadwal'];
+const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'profil', 'jadwal'];
 // Setelah masuk, Profil ada di bilah bawah; Agenda dan Kalender pindah ke menu Lainnya.
-const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'jadwal'];
-const go = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
+const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'jadwal'];
+const go = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
 
 function tabs() {
   const sub = document.getElementById('public-sub');
@@ -85,6 +87,7 @@ function renderMore() {
       card('jadwal', ICONS.clock, 'Jadwal Salat', 'Waktu salat sesuai lokasi Anda'),
       card('dzikir', ICONS.dzikir, 'Dzikir Pagi & Petang', 'Bacaan dan penghitung ketukan'),
       card('doa', ICONS.doa, 'Doa Shahih', 'Doa sesuai sunnah, lengkap dengan sumber'),
+      card('sunnah', ICONS.sunnah, 'Amalan Sunnah Harian', 'Amalan yang dianjurkan, lengkap dengan sumber'),
       card('berita', ICONS.news, 'Berita & Artikel Islam', 'Khazanah, tips, dan bacaan Islami'),
       card('rukun', ICONS.book, 'Rukun Islam & Rukun Iman', 'Dalil, hadits, dan tuntunan'),
       card('sejarah', ICONS.book, 'Sejarah Islam', 'Peristiwa dan tokoh penting'),
@@ -97,6 +100,10 @@ function renderJadwal() {
 
 function renderProfil() {
   $('public-content').replaceChildren(tabs(), profilPage({ onSignIn: () => $('public-back').click(), onLogout: () => $('logout-btn').click() }));
+}
+
+function renderSunnah() {
+  $('public-content').replaceChildren(tabs(), sunnahPage());
 }
 
 function renderDoa() {
