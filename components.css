@@ -932,3 +932,22 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .rc-crow{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--line)}
 .panel:not(.rc-hero) .rc-badge{background:var(--ivory);border-color:var(--line);color:var(--teal)}
 .panel:not(.rc-hero) .rc-badge.ok{background:var(--gold);border-color:var(--gold);color:#3a2800}
+/* v61: perapian Ramadan Center */
+.rc-tabs{overflow:visible;gap:.25rem}
+.rc-tab{flex:1 1 0;min-width:0;padding:.5rem .1rem;font-size:.8rem;text-align:center}
+.rc-big{font-size:1.5rem}
+.rc-table{min-width:0;font-size:.82rem}
+.rc-table th,.rc-table td{padding:.5rem .4rem}
+.rc-table th:nth-child(1),.rc-table td:nth-child(1){position:sticky;left:0;z-index:1;background:#fff;min-width:2.2rem}
+.rc-table th:nth-child(2),.rc-table td:nth-child(2){position:sticky;left:2.2rem;z-index:1;background:#fff;box-shadow:2px 0 0 var(--line)}
+.rc-table th:nth-child(-n+2){background:var(--ivory);z-index:2}
+.rc-table .rc-iftar{background:#fdf3dc;color:var(--teal);font-weight:700}
+.rc-table .rc-sahur{color:var(--sage)}
+.rc-table tr.rc-today td:nth-child(-n+2){background:#fdf3dc}
+@media print{
+  body *{visibility:hidden}
+  .rc-print,.rc-print *{visibility:visible}
+  .rc-print{position:absolute;left:0;top:0;width:100%}
+  .rc-tablewrap{overflow:visible;border:0}
+  .rc-table th,.rc-table td{position:static!important;box-shadow:none!important}
+}

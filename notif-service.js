@@ -16,6 +16,7 @@ import { listProducts, priceText } from './market-service.js';
 import { rkeyOf, loadLinks, slotAnchors, SLOT_ORDER } from './sunnah-link.js';
 import { SLOTS, loadDone } from './sunnah-service.js';
 import { load as loadTracker } from './tracker-service.js';
+import { resolveRamadan, phaseOf, cachedRows } from './ramadan-service.js';
 
 export const KEY = 'baituna.notif.v1', SEEN_KEY = 'baituna.notifseen.v1', LOC_KEY = 'baituna.loc.v1';
 
@@ -37,6 +38,7 @@ export const RADII = [5, 10, 15, 25, 50];
 export const FAST_HOURS = [18, 19, 20, 21];
 export const DHUHA_OPTIONS = [15, 20, 30, 45]; // menit setelah terbit (pilihan pribadi)
 export const FAST_KEYS = { senin: 'Senin', kamis: 'Kamis', ayyamul_bidh: 'Ayyamul Bidh', arafah: 'Arafah', tasua: 'Tasu’a', asyura: 'Asyura', syawal6: '6 hari Syawal', ramadan: 'Ramadan' };
+export const SAHUR_OPTIONS = [15, 30, 45, 60]; // menit sebelum Imsak
 export const MAX_CUSTOM = 8;
 export const PRAYER_KEYS = PRAYERS.map(p => p[0]);
 
@@ -48,6 +50,7 @@ export const defaults = () => ({
   fasts: { senin_kamis: true, ayyamul_bidh: true, hari_utama: true, ramadan: true },
   fastKeys: Object.fromEntries(Object.keys(FAST_KEYS).map(k => [k, true])),
   mine: { dhuhaMin: 20, tahajudMode: 'third', tahajudTime: '03:00' }, // kebiasaan pribadi, hanya di perangkat ini
+  ram: { sahur: true, berbuka: true, sahurMin: 30 }, // pengingat sahur & berbuka (hari Ramadan)
   custom: [], // pengingat buatan sendiri: { id, label, time 'HH:MM', days [0..6] }
   lead: 10, fastHour: 20, radius: 15, device: false
 });
@@ -70,6 +73,8 @@ export function sanitize(o) {
   for (const k in d.fastKeys) out.fastKeys[k] = bool(o.fastKeys && o.fastKeys[k], true);
   const m = o.mine && typeof o.mine === 'object' ? o.mine : {};
   out.mine = { dhuhaMin: DHUHA_OPTIONS.includes(m.dhuhaMin) ? m.dhuhaMin : DHUHA_MIN, tahajudMode: m.tahajudMode === 'custom' ? 'custom' : 'third', tahajudTime: TIME_RE.test(m.tahajudTime) ? m.tahajudTime : '03:00' };
+  const r = o.ram && typeof o.ram === 'object' ? o.ram : {};
+  out.ram = { sahur: bool(r.sahur, true), berbuka: bool(r.berbuka, true), sahurMin: SAHUR_OPTIONS.includes(r.sahurMin) ? r.sahurMin : 30 };
   out.custom = cleanCustom(o.custom);
   out.lead = LEADS.includes(o.lead) ? o.lead : d.lead;
   out.fastHour = FAST_HOURS.includes(o.fastHour) ? o.fastHour : d.fastHour;
@@ -281,6 +286,20 @@ export function dueReminders(now, loc, S, horizon = 26 * 3600e3, ctx = null) {
         if (k === 0 && list.every(i => ids.includes(i.id))) continue; // hari ini: lewati bila semua sudah dicentang
         const at = an[slot] - S.lead * 60000;
         if (at > now && at <= now + horizon) out.push({ id: 'rem-harian-' + dayKey(dt) + '-' + slot, at, title: 'Amalan ' + (SLOTS[slot] || slot).toLowerCase() + ' (' + list.length + ')', body: list.slice(0, 3).map(i => i.title).join(', ') + (list.length > 3 ? ' dan ' + (list.length - 3) + ' lainnya' : '') + '. Buka Amalan Sunnah Harian untuk isi dan sumbernya.' });
+      }
+    }
+    if (loc && S.cats.ramadan && (S.ram.sahur || S.ram.berbuka)) {
+      const info = resolveRamadan(dt, cachedRows()), ph = info && phaseOf(info, dt);
+      if (ph && ph.phase === 'ramadan') {
+        const mo = prayerMoments(dt, loc.lat, loc.lng, loc.off), z = zoneName(loc.off), zs = z ? ' ' + z : '';
+        if (Number.isFinite(mo.fajr) && S.ram.sahur) {
+          const imsak = mo.fajr - 10 * 60000, at = imsak - S.ram.sahurMin * 60000;
+          if (at > now && at <= now + horizon) out.push({ id: 'rem-sahur-' + dayKey(dt), at, title: 'Sahur: Imsak ' + S.ram.sahurMin + ' menit lagi', body: 'Ramadan hari ke-' + ph.day + '. Imsak ' + clock(imsak, loc.off) + zs + ', Subuh ' + clock(mo.fajr, loc.off) + zs + ' (perkiraan; ikuti jadwal masjid).' });
+        }
+        if (Number.isFinite(mo.maghrib) && S.ram.berbuka) {
+          const at = mo.maghrib - S.lead * 60000;
+          if (at > now && at <= now + horizon) out.push({ id: 'rem-berbuka-' + dayKey(dt), at, title: S.lead ? 'Berbuka sekitar ' + S.lead + ' menit lagi' : 'Waktu berbuka (Maghrib)', body: 'Maghrib ' + clock(mo.maghrib, loc.off) + zs + ' (perkiraan; ikuti jadwal masjid).' });
+        }
       }
     }
     if (S.cats.ramadan) {

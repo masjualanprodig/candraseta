@@ -24,7 +24,7 @@ const deviceToday = () => { const n = new Date(); return { y: n.getFullYear(), m
 export function ramadanPage({ go, onOpen } = {}) {
   const wrap = h('div', { class: 'rc' });
   let tab = 'home', loc = loadLoc(), busy = false, picking = false, err = '';
-  let settings = { rows: [], error: null }, isAdmin = false;
+  let settings = { rows: R.cachedRows(), error: null }, isAdmin = false, homeFeed = null;
   let view = null; // hari yang sedang dilihat di tab Ibadah (kunci tanggal)
   const cityIn = h('select', { class: 'in', 'aria-label': 'Pilih kota' }, h('option', { value: '' }, 'Pilih kota…'), ...CITIES.map(c => h('option', { value: c.name }, c.name)));
 
@@ -83,7 +83,9 @@ export function ramadanPage({ go, onOpen } = {}) {
     const hij = (() => { try { const d = today(), x = cal.hijriOf(d.y, d.m, d.d); return x ? cal.hijriText(x) + ' (perkiraan)' : ''; } catch (e) { return ''; } })();
     const kids = [h('span', { class: 'jlab' }, t), hij ? h('span', { class: 'jlab' }, hij) : ''];
     if (ph.phase === 'sebelum') {
-      kids.push(h('b', { class: 'jname' }, 'Ramadan ' + info.hijriYear + ' H'), h('b', { class: 'rc-big', id: 'rc-count' }, daysText(ph.inDays)),
+      const wk = Math.floor(ph.inDays / 7), rest = ph.inDays % 7;
+      kids.push(h('b', { class: 'jname' }, 'Ramadan ' + info.hijriYear + ' H'), h('b', { class: 'rc-big', id: 'rc-count' }, ph.inDays + ' hari lagi'),
+        ph.inDays >= 7 ? h('span', { class: 'jlab' }, 'sekitar ' + wk + ' pekan' + (rest ? ' ' + rest + ' hari' : '')) : '',
         h('span', { class: 'jlab' }, 'Awal Ramadan: ' + longDate(info.start)));
     } else if (ph.phase === 'ramadan') {
       kids.push(h('b', { class: 'jname' }, 'Ramadan hari ke-' + ph.day), h('b', { class: 'rc-big', id: 'rc-count' }, ph.left === 0 ? 'Hari terakhir (menurut tanggal ini)' : 'Sisa ' + ph.left + ' hari'),
@@ -182,7 +184,9 @@ export function ramadanPage({ go, onOpen } = {}) {
     const kids = [hero(info)];
     if (picking || !loc) kids.push(chooser());
     else { kids.push(timesCard(info), locCard()); }
-    kids.push(progressCard(info), quickCard(), adminCard(info));
+    if (!homeFeed) homeFeed = feedPanel({ topic: 'ramadan', only: 'agenda', limit: 3, onOpen, emptyAgenda: 'Belum ada agenda Ramadan dari masjid.' });
+    kids.push(progressCard(info), h('div', { class: 'panel', id: 'rc-home-agenda' }, h('h3', {}, 'Agenda Ramadan terdekat'), homeFeed,
+      h('button', { class: 'btn-sm ghost', type: 'button', id: 'rc-to-agenda', onclick: () => { tab = 'agenda'; draw(); } }, 'Semua agenda Ramadan')), quickCard(), adminCard(info));
     if (settings.error === 'net' && info) kids.push(h('p', { class: 'hint' }, 'Penetapan tanggal dari pengelola belum bisa dimuat; memakai perkiraan.'));
     return kids;
   }
@@ -195,11 +199,18 @@ export function ramadanPage({ go, onOpen } = {}) {
     const o = off(), rows = R.scheduleFor(info, loc.lat, loc.lng, o), td = R.ymdKey(today());
     const bad = rows.filter(r => !r.ok).length;
     const COLS = [['imsak', 'Imsak'], ['fajr', 'Subuh'], ['sunrise', 'Terbit'], ['dhuhr', 'Dzuhur'], ['asr', 'Ashar'], ['maghrib', 'Maghrib'], ['isha', 'Isya']];
-    const head = h('tr', {}, h('th', {}, 'Hari'), h('th', {}, 'Tanggal'), ...COLS.map(([, l]) => h('th', {}, l)));
+    const head = h('tr', {}, h('th', {}, 'Hari'), h('th', {}, 'Tanggal'), ...COLS.map(([k, l]) => h('th', { class: k === 'maghrib' ? 'rc-iftar' : k === 'imsak' ? 'rc-sahur' : '' }, l)));
     const body = rows.map(r => h('tr', { class: R.ymdKey(r) === td ? 'rc-today' : '' },
       h('td', {}, String(r.day)), h('td', {}, DOW[r.dow] + ' ' + r.d + ' ' + MON[r.m - 1]),
-      ...COLS.map(([k]) => h('td', {}, r.ok ? fmt(r.t[k]) : '–'))));
+      ...COLS.map(([k]) => h('td', { class: k === 'maghrib' ? 'rc-iftar' : k === 'imsak' ? 'rc-sahur' : '' }, r.ok ? fmt(r.t[k]) : '–'))));
+    const share = async () => {
+      const text = R.imsakText(info, rows, placeLine(), zoneLabel(o));
+      try { if (navigator.share) { await navigator.share({ title: 'Imsakiyah Ramadan ' + info.hijriYear + ' H', text }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+      try { await navigator.clipboard.writeText(text); toast('Teks imsakiyah disalin. Tempel di WhatsApp atau catatan.'); } catch (e) { toast('Peramban ini tidak bisa membagikan atau menyalin.', true); }
+    };
     return [
+      h('div', { class: 'row-btns' }, h('button', { class: 'btn-sm', type: 'button', id: 'rc-share', onclick: share }, 'Bagikan teks'), h('button', { class: 'btn-sm ghost', type: 'button', id: 'rc-print', onclick: () => window.print() }, 'Cetak / simpan PDF')),
+      h('div', { class: 'rc-print' },
       h('div', { class: 'panel' }, h('h3', {}, 'Imsakiyah Ramadan ' + info.hijriYear + ' H'),
         h('p', { class: 'muted' }, placeLine() + ' · waktu ' + zoneLabel(o)), statusBadge(info),
         info.status !== 'ditetapkan' ? h('p', { class: 'hint' }, 'Tanggal mulai (' + longDate(info.start) + ') masih perkiraan. Jadwal ini akan menyesuaikan setelah pengelola menetapkan awal Ramadan resmi.' + (info.days === 29 ? ' Jumlah hari (29 atau 30) juga menunggu penetapan awal Syawal.' : '')) : '',
@@ -207,7 +218,7 @@ export function ramadanPage({ go, onOpen } = {}) {
       h('div', { class: 'rc-tablewrap', role: 'region', 'aria-label': 'Tabel imsakiyah', tabindex: '0' }, h('table', { class: 'rc-table', id: 'rc-table' }, h('thead', {}, head), h('tbody', {}, body))),
       h('div', { class: 'panel' }, h('h3', {}, 'Cara membaca'),
         h('p', { class: 'hint' }, 'Imsak = Subuh − ' + IMSAK_MIN + ' menit, sebagai tanda kehati-hatian menjelang Subuh. Berbuka mengikuti masuknya waktu Maghrib.'),
-        h('p', { class: 'hint' }, 'Metode: hitungan astronomi di perangkat (sudut Subuh ' + METHOD.fajr + '°, Isya ' + METHOD.isha + '°, ihtiyat ' + METHOD.ihtiyat + ' menit; mirip pedoman Kemenag). Bisa berbeda beberapa menit dari jadwal resmi atau jadwal masjid Anda. Ikuti jadwal masjid setempat.')),
+        h('p', { class: 'hint' }, 'Metode: hitungan astronomi di perangkat (sudut Subuh ' + METHOD.fajr + '°, Isya ' + METHOD.isha + '°, ihtiyat ' + METHOD.ihtiyat + ' menit; mirip pedoman Kemenag). Bisa berbeda beberapa menit dari jadwal resmi atau jadwal masjid Anda. Ikuti jadwal masjid setempat.'))),
       locCard()
     ];
   }

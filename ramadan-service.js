@@ -64,11 +64,22 @@ export function phaseOf(info, today) {
 export const ramadanDates = info => Array.from({ length: info.days }, (_, i) => ({ ...addDays(info.start, i), day: i + 1 }));
 
 /* ===== Penyimpanan tanggal (Super Admin menulis, siapa pun membaca) ===== */
+// Salinan terakhir penetapan tanggal (data publik, bukan data pribadi) agar pengingat dan tampilan tetap memakai penetapan saat offline.
+export const RCACHE = 'baituna.ramadancache.v1';
+export function cachedRows() {
+  try {
+    const a = JSON.parse(localStorage.getItem(RCACHE) || '[]');
+    return (Array.isArray(a) ? a : []).filter(r => r && Number.isInteger(r.hijri_year) && parseYmd(r.start_date) && (r.days === 29 || r.days === 30) && (r.status === 'ditetapkan' || r.status === 'estimasi'))
+      .map(r => ({ hijri_year: r.hijri_year, start_date: r.start_date, days: r.days, status: r.status, source: typeof r.source === 'string' ? r.source.slice(0, 120) : null, note: typeof r.note === 'string' ? r.note.slice(0, 300) : null })).slice(0, 10);
+  } catch (e) { return []; }
+}
+export const cacheRows = rows => { try { localStorage.setItem(RCACHE, JSON.stringify(rows || [])); } catch (e) { /* abaikan */ } };
 export async function fetchSettings() {
   try {
     const r = await request('/rest/v1/ramadan_settings?select=hijri_year,start_date,days,status,source,note,updated_at&order=hijri_year.desc&limit=10');
     if (!r.ok) return { rows: [], error: r.status === 404 || (r.data && (r.data.code === '42P01' || r.data.code === 'PGRST205')) ? 'sql' : 'net' };
-    return { rows: Array.isArray(r.data) ? r.data : [], error: null };
+    const rows = Array.isArray(r.data) ? r.data : []; cacheRows(rows);
+    return { rows, error: null };
   } catch (e) { return { rows: [], error: 'net' }; }
 }
 export async function saveSetting(f) {
@@ -100,6 +111,17 @@ export function scheduleFor(info, lat, lng, off) {
     if (ok) t.imsak = t.fajr - IMSAK_MIN;
     return { day: dt.day, y: dt.y, m: dt.m, d: dt.d, dow: new Date(Date.UTC(dt.y, dt.m - 1, dt.d)).getUTCDay(), ok, t: ok ? t : null };
   });
+}
+
+const DOWN = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'], MONN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+import { fmt } from './prayer-times.js';
+// Teks ringkas untuk dibagikan (WhatsApp dll.). Tanggal perkiraan ditandai jelas; hari yang tidak bisa dihitung dilewati.
+export function imsakText(info, rows, place, zone) {
+  const L = ['Imsakiyah Ramadan ' + info.hijriYear + ' H · ' + place + ' (' + zone + ')',
+    info.status === 'ditetapkan' ? 'Awal Ramadan ditetapkan: ' + info.source : 'Tanggal Ramadan masih PERKIRAAN, belum ditetapkan resmi.', ''];
+  for (const r of rows) if (r.ok) L.push(r.day + '. ' + DOWN[r.dow] + ' ' + r.d + ' ' + MONN[r.m - 1] + ' · Imsak ' + fmt(r.t.imsak) + ' · Subuh ' + fmt(r.t.fajr) + ' · Maghrib ' + fmt(r.t.maghrib));
+  L.push('', 'Dihitung di perangkat (BAITUNA); bisa beda beberapa menit dari jadwal masjid. Ikuti jadwal masjid setempat.');
+  return L.join('\n');
 }
 
 /* ===== Checklist ibadah Ramadan (pribadi, hanya di perangkat) ===== */

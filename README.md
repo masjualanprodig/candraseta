@@ -272,3 +272,10 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - **Jalankan `ramadan.sql`** di Supabase (aman diulang): tabel `ramadan_settings` (baca semua orang, tulis hanya Super Admin lewat RLS) dan jenis kabar `ramadan`. Tanpa SQL itu aplikasi tetap jalan dengan perkiraan; hanya penetapan tanggal dan penandaan agenda Ramadan yang belum aktif.
 - Batas jujur: waktu dihitung di perangkat dan bisa beda beberapa menit dari jadwal masjid/Kemenag; belum ada notifikasi sahur yang berbunyi saat aplikasi tertutup (menunggu fitur push); belum diuji di HP sungguhan atau Supabase sungguhan. Belum termasuk (Tahap 2/3): komunitas, program/tantangan, direktori zakat, kelompok tadarus, audio, ringkasan pasca-Ramadan.
 - Tes: `unit_ramadan.mjs` (36), `ramadan_browser_test.py` (49), SQL `rm_tests.sql` (23).
+
+## Tambahan v61: penyempurnaan Ramadan Center
+- **Imsakiyah**: kolom Hari dan Tanggal terkunci saat tabel digeser, kolom Maghrib (berbuka) disorot; tombol **Bagikan teks** (WhatsApp dll., atau disalin bila peramban tidak mendukung berbagi) dan **Cetak / simpan PDF** (hanya tabel dan catatan yang tercetak). Teks bagikan menandai tanggal "PERKIRAAN" bila belum ditetapkan.
+- **Beranda**: angka hitung mundur lebih ringkas, tab muat satu baris, dan panel **Agenda Ramadan terdekat** (agenda masjid bertanda Ramadan).
+- **Notifikasi > Pengaturan > Ramadan: sahur dan berbuka**: pengingat sahur (15/30/45/60 menit sebelum Imsak) dan berbuka (mengikuti "menit sebelum waktu"), memakai lokasi Jadwal Salat dan tanggal Ramadan. Hanya berbunyi saat BAITUNA terbuka dan "Pengingat HP" aktif; bukan pengganti alarm sahur.
+- Penetapan tanggal dari Super Admin disalin ke perangkat (`baituna.ramadancache.v1`, data publik) agar pengingat tetap memakai penetapan walau offline. Ikut terhapus oleh "Hapus data di perangkat ini".
+- Tes: `unit_ramadan2.mjs` (19), `ramadan_browser_test.py` kini 65. Tanpa SQL baru.
