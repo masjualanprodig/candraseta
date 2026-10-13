@@ -310,3 +310,24 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - **Pasang** (lihat `PANDUAN-PUSH-v64.md`): `push.sql` → pasang fungsi `baituna-push` (`baituna-push.ts`) + 4 rahasia → `push-cron.sql` → unggah aplikasi v64. Fungsi dibuat ulang dengan `fn/build.mjs` dari kode yang sama dengan aplikasi.
 - Perbaikan kecil: tombol "Putar adzan" tidak lagi ikut hilang bila berkas audio gagal dimuat. Cache service worker v55.
 - Tes: `unit_push.mjs` (109: validasi, penghitung, enkripsi push round-trip, VAPID, pengirim, tick, bundel, service worker), `push_browser_test.py` (40), SQL `px_tests.sql` (22).
+
+## Tambahan v65: Kritik & Saran
+- Halaman baru **Profil > Kritik & Saran** (baris terakhir, tepat di bawah Privasi & Disclaimer; juga untuk tamu): deskripsi singkat, lalu formulir **Nama**, **Email**, kolom luas **Kritik dan saran** (2.000 huruf, ada penghitung), dan tombol **Kirim**. Layar terima kasih sesudah terkirim. Nama dan email terisi otomatis bagi pengguna yang masuk (bisa diubah).
+- **Alur**: aplikasi memanggil fungsi `baituna-push` (aksi `feedback`) → pesan **disimpan dulu** di tabel `feedback` (tertutup; hanya Super Admin yang bisa membaca) → lalu **diteruskan ke email Super Admin** lewat **Resend**, dengan Reply-To = email pengirim (tinggal Balas). Bila email gagal, pesan tetap aman di tabel (kolom `emailed` dan `mail_error` mencatatnya).
+- **Anti spam**: kolom jebakan tak terlihat, maksimal 5 kiriman per perangkat per jam (memakai sidik SHA-256 satu arah dari IP, bukan IP asli) dan 100 kiriman per jam untuk semua, validasi nama/email/panjang di aplikasi dan di server. Email dikirim sebagai teks biasa (tanpa HTML) dan subjek satu baris, jadi tidak bisa disisipi header atau skrip.
+- **Pasang** (lihat `PANDUAN-SARAN-v65.md`): `saran.sql` → akun Resend + kunci API → ganti kode fungsi `baituna-push` dengan versi baru → 2 rahasia baru (`RESEND_API_KEY`, `FEEDBACK_TO`) → unggah aplikasi v65.
+- **Batas jujur**: dengan pengirim bawaan Resend (`onboarding@resend.dev`), email hanya bisa dikirim ke alamat pemilik akun Resend; gunakan email Super Admin yang sama untuk mendaftar. Email bisa masuk folder spam. Belum ada halaman Kotak Saran di aplikasi: pesan dibaca lewat email atau Table Editor Supabase (halaman Kotak Saran ada di rencana Tahap 4).
+- Teks privasi diperbarui (bagian Kritik & saran, penyedia email). FAQ Bantuan diperbarui (adzan/push, cara kirim saran). Cache service worker v56.
+- Tes: `unit_push.mjs` kini 152 (validasi saran, email, batas, Resend gagal, tabel belum ada), `saran_browser_test.py` (34), SQL `sr_tests.sql` (16).
+
+## Tambahan v66: Tanya Jawab
+- Kartu baru **Lainnya > Tanya Jawab** (tamu dan yang sudah masuk). Tiga tab: **Terbaru** (urut tanggal dijawab), **Populer** (skor = jumlah dibaca + 5 x tombol Bermanfaat), **Kategori** (daftar kategori + jumlah terjawab, lalu isi kategori). Ada pencarian judul dan "Muat lebih banyak" (20 per halaman).
+- **Model**: jamaah bertanya, **penjawab resmi** (ditunjuk Super Admin lewat email akun) menjawab. Pertanyaan baru **tidak tampil ke publik** sebelum dijawab. Setiap jawaban **wajib memuat sumber/rujukan**, tampil dengan nama + gelar penjawab, dan disertai catatan bahwa itu bukan fatwa. Aplikasi tidak membuat isi agama sendiri.
+- **Bertanya wajib masuk** (pilihan Anda). Karena pendaftaran jamaah umum baru ada di Tahap 4, saat ini hanya pemegang akun (pengurus) yang bisa bertanya; tamu melihat tombol Masuk dan penjelasan. Batas: 3 pertanyaan menunggu, 5 per 24 jam, judul 10-150 huruf, rincian maks 1.500.
+- **Pertanyaan saya**: status Menunggu / Sudah dijawab / Tidak dapat dijawab (dengan alasan). Tidak ada pemberitahuan otomatis saat dijawab; penanya memeriksa halaman ini.
+- **Kelola** (penjawab dan Super Admin): antrean (jawab dengan sumber wajib, atau tolak dengan alasan), sembunyikan/tampilkan jawaban. Super Admin juga bisa **menghapus**. **Pengaturan** (Super Admin): tambah/nonaktifkan/hapus penjawab, tambah/nonaktifkan kategori (9 kategori awal).
+- **Dibaca dan Bermanfaat**: tanpa akun; memakai penanda acak per perangkat (`baituna.qa.v1`) sehingga satu perangkat dihitung sekali per pertanyaan; batas 300 baca/100 suara per 24 jam per perangkat. **Angka bersifat indikatif** (penanda bisa dipalsukan oleh orang yang sengaja). Penanda ikut terhapus oleh "Hapus data di perangkat ini".
+- **Keamanan**: semua tabel tertutup dari API; baca publik lewat izin kolom (identitas penanya `asker_id` dan alasan penolakan tidak pernah terbaca publik); menulis hanya lewat fungsi server yang memeriksa peran. Pencarian membuang karakter khusus.
+- **Pasang** (lihat `PANDUAN-TANYA-v66.md`): jalankan `tanya.sql` di Supabase, unggah aplikasi v66, lalu (Super Admin) tambahkan penjawab di Tanya Jawab > Pengaturan.
+- Teks privasi diperbarui. Cache service worker v57.
+- Tes: `unit_qa.mjs` (31), `qa_browser_test.py` (66), SQL `tq_tests.sql` (57).

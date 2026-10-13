@@ -30,8 +30,14 @@ Bila Anda mengaktifkan push agar notifikasi tampil walau BAITUNA tertutup, serve
 - pilihan Anda: salat dan adzan yang diingatkan, menit sebelum waktu, serta sahur dan berbuka
 Tanpa nama, email, atau akun. Data ini dihapus saat push dimatikan atau saat Anda memilih "Hapus data di perangkat ini", dan otomatis saat peramban menyatakan alamat itu tidak berlaku lagi. Pesan dikirim lewat layanan push milik peramban/HP Anda (mis. Google, Mozilla, Apple), yang dapat menerima alamat IP perangkat.
 
+## Kritik & saran
+Bila Anda mengirim kritik dan saran lewat formulir, nama, email, dan isi pesan Anda disimpan di server BAITUNA dan diteruskan ke email pengelola agar dapat dibalas. Alamat IP tidak disimpan utuh; hanya sidik satu arah yang dipakai untuk membatasi spam. Mohon tidak menuliskan kata sandi, nomor kartu, atau data sensitif lain. Pesan dapat dihapus pengelola atas permintaan Anda.
+
+## Tanya Jawab
+Untuk bertanya Anda harus masuk. Judul, rincian, kategori, dan nama depan (bila Anda memilih menampilkannya) disimpan di server BAITUNA; identitas akun penanya tidak ditampilkan ke publik. Menandai "Bermanfaat" dan penghitung dibaca memakai penanda acak di perangkat Anda (bukan identitas) agar satu perangkat dihitung sekali. Pertanyaan baru tampil ke publik hanya setelah dijawab penjawab resmi. Mohon tidak menuliskan data pribadi yang sensitif.
+
 ## Layanan pihak ketiga
-Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Peta menggunakan data OpenStreetMap. Layanan tersebut dapat menerima alamat IP perangkat Anda sesuai kebijakan masing-masing.
+Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Email kritik dan saran diteruskan lewat penyedia layanan email (Resend). Peta menggunakan data OpenStreetMap. Layanan tersebut dapat menerima alamat IP perangkat Anda sesuai kebijakan masing-masing.
 
 ## Disclaimer keagamaan
 - BAITUNA bukan lembaga fatwa. Isi aplikasi tidak menggantikan bimbingan ustaz atau ulama yang Anda percayai.

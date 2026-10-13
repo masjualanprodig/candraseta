@@ -6,6 +6,7 @@ import { clearAudioCache } from './adzan-service.js';
 import { disable as disablePush } from './push-service.js';
 import { h, toast, hint, ask } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
+import { saranPage } from './saran-ui.js';
 import { getSession } from './supabase.js';
 import { loadAccess, ROLE_LABEL } from './permissions.js';
 import { getMyProfile, updateMyProfile, changePassword, saveAvatar, deleteAvatar, avatarUrl, cleanName, nameOk, phoneOk, initials, passwordProblem } from './profile-service.js';
@@ -18,9 +19,9 @@ import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran
 import { listSurahs } from './quran-service.js';
 import { legalView } from './page-ui.js';
 
-export const APP_VERSION = 'v64';
+export const APP_VERSION = 'v66';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
-const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1', 'baituna.notif.v1', 'baituna.notifseen.v1', 'baituna.ramadan.v1', 'baituna.ramadancache.v1', 'baituna.adzanlib.v1', 'baituna.push.v1'];
+const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1', 'baituna.notif.v1', 'baituna.notifseen.v1', 'baituna.ramadan.v1', 'baituna.ramadancache.v1', 'baituna.adzanlib.v1', 'baituna.push.v1', 'baituna.qa.v1', 'baituna.qa.vote.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
 
 // Lingkaran foto profil: inisial dulu, lalu diganti foto bila ada (foto privat diunduh dengan token pengguna).
@@ -187,7 +188,8 @@ export function profilPage({ onSignIn, onLogout } = {}) {
     ['Bagaimana menjadi pengurus masjid?', 'Akun pengurus dibuat lewat undangan dari Admin Masjid atau admin pusat. Gunakan email yang diundang untuk masuk. Pendaftaran jamaah dibuka di tahap berikutnya.'],
     ['Saya lupa password.', 'Di halaman masuk, isi email lalu pilih "Lupa password". Tautan reset dikirim ke email Anda. Jika masih bisa masuk, ganti password di Profil → Ubah Profil → Ganti password.'],
     ['Mengapa doa atau dzikir masih kosong?', 'Isi doa dan dzikir dimasukkan oleh admin pusat dengan sumber dan derajatnya, sehingga baru tampil setelah diisi.'],
-    ['Apakah aplikasi membunyikan adzan atau pengingat?', 'Belum. Browser tidak bisa menjamin bunyi saat aplikasi tertutup, jadi BAITUNA tidak menjanjikan adzan atau alarm otomatis.']
+    ['Apakah aplikasi membunyikan adzan atau pengingat?', 'Ya, dengan batas. Adzan dan pengingat berbunyi selama BAITUNA terbuka (menu Adzan dan Notifikasi). Agar notifikasi tetap tampil saat aplikasi tertutup, aktifkan push di Notifikasi > Pengaturan; nadanya memakai nada bawaan HP dan bisa tertunda mode hemat baterai. Jangan jadikan satu-satunya alarm ibadah.'],
+    ['Bagaimana menyampaikan kritik dan saran?', 'Buka Profil lalu pilih Kritik & Saran di bawah Privasi & Disclaimer. Isi nama, email, dan pesan; pengelola membacanya langsung.']
   ];
   const helpView = () => sub('Bantuan', ...FAQ.map(([q, a]) => h('details', { class: 'panel faq' }, h('summary', {}, q), h('p', { class: 'muted' }, a))));
   const aboutView = () => sub('Tentang BAITUNA',
@@ -201,11 +203,13 @@ export function profilPage({ onSignIn, onLogout } = {}) {
   let legal = null;
   const privasiView = () => { legal = legalView('privasi', () => !!(access && access.isAdmin)); return [back(), legal]; };
 
+  const saranView = () => [back(), saranPage({ name: (profile && cleanName(profile.full_name)) || '', email: (me && me.email) || '' })];
+
   function main() {
     const items = [];
     if (me) items.push(row(ICONS.user, 'Ubah profil', go('edit')), row(ICONS.lock, 'Ganti password', go('password')));
     items.push(row(ICONS.bookmark, 'Favorit', go('fav')), row(ICONS.progress, 'Progres saya', go('progres')),
-      row(ICONS.gear, 'Pengaturan', go('settings')), row(ICONS.help, 'Bantuan', go('help')), row(ICONS.about, 'Tentang BAITUNA', go('about')), row(ICONS.shield, 'Privasi & Disclaimer', go('privasi')));
+      row(ICONS.gear, 'Pengaturan', go('settings')), row(ICONS.help, 'Bantuan', go('help')), row(ICONS.about, 'Tentang BAITUNA', go('about')), row(ICONS.shield, 'Privasi & Disclaimer', go('privasi')), row(ICONS.chat, 'Kritik & Saran', go('saran')));
     return [h('h2', { class: 'wtitle' }, 'Profil'), loadErr ? h('p', { class: 'hint' }, 'Data profil belum bisa dimuat. Periksa koneksi.') : '', headCard(),
       h('div', { class: 'panel plist' }, ...items),
       me ? h('button', { class: 'btn-sm alt pout', type: 'button', onclick: () => onLogout && onLogout() }, 'Keluar') : '',
@@ -214,7 +218,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
 
   function draw() {
     const kids = view === 'edit' && me ? editView() : view === 'password' && me ? passwordView() : view === 'fav' ? favView() : view === 'progres' ? progresView()
-      : view === 'settings' ? settingsView() : view === 'help' ? helpView() : view === 'about' ? aboutView() : view === 'privasi' ? privasiView() : main();
+      : view === 'settings' ? settingsView() : view === 'help' ? helpView() : view === 'about' ? aboutView() : view === 'privasi' ? privasiView() : view === 'saran' ? saranView() : main();
     wrap.replaceChildren(...kids);
   }
   draw();
