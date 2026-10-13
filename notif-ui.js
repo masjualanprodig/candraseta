@@ -3,6 +3,7 @@
 // Dihitung saat halaman dibuka. Tidak ada notifikasi saat aplikasi tertutup (lihat notif-service.js).
 import { h, toast } from './ui.js';
 import * as N from './notif-service.js';
+import * as P from './push-service.js';
 import { FAST_GROUPS } from './puasa-service.js';
 import { PRAYERS } from './prayer-times.js';
 import { loadLinks, refsFor, brief } from './sunnah-link.js';
@@ -138,8 +139,33 @@ export function notifPage({ go } = {}) {
     let needRemote = false;
     const catRows = N.CAT_ORDER.map(c => sw(N.CATS[c], S.cats[c], upd(v => { S.cats[c] = v; needRemote = true; }), 'ns-cat-' + c));
     const devOk = N.deviceSupported(), perm = devOk ? Notification.permission : 'unsupported';
+
+    const pushPanel = () => {
+      const kids = [h('h3', {}, 'Notifikasi saat aplikasi tertutup (push)'),
+        h('p', { class: 'muted' }, 'Server BAITUNA mengirim notifikasi tepat waktu walau BAITUNA ditutup: ' + P.COVERS + '. Belum mencakup puasa sunnah, amalan harian, pengingat pribadi, dan kabar masjid.')];
+      if (!P.supported()) kids.push(h('p', { class: 'muted', id: 'ns-push-unsup' }, 'Peramban ini belum mendukung push. Di iPhone, pasang BAITUNA ke Layar Utama lebih dulu (iOS 16.4 ke atas), lalu buka dari ikonnya.'));
+      else {
+        const st = P.state(), on = st.on && perm === 'granted';
+        kids.push(sw('Aktifkan push', on, async v => {
+          if (!v) { await P.disable(); toast('Push dimatikan dan datanya dihapus dari server.'); render(); return; }
+          const r = await P.enable();
+          if (r.ok) { toast('Push aktif. Gunakan "Kirim push uji" untuk memastikan di HP ini.'); render(); return; }
+          const msg = { noloc: 'Pilih lokasi di Jadwal Salat dulu agar waktu salat bisa dihitung.', denied: 'Izin notifikasi diblokir. Ubah lewat pengaturan situs di peramban.', default: 'Izin notifikasi belum diberikan.', sw: 'Layanan latar belakang belum siap. Muat ulang BAITUNA lalu coba lagi.', server: 'Server push belum aktif. Pengelola perlu memasang fungsi baituna-push (lihat panduan v64).', net: 'Tidak ada koneksi. Coba lagi saat online.', unsupported: 'Peramban ini belum mendukung push.' }[r.reason];
+          toast(msg || 'Push belum bisa diaktifkan.', true); render();
+        }, 'ns-push-on'));
+        kids.push(h('p', { class: 'hint', id: 'ns-push-state' }, on ? 'Push aktif di HP ini.' : st.on && perm !== 'granted' ? 'Izin notifikasi dicabut di peramban; push tidak akan tampil. Matikan lalu aktifkan lagi.' : 'Push mati.'));
+        if (on) kids.push(h('button', { class: 'btn-sm', type: 'button', id: 'ns-push-test', onclick: async () => {
+          const r = await P.sendTest();
+          toast({ ok: 'Push uji dikirim. Tutup BAITUNA; notifikasi akan tampil beberapa detik lagi.', wait: 'Tunggu sekitar 30 detik sebelum uji lagi.', gone: 'Langganan sudah tidak berlaku. Matikan lalu aktifkan push lagi.', off: 'Push belum aktif.', server: 'Server menolak. Periksa pemasangan fungsi baituna-push.', net: 'Tidak ada koneksi.' }[r], r !== 'ok');
+        } }, 'Kirim push uji'));
+        if (!N.readLoc()) kids.push(h('p', { class: 'hint', id: 'ns-push-noloc' }, 'Lokasi belum dipilih; pilih di Jadwal Salat agar server tahu waktu salat di tempat Anda.'));
+      }
+      kids.push(h('p', { class: 'hint' }, 'Yang dikirim ke server: alamat notifikasi HP ini, lokasi dibulatkan sekitar 1 km, zona waktu, dan pilihan salat, adzan, serta Ramadan di bawah. Tanpa nama, email, atau akun. Dihapus saat push dimatikan atau "Hapus data di perangkat ini".'),
+        h('p', { class: 'hint' }, 'Batas: nada notifikasi memakai nada bawaan HP (suara adzan penuh hanya terputar saat BAITUNA terbuka; ketuk notifikasi untuk membuka dan memutarnya). HP hemat baterai bisa menunda atau menahan notifikasi, jadi jangan jadikan satu-satunya alarm ibadah.'));
+      return h('div', { class: 'panel', id: 'ns-push' }, ...kids);
+    };
     const devBox = h('div', { class: 'panel' }, h('h3', {}, 'Pengingat di HP'),
-      h('p', { class: 'muted' }, 'Aplikasi web tidak dapat membunyikan notifikasi saat BAITUNA ditutup. Pengingat di bawah hanya berbunyi selama BAITUNA masih terbuka di peramban (boleh di latar belakang, tetapi HP bisa menghentikannya). Untuk azan yang pasti berbunyi, gunakan aplikasi azan atau alarm bawaan HP.'),
+      h('p', { class: 'muted' }, 'Aplikasi web tidak dapat membunyikan notifikasi saat BAITUNA ditutup. Pengingat di bawah hanya berbunyi selama BAITUNA masih terbuka di peramban (boleh di latar belakang, tetapi HP bisa menghentikannya). Untuk azan yang pasti berbunyi, gunakan aplikasi azan atau alarm bawaan HP. Agar notifikasi tetap tampil saat BAITUNA ditutup, aktifkan push di panel di atas.'),
       devOk ? [
         sw('Tampilkan pengingat sebagai notifikasi HP (saat aplikasi terbuka)', S.device && perm === 'granted', async v => {
           if (!v) { S.device = false; commit(); render(); return; }
@@ -159,6 +185,7 @@ export function notifPage({ go } = {}) {
       ] : h('p', { class: 'muted' }, 'Peramban ini tidak mendukung notifikasi. Pusat Notifikasi di halaman ini tetap berfungsi.'));
     return [
       h('div', { class: 'panel' }, h('h3', {}, 'Jenis notifikasi'), h('p', { class: 'muted' }, 'Matikan yang tidak Anda perlukan agar tidak terganggu.'), ...catRows),
+      pushPanel(),
       S.cats.salat ? h('div', { class: 'panel' }, h('h3', {}, 'Waktu salat'), h('p', { class: 'muted' }, 'Waktu salat otomatis mengikuti Jadwal Salat (lokasi dan hitungan yang sama). Pilihan di sini juga tampil di halaman Jadwal Salat.'), go ? h('button', { class: 'linkbtn', type: 'button', onclick: () => go('jadwal') }, 'Buka Jadwal Salat') : '', ...[...PRAYERS, ['dhuha', 'Salat Dhuha (sunnah)'], ['tahajud', 'Salat Tahajud (sunnah)']].map(([k, n]) => sw(n, S.prayers[k], upd(v => { S.prayers[k] = v; }), 'ns-p-' + k)),
         h('h4', {}, 'Kebiasaan saya'), h('p', { class: 'muted' }, 'Setiap orang berbeda; atur sesuai kebiasaan Anda. Pilihan ini hanya tersimpan di perangkat ini.'),
         h('label', { class: 'hint' }, 'Awal waktu Dhuha bagi saya'), sel('ns-dhuha-min', N.DHUHA_OPTIONS.map(m => [m, m + ' menit setelah terbit' + (m === 20 ? ' (bawaan)' : '')]), S.mine.dhuhaMin, upd(v => { S.mine.dhuhaMin = Number(v); }), 'Awal Dhuha'),
@@ -168,6 +195,8 @@ export function notifPage({ go } = {}) {
       S.cats.puasa ? h('div', { class: 'panel' }, h('h3', {}, 'Puasa'), ...Object.entries(FAST_GROUPS).map(([k, n]) => sw(n, S.fasts[k], upd(v => { S.fasts[k] = v; }), 'ns-f-' + k)),
         h('h4', {}, 'Puasa yang saya kerjakan'), h('p', { class: 'muted' }, 'Matikan puasa yang tidak Anda kerjakan agar tidak diingatkan.'),
         ...Object.entries(N.FAST_KEYS).map(([k, n]) => sw('Puasa ' + n, S.fastKeys[k], upd(v => { S.fastKeys[k] = v; }), 'ns-fk-' + k))) : '',
+      S.cats.salat ? h('div', { class: 'panel', id: 'ns-adzan' }, h('h3', {}, 'Adzan'), h('p', { class: 'muted' }, 'Adzan ' + (S.adzan.on ? 'aktif' : 'belum aktif') + '. Audio dan waktu adzan diatur di halaman Adzan (terhubung dengan Jadwal Salat). Hanya berbunyi saat BAITUNA terbuka.'),
+        go ? h('button', { class: 'btn-sm', type: 'button', id: 'ns-adzan-go', onclick: () => go('adzan') }, 'Atur adzan & audio') : '') : '',
       S.cats.ramadan ? h('div', { class: 'panel', id: 'ns-ram' }, h('h3', {}, 'Ramadan: sahur dan berbuka'),
         h('p', { class: 'muted' }, 'Pengingat harian selama Ramadan, mengikuti Jadwal Salat dan tanggal Ramadan di Ramadan Center. Berbunyi hanya saat BAITUNA terbuka dan "Pengingat HP" aktif; jangan jadikan satu-satunya alarm sahur.'),
         sw('Ingatkan sahur', S.ram.sahur, upd(v => { S.ram.sahur = v; }), 'ns-r-sahur'),

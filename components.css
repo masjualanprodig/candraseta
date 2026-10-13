@@ -951,3 +951,16 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
   .rc-tablewrap{overflow:visible;border:0}
   .rc-table th,.rc-table td{position:static!important;box-shadow:none!important}
 }
+
+/* ===== Adzan ===== */
+.adzan .panel{margin-top:.7rem}
+.az-opt{display:flex;flex-direction:column;gap:.45rem;padding:.7rem .8rem;margin-top:.45rem;border:1px solid var(--line);border-radius:14px;background:var(--ivory)}
+.az-optl{display:flex;align-items:flex-start;gap:.7rem;cursor:pointer}
+.az-optl input{width:1.2rem;height:1.2rem;margin-top:.15rem;accent-color:var(--teal)}
+.az-optl>span{display:flex;flex-direction:column}
+.az-credit{font-size:.82rem}
+.az-list{padding-left:1.1rem;display:flex;flex-direction:column;gap:.45rem}
+.azm-row{padding:.7rem 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:.4rem}
+.azm-row.off{opacity:.7}
+.adzan-banner{position:fixed;left:.8rem;right:.8rem;bottom:5.4rem;z-index:60;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.8rem 1rem;border-radius:16px;background:var(--teal);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.adzan-banner span{flex:1 1 12rem}

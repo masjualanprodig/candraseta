@@ -286,3 +286,27 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - `feedPanel` kini punya opsi `near` dan `noLocNote`; `fetchFeed` menerima `mosqueIds` dan `topic` (disaring di server). Menu Agenda umum tidak berubah.
 - Batas: masjid tanpa titik lokasi di profilnya tidak ikut mode terdekat. Tanpa SQL baru.
 - Tes: `ramadan_browser_test.py` kini 71.
+
+## Tambahan v63: Adzan (notifikasi + audio, terhubung ke Jadwal Salat)
+- Menu baru **Adzan** (kartu di Lainnya; tombol "Atur adzan & audio" di Jadwal Salat dan di Notifikasi > Pengaturan). Waktu adzan diambil dari Jadwal Salat (lokasi dan hitungan yang sama).
+- **Semua orang (jamaah, Admin Masjid)**: hanya **memilih**. Aktifkan adzan, pilih salat yang diadzankan, nyalakan notifikasi, pilih audio (umum, dan khusus Subuh), volume, putar contoh, simpan audio untuk offline, uji adzan. Pilihan tersimpan di HP (`baituna.notif.v1`, bagian `adzan`), tidak dikirim ke server.
+- **Super Admin saja**: menambah (unggah), mengubah nama/sumber/jenis, mengaktifkan/menonaktifkan, dan menghapus audio. Sumber/pelantun/lisensi **wajib** diisi. Maksimal 30 audio, 10 MB per berkas (MP3, M4A, OGG, WAV).
+- **BAITUNA tidak membawa rekaman adzan.** Super Admin yang mengunggah; pastikan berhak memakainya dan sebaiknya ditinjau ustaz.
+- **Jalankan `adzan.sql`** di Supabase dulu (aman diulang): tabel `adzan_audio` (baca: semua orang untuk audio aktif; tulis: hanya Super Admin lewat RLS) dan bucket publik `adzan-audio` dengan kebijakan khusus Super Admin.
+- Notifikasi memerlukan izin dari HP masing-masing. Bila izin ditolak, suara adzan tetap berbunyi saat aplikasi terbuka.
+- Bila salat memakai pengingat "0 menit sebelum" dan adzan aktif, hanya satu notifikasi yang tampil (tidak ganda).
+- **Batas jujur**: adzan, suara, dan notifikasi hanya berbunyi **selama BAITUNA terbuka** di peramban. Aplikasi web tidak bisa memutar suara saat tertutup; notifikasi push sungguhan belum dibuat (butuh server, dan push pun tidak bisa memutar audio adzan sendiri). Peramban menahan suara otomatis sebelum layar diketuk: bila tertahan muncul tombol "Putar adzan". HP bisa membekukan peramban di latar belakang. Waktu dihitung di perangkat dan bisa beda beberapa menit dari adzan masjid.
+- "Hapus data di perangkat ini" kini juga menghapus pilihan dan salinan audio adzan. Teks privasi diperbarui. Cache service worker v54.
+- Tes: `unit_adzan.mjs` (27), `adzan_browser_test.py` (60), SQL `az_tests.sql` (32).
+
+## Tambahan v64: Notifikasi push (tampil walau BAITUNA tertutup)
+- Panel baru **Notifikasi > Pengaturan > "Notifikasi saat aplikasi tertutup (push)"**: saklar Aktifkan push, tombol **Kirim push uji**, dan penjelasan jujur apa yang dikirim ke server dan batasnya.
+- **Cakupan push**: pengingat waktu salat (5 waktu, "menit sebelum" sesuai pilihan), adzan (sesuai halaman Adzan), sahur dan berbuka saat Ramadan (tanggal Ramadan mengikuti penetapan Super Admin bila ada). Belum: puasa sunnah, amalan harian, pengingat pribadi, kabar masjid.
+- **Arsitektur**: Edge Function tunggal `baituna-push` (aksi `subscribe`, `unsubscribe`, `test`, `tick`). Jadwal pg_cron memanggil `tick` tiap menit; server menghitung waktu salat per langganan (modul yang sama dengan aplikasi), lalu mengirim Web Push terenkripsi (VAPID + aes128gcm, hanya WebCrypto, tanpa pustaka luar). Penanda `tag` sama dengan pengingat di aplikasi sehingga tidak dobel bila aplikasi sedang terbuka.
+- **Data di server** (tabel `push_subscriptions`, tertutup dari API publik; hanya fungsi dengan service role yang bisa membaca): alamat push, kunci, lokasi dibulatkan ±1 km, zona waktu, pilihan notifikasi. Tanpa nama/email/akun. Dihapus saat push dimatikan, saat "Hapus data di perangkat ini", saat layanan push menyatakan kedaluwarsa (404/410), atau setelah 20 kegagalan berturut-turut. Teks privasi sudah diperbarui.
+- **Keamanan fungsi**: alamat push hanya diterima dari layanan push resmi (Google/FCM, Mozilla, Apple, Windows) agar server tidak bisa dipakai menembak alamat lain; `tick` menolak tanpa `CRON_SECRET`; push uji dibatasi 1 kali per 30 detik dan hanya untuk alamat yang sudah terdaftar; badan permintaan maks 4 KB.
+- **Ketuk notifikasi adzan**: membuka BAITUNA dan memutar adzan (atau menampilkan tombol "Putar adzan" bila peramban menahan suara), hanya bila notifikasinya masih baru (10 menit).
+- **Batas jujur**: nada notifikasi = nada bawaan HP (push tidak bisa memutar audio adzan sendiri); hemat baterai/Doze bisa menunda; server perlu fungsi dan jadwal aktif; skala besar (puluhan ribu langganan) perlu ditinjau ulang.
+- **Pasang** (lihat `PANDUAN-PUSH-v64.md`): `push.sql` → pasang fungsi `baituna-push` (`baituna-push.ts`) + 4 rahasia → `push-cron.sql` → unggah aplikasi v64. Fungsi dibuat ulang dengan `fn/build.mjs` dari kode yang sama dengan aplikasi.
+- Perbaikan kecil: tombol "Putar adzan" tidak lagi ikut hilang bila berkas audio gagal dimuat. Cache service worker v55.
+- Tes: `unit_push.mjs` (109: validasi, penghitung, enkripsi push round-trip, VAPID, pengirim, tick, bundel, service worker), `push_browser_test.py` (40), SQL `px_tests.sql` (22).

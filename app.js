@@ -184,4 +184,19 @@ addEventListener('online', syncOnline); addEventListener('offline', syncOnline);
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('service-worker.js').catch(() => {}));
 start();
 
+import './push-service.js';
+import { onAdzan, nowPlaying } from './adzan-service.js';
+import { load as loadNotifSettings } from './notif-service.js';
+// Dibuka dari notifikasi push adzan: bila masih baru (<= 10 menit), putar adzan (atau tampilkan tombol "Putar adzan" bila peramban menahan suara).
+function adzanFromPush(key, t) {
+  if (!['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(key) || !Number.isFinite(t)) return;
+  const age = Date.now() - t; if (age < -60000 || age > 10 * 60000 || nowPlaying()) return;
+  const S = loadNotifSettings(); if (S.adzan && S.adzan.on) onAdzan(S, key);
+}
+try {
+  const q = new URLSearchParams(location.search);
+  if (q.has('adzan')) { const k = q.get('adzan'), t = Number(q.get('t')); history.replaceState(null, '', location.pathname); adzanFromPush(k, t); }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => { const d = ev.data; if (d && d.type === 'baituna-adzan') adzanFromPush(String(d.key), Number(d.t)); });
+} catch (e) { /* abaikan */ }
+
 armReminders(); // pengingat HP hanya aktif jika pengguna mengizinkan, dan hanya selama aplikasi terbuka

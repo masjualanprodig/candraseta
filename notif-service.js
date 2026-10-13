@@ -17,6 +17,7 @@ import { rkeyOf, loadLinks, slotAnchors, SLOT_ORDER } from './sunnah-link.js';
 import { SLOTS, loadDone } from './sunnah-service.js';
 import { load as loadTracker } from './tracker-service.js';
 import { resolveRamadan, phaseOf, cachedRows } from './ramadan-service.js';
+import { defaults as adzanDefaults, sanitize as adzanSanitize, onAdzan } from './adzan-service.js';
 
 export const KEY = 'baituna.notif.v1', SEEN_KEY = 'baituna.notifseen.v1', LOC_KEY = 'baituna.loc.v1';
 
@@ -50,6 +51,7 @@ export const defaults = () => ({
   fasts: { senin_kamis: true, ayyamul_bidh: true, hari_utama: true, ramadan: true },
   fastKeys: Object.fromEntries(Object.keys(FAST_KEYS).map(k => [k, true])),
   mine: { dhuhaMin: 20, tahajudMode: 'third', tahajudTime: '03:00' }, // kebiasaan pribadi, hanya di perangkat ini
+  adzan: adzanDefaults(), // adzan + audio (pilihan pribadi, hanya di perangkat)
   ram: { sahur: true, berbuka: true, sahurMin: 30 }, // pengingat sahur & berbuka (hari Ramadan)
   custom: [], // pengingat buatan sendiri: { id, label, time 'HH:MM', days [0..6] }
   lead: 10, fastHour: 20, radius: 15, device: false
@@ -75,6 +77,7 @@ export function sanitize(o) {
   out.mine = { dhuhaMin: DHUHA_OPTIONS.includes(m.dhuhaMin) ? m.dhuhaMin : DHUHA_MIN, tahajudMode: m.tahajudMode === 'custom' ? 'custom' : 'third', tahajudTime: TIME_RE.test(m.tahajudTime) ? m.tahajudTime : '03:00' };
   const r = o.ram && typeof o.ram === 'object' ? o.ram : {};
   out.ram = { sahur: bool(r.sahur, true), berbuka: bool(r.berbuka, true), sahurMin: SAHUR_OPTIONS.includes(r.sahurMin) ? r.sahurMin : 30 };
+  out.adzan = adzanSanitize(o.adzan);
   out.custom = cleanCustom(o.custom);
   out.lead = LEADS.includes(o.lead) ? o.lead : d.lead;
   out.fastHour = FAST_HOURS.includes(o.fastHour) ? o.fastHour : d.fastHour;
@@ -83,7 +86,9 @@ export function sanitize(o) {
   return out;
 }
 export function load() { try { return sanitize(JSON.parse(localStorage.getItem(KEY) || 'null')); } catch (e) { return defaults(); } }
-export function save(s) { try { localStorage.setItem(KEY, JSON.stringify(sanitize(s))); } catch (e) { /* abaikan */ } }
+export function save(s) { try { localStorage.setItem(KEY, JSON.stringify(sanitize(s))); } catch (e) { /* abaikan */ } tellSaved(); }
+// Memberi tahu bagian lain (mis. push) bahwa pengaturan atau lokasi berubah.
+export function tellSaved() { try { if (typeof window !== 'undefined' && typeof Event !== 'undefined') window.dispatchEvent(new Event('baituna:settings')); } catch (e) { /* abaikan */ } }
 
 // ---- sudah dibaca (di perangkat) ----
 export function loadSeen(now = Date.now()) {
@@ -264,10 +269,19 @@ export function dueReminders(now, loc, S, horizon = 26 * 3600e3, ctx = null) {
       const [hh, mm] = c.time.split(':').map(Number), at = startOfDay(dt, off) + (hh * 60 + mm) * 60000;
       if (at > now && at <= now + horizon) out.push({ id: 'rem-pribadi-' + c.id + '-' + dayKey(dt), at, title: c.label, body: 'Pengingat pribadi Anda (' + c.time + ').' });
     }
+    if (loc && S.adzan.on) {
+      const ma = prayerMoments(dt, loc.lat, loc.lng, loc.off), za = zoneName(loc.off);
+      for (const [key, name] of PRAYERS) {
+        if (!S.adzan.prayers[key] || !Number.isFinite(ma[key])) continue;
+        const at = ma[key];
+        if (at > now && at <= now + horizon) out.push({ id: 'adz-' + dayKey(dt) + '-' + key, at, adzan: key, title: 'Waktu ' + name, body: 'Waktu ' + name + ' telah masuk (' + clock(at, loc.off) + (za ? ' ' + za : '') + ', perkiraan; ikuti jadwal masjid).' });
+      }
+    }
     if (loc && S.cats.salat) {
       const mo = prayerMoments(dt, loc.lat, loc.lng, loc.off);
       for (const [key, name] of PRAYERS) {
         if (!S.prayers[key] || !Number.isFinite(mo[key])) continue;
+        if (S.lead === 0 && S.adzan.on && S.adzan.prayers[key]) continue; // sudah diwakili pengingat adzan pada waktu yang sama
         const at = mo[key] - S.lead * 60000;
         if (at > now && at <= now + horizon) out.push({ id: 'rem-salat-' + dayKey(dt) + '-' + key, at, title: S.lead ? name + ' sekitar ' + S.lead + ' menit lagi' : 'Waktu ' + name, body: name + ' ' + clock(mo[key], loc.off) + ' ' + zoneName(loc.off) + ' (perkiraan, sesuai lokasi Anda).' });
       }
@@ -385,12 +399,21 @@ function ensureLinks() { // memuat amalan harian sekali; setelah itu pengingat d
 }
 export function armReminders(now = Date.now()) {
   if (timer) { clearTimeout(timer); timer = null; }
-  if (!deviceSupported() || Notification.permission !== 'granted') return null;
-  const S = load(); if (!S.device) return null;
+  const S = load(), permOk = deviceSupported() && Notification.permission === 'granted';
+  const remOn = permOk && S.device, adzOn = S.adzan.on; // adzan boleh berbunyi tanpa izin notifikasi (hanya suara); izin HP tetap menentukan notifikasinya
+  if (!remOn && !adzOn) return null;
   const loc = readLoc(now); // tanpa lokasi, hanya pengingat pribadi & puasa yang bisa berbunyi
-  if (S.cats.harian && loc) ensureLinks();
-  const next = dueReminders(now, loc, S, undefined, linkIdx ? { idx: linkIdx, done: loadDone(new Date(now)) } : null).find(r => !fired.has(r.id)); if (!next) return null;
-  timer = setTimeout(async () => { fired.add(next.id); await show(next.title, next.body, next.id); armReminders(Date.now()); }, Math.min(next.at - now, 2 ** 31 - 1));
+  if (remOn && S.cats.harian && loc) ensureLinks();
+  const next = dueReminders(now, loc, S, undefined, linkIdx ? { idx: linkIdx, done: loadDone(new Date(now)) } : null).filter(r => (r.adzan ? adzOn : remOn)).find(r => !fired.has(r.id)); if (!next) return null;
+  timer = setTimeout(async () => {
+    fired.add(next.id);
+    if (next.adzan) {
+      const cur = load(), p = onAdzan(cur, next.adzan);
+      if (deviceSupported() && Notification.permission === 'granted' && cur.adzan.notify) await show(next.title, next.body, next.id);
+      await p;
+    } else await show(next.title, next.body, next.id);
+    armReminders(Date.now());
+  }, Math.min(next.at - now, 2 ** 31 - 1));
   return next;
 }
 if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') armReminders(); });

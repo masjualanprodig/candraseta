@@ -42,7 +42,7 @@ export function loadLoc() {
   } catch (e) {}
   return null;
 }
-export const saveLoc = l => { try { localStorage.setItem(LKEY, JSON.stringify(l)); } catch (e) {} };
+export const saveLoc = l => { try { localStorage.setItem(LKEY, JSON.stringify(l)); } catch (e) {} try { window.dispatchEvent(new Event('baituna:settings')); } catch (e) {} };
 // Selisih jam zona: kota memakai zona resminya; lokasi GPS mengikuti jam HP pada tanggal tersebut.
 const deviceOffset = (now = Date.now()) => -new Date(now).getTimezoneOffset() / 60;
 export const offsetFor = (loc, now = Date.now()) => loc.mode === 'city' ? loc.tz : deviceOffset(now);
@@ -143,7 +143,10 @@ export function jadwalPage({ go } = {}) {
         sw('Aktifkan pengingat waktu salat', S.cats.salat, v => { S.cats.salat = v; commit(); paint(); }, 'jr-cat'),
         ...[...PRAYER_ROWS].map(([k, n]) => sw(n, S.prayers[k], v => { S.prayers[k] = v; commit(); paint(); }, 'jr-p-' + k, !S.cats.salat)),
         h('p', { class: 'hint', id: 'jr-state' }, dev ? 'Pengingat HP aktif: berbunyi ' + (S.lead ? S.lead + ' menit sebelum waktu' : 'tepat saat waktu masuk') + ', selama BAITUNA terbuka di peramban.' : 'Pengingat HP belum aktif. Daftar kabar tetap tampil di menu Notifikasi.'),
-        go ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'jr-go', onclick: () => go('notif') }, 'Buka Notifikasi') : '');
+        h('p', { class: 'hint', id: 'jr-adzan-state' }, 'Adzan: ' + (S.adzan.on ? 'aktif untuk ' + Object.keys(S.adzan.prayers).filter(k => S.adzan.prayers[k]).length + ' waktu salat' + (S.adzan.audio || S.adzan.subuhAudio ? ' (dengan audio pilihan Anda)' : ' (notifikasi tanpa suara)') : 'belum diaktifkan') + '.'),
+        h('div', { class: 'row-btns' },
+          go ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'jr-go', onclick: () => go('notif') }, 'Buka Notifikasi') : '',
+          go ? h('button', { class: 'btn-sm', type: 'button', id: 'jr-adzan', onclick: () => go('adzan') }, 'Atur adzan & audio') : ''));
     };
     paint(); return box;
   }

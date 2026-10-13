@@ -11,7 +11,7 @@ export const DEFAULT_PAGES = {
 Hal-hal berikut hanya disimpan di HP atau peramban Anda, tidak dikirim ke server BAITUNA:
 - lokasi untuk jadwal salat dan masjid terdekat
 - favorit doa, hitungan dzikir, centang amalan harian, dan catatan Tracker Ibadah Harian
-- pengaturan notifikasi, pengingat pribadi, dan pengaturan tampilan Al-Qur’an
+- pengaturan notifikasi, pilihan adzan dan audio adzan yang Anda simpan, pengingat pribadi, dan pengaturan tampilan Al-Qur’an
 Anda dapat menghapusnya kapan saja lewat Profil, Pengaturan, "Hapus data di perangkat ini".
 
 ## Data yang disimpan di server
@@ -21,7 +21,14 @@ Anda dapat menghapusnya kapan saja lewat Profil, Pengaturan, "Hapus data di pera
 BAITUNA tidak menjual data pribadi dan tidak menampilkan iklan.
 
 ## Lokasi
-Lokasi dipakai di perangkat Anda untuk menghitung jadwal salat dan jarak ke masjid terdekat. Lokasi tidak dikirim atau disimpan di server.
+Lokasi dipakai di perangkat Anda untuk menghitung jadwal salat dan jarak ke masjid terdekat. Lokasi tidak dikirim atau disimpan di server, kecuali Anda sendiri mengaktifkan notifikasi push (lihat bagian berikutnya).
+
+## Notifikasi push (opsional, mati bawaan)
+Bila Anda mengaktifkan push agar notifikasi tampil walau BAITUNA tertutup, server BAITUNA menyimpan data berikut agar dapat mengirim tepat waktu:
+- alamat notifikasi HP/peramban Anda (diberikan oleh peramban, bukan nomor telepon)
+- lokasi yang dibulatkan sekitar 1 km dan zona waktu, untuk menghitung waktu salat
+- pilihan Anda: salat dan adzan yang diingatkan, menit sebelum waktu, serta sahur dan berbuka
+Tanpa nama, email, atau akun. Data ini dihapus saat push dimatikan atau saat Anda memilih "Hapus data di perangkat ini", dan otomatis saat peramban menyatakan alamat itu tidak berlaku lagi. Pesan dikirim lewat layanan push milik peramban/HP Anda (mis. Google, Mozilla, Apple), yang dapat menerima alamat IP perangkat.
 
 ## Layanan pihak ketiga
 Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Peta menggunakan data OpenStreetMap. Layanan tersebut dapat menerima alamat IP perangkat Anda sesuai kebijakan masing-masing.
@@ -31,7 +38,7 @@ Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Peta menggunakan da
 - Konten doa, dzikir, dan amalan sunnah diisi pengelola dengan menyebut sumber dan derajatnya. Tanyakan kepada ustaz untuk tata cara, waktu, dan keutamaannya.
 - Waktu salat dihitung di perangkat dan dapat berbeda beberapa menit dari jadwal resmi. Ikuti jadwal masjid setempat.
 - Tanggal Hijriah dan tanggal puasa adalah perkiraan dari kalender Umm al-Qura. Penetapan resmi di Indonesia mengikuti pemerintah (Kemenag).
-- Pengingat dan notifikasi hanya berbunyi saat BAITUNA terbuka. Jangan mengandalkannya sebagai satu-satunya alarm ibadah.
+- Tanpa push, pengingat dan notifikasi hanya berbunyi saat BAITUNA terbuka. Dengan push pun, pengiriman bisa terlambat atau gagal (mode hemat baterai, jaringan, pengaturan HP), dan suara adzan penuh hanya terputar saat BAITUNA terbuka. Jangan mengandalkannya sebagai satu-satunya alarm ibadah.
 
 ## Pasar Umat
 BAITUNA hanya mempertemukan penjual dan pembeli. Transaksi, pembayaran, pengiriman, dan klaim halal menjadi tanggung jawab penjual dan pembeli. BAITUNA tidak memproses pembayaran dan tidak menjamin kualitas produk. Laporkan produk yang tidak pantas kepada pengelola.
