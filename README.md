@@ -331,3 +331,13 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - **Pasang** (lihat `PANDUAN-TANYA-v66.md`): jalankan `tanya.sql` di Supabase, unggah aplikasi v66, lalu (Super Admin) tambahkan penjawab di Tanya Jawab > Pengaturan.
 - Teks privasi diperbarui. Cache service worker v57.
 - Tes: `unit_qa.mjs` (31), `qa_browser_test.py` (66), SQL `tq_tests.sql` (57).
+
+## Tambahan v67: Pustaka Buku
+- Kartu baru **Lainnya > Pustaka Buku** (tamu dan yang sudah masuk): katalog buku **fisik dan digital** yang dijual. Pembayaran **tidak diproses di BAITUNA**: tombol **Pesan** membuka **WhatsApp penjual** (dengan teks pesanan berisi judul dan harga) atau **link checkout** (https) di tab baru.
+- **Tampilan**: pilihan **Grid** (2 kolom, hanya thumbnail penuh, tanpa teks) atau **List** (thumbnail kecil + judul + deskripsi singkat 2 baris + harga + jenis, seperti contoh foto). Pilihan diingat di perangkat (`baituna.books.v1`). Ada pencarian dan saringan Semua/Fisik/Digital. Detail buku: sampul, jenis, harga, deskripsi lengkap, tombol Pesan.
+- **Editor hanya Super Admin** (tombol "Kelola buku" tampil hanya untuknya, dan dijaga RLS di server): nama buku (3-150), deskripsi (10-2.000), jenis (fisik/digital), harga (Rp, 0 = Gratis, maks Rp 100 juta), cara pesan (WhatsApp atau link checkout), tampil/sembunyikan, dan **banner maksimal 100 KB** (gambar lebih besar otomatis diperkecil dan dikompres menjadi JPEG; batas 100 KB juga dipasang di bucket `book-covers`). Admin masjid, pengurus, dan jamaah hanya melihat dan memesan.
+- **Keamanan**: link checkout wajib `https://` tanpa spasi (tidak bisa `javascript:`/`http:`), nomor WA harus format 62; salah satu saja (WA atau URL); tamu hanya melihat buku yang tampil; semua perubahan hanya Super Admin. Tombol Pesan dinonaktifkan bila data dari server tidak sah.
+- **Batas jujur**: nomor WA/link **tidak ditampilkan sebagai teks** (pembeli hanya melihat tombol Pesan), tetapi tetap bisa terbaca teknis oleh orang yang membuka alat pengembang, dan tampak saat tombol ditekan karena tujuan terbuka (gunakan nomor khusus jualan); belum ada keranjang, stok, ongkir, atau pelacakan pesanan; penjual dan pembeli bertransaksi di luar BAITUNA, jadi risiko penipuan ada pada transaksi tersebut (catatan peringatan sudah tampil). Banner terlalu rumit/penuh detail bisa gagal ditekan ke 100 KB; pakai gambar lain.
+- **Pasang** (lihat `PANDUAN-BUKU-v67.md`): jalankan `buku.sql` → unggah aplikasi v67 → masuk Super Admin → Lainnya > Pustaka Buku > Kelola buku.
+- Teks privasi diperbarui. Cache service worker v58.
+- Tes: `unit_books.mjs` (35), `books_browser_test.py` (52), SQL `bk_tests.sql` (41).

@@ -994,3 +994,32 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .qa-check{display:flex;gap:.5rem;align-items:flex-start;margin:.8rem 0;font-size:.9rem}
 .qa-check input{margin-top:.2rem}
 .qa-arow{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--line)}
+
+/* ===== Pustaka Buku (v67) ===== */
+.books .bk-acts{display:flex;flex-wrap:wrap;gap:.45rem;margin:.6rem 0}
+.books .bk-back{margin:.2rem 0 .6rem}
+.books .in{display:block;width:100%;margin:.5rem 0}
+.bk-tools{display:flex;flex-direction:column;gap:.2rem;margin-top:.6rem}
+.bk-seg{margin:.2rem 0 .5rem}
+.bk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:.7rem 0}
+.bk-gi{display:block;padding:0;border:1px solid var(--line);background:#fff;border-radius:14px;overflow:hidden;cursor:pointer;aspect-ratio:3/4}
+.bk-gi:active{transform:scale(.985)}
+.bk-img{display:block;object-fit:cover;background:#e8efe9}
+.bk-g-img{width:100%;height:100%}
+.bk-ph{display:flex;align-items:center;justify-content:center;color:var(--teal)}
+.bk-list{display:flex;flex-direction:column;margin:.5rem 0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.bk-li{display:flex;gap:.8rem;width:100%;padding:.75rem;text-align:left;font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--line);cursor:pointer}
+.bk-li:last-child{border-bottom:0}
+.bk-l-img{width:64px;height:88px;flex:0 0 64px;border-radius:8px}
+.bk-lt{display:flex;flex-direction:column;gap:.2rem;min-width:0;flex:1}
+.bk-title{display:block;line-height:1.3;overflow-wrap:anywhere}
+.bk-sd{font-size:.85rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bk-meta{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:auto}
+.bk-price{font-weight:800;color:var(--teal)}
+.bk-cover{display:block;width:100%;max-width:320px;margin:0 auto;aspect-ratio:3/4;object-fit:cover;border-radius:14px;background:#e8efe9}
+.bk-dt{margin:.5rem 0 .2rem;line-height:1.35}
+.bk-dp{font-size:1.15rem;margin:.1rem 0 .6rem}
+.bk-desc{white-space:pre-wrap;overflow-wrap:anywhere;margin:.5rem 0 1rem}
+.bk-mrow{display:flex;flex-direction:column;gap:.4rem;margin:.6rem 0}
+.bk-mt{display:flex;gap:.7rem;align-items:flex-start}
+.bk-pv{display:block;max-width:140px;border-radius:10px;margin:.4rem 0}

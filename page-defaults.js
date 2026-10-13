@@ -36,6 +36,9 @@ Bila Anda mengirim kritik dan saran lewat formulir, nama, email, dan isi pesan A
 ## Tanya Jawab
 Untuk bertanya Anda harus masuk. Judul, rincian, kategori, dan nama depan (bila Anda memilih menampilkannya) disimpan di server BAITUNA; identitas akun penanya tidak ditampilkan ke publik. Menandai "Bermanfaat" dan penghitung dibaca memakai penanda acak di perangkat Anda (bukan identitas) agar satu perangkat dihitung sekali. Pertanyaan baru tampil ke publik hanya setelah dijawab penjawab resmi. Mohon tidak menuliskan data pribadi yang sensitif.
 
+## Pustaka Buku
+Pustaka Buku menampilkan buku yang dijual pengelola. BAITUNA tidak memproses pembayaran dan tidak menyimpan data pembeli: tombol Pesan membuka WhatsApp penjual atau link checkout milik penjual, yang berlaku kebijakan privasi mereka sendiri. Nomor WhatsApp atau link yang diisi pengelola tidak ditampilkan sebagai teks, tetapi terbuka saat tombol Pesan ditekan. Tampilan Grid atau List yang Anda pilih disimpan di perangkat.
+
 ## Layanan pihak ketiga
 Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Email kritik dan saran diteruskan lewat penyedia layanan email (Resend). Peta menggunakan data OpenStreetMap. Layanan tersebut dapat menerima alamat IP perangkat Anda sesuai kebijakan masing-masing.
 
