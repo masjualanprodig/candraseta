@@ -15,7 +15,7 @@ const PRAYER_ROWS = [['fajr', 'Subuh'], ['dhuhr', 'Dzuhur'], ['asr', 'Ashar'], [
 const MINOR = ['imsak', 'sunrise', 'dhuha']; // bukan waktu salat wajib / turunan perkiraan
 // Imsak dan awal Dhuha: konstanta bersama di prayer-times.js (perkiraan, bukan penetapan resmi).
 // Kota terdekat dari daftar (garis lurus). Hanya perkiraan nama; di luar 50 km tidak disebut.
-function nearestCity(lat, lng) {
+export function nearestCity(lat, lng) {
   const r = Math.PI / 180; let best = null, bd = Infinity;
   for (const c of CITIES) {
     const a = Math.sin((c.lat - lat) * r / 2) ** 2 + Math.cos(lat * r) * Math.cos(c.lat * r) * Math.sin((c.lng - lng) * r / 2) ** 2;
@@ -24,7 +24,7 @@ function nearestCity(lat, lng) {
   }
   return best && bd <= 50 ? best.name : null;
 }
-const MSG = {
+export const MSG = {
   denied: 'Izin lokasi ditolak. Anda bisa memilih kota di bawah, atau mengizinkan lokasi di pengaturan peramban lalu coba lagi.',
   unavailable: 'Lokasi belum bisa ditentukan. Pastikan GPS/lokasi HP menyala, lalu coba lagi, atau pilih kota.',
   timeout: 'Menentukan lokasi terlalu lama. Coba lagi di tempat terbuka, atau pilih kota.',
@@ -32,7 +32,7 @@ const MSG = {
 };
 
 // Disimpan di perangkat saja. Koordinat GPS dibulatkan 3 desimal (sekitar 100 m).
-function loadLoc() {
+export function loadLoc() {
   try {
     const o = JSON.parse(localStorage.getItem(LKEY) || 'null');
     if (o && Number.isFinite(o.lat) && Number.isFinite(o.lng) && Math.abs(o.lat) <= 90 && Math.abs(o.lng) <= 180) {
@@ -42,11 +42,11 @@ function loadLoc() {
   } catch (e) {}
   return null;
 }
-const saveLoc = l => { try { localStorage.setItem(LKEY, JSON.stringify(l)); } catch (e) {} };
+export const saveLoc = l => { try { localStorage.setItem(LKEY, JSON.stringify(l)); } catch (e) {} };
 // Selisih jam zona: kota memakai zona resminya; lokasi GPS mengikuti jam HP pada tanggal tersebut.
 const deviceOffset = (now = Date.now()) => -new Date(now).getTimezoneOffset() / 60;
-const offsetFor = (loc, now = Date.now()) => loc.mode === 'city' ? loc.tz : deviceOffset(now);
-const clock = (ms, off) => fmt(((ms + off * 3600000) / 60000) % 1440);
+export const offsetFor = (loc, now = Date.now()) => loc.mode === 'city' ? loc.tz : deviceOffset(now);
+export const clock = (ms, off) => fmt(((ms + off * 3600000) / 60000) % 1440);
 
 export function jadwalPage({ go } = {}) {
   const wrap = h('div', { class: 'jadwal' });

@@ -95,13 +95,14 @@ export function feedPanel(opts = {}) {
       p.body ? h('p', { class: 'fi-body' }, p.body) : '',
       h('div', { class: 'feed-where' }, where(p) + ' · ' + fmtWhen(p.published_at || p.created_at, tzOf(p)).split(' · ')[0]))
   ]);
-  fetchFeed(now).then(({ agenda, info }) => {
-    const ag = agenda.filter(p => p.starts_at && p.mosques && isUpcoming(p, now, tzOf(p))).slice(0, limit);
-    const inf = info.filter(p => p.mosques).slice(0, limit);
+  fetchFeed(now, { topic: opts.topic }).then(({ agenda, info }) => {
+    const byTopic = p => !opts.topic || p.topic === opts.topic;
+    const ag = agenda.filter(p => byTopic(p) && p.starts_at && p.mosques && isUpcoming(p, now, tzOf(p))).slice(0, limit);
+    const inf = info.filter(p => byTopic(p) && p.mosques).slice(0, limit);
     box.replaceChildren(...[
       opts.hero ? todayHero() : '',
       opts.only === 'pengumuman' ? '' : h('section', { class: 'fsec' }, h('h3', {}, 'Agenda mendatang'),
-        ag.length ? ag.map(agendaItem) : emptyState('Belum ada agenda mendatang. Agenda yang diterbitkan masjid akan muncul di sini.')),
+        ag.length ? ag.map(agendaItem) : emptyState(opts.emptyAgenda || 'Belum ada agenda mendatang. Agenda yang diterbitkan masjid akan muncul di sini.')),
       opts.only === 'agenda' ? '' : h('section', { class: 'fsec' }, h('h3', {}, 'Pengumuman terbaru'),
         inf.length ? inf.map(infoItem) : emptyState('Belum ada pengumuman.')),
       opts.more || ''

@@ -27,9 +27,10 @@ export async function fetchProvinces() {
 // Agenda & pengumuman TERBARU dari semua masjid aktif (beranda umum).
 const PCOLS = 'id,mosque_id,kind,title,body,location,starts_at,ends_at,published_at,created_at';
 const EMBED = 'mosques!inner(' + COLS + ')';
-export async function fetchFeed(nowMs = Date.now()) {
+export async function fetchFeed(nowMs = Date.now(), opts = {}) {
   const since = new Date(nowMs - 36 * 3600e3).toISOString(); // agenda yang baru lewat masih dicek lagi di perangkat (isUpcoming)
-  const base = '/rest/v1/mosque_posts?select=' + PCOLS + ',' + EMBED + '&status=eq.published';
+  const topic = opts.topic && /^[a-z]{3,20}$/.test(opts.topic) ? opts.topic : null; // jenis kabar (mis. 'ramadan'); disaring di server
+  const base = '/rest/v1/mosque_posts?select=' + PCOLS + (topic ? ',topic' : '') + ',' + EMBED + '&status=eq.published' + (topic ? '&topic=eq.' + topic : '');
   const [a, i] = await Promise.all([
     request(base + '&kind=eq.agenda&starts_at=gte.' + encodeURIComponent(since) + '&order=starts_at.asc&limit=40'),
     request(base + '&kind=eq.pengumuman&order=published_at.desc&limit=15')

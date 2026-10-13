@@ -5,7 +5,7 @@ import { listPublicPosts, listManagedPosts, createPost, updatePost, setPostStatu
 import { localToIso, isoToLocal, fmtWhen, fmtRange, isUpcoming } from './post-time.js';
 
 const KIND = { agenda: 'Agenda', pengumuman: 'Pengumuman' };
-const TOPIC = { umum: 'Umum', kajian: 'Kajian', sosial: 'Program sosial' };
+const TOPIC = { umum: 'Umum', kajian: 'Kajian', sosial: 'Program sosial', ramadan: 'Ramadan' };
 
 /* ===== 1. Untuk jamaah (tanpa login) ===== */
 export function postsPublic(m, now = Date.now()) {
@@ -54,7 +54,7 @@ export async function renderPostsManager(box, mosque, onBack) {
   let editing = null; // kiriman yang sedang diubah
 
   const kind = h('select', { class: 'in', 'aria-label': 'Jenis' }, h('option', { value: 'agenda' }, 'Agenda (kegiatan berjadwal)'), h('option', { value: 'pengumuman' }, 'Pengumuman'));
-  const topic = h('select', { class: 'in', 'aria-label': 'Jenis kabar (untuk Pusat Notifikasi jamaah)' }, h('option', { value: 'umum' }, 'Kabar umum'), h('option', { value: 'kajian' }, 'Kajian / pengajian'), h('option', { value: 'sosial' }, 'Program sosial'));
+  const topic = h('select', { class: 'in', 'aria-label': 'Jenis kabar (untuk Pusat Notifikasi jamaah)' }, h('option', { value: 'umum' }, 'Kabar umum'), h('option', { value: 'kajian' }, 'Kajian / pengajian'), h('option', { value: 'sosial' }, 'Program sosial'), h('option', { value: 'ramadan' }, 'Ramadan (agenda & kabar Ramadan)'));
   const title = h('input', { class: 'in', placeholder: 'Judul *', maxlength: '150', autocomplete: 'off' });
   const body = h('textarea', { class: 'in', placeholder: 'Keterangan (opsional)', maxlength: '2000' });
   const place = h('input', { class: 'in', placeholder: 'Tempat (mis. Aula utama)', maxlength: '150', autocomplete: 'off' });

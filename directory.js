@@ -27,6 +27,7 @@ import { nearbyView } from './nearby-ui.js';
 import { calendarView, calendarSupported } from './calendar-ui.js';
 import { notifPage } from './notif-ui.js';
 import { kiblatPage } from './qibla-ui.js';
+import { ramadanPage } from './ramadan-ui.js';
 import { publicPhotoUrl } from './supabase.js';
 
 let onBack = () => {};
@@ -56,6 +57,7 @@ export function openDirectory(from, back, tab) {
   if (state.tab === 'profil') { renderProfil(); return; }
   if (state.tab === 'jadwal') { renderJadwal(); return; }
   if (state.tab === 'kiblat') { renderKiblat(); return; }
+  if (state.tab === 'ramadan') { renderRamadan(); return; }
   if (state.tab === 'more') { renderMore(); return; }
   if (!state.loaded) load(true); else renderList();
 }
@@ -68,12 +70,12 @@ export function openMosque(m, from, back) {
   renderDetail(m, renderFeed, '← Agenda');
 }
 
-const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', sunnah: 'Amalan Sunnah Harian', belajar: 'Belajar Membaca Al-Qur\u2019an', asma: 'Asmaul Husna', tracker: 'Tracker Ibadah Harian', zakat: 'Kalkulator Zakat', market: 'Pasar Umat', notif: 'Notifikasi', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', kiblat: 'Arah Kiblat', more: 'Lainnya' };
+const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', sunnah: 'Amalan Sunnah Harian', belajar: 'Belajar Membaca Al-Qur\u2019an', asma: 'Asmaul Husna', tracker: 'Tracker Ibadah Harian', zakat: 'Kalkulator Zakat', market: 'Pasar Umat', notif: 'Notifikasi', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', kiblat: 'Arah Kiblat', ramadan: 'Ramadan Center', more: 'Lainnya' };
 // Halaman yang dibuka dari tab "Lainnya" (tab itu tetap tampak terpilih).
-const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'profil', 'jadwal', 'kiblat'];
+const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'profil', 'jadwal', 'kiblat', 'ramadan'];
 // Setelah masuk, Profil ada di bilah bawah; Agenda dan Kalender pindah ke menu Lainnya.
-const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'jadwal', 'kiblat'];
-const go = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'market') renderMarket(); else if (key === 'notif') renderNotif(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'kiblat') renderKiblat(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
+const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'jadwal', 'kiblat', 'ramadan'];
+const go = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'market') renderMarket(); else if (key === 'notif') renderNotif(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'kiblat') renderKiblat(); else if (key === 'ramadan') renderRamadan(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
 
 function tabs() {
   const sub = document.getElementById('public-sub');
@@ -98,6 +100,7 @@ function renderMore() {
     h('div', { class: 'qlist' },
       ...(getSession() ? [card('info', ICONS.agenda, 'Agenda & Pengumuman', 'Kegiatan dan kabar dari masjid'), card('cal', ICONS.moon, 'Kalender Islam', 'Tanggal Masehi dan Hijriah (perkiraan)')]
         : [card('profil', ICONS.user, 'Profil & Pengaturan', 'Akun, favorit, pengaturan, dan bantuan')]),
+      card('ramadan', ICONS.moon, 'Ramadan Center', 'Imsakiyah, checklist ibadah, rencana khatam, dan agenda'),
       card('notif', ICONS.bell, 'Notifikasi', 'Pengingat salat & puasa, kajian terdekat, kabar baru. Bisa diatur'),
       card('market', ICONS.market, 'Pasar Umat', 'Produk dan jasa usaha jamaah, diverifikasi admin'),
       card('belajar', ICONS.belajar, 'Belajar Membaca Al-Qur\u2019an', 'Dari huruf hijaiyah sampai lancar, ada kuis dan nilai'),
@@ -125,6 +128,10 @@ function renderProfil() {
 
 function renderMarket() {
   $('public-content').replaceChildren(tabs(), marketPage({ onLogin: () => $('public-back').click() }));
+}
+
+function renderRamadan() {
+  $('public-content').replaceChildren(tabs(), ramadanPage({ go, onOpen: m => renderDetail(m, renderRamadan, '← Ramadan Center') }));
 }
 
 function renderKiblat() {
