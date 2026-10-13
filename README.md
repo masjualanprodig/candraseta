@@ -279,3 +279,10 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - **Notifikasi > Pengaturan > Ramadan: sahur dan berbuka**: pengingat sahur (15/30/45/60 menit sebelum Imsak) dan berbuka (mengikuti "menit sebelum waktu"), memakai lokasi Jadwal Salat dan tanggal Ramadan. Hanya berbunyi saat BAITUNA terbuka dan "Pengingat HP" aktif; bukan pengganti alarm sahur.
 - Penetapan tanggal dari Super Admin disalin ke perangkat (`baituna.ramadancache.v1`, data publik) agar pengingat tetap memakai penetapan walau offline. Ikut terhapus oleh "Hapus data di perangkat ini".
 - Tes: `unit_ramadan2.mjs` (19), `ramadan_browser_test.py` kini 65. Tanpa SQL baru.
+
+## Tambahan v62: agenda Ramadan menurut masjid terdekat
+- Panel "Agenda Ramadan terdekat" (Beranda) dan tab Agenda kini hanya menampilkan agenda dari masjid **dalam radius** dari lokasi Jadwal Salat (radius sama dengan Notifikasi > Pengaturan, bawaan 15 km; sampai 15 masjid terdekat). Kartu menampilkan jarak. Jarak dihitung di perangkat; lokasi tidak dikirim ke server (server hanya menerima daftar id masjid).
+- Bila belum memilih lokasi, atau tidak ada masjid terdaftar (yang punya titik lokasi) dalam radius, atau jarak gagal dihitung, ditampilkan agenda dari semua masjid dengan keterangan jelas.
+- `feedPanel` kini punya opsi `near` dan `noLocNote`; `fetchFeed` menerima `mosqueIds` dan `topic` (disaring di server). Menu Agenda umum tidak berubah.
+- Batas: masjid tanpa titik lokasi di profilnya tidak ikut mode terdekat. Tanpa SQL baru.
+- Tes: `ramadan_browser_test.py` kini 71.

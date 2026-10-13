@@ -2,12 +2,13 @@
 // Beranda umum: agenda mendatang & pengumuman terbaru dari semua masjid aktif (tanpa login).
 import { h } from './ui.js';
 import { fetchFeed } from './public-service.js';
+import { fetchMosquesWithCoords, sortByDistance, fmtDistance } from './nearby-service.js';
 import { fmtWhen, isUpcoming, dateParts, dayDiff, fmtTimes } from './post-time.js';
 import { publicPhotoUrl } from './supabase.js';
 import * as cal from './islamic-calendar.js';
 
 const tzOf = p => (p.mosques && p.mosques.timezone) || 'Asia/Jakarta';
-const where = p => p.mosques ? [p.mosques.name, p.mosques.city].filter(Boolean).join(' · ') : '';
+const where = p => p.mosques ? [p.mosques.name, p.mosques.city].filter(Boolean).join(' · ') + (Number.isFinite(p.km) ? ' · ' + fmtDistance(p.km) : '') : '';
 const NS = 'http://www.w3.org/2000/svg';
 export function icon(paths, cls) {
   const s = document.createElementNS(NS, 'svg');
@@ -95,12 +96,21 @@ export function feedPanel(opts = {}) {
       p.body ? h('p', { class: 'fi-body' }, p.body) : '',
       h('div', { class: 'feed-where' }, where(p) + ' · ' + fmtWhen(p.published_at || p.created_at, tzOf(p)).split(' · ')[0]))
   ]);
-  fetchFeed(now, { topic: opts.topic }).then(({ agenda, info }) => {
+  // opts.near = { lat, lng, radius }: hanya masjid dalam radius (jarak dihitung di perangkat). Bila tidak ada, tampil semua masjid dengan keterangan.
+  const scope = h('p', { class: 'hint feed-scope', role: 'status' }, opts.near ? '' : (opts.noLocNote || ''));
+  const kmBy = {};
+  const prep = opts.near ? fetchMosquesWithCoords().then(all => {
+    const near = sortByDistance(all, opts.near).filter(x => x.km <= opts.near.radius).slice(0, 15);
+    if (near.length) { near.forEach(x => { kmBy[x.m.id] = x.km; }); scope.textContent = 'Menurut lokasi Anda: masjid dalam radius ' + opts.near.radius + ' km (bisa diubah di Notifikasi, Pengaturan).'; return near.map(x => x.m.id); }
+    scope.textContent = 'Belum ada masjid terdaftar dalam radius ' + opts.near.radius + ' km dari lokasi Anda, jadi ditampilkan dari semua masjid.'; return null;
+  }).catch(() => { scope.textContent = 'Jarak belum bisa dihitung, jadi ditampilkan dari semua masjid.'; return null; }) : Promise.resolve(null);
+  prep.then(ids => fetchFeed(now, { topic: opts.topic, mosqueIds: ids || undefined })).then(r => { r.agenda.forEach(p => { if (kmBy[p.mosque_id] !== undefined) p.km = kmBy[p.mosque_id]; }); r.info.forEach(p => { if (kmBy[p.mosque_id] !== undefined) p.km = kmBy[p.mosque_id]; }); return r; }).then(({ agenda, info }) => {
     const byTopic = p => !opts.topic || p.topic === opts.topic;
     const ag = agenda.filter(p => byTopic(p) && p.starts_at && p.mosques && isUpcoming(p, now, tzOf(p))).slice(0, limit);
     const inf = info.filter(p => byTopic(p) && p.mosques).slice(0, limit);
     box.replaceChildren(...[
       opts.hero ? todayHero() : '',
+      scope.textContent ? scope : '',
       opts.only === 'pengumuman' ? '' : h('section', { class: 'fsec' }, h('h3', {}, 'Agenda mendatang'),
         ag.length ? ag.map(agendaItem) : emptyState(opts.emptyAgenda || 'Belum ada agenda mendatang. Agenda yang diterbitkan masjid akan muncul di sini.')),
       opts.only === 'agenda' ? '' : h('section', { class: 'fsec' }, h('h3', {}, 'Pengumuman terbaru'),

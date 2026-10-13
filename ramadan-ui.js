@@ -14,6 +14,7 @@ import { loadLoc, saveLoc, offsetFor, nearestCity, MSG } from './jadwal-ui.js';
 import { feedPanel } from './feed-ui.js';
 import * as T from './tracker-service.js';
 import * as R from './ramadan-service.js';
+import * as N from './notif-service.js';
 
 const TABS = [['home', 'Beranda'], ['imsak', 'Imsakiyah'], ['ibadah', 'Ibadah'], ['panduan', 'Panduan'], ['agenda', 'Agenda']];
 const DOW = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -31,6 +32,8 @@ export function ramadanPage({ go, onOpen } = {}) {
   const off = (now = Date.now()) => loc ? offsetFor(loc, now) : -new Date(now).getTimezoneOffset() / 60;
   const today = (now = Date.now()) => loc ? todayIn(off(now), now) : deviceToday();
   const infoNow = () => R.resolveRamadan(today(), settings.rows);
+  const nearOpt = () => loc ? { lat: loc.lat, lng: loc.lng, radius: N.load().radius } : null;
+  const NOLOC = 'Pilih lokasi (tombol Tentukan lokasi di Beranda atau menu Jadwal Salat) agar agenda disaring menurut masjid terdekat. Sekarang ditampilkan dari semua masjid.';
   const go2 = key => { if (go) go(key); };
 
   async function useGps() {
@@ -38,7 +41,7 @@ export function ramadanPage({ go, onOpen } = {}) {
     try {
       const p = await getPosition();
       loc = { mode: 'gps', lat: Math.round(p.lat * 1000) / 1000, lng: Math.round(p.lng * 1000) / 1000 };
-      saveLoc(loc); picking = false;
+      saveLoc(loc); picking = false; homeFeed = null;
     } catch (e) { err = MSG[e && e.code] || MSG.unavailable; }
     busy = false; draw();
   }
@@ -47,7 +50,7 @@ export function ramadanPage({ go, onOpen } = {}) {
     if (!c) { toast('Pilih kota dulu.', true); return; }
     loc = { mode: 'city', city: c.name, lat: c.lat, lng: c.lng, tz: c.tz };
     saveLoc({ mode: 'city', city: c.name, lat: c.lat, lng: c.lng });
-    err = ''; picking = false; draw();
+    err = ''; picking = false; homeFeed = null; draw();
   }
   const chooser = () => h('div', { class: 'panel', id: 'rc-chooser' },
     h('h3', {}, 'Tentukan lokasi'),
@@ -184,7 +187,7 @@ export function ramadanPage({ go, onOpen } = {}) {
     const kids = [hero(info)];
     if (picking || !loc) kids.push(chooser());
     else { kids.push(timesCard(info), locCard()); }
-    if (!homeFeed) homeFeed = feedPanel({ topic: 'ramadan', only: 'agenda', limit: 3, onOpen, emptyAgenda: 'Belum ada agenda Ramadan dari masjid.' });
+    if (!homeFeed) homeFeed = feedPanel({ topic: 'ramadan', only: 'agenda', limit: 3, onOpen, near: nearOpt(), noLocNote: NOLOC, emptyAgenda: 'Belum ada agenda Ramadan dari masjid.' });
     kids.push(progressCard(info), h('div', { class: 'panel', id: 'rc-home-agenda' }, h('h3', {}, 'Agenda Ramadan terdekat'), homeFeed,
       h('button', { class: 'btn-sm ghost', type: 'button', id: 'rc-to-agenda', onclick: () => { tab = 'agenda'; draw(); } }, 'Semua agenda Ramadan')), quickCard(), adminCard(info));
     if (settings.error === 'net' && info) kids.push(h('p', { class: 'hint' }, 'Penetapan tanggal dari pengelola belum bisa dimuat; memakai perkiraan.'));
@@ -298,7 +301,7 @@ export function ramadanPage({ go, onOpen } = {}) {
     return [
       h('div', { class: 'panel' }, h('h3', {}, 'Agenda Ramadan dari masjid'),
         h('p', { class: 'muted' }, 'Kegiatan yang ditandai "Ramadan" oleh pengurus masjid saat membuat agenda: buka puasa bersama, tarawih, kajian, santunan, dan lain-lain.')),
-      feedPanel({ topic: 'ramadan', only: 'agenda', limit: 20, onOpen: onOpen, emptyAgenda: 'Belum ada agenda Ramadan dari masjid. Agenda muncul di sini setelah pengurus masjid menerbitkannya dengan jenis kabar "Ramadan".' }),
+      feedPanel({ topic: 'ramadan', only: 'agenda', limit: 20, onOpen: onOpen, near: nearOpt(), noLocNote: NOLOC, emptyAgenda: 'Belum ada agenda Ramadan dari masjid. Agenda muncul di sini setelah pengurus masjid menerbitkannya dengan jenis kabar "Ramadan".' }),
       go ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'rg-all', onclick: () => go('info') }, 'Lihat semua agenda masjid') : ''
     ];
   }
