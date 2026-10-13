@@ -92,10 +92,11 @@ export function booksPage({ go } = {}) {
     try { all = await B.listAllBooks(); } catch (e) { draw(back('← Pustaka', showList), empty(B.saveError(e))); return; }
     const e0 = editing && typeof editing === 'object' && editing.id ? all.find(x => x.id === editing.id) || null : null;
     const reload = () => showManage();
-    const title = h('input', { class: 'in', id: 'bk-f-title', maxlength: String(B.LIMIT.titleMax), placeholder: 'Nama buku *', autocomplete: 'off' });
-    const desc = h('textarea', { class: 'in tall', id: 'bk-f-desc', rows: '6', maxlength: String(B.LIMIT.descMax), placeholder: 'Deskripsi *' });
+    const lab = (t, f) => h('label', { class: 'hint bk-lab', for: f }, t);
+    const title = h('input', { class: 'in', id: 'bk-f-title', maxlength: String(B.LIMIT.titleMax), placeholder: 'Contoh: Fiqih Salat Praktis', autocomplete: 'off' });
+    const desc = h('textarea', { class: 'in tall', id: 'bk-f-desc', rows: '6', maxlength: String(B.LIMIT.descMax), placeholder: 'Tentang isi buku, penulis, jumlah halaman, dll.' });
     const kind = h('select', { class: 'in', id: 'bk-f-kind', 'aria-label': 'Jenis buku' }, ...B.KINDS.map(k => h('option', { value: k.key }, k.label)));
-    const price = h('input', { class: 'in', id: 'bk-f-price', inputmode: 'numeric', maxlength: '14', placeholder: 'Harga (Rp), mis. 85000. Isi 0 bila gratis *', autocomplete: 'off' });
+    const price = h('input', { class: 'in', id: 'bk-f-price', inputmode: 'numeric', maxlength: '14', placeholder: 'Contoh: 85000', autocomplete: 'off' });
     const otype = h('select', { class: 'in', id: 'bk-f-otype', 'aria-label': 'Cara pemesanan' }, h('option', { value: 'wa' }, 'Pesan via WhatsApp'), h('option', { value: 'url' }, 'Link checkout (URL)'));
     const target = h('input', { class: 'in', id: 'bk-f-target', maxlength: String(B.LIMIT.urlMax), autocomplete: 'off' });
     const active = h('input', { type: 'checkbox', id: 'bk-f-active' }); active.checked = true;
@@ -103,7 +104,8 @@ export function booksPage({ go } = {}) {
     const fstat = h('p', { class: 'hint', id: 'bk-f-status' }, 'Banner: 1 gambar, maksimal 100 KB. Gambar yang lebih besar otomatis diperkecil dan dikompres.');
     const prev = h('div', { id: 'bk-f-prev' });
     const err = h('p', { class: 'mk-err', id: 'bk-f-err', role: 'alert' }, '');
-    const sync = () => { const wa = otype.value === 'wa'; target.setAttribute('placeholder', wa ? 'Nomor WhatsApp penjual, mis. 0812 3456 7890 *' : 'Link checkout, diawali https:// *'); target.setAttribute('inputmode', wa ? 'tel' : 'url'); };
+    const tlabel = h('label', { class: 'hint bk-lab', for: 'bk-f-target' }, 'Nomor WhatsApp penjual *');
+    const sync = () => { const wa = otype.value === 'wa'; target.setAttribute('placeholder', wa ? 'Contoh: 0812 3456 7890' : 'Contoh: https://toko.id/buku'); tlabel.textContent = wa ? 'Nomor WhatsApp penjual *' : 'Link checkout (https://) *'; target.setAttribute('inputmode', wa ? 'tel' : 'url'); };
     otype.addEventListener('change', sync); sync();
     let removeCover = false;
     function fill(b) {
@@ -117,9 +119,11 @@ export function booksPage({ go } = {}) {
     let busy = false;
     const form = h('form', { class: 'panel rform', id: 'bk-form', novalidate: 'novalidate' },
       h('h3', {}, e0 ? 'Ubah: ' + e0.title : 'Tambah buku'),
-      title, desc, h('div', { class: 'grid2' }, kind, price), otype, target,
+      lab('Nama buku *', 'bk-f-title'), title, lab('Deskripsi *', 'bk-f-desc'), desc,
+      h('div', { class: 'grid2' }, h('div', {}, lab('Jenis buku *', 'bk-f-kind'), kind), h('div', {}, lab('Harga (Rp) * — isi 0 bila gratis', 'bk-f-price'), price)),
+      lab('Cara pemesanan *', 'bk-f-otype'), otype, tlabel, target,
       h('label', { class: 'qa-check' }, active, ' Tampilkan di pustaka (hilangkan centang untuk menyembunyikan)'),
-      h('label', { class: 'hint', for: 'bk-f-file' }, 'Banner buku'), file, prev, fstat, err,
+      h('label', { class: 'hint bk-lab', for: 'bk-f-file' }, 'Banner buku (opsional)'), file, prev, fstat, err,
       h('div', { class: 'mt row-btns' }, save, e0 ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'bk-f-cancel', onclick: reload }, 'Batal ubah') : ''));
     form.addEventListener('submit', async ev => {
       ev.preventDefault(); if (busy) return;

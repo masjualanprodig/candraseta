@@ -1023,3 +1023,10 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .bk-mrow{display:flex;flex-direction:column;gap:.4rem;margin:.6rem 0}
 .bk-mt{display:flex;gap:.7rem;align-items:flex-start}
 .bk-pv{display:block;max-width:140px;border-radius:10px;margin:.4rem 0}
+.books .bk-lab{display:block;margin:.7rem 0 0;font-weight:700;color:var(--teal);font-size:.85rem}
+.books .bk-lab + .in{margin-top:.3rem}
+.books .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.books .grid2 .in{margin:.3rem 0 0}
+@media (max-width:420px){.books .grid2{grid-template-columns:1fr}}
+.books input[type=file]{padding:.55rem .7rem;font-size:.9rem;color:#44615b;height:auto;line-height:1.4}
+.books input[type=file]::file-selector-button{margin-right:.7rem;border:0;border-radius:999px;padding:.5rem 1rem;background:var(--teal);color:#fff;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
