@@ -213,3 +213,37 @@
 .profil .prow-tx{font-weight:600;color:var(--text);font-size:.92rem}
 .profil .pout{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;margin-top:14px;border-radius:14px;background:#fff;border:1.5px solid #E9B8B3;color:#C0392B;font-weight:700}
 .profil .pout .ic{width:18px;height:18px;stroke:#C0392B}
+
+/* ===== UI-5 (v84): halaman pengelolaan Super Admin & Admin Masjid, satu gaya ===== */
+#app-content > .btn-sm.ghost:first-child,#konten-back,#masjid-back{width:auto;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid var(--border);background:#fff;color:var(--emerald);box-shadow:var(--shadow-sm)}
+#app-content > h2,#app-content > .mt + h2,#app-content h2.mt,#konten > h2,#konten h2,#masjid-page h2{font-size:1.3rem;font-weight:800;color:var(--green-deep);margin:14px 2px 4px;font-family:var(--font)}
+#app-content > h2 + .muted,#app-content h2.mt + .muted{margin:0 2px 8px;font-size:.84rem}
+#app-content .panel:not(.mhero){border-radius:18px;border:1px solid var(--border);box-shadow:var(--shadow-sm);background:#fff}
+#app-content .panel > h3{font-size:1rem;font-weight:800;color:var(--green-deep);margin-bottom:.6rem}
+#app-content .in{border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text)}
+#app-content .in:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(11,107,85,.12)}
+#app-content .in:disabled{background:#F6F4EF;color:var(--text-2)}
+#app-content .btn-sm{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+#app-content .btn-sm:not(.ghost):not(.alt){background:linear-gradient(135deg,var(--emerald),var(--green-deep));color:#fff}
+#app-content .btn-sm.ghost{border:1px solid var(--border);color:var(--emerald);background:#fff}
+#app-content .btn-sm.alt{border:1px solid #E9B8B3;color:#C0392B;background:#fff}
+#app-content .btn-sm:disabled{opacity:.55}
+/* daftar data (masjid, doa, artikel, agenda, dll.) */
+#app-content .post{padding:12px 0;border-top:1px solid var(--border)}
+#app-content .panel > h3 + .post,#app-content .panel > .post:first-of-type{border-top:0}
+#app-content .post b{color:var(--text)}
+#app-content .badge{border-radius:999px;font-size:.7rem;padding:3px 10px}
+/* menu Konten: baris berikon seperti menu Profil */
+#konten .act,#app-content .act{position:relative;min-height:56px;padding:10px 40px 10px 12px;gap:12px;border:1px solid var(--border);border-radius:16px;background:#fff;color:var(--text);font-weight:600;font-size:.92rem;box-shadow:var(--shadow-sm)}
+#konten .act > .ic,#app-content .act > .ic{flex:none;width:36px;height:36px;padding:8px;border-radius:50%;background:var(--surface-gold,#FBF4E2);stroke:var(--gold-ink)}
+#konten .act::after,#app-content .act::after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid var(--text-2);border-top:2px solid var(--text-2);transform:translateY(-50%) rotate(45deg)}
+#app-content .act.primary{background:linear-gradient(135deg,var(--emerald),var(--green-deep));color:#fff;border:0}
+#app-content .act.primary > .ic{background:rgba(255,255,255,.16);stroke:#fff}
+#app-content .act.primary::after{border-color:#fff}
+#konten-back,#app-content > .btn-sm.ghost:first-child{justify-self:start;align-self:flex-start}
+#app-content .achip{background:#fff;border:1px solid var(--border);color:var(--green-deep);font-size:.82rem}
+#app-content .achip[aria-selected="true"],#app-content .achip[aria-pressed="true"]{background:var(--emerald);border-color:var(--emerald);color:#fff}
+#app-content .seg{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+#app-content .segb[aria-selected="true"]{background:var(--emerald)}
+#app-content input[type=file].in{height:auto;min-height:50px;padding:6px 8px;display:flex;align-items:center}
+#app-content input[type=file]::file-selector-button{min-height:38px;margin-right:10px;padding:0 14px;border:1px solid var(--border);border-radius:999px;background:var(--surface-green,#E8F3EE);color:var(--emerald);font:inherit;font-weight:700;font-size:.82rem;cursor:pointer}
