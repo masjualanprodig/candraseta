@@ -89,3 +89,45 @@
 .dzikir .dtap{background:linear-gradient(135deg,var(--emerald),var(--green-deep));border-radius:16px}
 .dzikir .dsum.panel{background:linear-gradient(135deg,#fff,var(--surface-gold,#FBF4E2));border-radius:18px}
 .bn-kick{font-family:Georgia,"Times New Roman",serif;font-size:.78rem;letter-spacing:.12em;font-weight:700;color:var(--gold-soft)}
+
+/* ===== Al-Qur'an (v81) ===== */
+.qtop{position:relative;overflow:hidden;margin:4px 0 12px;padding:18px 16px;min-height:118px;border-radius:20px;color:#fff;background:linear-gradient(90deg,rgba(6,75,61,.96) 0%,rgba(6,75,61,.85) 45%,rgba(6,75,61,0) 75%),var(--art-banner_masjid,url("art-banner.svg")) right -60px bottom/auto 115% no-repeat,linear-gradient(135deg,var(--emerald),var(--green-deep));box-shadow:var(--shadow-md)}
+.qtop .wtitle{margin:0;color:#fff;font-size:1.45rem}
+.qtop p{margin:4px 0 0;max-width:58%;font-size:.8rem;line-height:1.45;opacity:.95}
+.quran input[type=search],.news input[type=search]{min-height:46px;border-radius:14px;border:1px solid var(--border);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7A73' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") 14px center/18px no-repeat;padding-left:42px;box-shadow:var(--shadow-sm)}
+.quran .qcont{flex-direction:row;align-items:center;gap:12px;margin:10px 0 2px;padding:12px 14px;border-radius:16px;background:#fff;color:var(--text);border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.qcont-ic{flex:none;width:40px;height:40px;border-radius:12px;background:var(--surface-gold,#FBF4E2);display:grid;place-items:center}.qcont-ic .ic{width:20px;height:20px;stroke:var(--gold-ink)}
+.qcont-t{flex:1;display:grid;gap:2px;min-width:0}.quran .qcont-t span{font-size:.74rem;color:var(--text-2);opacity:1}.quran .qcont-t b{font-size:.95rem;color:var(--green-deep)}
+.quran .qcont > .ic{flex:none;width:18px;height:18px;stroke:var(--text-2)}
+.quran .qmode{margin-top:10px}
+.quran .achip{background:#fff;border:1px solid var(--border);color:var(--green-deep);font-size:.82rem;min-height:44px}
+.quran .achip[aria-selected="true"]{background:var(--emerald);border-color:var(--emerald);color:#fff}
+.quran .qlist{display:block;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm);overflow:hidden;margin-top:6px}
+.quran .srow{margin:0;border:0;border-radius:0;padding:12px 14px;gap:14px;background:transparent}
+.quran .srow + .srow{border-top:1px solid var(--border)}
+.quran .srow .snum{position:relative;width:36px;height:36px;border-radius:0;background:none;color:var(--green-deep);font-size:.8rem;z-index:0}
+.quran .srow .snum::before{content:"";position:absolute;inset:4px;border:1.5px solid var(--gold);border-radius:6px;transform:rotate(45deg);z-index:-1}
+.quran .srow .snum::after{content:"";position:absolute;inset:4px;border:1.5px solid var(--gold);border-radius:6px;z-index:-1}
+.quran .sinfo b{font-size:.95rem;color:var(--text)}
+.quran .sinfo .muted{font-size:.74rem}
+.quran .sar{font-size:1.4rem;color:var(--green-deep)}
+
+/* ===== Artikel (v81): artikel pertama besar, sisanya baris bergambar kecil ===== */
+.news .agrid{gap:10px;margin-top:8px}
+.news .achip{background:#fff;border:1px solid var(--border);color:var(--green-deep);font-size:.82rem;min-height:44px}
+.news .achip[aria-selected="true"]{background:var(--emerald);border-color:var(--emerald);color:#fff}
+.news .acard{border-color:var(--border);border-radius:16px;box-shadow:var(--shadow-sm)}
+.news .acard:not(.feat) .acard-open{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center;padding:8px;padding-right:52px;min-height:88px}
+.news .acard:not(.feat) .acover{width:96px;height:72px;aspect-ratio:auto;border-radius:12px}
+.news .acard:not(.feat) .abody{padding:0}
+.news .acard:not(.feat) .atitle{margin:2px 0 4px;font-size:.9rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.news .acard:not(.feat) .ameta{font-size:.72rem;justify-content:flex-start;gap:8px}
+.news .acard:not(.feat) .ashare{top:50%;transform:translateY(-50%);right:6px;background:transparent;color:var(--text-2)}
+.news .acard.feat{border:0;border-radius:20px;box-shadow:var(--shadow-md)}
+.news .acard.feat .acard-open{position:relative}
+.news .acard.feat .acover{aspect-ratio:16/10}
+.news .acard.feat .abody{position:absolute;left:0;right:0;bottom:0;padding:44px 16px 14px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(6,40,32,.88));color:#fff}
+.news .acard.feat .acat{color:var(--gold-soft)}
+.news .acard.feat .atitle{color:#fff;font-size:1.15rem;margin:2px 0 4px}
+.news .acard.feat .ameta{color:rgba(255,255,255,.85)}
+.news .acard.feat .acover-empty{background:linear-gradient(135deg,var(--emerald),var(--green-deep));color:#fff}

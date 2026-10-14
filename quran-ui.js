@@ -3,6 +3,7 @@
 import { h, toast } from './ui.js';
 import { listSurahs, loadSurah, loadAudio, pageOfAyah, RECITERS } from './quran-service.js';
 import { mushafPage, savedPage } from './mushaf-ui.js';
+import { icon, ICONS } from './feed-ui.js';
 
 const KEY = 'baituna.qari.v1';
 const getQari = () => { try { const v = localStorage.getItem(KEY); return RECITERS.some(r => r.id === v) ? v : RECITERS[0].id; } catch { return RECITERS[0].id; } };
@@ -62,7 +63,7 @@ export function quranPage() {
     const col = h('div', { class: 'qlist' });
     const row = s => h('button', { class: 'srow', type: 'button', onclick: () => open(s.number) },
       h('span', { class: 'snum' }, String(s.number)),
-      h('span', { class: 'sinfo' }, h('b', {}, s.latin), h('span', { class: 'muted' }, s.place + ' · ' + s.ayahs + ' ayat')),
+      h('span', { class: 'sinfo' }, h('b', {}, s.latin), h('span', { class: 'muted' }, s.ayahs + ' ayat · ' + s.place)),
       h('span', { class: 'sar', lang: 'ar', dir: 'rtl' }, s.name));
     const fill = () => {
       const t = norm(q);
@@ -72,8 +73,10 @@ export function quranPage() {
     search.addEventListener('input', () => { q = search.value; fill(); });
     const last = getLast(), ls = last && surahs.find(x => x.number === last.n);
     const cont = ls && last.ayah <= ls.ayahs ? h('button', { class: 'qcont', type: 'button', onclick: () => open(last.n, last.ayah) },
-      h('span', {}, 'Lanjutkan membaca'), h('b', {}, ls.latin + ' · ayat ' + last.ayah)) : '';
-    wrap.replaceChildren(h('h2', { class: 'wtitle' }, 'Al-Qur’an'), modeBar('ayat'), h('p', { class: 'muted' }, '114 surat dengan terjemahan Indonesia dan audio per ayat.'), cont, search, col, note());
+      h('span', { class: 'qcont-ic' }, icon(ICONS.bookmark)), h('span', { class: 'qcont-t' }, h('span', {}, 'Terakhir dibaca · Lanjutkan membaca'), h('b', {}, ls.latin + ' · ayat ' + last.ayah)), icon(ICONS.chev)) : '';
+    // Desain v79: kepala bergambar, pencarian, lanjutkan membaca, tab mode, lalu daftar surat.
+    wrap.replaceChildren(h('div', { class: 'qtop' }, h('h2', { class: 'wtitle' }, 'Al-Qur’an'), h('p', {}, 'Mushaf Digital · 114 surat dengan terjemahan Indonesia dan audio per ayat.')),
+      search, cont, modeBar('ayat'), col, note());
     fill();
   }
 

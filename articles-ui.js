@@ -33,9 +33,11 @@ async function shareArticle(a) {
 /* ===== 1. Jamaah ===== */
 export function articlesPage() {
   const wrap = h('div', { class: 'news' });
-  let cat = 'all', items = [], hasMore = false, loading = false, failed = false, loadedOnce = false;
+  let cat = 'all', items = [], hasMore = false, loading = false, failed = false, loadedOnce = false, q = '', qt = null;
+  const search = h('input', { class: 'in', type: 'search', placeholder: 'Cari artikel…', 'aria-label': 'Cari artikel', maxlength: '60', autocomplete: 'off' });
+  search.addEventListener('input', () => { clearTimeout(qt); qt = setTimeout(() => { if (search.value.trim() === q) return; q = search.value.trim(); fetchPage(true); }, 350); });
 
-  const card = a => h('article', { class: 'acard' },
+  const card = (a, i) => h('article', { class: 'acard' + (i === 0 ? ' feat' : '') },
     h('button', { class: 'acard-open', type: 'button', onclick: () => detail(a.id) },
       coverUrl(a) ? h('img', { class: 'acover', src: coverUrl(a), alt: '', loading: 'lazy' })
         : h('div', { class: 'acover acover-empty', 'aria-hidden': 'true' }, icon(ICONS.news, 'ic-lg')),
@@ -52,8 +54,7 @@ export function articlesPage() {
   }
 
   function draw() {
-    const kids = [h('h2', { class: 'wtitle' }, 'Berita & Artikel'),
-      h('p', { class: 'muted' }, 'Khazanah, tips, dan bacaan Islami pilihan admin pusat BAITUNA.'), chips()];
+    const kids = [chips()];
     if (failed && !items.length) {
       kids.push(h('div', { class: 'empty' }, h('p', { class: 'muted' }, failed === 'notready'
         ? 'Halaman berita belum aktif. Admin pusat perlu menjalankan berita.sql.'
@@ -62,9 +63,9 @@ export function articlesPage() {
     } else if (!loadedOnce) {
       kids.push(h('p', { class: 'muted center' }, 'Memuat berita…'));
     } else if (!items.length) {
-      kids.push(emptyState(cat === 'all' ? 'Belum ada artikel. Artikel akan ditambahkan oleh admin pusat.' : 'Belum ada artikel di kategori ini.'));
+      kids.push(emptyState(q ? 'Tidak ada artikel yang judulnya cocok dengan "' + q + '".' : cat === 'all' ? 'Belum ada artikel. Artikel akan ditambahkan oleh admin pusat.' : 'Belum ada artikel di kategori ini.'));
     } else {
-      kids.push(h('div', { class: 'agrid' }, ...items.map(card)));
+      kids.push(h('div', { class: 'agrid' }, ...items.map((a, i) => card(a, i))));
       if (hasMore) {
         const more = h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => fetchPage(false) }, loading ? 'Memuat…' : 'Tampilkan lebih banyak');
         more.disabled = loading;
@@ -72,8 +73,13 @@ export function articlesPage() {
       }
       if (failed) kids.push(h('p', { class: 'hint center' }, 'Sebagian berita belum bisa dimuat. Coba lagi.'));
     }
-    wrap.replaceChildren(...kids);
+    // Kepala (judul + pencarian) tidak digambar ulang, agar papan ketik tidak tertutup saat hasil berganti.
+    if (!body.isConnected) wrap.replaceChildren(head, body);
+    body.replaceChildren(...kids);
   }
+  const head = h('div', {}, h('h2', { class: 'wtitle' }, 'Berita & Artikel'),
+    h('p', { class: 'muted' }, 'Khazanah, tips, dan bacaan Islami pilihan admin pusat BAITUNA.'), search);
+  const body = h('div');
 
   let seq = 0; // jawaban lama diabaikan bila kategori sudah berganti
   async function fetchPage(reset) {
@@ -82,7 +88,7 @@ export function articlesPage() {
     if (reset) { items = []; hasMore = false; loadedOnce = false; }
     draw();
     try {
-      const r = await listArticles({ category: cat, offset: reset ? 0 : items.length });
+      const r = await listArticles({ category: cat, offset: reset ? 0 : items.length, q });
       if (my !== seq) return;
       items = reset ? r.items : items.concat(r.items); hasMore = r.hasMore;
     } catch (e) { if (my !== seq) return; failed = notReady(e) ? 'notready' : 'error'; }

@@ -16,8 +16,11 @@ const enc = encodeURIComponent;
 const fail = r => Object.assign(new Error('gagal memuat'), { status: r.status, code: r.data && r.data.code });
 
 // Daftar publik: hanya yang terbit (Super Admin yang login pun tetap hanya melihat yang terbit di sini).
-export async function listArticles({ category, offset = 0 } = {}) {
-  const cat = CATS.some(c => c.key === category) ? '&category=eq.' + enc(category) : '';
+// Kata kunci pencarian judul: hanya huruf, angka, spasi, dan tanda baca aman (tanpa karakter filter PostgREST).
+export const cleanQuery = q => String(q || '').replace(/[^\p{L}\p{N}\s'’.\-]/gu, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+export async function listArticles({ category, offset = 0, q = '' } = {}) {
+  const k = cleanQuery(q);
+  const cat = (CATS.some(c => c.key === category) ? '&category=eq.' + enc(category) : '') + (k ? '&title=ilike.' + enc('*' + k + '*') : '');
   const r = await request('/rest/v1/articles?select=' + LIST_COLS + '&status=eq.published' + cat +
     '&order=published_at.desc&limit=' + (PAGE + 1) + '&offset=' + Number(offset));
   if (!r.ok) throw fail(r);
