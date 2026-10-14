@@ -33,8 +33,8 @@ export async function renderMember(box, memberships) {
       { art: 'banner_sejarah', kicker: 'Sejarah Islam', title: 'Bersama BAITUNA', text: 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', cta: 'Pelajari Sekarang', onclick: () => go('sejarah') },
       { art: 'banner_belajar', title: 'Belajar Qur’an', text: 'Materi belajar membaca Al-Qur’an, dari dasar sampai lancar.', cta: 'Mulai Belajar', onclick: () => go('belajar'), tone: 'gold' },
       { art: 'banner_sunnah', title: 'Amalan Sunnah Harian', text: 'Pengingat amalan sunnah untuk dibiasakan setiap hari.', cta: 'Lihat Amalan', onclick: () => go('sunnah') }]),
-    promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu dan wawasan.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
-    promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Dukung produk dan jasa umat yang sudah diperiksa pengelola.', cta: 'Lihat Produk', onclick: () => go('market') }),
+    promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
+    promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
     prayerCard(),
     quickGrid('Akses Cepat', [
       { key: 'open-quran', id: 'qa-quran', onclick: () => go('quran') },

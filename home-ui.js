@@ -155,11 +155,12 @@ export async function whoAmI() {
 }
 
 /* ===== Kartu ringkasan (Admin Masjid): 3 angka berderet dengan garis pemisah ===== */
-export const summaryCard = ({ id, title, sub, onAll, allLabel, items }) => h('section', { class: 'sm', id },
+export const summaryCard = ({ id, title, sub, onAll, allLabel, items, hint, hintLabel, onHint }) => h('section', { class: 'sm', id },
   sectionHead(title, onAll, id + '-all', null, allLabel),
   sub ? h('p', { class: 'sm-sub' }, sub) : '',
   h('div', { class: 'sm-row' }, ...items.map(it => h('div', { class: 'sm-i' + (it.tone ? ' ' + it.tone : '') },
-    h('span', { class: 'sm-ic' }, icon(it.ic)), h('b', {}, String(it.value)), h('small', {}, it.label)))));
+    h('span', { class: 'sm-ic' }, icon(it.ic)), h('b', {}, String(it.value)), h('small', {}, it.label)))),
+  hint ? h('div', { class: 'sm-hint' }, h('p', {}, hint), onHint ? h('button', { class: 'sm-hint-btn', type: 'button', onclick: onHint }, hintLabel || 'Mulai') : '') : '');
 
 /* ===== Agenda terdekat: blok tanggal + judul + jam + tempat ===== */
 export const agendaCard = ({ post, parts, times, onAll }) => h('section', { class: 'ag', id: 'ag' },
@@ -172,10 +173,10 @@ export const agendaCard = ({ post, parts, times, onAll }) => h('section', { clas
   : h('p', { class: 'ag-empty' }, 'Belum ada agenda mendatang.'));
 
 /* ===== Pengumuman terbaru ===== */
-export const announceCard = ({ post, when, onAll, onOpen }) => h('section', { class: 'an', id: 'an' },
+export const announceCard = ({ post, when, onAll, onOpen, onCreate }) => h('section', { class: 'an', id: 'an' },
   sectionHead('Pengumuman Terbaru', onAll, 'an-all', ICONS.horn),
   post ? h('button', { class: 'an-item', type: 'button', onclick: onOpen },
     h('span', { class: 'an-img' }, icon(ICONS.horn)),
     h('span', { class: 'an-t' }, h('b', {}, post.title), h('small', {}, icon(ICONS.agenda), when)),
     icon(ICONS.chev))
-  : h('p', { class: 'ag-empty' }, 'Belum ada pengumuman.'));
+  : h('div', { class: 'sm-hint' }, h('p', {}, 'Belum ada pengumuman.'), onCreate ? h('button', { class: 'sm-hint-btn', type: 'button', id: 'an-create', onclick: onCreate }, 'Buat Pengumuman') : ''));

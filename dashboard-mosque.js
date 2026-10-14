@@ -165,24 +165,24 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   registerActs({ kas: toKas, posts: toPosts, team: toTeam });
   const nextAg = upcoming[0] || null, lastInfo = infos[0] || null;
   box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
-    greetingHeader({ title: who.name || 'Admin Masjid', sub: 'Admin ' + mosque.name, name: who.name, email: who.email, avatar: url || undefined }),
+    greetingHeader({ title: who.name || mosque.name, sub: who.name ? 'Admin ' + mosque.name : 'Admin Masjid', name: who.name, email: who.email, avatar: url || undefined }),
     h('div', { class: 'home-body' },
       bannerCarousel([
-        { art: 'banner_masjid', title: mosque.name + ' Bersama BAITUNA', text: 'Mengelola masjid lebih mudah, lebih profesional, dan lebih berdampak.', cta: 'Kelola Masjid', onclick: goEdit },
+        { art: 'banner_masjid', title: mosque.name + ' Bersama BAITUNA', text: 'Kelola masjid lebih mudah dan profesional.', cta: 'Kelola Masjid', onclick: goEdit },
         { art: 'banner_kas', title: 'Catat Kas dengan Rapi', text: 'Buku kas tidak bisa diubah diam-diam; koreksi tercatat sebagai baris baru.', cta: 'Buka Kas', onclick: toKas, tone: 'gold' }]),
-      promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu dan wawasan.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
-      promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Dukung produk dan jasa umat yang sudah diperiksa pengelola.', cta: 'Lihat Produk', onclick: () => go('market') }),
+      promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
+      promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
       prayerCard(),
       posts ? summaryCard({ id: 'ops', title: 'Ringkasan Operasional Masjid', onAll: toPosts, allLabel: 'Lihat Detail', items: [
         { ic: ICONS.user, value: team.length, label: 'Pengurus' },
         { ic: ICONS.agenda, value: upcoming.length, label: 'Kegiatan Mendatang' },
         { ic: ICONS.horn, value: infos.length, label: 'Pengumuman Aktif' }] }) : '',
-      rep ? summaryCard({ id: 'fin', title: 'Ringkasan Keuangan Masjid', sub: K.monthLabel(rep.month || K.monthKey()), onAll: toKas, allLabel: 'Lihat Laporan', items: [
+      rep ? summaryCard({ id: 'fin', title: 'Ringkasan Keuangan Masjid', sub: K.monthLabel(rep.month || K.monthKey()), onAll: toKas, allLabel: 'Lihat Laporan', hint: (!Number(rep.masuk) && !Number(rep.keluar) && !Number(rep.saldo_akhir)) ? 'Belum ada catatan kas bulan ini.' : '', hintLabel: 'Catat Kas', onHint: toKas, items: [
         { ic: ICONS.zakat, value: K.money(rep.masuk), label: 'Kas Masuk', tone: 'tin' },
         { ic: ICONS.zakat, value: K.money(rep.keluar), label: 'Kas Keluar', tone: 'tout' },
         { ic: ICONS.zakat, value: K.money(rep.saldo_akhir), label: 'Saldo Kas' }] }) : '',
       posts ? agendaCard({ post: nextAg, parts: nextAg ? dateParts(nextAg.starts_at, ztz) : null, times: nextAg ? fmtTimes(nextAg.starts_at, nextAg.ends_at, ztz) : '', onAll: toPosts }) : '',
-      posts ? announceCard({ post: lastInfo, when: lastInfo ? fmtWhen(lastInfo.published_at || lastInfo.created_at, ztz) : '', onAll: toPosts, onOpen: toPosts }) : '',
+      posts ? announceCard({ post: lastInfo, when: lastInfo ? fmtWhen(lastInfo.published_at || lastInfo.created_at, ztz) : '', onAll: toPosts, onOpen: toPosts, onCreate: toPosts }) : '',
       quickGrid('Akses Cepat', [
         { key: 'open-pengurus', id: 'qa-pengurus', onclick: toTeam },
         { key: 'open-keuangan', id: 'open-kas', onclick: toKas },

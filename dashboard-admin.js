@@ -131,6 +131,7 @@ export async function renderAdmin(box, view = 'home') {
     { key: 'open-market', id: 'adm-market', label: 'Verifikasi Pasar', onclick: openMarket },
     { key: 'open-audit', id: 'adm-audit', onclick: openAudit },
     { key: 'open-tampilan', id: 'adm-tampilan', onclick: openBrand },
+    { key: 'open-notif', id: 'adm-notif', onclick: () => go('notif') },
     { key: 'open-more', id: 'qa-more', onclick: () => go('more') }]);
   if (pending) { const t = grid.querySelector('#adm-jamaah .qk-ic'); if (t) t.append(badge(pending)); }
   if (view === 'masjid') {
@@ -150,10 +151,10 @@ export async function renderAdmin(box, view = 'home') {
     greetingHeader({ title: 'Super Admin', sub: 'BAITUNA', name: who.name, email: who.email }),
     h('div', { class: 'home-body' },
       bannerCarousel([
-        { art: 'banner_masjid', title: 'Satu Platform, Banyak Masjid', text: 'Kelola, pantau, dan kembangkan ekosistem masjid bersama BAITUNA.', cta: 'Kelola Masjid', onclick: openMasjid },
+        { art: 'banner_masjid', title: 'Satu Platform, Banyak Masjid', text: 'Kelola dan pantau masjid bersama BAITUNA.', cta: 'Kelola Masjid', onclick: openMasjid },
         { art: 'banner_kas', title: 'Pendaftaran Jamaah', text: pending ? pending + ' pendaftaran menunggu keputusan Anda.' : 'Tidak ada pendaftaran yang menunggu.', cta: 'Buka Antrean', onclick: openJamaah, tone: 'gold' }]),
-      promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Kelola koleksi buku Islami untuk memperkaya ilmu umat.', cta: 'Kelola Buku', onclick: () => go('buku') }),
-      promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Periksa dan setujui produk serta jasa sebelum tampil ke umat.', cta: 'Verifikasi', onclick: openMarket }),
+      promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Kelola koleksi buku Islami umat.', cta: 'Kelola Buku', onclick: () => go('buku') }),
+      promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi', onclick: openMarket }),
       prayerCard(),
       grid,
       h('section', { class: 'sgw' }, sectionHead('Statistik Platform'), statGrid([
