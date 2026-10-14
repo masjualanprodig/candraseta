@@ -8,7 +8,7 @@
 <title>Pasang BAITUNA</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="tokens.css">
 <style>
 *{box-sizing:border-box}
@@ -86,6 +86,9 @@ ol li b{color:#064B3D}
       <li><span>Gulir lalu pilih <b>Tambah ke Layar Utama</b> (<b>Add to Home Screen</b>).</span></li>
       <li><span>Ketuk <b>Tambah</b>. Ikon BAITUNA muncul di layar utama.</span></li>
     </ol>
+    <button class="btn" id="btn-share" type="button" hidden>
+      <svg viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7"/></svg>Buka menu Bagikan
+    </button>
     <div class="note">Jika memakai Chrome di iPhone, buka halaman ini di <b>Safari</b> terlebih dahulu.</div>
   </section>
 
@@ -119,7 +122,16 @@ ol li b{color:#064B3D}
 
   if (standalone) { show('p-done'); $('p-use').hidden = true; return; }
   if (inApp) { show('p-inapp'); return; }
-  if (isIOS) { show('p-ios'); return; }
+  if (isIOS) {
+    show('p-ios');
+    if (navigator.share) {
+      $('btn-share').hidden = false;
+      $('btn-share').addEventListener('click', function () {
+        navigator.share({ title: 'BAITUNA', url: location.href }).catch(function () {});
+      });
+    }
+    return;
+  }
 
   if (isAndroid) show('p-android'); else show('p-other');
 

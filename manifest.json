@@ -1,1 +1,33 @@
-{"name":"BAITUNA","short_name":"BAITUNA","description":"Satu Masjid, Banyak Manfaat","lang":"id","start_url":"/","scope":"/","display":"standalone","background_color":"#FBFAF5","theme_color":"#066755","icons":[{"src":"assets/icons/icon-192.png","sizes":"192x192","type":"image/png"},{"src":"assets/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
+{
+  "id": "/",
+  "name": "BAITUNA",
+  "short_name": "BAITUNA",
+  "description": "Satu Masjid, Banyak Manfaat",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF8F1",
+  "theme_color": "#086653",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
