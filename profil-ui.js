@@ -21,7 +21,7 @@ import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran
 import { listSurahs } from './quran-service.js';
 import { legalView } from './page-ui.js';
 
-export const APP_VERSION = 'v82';
+export const APP_VERSION = 'v83';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
 const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1', 'baituna.notif.v1', 'baituna.notifseen.v1', 'baituna.ramadan.v1', 'baituna.ramadancache.v1', 'baituna.adzanlib.v1', 'baituna.push.v1', 'baituna.qa.v1', 'baituna.qa.vote.v1', 'baituna.books.v1', 'baituna.brand.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
@@ -62,7 +62,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
       avatarEl(name, me.email, profile && profile.avatar_path),
       h('div', { class: 'pwho' }, h('b', {}, name || 'Nama belum diisi'), h('span', { class: 'muted' }, me.email || ''),
         roles.length ? h('div', { class: 'proles' }, ...roles.map(r => h('span', { class: 'hperiod' }, r))) : ''),
-      icon(ICONS.chev, 'prow-chev'));
+      h('span', { class: 'pedit', 'aria-hidden': 'true' }, 'Edit Profil'));
     return card;
   }
 
@@ -227,7 +227,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
       row(ICONS.gear, 'Pengaturan', go('settings')), row(ICONS.help, 'Bantuan', go('help')), row(ICONS.about, 'Tentang BAITUNA', go('about')), row(ICONS.shield, 'Privasi & Disclaimer', go('privasi')), row(ICONS.chat, 'Kritik & Saran', go('saran')));
     return [h('h2', { class: 'wtitle' }, 'Profil'), loadErr ? h('p', { class: 'hint' }, 'Data profil belum bisa dimuat. Periksa koneksi.') : '', headCard(),
       h('div', { class: 'panel plist' }, ...items),
-      me ? h('button', { class: 'btn-sm alt pout', type: 'button', onclick: () => onLogout && onLogout() }, 'Keluar') : '',
+      me ? h('button', { class: 'btn-sm alt pout', type: 'button', onclick: () => onLogout && onLogout() }, icon(ICONS.out), 'Keluar') : '',
       h('div', { class: 'panel ptag' }, h('b', {}, 'BAITUNA'), h('span', { class: 'muted' }, 'Satu Masjid, Banyak Manfaat'))];
   }
 

@@ -4,6 +4,7 @@
 import { h, toast, ask } from './ui.js';
 import { getSession } from './supabase.js';
 import * as S from './qa-service.js';
+import { icon, ICONS } from './feed-ui.js';
 
 export const DISCLAIMER = 'Jawaban ini adalah pandangan penjawab yang bersangkutan beserta rujukannya, bukan fatwa. Untuk perkara besar atau pribadi, tanyakan langsung kepada ulama atau ustaz yang Anda percaya.';
 export const TABS = [['terbaru', 'Terbaru'], ['populer', 'Populer'], ['kategori', 'Kategori']];
@@ -49,6 +50,7 @@ export function qaPage({ go, onSignIn } = {}) {
     h('button', { class: 'segb', type: 'button', role: 'tab', 'data-tab': k, 'aria-selected': String(st.tab === k), onclick: () => { if (st.tab !== k) { st.tab = k; st.cat = ''; showList(); } } }, l)));
   function item(r) {
     return h('button', { class: 'qa-item', type: 'button', 'data-id': r.id, onclick: () => showDetail(r.id, 'list') },
+      h('span', { class: 'qa-ic', 'aria-hidden': 'true' }, icon(ICONS.help)),
       h('b', { class: 'qa-t' }, r.title),
       h('span', { class: 'muted qa-m' }, catName(r.category_id) + ' · ' + fmt(r.answered_at || r.created_at)),
       h('span', { class: 'muted qa-m' }, r.view_count + ' dibaca · ' + r.helpful_count + ' bermanfaat'));

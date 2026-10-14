@@ -182,3 +182,34 @@
 .market .mk-t{color:var(--text)}
 .market .mk-p{color:var(--emerald)}
 .market .mk-chip{justify-content:flex-start;align-items:center;width:76px}
+
+/* ===== Tanya Jawab (v83) ===== */
+.qa input[type=search],.qa #qa-search{min-height:46px;border-radius:14px;border:1px solid var(--border);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7A73' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") 14px center/18px no-repeat;padding-left:42px;box-shadow:var(--shadow-sm)}
+.qa .seg{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.qa .segb[aria-selected="true"]{background:var(--emerald)}
+.qa .qa-acts #qa-ask{flex:1 1 100%;min-height:48px;border-radius:14px;background:linear-gradient(135deg,var(--emerald),var(--green-deep));font-size:.92rem}
+.qa #qa-list{display:grid;gap:10px}
+.qa .qa-item{display:grid;grid-template-columns:36px 1fr;column-gap:12px;row-gap:2px;align-items:start;padding:12px 14px;border-color:var(--border);border-radius:16px;box-shadow:var(--shadow-sm)}
+.qa .qa-item > *:not(.qa-ic){grid-column:2}
+.qa-ic{grid-row:1/span 3;width:36px;height:36px;border-radius:50%;background:var(--surface-gold,#FBF4E2);display:grid;place-items:center}.qa-ic .ic{width:18px;height:18px;stroke:var(--gold-ink)}
+.qa .qa-t{font-size:.92rem;line-height:1.35;color:var(--text)}
+.qa .qa-m{font-size:.72rem}
+.qa .qa-detail,.qa .qa-answer{border-radius:18px}
+
+/* ===== Kritik & Saran (v83) ===== */
+.saran .panel{border-radius:18px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.saran .sr-form .in{border-radius:12px;min-height:46px}
+.saran .sr-form .sr-msg{min-height:9.5rem}
+.saran #sr-send{width:100%;min-height:48px;border-radius:14px;background:linear-gradient(135deg,var(--emerald),var(--green-deep))}
+
+/* ===== Profil & Pengaturan (v83) ===== */
+.profil .pcard{position:relative;padding:16px;border-radius:20px;border:1px solid var(--border);box-shadow:var(--shadow-md);background:linear-gradient(135deg,#fff 0%,var(--surface-gold,#FBF4E2) 100%)}
+.profil .pcard .pav{width:64px;height:64px;box-shadow:0 0 0 3px #fff,0 0 0 4px var(--border)}
+.pedit{flex:none;align-self:center;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--emerald);font-size:.74rem;font-weight:700}
+.profil .plist{padding:4px 0;border-radius:18px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.profil .prow{min-height:54px;padding:10px 14px;border-bottom-color:var(--border)}
+.profil .prow-ic{width:36px;height:36px;border-radius:50%;background:var(--surface-green,#E8F3EE)}
+.profil .prow-ic .ic{width:18px;height:18px;stroke:var(--emerald)}
+.profil .prow-tx{font-weight:600;color:var(--text);font-size:.92rem}
+.profil .pout{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;margin-top:14px;border-radius:14px;background:#fff;border:1.5px solid #E9B8B3;color:#C0392B;font-weight:700}
+.profil .pout .ic{width:18px;height:18px;stroke:#C0392B}
