@@ -88,3 +88,4 @@
 .dzikir .snum{border-radius:50%;background:var(--surface-gold,#FBF4E2);color:var(--gold-ink)}
 .dzikir .dtap{background:linear-gradient(135deg,var(--emerald),var(--green-deep));border-radius:16px}
 .dzikir .dsum.panel{background:linear-gradient(135deg,#fff,var(--surface-gold,#FBF4E2));border-radius:18px}
+.bn-kick{font-family:Georgia,"Times New Roman",serif;font-size:.78rem;letter-spacing:.12em;font-weight:700;color:var(--gold-soft)}

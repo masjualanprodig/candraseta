@@ -58,7 +58,7 @@ export async function renderMember(box, memberships) {
   }
   if (articles) body.push(articles);
   box.replaceChildren(h('div', { class: 'home', id: 'home-jamaah' },
-    greetingHeader({ title: 'Jamaahku', sub: manage ? (manage.isKetua ? 'Ketua Takmir' : 'Bendahara') + ' · ' + mosque.name : 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.',
+    greetingHeader({ title: who.name || 'Jamaahku', sub: manage ? (manage.isKetua ? 'Ketua Takmir' : 'Bendahara') + ' · ' + mosque.name : 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.',
       name: who.name, email: who.email, avatar: false }),
     h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
