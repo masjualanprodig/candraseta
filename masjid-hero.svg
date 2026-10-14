@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Ilustrasi masjid saat matahari terbit">
+<defs>
+<linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFBEF"/><stop offset="1" stop-color="#EBDDB4"/></linearGradient>
+<linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E7A5E"/><stop offset="1" stop-color="#064B3D"/></linearGradient>
+<radialGradient id="g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF3CC" stop-opacity=".95"/><stop offset="1" stop-color="#FFE6A0" stop-opacity="0"/></radialGradient>
+</defs>
+<circle cx="318" cy="120" r="70" fill="url(#g)"/>
+<g fill="url(#w)">
+<!-- menara -->
+<g id="m"><rect x="38" y="62" width="9" height="120"/><rect x="35" y="86" width="15" height="4"/><rect x="35" y="112" width="15" height="4"/><path d="M36 62h13l-6.500-16z"/><path d="M42.500 46v-12" stroke="#E8C879" stroke-width="1.6"/><path d="M40 62a2.500 2.500 0 0 1 5 0z" fill="#E8C879"/></g>
+<use href="#m" x="318"/>
+<g transform="translate(-26 28) scale(.8)"><use href="#m" x="40"/></g>
+<g transform="translate(-6 28) scale(.8)"><use href="#m" x="340"/></g>
+<!-- kubah tengah -->
+<path d="M128 182V130a72 66 0 0 1 144 0v52z"/><path d="M200 66v-18" stroke="#E8C879" stroke-width="2"/><circle cx="200" cy="45" r="3.500" fill="#E8C879"/>
+<path d="M96 182v-34a30 28 0 0 1 60 0v34zM244 182v-34a30 28 0 0 1 60 0v34z"/>
+<path d="M60 182v-18a22 20 0 0 1 44 0v18zM296 182v-18a22 20 0 0 1 44 0v18z"/>
+<rect x="30" y="182" width="340" height="14"/>
+</g>
+<!-- lengkung gerbang -->
+<g fill="url(#p)" opacity=".92"><path d="M178 182v-30a22 26 0 0 1 44 0v30z"/><path d="M138 182v-18a12 16 0 0 1 24 0v18zM238 182v-18a12 16 0 0 1 24 0v18z"/></g>
+<g fill="#F2C75C" opacity=".85"><path d="M186 182v-24a14 18 0 0 1 28 0v24z"/></g>
+<!-- pohon kurma -->
+<g stroke="#0A5A47" stroke-width="2.2" fill="none" stroke-linecap="round"><path d="M12 196c1-22 2-40 1-58"/><path d="M13 138c-10-2-18 2-24 10M13 138c8-8 16-8 24-4M13 138c-4-8-2-14 4-20M13 138c10-2 14 4 18 12"/>
+<path d="M388 196c-1-22-2-40-1-58"/><path d="M387 138c10-2 18 2 24 10M387 138c-8-8-16-8-24-4M387 138c4-8 2-14-4-20M387 138c-10-2-14 4-18 12"/></g>
+</svg>

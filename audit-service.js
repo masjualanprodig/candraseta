@@ -4,7 +4,7 @@ import { db } from './supabase.js';
 import { rp } from './market-service.js';
 
 export const PAGE = 30;
-export const GROUPS = [['', 'Semua'], ['kas', 'Kas'], ['invitation', 'Undangan'], ['member', 'Pengurus'], ['mosque', 'Masjid'], ['jamaah', 'Jamaah'], ['book', 'Buku'], ['qa', 'Tanya Jawab']];
+export const GROUPS = [['', 'Semua'], ['kas', 'Kas'], ['invitation', 'Undangan'], ['member', 'Pengurus'], ['mosque', 'Masjid'], ['jamaah', 'Jamaah'], ['book', 'Buku'], ['qa', 'Tanya Jawab'], ['tampilan', 'Tampilan']];
 export const LABEL = {
   mosque_created: 'Masjid didaftarkan', mosque_status_changed: 'Status masjid diubah',
   invitation_created: 'Undangan dibuat', invitation_accepted: 'Undangan diterima', invitation_revoked: 'Undangan dibatalkan', member_revoked: 'Pengurus dicabut',
@@ -12,12 +12,12 @@ export const LABEL = {
   kas_public_summary: 'Ringkasan kas publik diubah', kas_account_created: 'Akun kas dibuat', kas_account_updated: 'Akun kas diubah', kas_category_created: 'Kategori kas dibuat', kas_category_updated: 'Kategori kas diubah',
   jamaah_applied: 'Pendaftaran jamaah diajukan', jamaah_approved: 'Jamaah disetujui', jamaah_rejected: 'Jamaah ditolak / dicabut',
   book_created: 'Buku ditambah', book_updated: 'Buku diubah', book_deleted: 'Buku dihapus',
-  qa_answerer_added: 'Penjawab ditambah', qa_answerer_updated: 'Penjawab diubah', qa_answerer_removed: 'Penjawab dihapus', qa_question_deleted: 'Pertanyaan dihapus'
+  qa_answerer_added: 'Penjawab ditambah', qa_answerer_updated: 'Penjawab diubah', qa_answerer_removed: 'Penjawab dihapus', qa_question_deleted: 'Pertanyaan dihapus', tampilan_changed: 'Tampilan aplikasi diubah', tampilan_reset: 'Tampilan aplikasi dikembalikan ke bawaan'
 };
 export const actionLabel = a => LABEL[a] || String(a || '').replace(/_/g, ' ');
 
 const MONEY = new Set(['amount', 'saldo_akhir', 'opening']);
-const KEYNAME = { name: 'nama', title: 'judul', role: 'peran', status: 'status', from: 'dari', to: 'menjadi', reason: 'alasan', email: 'email', amount: 'jumlah', direction: 'arah', date: 'tanggal', month: 'bulan', saldo_akhir: 'saldo akhir', opening: 'saldo awal', active: 'aktif', on: 'aktif', fields: 'bagian', was: 'sebelumnya' };
+const KEYNAME = { item: 'bagian', name: 'nama', title: 'judul', role: 'peran', status: 'status', from: 'dari', to: 'menjadi', reason: 'alasan', email: 'email', amount: 'jumlah', direction: 'arah', date: 'tanggal', month: 'bulan', saldo_akhir: 'saldo akhir', opening: 'saldo awal', active: 'aktif', on: 'aktif', fields: 'bagian', was: 'sebelumnya' };
 const HIDE = k => /(^|_)id$/.test(k) || ['entry', 'account', 'category', 'reverses', 'user_id'].includes(k);
 const val = (k, v) => {
   if (Array.isArray(v)) return v.map(x => String(x)).join(', ');

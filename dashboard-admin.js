@@ -20,6 +20,7 @@ import { icon, ICONS } from './feed-ui.js';
 import { renderKasManager } from './kas-ui.js';
 import { renderJamaahManager } from './jamaah-ui.js';
 import { renderAuditLog } from './audit-ui.js';
+import { renderBrandingEditor } from './branding-ui.js';
 import { pendingCount } from './jamaah-service.js';
 
 const ACTIONS = {
@@ -111,6 +112,7 @@ export async function renderAdmin(box) {
     h('div', { class: 'actions' },
       h('button', { class: 'act primary', type: 'button', id: 'adm-jamaah', onclick: () => renderJamaahManager(box, () => renderAdmin(box)) }, icon(ICONS.user), h('span', {}, 'Pendaftaran jamaah' + (pending ? ' (' + pending + ' menunggu)' : ''))),
       h('button', { class: 'act', type: 'button', id: 'adm-audit', onclick: () => renderAuditLog(box, { onBack: () => renderAdmin(box), mosques: list.map(m => ({ id: m.id, name: m.name })) }) }, icon(ICONS.shield), h('span', {}, 'Jejak audit')),
+      h('button', { class: 'act', type: 'button', id: 'adm-tampilan', onclick: () => renderBrandingEditor(box, () => renderAdmin(box)) }, icon(ICONS.gear), h('span', {}, 'Tampilan aplikasi')),
       h('button', { class: 'act', type: 'button', id: 'adm-market', onclick: () => renderMarketManager(box, () => renderAdmin(box)) }, icon(ICONS.market), h('span', {}, 'Verifikasi Pasar Umat')),
       h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => renderAdmin(box)) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
       h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),

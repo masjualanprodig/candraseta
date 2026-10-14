@@ -369,3 +369,18 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Halaman berikutnya memakai (waktu, id) agar tidak ada baris terlewat/ganda.
 - Pasang: jalankan `daftar_audit.sql` (setelah tanya.sql; buku.sql dan kas.sql bila dipakai) → unggah v69. Bila `tanya.sql` dijalankan ulang, jalankan `daftar_audit.sql` lagi. Cache service worker v60. Teks privasi diperbarui.
 - Tes: `unit_jamaah.mjs` (15), `daftar_browser_test.py` (49), SQL `dj_tests.sql` (93).
+
+## Tambahan v70: Perombakan visual, Tahap 1 dan 2 (Design System v1.2)
+- **Tahap 1 - fondasi**: `tokens.css` (palet resmi: Emerald #086653, Deep Green, Gold #D5A84B, latar #FAF8F1, status, jarak, radius, bayangan) dan `ui-kit.css` (tombol, input, kartu, chip, segmen). Nama warna lama dipetakan ke token baru, sehingga seluruh halaman lama otomatis berganti palet tanpa ditulis ulang. Panduan: `DESIGN-SYSTEM.md`.
+- **Font**: Plus Jakarta Sans disiapkan dengan font cadangan sistem. Untuk mengaktifkan, taruh `PlusJakartaSans.woff2` di folder utama (belum disertakan: tidak bisa diunduh dari lingkungan kerja). Font Al-Qur'an (Amiri/Scheherazade) tidak diubah.
+- **Tahap 2 - splash, masuk, daftar, atur ulang password**: latar masjid layar penuh dengan lapisan gradien hijau di bawah; logo dan nama di atas; kolom email/password gaya kaca; tombol **Masuk** zamrud bercahaya dengan panah; tombol **Buat Akun Baru** garis emas; tautan Kebijakan Privasi & Disclaimer (membuka halaman privasi) dan "Jelajahi tanpa masuk". Petak fitur untuk tamu dipindah ke bagian "Jelajahi tanpa masuk" di bawah layar masuk (semua tetap berfungsi).
+- **Latar**: saat ini ilustrasi masjid buatan kode (`masjid-hero.svg`). Bila berkas foto `bg-masjid.jpg` diunggah ke folder utama, otomatis dipakai menggantikan ilustrasi.
+- Target sentuh tombol Masuk, Buat Akun, mata password, dan Lupa password minimal 44 px; kontras warna teks diperiksa otomatis (>= 4.5).
+- Perbaikan tes lama: `browser_test.py` kini ikut regresi.
+- Cache service worker v61. Tes: `auth_visual_test.py` (38).
+
+## Tambahan v71 - Editor Tampilan Aplikasi (khusus Super Admin)
+- Dashboard Super Admin > **Tampilan aplikasi**: ganti foto latar splash/login/daftar, ganti ikon Akses Cepat tiap fitur, dan unggah font aplikasi.
+- SQL: `tampilan.sql` (jalankan SETELAH `daftar_audit.sql`, aman diulang). Tabel `app_branding` (publik dibaca, tidak bisa ditulis langsung), fungsi `branding_set` / `branding_reset` (hanya Super Admin, tercatat di Jejak audit), bucket publik `branding` (maks 2 MB).
+- Berkas: `branding-service.js`, `branding-ui.js`. Tampilan dipakai semua orang sebelum login; salinan disimpan di perangkat (`baituna.brand.v1`).
+- Bila foto/ikon gagal dimuat, otomatis kembali ke bawaan. Font Al-Qur'an tidak ikut berubah.

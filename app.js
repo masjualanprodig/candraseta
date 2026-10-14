@@ -5,10 +5,12 @@ import { show } from './router.js';
 import { onSessionExpired, restoreSession, getSession, setSession, validToken } from './supabase.js';
 import { signIn, signOut, signUp, passwordIssue, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
 import { loadAccess } from './permissions.js';
+import { initBranding } from './branding-service.js';
 import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
 import { openDirectory, openMosque } from './directory.js';
+import { setProfilStart } from './profil-ui.js';
 import { feedPanel, icon, ICONS } from './feed-ui.js';
 import { armReminders } from './notif-service.js';
 
@@ -109,6 +111,11 @@ $('signup-form').addEventListener('submit', async e => {
   if (r.confirm) { sm('Pendaftaran diterima. Kami mengirim tautan konfirmasi ke ' + email + '. Buka email itu (periksa juga folder spam), lalu masuk.', 'ok'); return; }
   toast('Akun dibuat. Selamat datang.'); enterApp();
 });
+
+/* ===== Tampilan yang diatur Super Admin (foto latar, font, ikon); bila kosong: bg-masjid.jpg atau ilustrasi bawaan ===== */
+initBranding();
+$('open-privacy').addEventListener('click', e => { e.preventDefault(); setProfilStart('privasi'); openDirectory('login', () => show('login'), 'profil'); });
+$('scroll-explore').addEventListener('click', e => { e.preventDefault(); $('explore').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 
 /* ===== Direktori publik ===== */
 $('open-directory').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'dir'); });

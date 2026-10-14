@@ -1,9 +1,8 @@
 /* BAITUNA - style.css: dasar, warna, tipografi */
-:root{--teal:#066755;--teal-d:#044a3d;--gold:#D4981F;--ivory:#FBFAF5;--sage:#5F7A74;--line:#dfe6e1;--danger:#b3261e;--r:18px;
---font:"Montserrat","Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+/* Warna, huruf, jarak: lihat tokens.css */
 *{box-sizing:border-box;margin:0}
 html,body{height:100%}
-body{font-family:var(--font);background:var(--ivory);color:var(--teal-d);-webkit-font-smoothing:antialiased;
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;
 padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 [hidden]{display:none!important}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}

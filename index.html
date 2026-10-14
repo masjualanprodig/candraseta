@@ -3,75 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#066755">
+<meta name="theme-color" content="#086653">
 <title>BAITUNA — Satu Masjid, Banyak Manfaat</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="components.css">
 <link rel="stylesheet" href="responsive.css">
+<link rel="stylesheet" href="ui-kit.css">
 </head>
 <body>
 <div id="offline-bar" class="offline-bar" role="status" hidden>Anda sedang offline. Beberapa fitur belum tersedia.</div>
 
-<main id="view-splash" class="view splash" aria-label="Memuat BAITUNA">
-  <div class="arch"></div>
-  <div class="brand">
-    <img src="logo.png" alt="Logo BAITUNA" class="brand-logo">
+<main id="view-splash" class="view splash auth" aria-label="Memuat BAITUNA">
+  <div class="hero-bg" aria-hidden="true"></div><img class="hero-art" src="masjid-hero.svg" alt="" aria-hidden="true"><div class="hero-shade" aria-hidden="true"></div>
+  <div class="auth-wrap"><div class="auth-brand brand">
+    <img src="logo.png" alt="Logo BAITUNA" class="hero-logo brand-logo">
     <h1 class="brand-name">BAITUNA</h1>
     <p class="brand-tag">Satu Masjid, Banyak Manfaat</p>
+    <div class="orn" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.8L20 11l-5.8 2.200L12 19l-2.200-5.800L4 11l5.800-2.200z"/></svg></div>
     <div class="loader" role="progressbar" aria-label="Memeriksa sesi"><span></span></div>
-  </div>
-  <div class="scene"><img src="masjid.svg" alt=""><div class="wave"></div></div>
+  </div></div>
 </main>
 
-<main id="view-login" class="view login" hidden>
-  <div class="arch"></div>
-  <header class="login-hero">
-    <img src="logo.png" alt="Logo BAITUNA" class="hero-logo">
-    <p class="brand-name sm">BAITUNA</p>
-    <p class="brand-tag">Satu Masjid, Banyak Manfaat</p>
-  </header>
-  <div class="scene scene-login"><img src="masjid.svg" alt=""><div class="wave"></div></div>
-
-  <section class="card" aria-labelledby="login-title">
-    <h2 id="login-title">Masuk ke Baituna</h2>
-    <p class="muted">Kelola masjid, ikuti kegiatan, dan terhubung dengan umat di seluruh Indonesia.</p>
-
-    <form id="login-form" novalidate>
-      <label class="field">
-        <span class="sr-only">Email</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="Email" required>
-      </label>
-      <p class="err" id="email-err" hidden></p>
-
-      <label class="field">
-        <span class="sr-only">Password</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-        <input id="password" type="password" autocomplete="current-password" placeholder="Password" required>
-        <button type="button" id="toggle-pw" class="icon-btn" aria-label="Tampilkan password">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-      </label>
-      <p class="err" id="pw-err" hidden></p>
-
-      <a href="#" id="forgot" class="link right">Lupa password?</a>
-      <p id="form-msg" class="msg" role="alert" hidden></p>
-      <button type="submit" id="login-btn" class="btn-primary"><span>Masuk</span></button>
-    </form>
-
-    <div class="divider"><span>masuk dengan metode lain</span></div>
-    <p class="muted center soon">Masuk dengan Google, Apple, atau WhatsApp: segera hadir.</p>
-    <p class="muted center">Belum punya akun? <a href="#" id="register" class="link">Daftar sekarang</a></p>
+<main id="view-login" class="view login auth" hidden>
+  <div class="hero-bg" aria-hidden="true"></div><img class="hero-art" src="masjid-hero.svg" alt="" aria-hidden="true"><div class="hero-shade" aria-hidden="true"></div>
+  <div class="auth-wrap">
+    <header class="auth-brand login-hero">
+      <img src="logo.png" alt="Logo BAITUNA" class="hero-logo">
+      <p class="brand-name">BAITUNA</p>
+      <p class="brand-tag">Satu Masjid, Banyak Manfaat</p>
+      <div class="orn" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.8L20 11l-5.8 2.200L12 19l-2.200-5.800L4 11l5.800-2.200z"/></svg></div>
+    </header>
+    <section class="auth-panel" aria-labelledby="login-title">
+      <h2 class="sr-only" id="login-title">Masuk ke BAITUNA</h2>
+      <form id="login-form" novalidate>
+        <label class="field">
+          <span class="sr-only">Email</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="Email" required>
+        </label>
+        <p class="err" id="email-err" hidden></p>
+        <label class="field">
+          <span class="sr-only">Password</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <input id="password" type="password" autocomplete="current-password" placeholder="Password" required>
+          <button type="button" id="toggle-pw" class="icon-btn" aria-label="Tampilkan password">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </label>
+        <p class="err" id="pw-err" hidden></p>
+        <a href="#" id="forgot" class="link right">Lupa password?</a>
+        <p id="form-msg" class="msg" role="alert" hidden></p>
+        <button type="submit" id="login-btn" class="btn-primary"><span>Masuk</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+      <div class="divider"><span>atau</span></div>
+      <a href="#" id="register" class="btn-gold"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.8"/><path d="M4.500 20c.6-3.600 3.700-5.700 7.500-5.700s6.900 2.100 7.500 5.700"/></svg><span>Buat Akun Baru</span></a>
+      <p class="auth-terms">Dengan masuk atau mendaftar, Anda menyetujui <a href="#" id="open-privacy">Kebijakan Privasi &amp; Disclaimer</a> kami. <a href="#" id="scroll-explore">Jelajahi tanpa masuk</a>.</p>
+    </section>
+  </div>
+  <section class="explore" id="explore" aria-label="Jelajahi tanpa masuk">
+    <h2>Jelajahi tanpa masuk</h2>
+    <p class="muted">Lihat direktori masjid, jadwal salat, Al-Qur’an, dan lainnya tanpa membuat akun.</p>
     <nav class="tiles" aria-label="Tanpa masuk"><a href="#" id="open-directory" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M12 3c1.2 1.3 1.8 2.4 1.8 3.6A1.8 1.8 0 0 1 12 8.4a1.8 1.8 0 0 1-1.8-1.8C10.2 5.4 10.8 4.3 12 3z"/><path d="M5 21v-8a7 7 0 0 1 14 0v8M3 21h18M9.5 21v-4a2.5 2.5 0 0 1 5 0v4"/></svg><span>Direktori masjid</span></a><a href="#" id="open-agenda" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17M8 14h3M8 17.5h6"/></svg><span>Agenda</span></a><a href="#" id="open-calendar" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/><path d="M17 4v3M15.5 5.5h3"/></svg><span>Kalender Islam</span></a><a href="#" id="open-quran" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M12 6.5C9.8 4.9 6.8 4.4 4 5v13c2.8-.6 5.8-.1 8 1.5 2.2-1.6 5.2-2.1 8-1.5V5c-2.8-.6-5.8-.1-8 1.5z"/><path d="M12 6.5v13M7 9.5h2M15 9.5h2"/></svg><span>Al-Qur’an</span></a><a href="#" id="open-world" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>Masjid dunia</span></a><a href="#" id="open-rukun" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5M9 7.5h7M9 11h7"/></svg><span>Rukun Islam &amp; Iman</span></a><a href="#" id="open-berita" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 12.5h8M8 16h5"/></svg><span>Berita Islam</span></a><a href="#" id="open-jadwal" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg><span>Jadwal Salat</span></a><a href="#" id="open-kiblat" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Arah Kiblat</span></a><a href="#" id="open-ramadan" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/><path d="M17 4v3M15.5 5.5h3"/></svg><span>Ramadan Center</span></a><a href="#" id="open-notif" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M6 17.5V11a6 6 0 0 1 12 0v6.5l1.5 1.5h-15z"/><path d="M10 21h4"/></svg><span>Notifikasi</span></a><a href="#" id="open-market" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M4 9l1.5-4.5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/><path d="M5.5 12v7.5h13V12M10 19.5v-4h4v4"/></svg><span>Pasar Umat</span></a><a href="#" id="open-tracker" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><rect x="4" y="4.5" width="16" height="16" rx="3"/><path d="M8 3v3M16 3v3M8 13l2.6 2.6L16 10"/></svg><span>Tracker Ibadah</span></a><a href="#" id="open-asma" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5l1.3 3 3.2.3-2.4 2.1.8 3.1L12 14.4l-2.9 1.6.8-3.1-2.4-2.1 3.2-.3z"/></svg><span>Asmaul Husna</span></a><a href="#" id="open-belajar" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M12 4 2.5 9 12 14l9.5-5z"/><path d="M6 11.5V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-4.5"/><path d="M21.5 9v5"/></svg><span>Belajar Qur’an</span></a><a href="#" id="open-sunnah" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M12 3.5l2.4 5 5.4.7-4 3.7 1 5.4-4.8-2.6-4.8 2.6 1-5.4-4-3.7 5.4-.7z"/></svg><span>Amalan Sunnah</span></a><a href="#" id="open-doa" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M12 20.5c-4.4-3-7.5-5.6-7.5-9A4.3 4.3 0 0 1 12 8.6a4.3 4.3 0 0 1 7.5 2.9c0 3.4-3.1 6-7.5 9z"/></svg><span>Doa Shahih</span></a><a href="#" id="open-dzikir" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/></svg><span>Dzikir</span></a><a href="#" id="open-history" class="tile"><svg viewBox="0 0 24 24" aria-hidden="true" class="ic"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5M9 7.5h7"/></svg><span>Sejarah Islam</span></a></nav>
     <div id="login-feed"></div>
   </section>
 </main>
 
-<main id="view-signup" class="view home" hidden>
-  <section class="card">
+<main id="view-signup" class="view auth" hidden>
+  <div class="hero-bg" aria-hidden="true"></div><img class="hero-art" src="masjid-hero.svg" alt="" aria-hidden="true"><div class="hero-shade" aria-hidden="true"></div>
+  <div class="auth-wrap">
+  <header class="auth-brand"><img src="logo.png" alt="Logo BAITUNA" class="hero-logo"><p class="brand-name">BAITUNA</p></header>
+  <section class="auth-sheet">
     <h2>Daftar akun</h2>
     <p class="muted">Buat akun jamaah BAITUNA. Setelah masuk, ajukan "Keanggotaan jamaah" di Profil agar bisa bertanya di Tanya Jawab.</p>
     <form id="signup-form" novalidate>
@@ -79,7 +84,7 @@
       <p class="err" id="su-name-err" hidden></p>
       <label class="field"><span class="sr-only">Email</span><input id="su-email" type="email" inputmode="email" autocomplete="email" placeholder="Email" required></label>
       <p class="err" id="su-email-err" hidden></p>
-      <label class="field"><span class="sr-only">Password</span><input id="su-pw" type="password" autocomplete="new-password" placeholder="Password (minimal 8, huruf dan angka)" required></label>
+      <label class="field"><span class="sr-only">Password</span><input id="su-pw" type="password" autocomplete="new-password" placeholder="Password (huruf + angka, min. 8)" required></label>
       <p class="err" id="su-pw-err" hidden></p>
       <label class="field"><span class="sr-only">Ulangi password</span><input id="su-pw2" type="password" autocomplete="new-password" placeholder="Ulangi password" required></label>
       <p class="err" id="su-pw2-err" hidden></p>
@@ -90,6 +95,7 @@
     </form>
     <p class="muted center">Sudah punya akun? <a href="#" id="su-back" class="link">Masuk</a></p>
   </section>
+  </div>
 </main>
 
 <main id="view-app" class="view appview" hidden>
@@ -111,8 +117,11 @@
   <div id="public-content" class="appbody"></div>
 </main>
 
-<main id="view-reset" class="view home" hidden>
-  <section class="card">
+<main id="view-reset" class="view auth" hidden>
+  <div class="hero-bg" aria-hidden="true"></div><img class="hero-art" src="masjid-hero.svg" alt="" aria-hidden="true"><div class="hero-shade" aria-hidden="true"></div>
+  <div class="auth-wrap">
+  <header class="auth-brand"><img src="logo.png" alt="Logo BAITUNA" class="hero-logo"><p class="brand-name">BAITUNA</p></header>
+  <section class="auth-sheet">
     <h2>Buat password baru</h2>
     <p class="muted">Masukkan password baru untuk akun Anda (minimal 8 karakter).</p>
     <form id="reset-form" novalidate>
@@ -130,6 +139,7 @@
       <button type="submit" id="reset-btn" class="btn-primary mt"><span>Simpan password</span></button>
     </form>
   </section>
+  </div>
 </main>
 
 <dialog id="dlg" aria-labelledby="dlg-title">
