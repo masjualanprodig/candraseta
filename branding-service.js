@@ -3,6 +3,7 @@
 // Dibaca semua orang (tanpa login) dan disimpan di perangkat sebagai cadangan agar tampil cepat / saat offline.
 import { request, db, storageUpload, storageRemove, publicPhotoUrl } from './supabase.js';
 import { prepareImage } from './photo.js';
+import { CATALOG } from './quick-catalog.js';
 
 export const BUCKET = 'branding';
 export const CACHE_KEY = 'baituna.brand.v1';
@@ -70,13 +71,17 @@ function applyFont(cfg) {
 
 // Daftar kartu Akses Cepat yang ada di halaman (untuk editor).
 export function tileList() {
-  return [...document.querySelectorAll('#explore .tiles a.tile[id]')].filter(a => KEY_RE.test(a.id)).map(a => ({ id: a.id, label: (a.querySelector('span') || a).textContent.trim() }));
+  const out = [], seen = new Set();
+  for (const a of document.querySelectorAll('#explore .tiles a.tile[id]')) if (KEY_RE.test(a.id) && !seen.has(a.id)) { seen.add(a.id); out.push({ id: a.id, label: (a.querySelector('span') || a).textContent.trim() }); }
+  for (const k of Object.keys(CATALOG)) if (!seen.has(k)) { seen.add(k); out.push({ id: k, label: CATALOG[k][0], ic: CATALOG[k][1] }); }
+  return out;
 }
 
 function applyIcons(cfg) {
-  document.querySelectorAll('a.tile[id]').forEach(a => {
-    if (!KEY_RE.test(a.id)) return;
-    const url = urlFor(cfg.icons[a.id]);
+  document.querySelectorAll('a.tile[id],[data-ic]').forEach(a => {
+    const key = a.dataset.ic || a.id;
+    if (!KEY_RE.test(key)) return;
+    const url = urlFor(cfg.icons[key]);
     const img = a.querySelector('img.ic-img');
     const svg = a.querySelector('svg.ic');
     if (!url) { if (img) { img.remove(); if (svg) svg.removeAttribute('hidden'); } return; }
@@ -87,6 +92,9 @@ function applyIcons(cfg) {
     if (svg) { svg.setAttribute('hidden', ''); svg.before(n); } else a.prepend(n);
   });
 }
+
+// Beranda digambar ulang saat berpindah halaman: pasang lagi ikon kustom pada elemen baru.
+export const refreshIcons = () => applyIcons(current);
 
 export function applyBranding(cfg) {
   current = cfg || { splash_bg: null, font: null, icons: {} };

@@ -5,7 +5,8 @@ import { show } from './router.js';
 import { onSessionExpired, restoreSession, getSession, setSession, validToken } from './supabase.js';
 import { signIn, signOut, signUp, passwordIssue, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
 import { loadAccess } from './permissions.js';
-import { initBranding } from './branding-service.js';
+import { initBranding, refreshIcons } from './branding-service.js';
+import { go, runAct, setHomeBack } from './home-ui.js';
 import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
@@ -52,8 +53,11 @@ async function enterApp() {
     if (accepted > 0) toast('Undangan diterima. Anda kini terdaftar sebagai pengurus.');
     const access = await loadAccess(me);
     if (access.isAdmin) { const role = $('app-role'); role.textContent = 'Super Admin'; role.hidden = false; }
+    const isMosqueAdmin = !access.isAdmin && access.memberships.some(m => m.role === 'admin_masjid' && m.mosques && m.mosques.status === 'active');
+    setNav(access.isAdmin ? 'super' : isMosqueAdmin ? 'admin' : 'jamaah');
     if (access.isAdmin) await renderAdmin(box);
     else await renderMember(box, access.memberships);
+    refreshIcons();
   } catch (e) {
     if (e.status === 401) return;
     console.error(e);
@@ -138,14 +142,24 @@ $('open-history').addEventListener('click', e => { e.preventDefault(); openDirec
 $('open-quran').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'quran'); });
 $('open-calendar').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'cal'); });
 
-/* Bilah menu bawah (tetap di bawah saat digulir): Beranda, Masjid, Qur'an, Lainnya, Profil (pojok kanan bawah) */
+/* Bilah menu bawah (tetap di bawah saat digulir), isinya mengikuti peran:
+   Jamaah: Beranda, Al-Qur'an, Masjid, Agenda, Akun | Admin Masjid: Beranda, Pengurus, Keuangan, Agenda, Lainnya
+   Super Admin: Beranda, Masjid, Pengguna, Audit, Akun */
 const appTab = (id, label, ic, onclick, selected) => h('button', { id, class: 'atab', type: 'button', role: 'tab', 'aria-selected': String(!!selected), onclick }, icon(ic), h('span', {}, label));
-$('app-nav').replaceChildren(
-  appTab('nav-home', 'Beranda', ICONS.home, () => { enterApp(); window.scrollTo(0, 0); }, true),
-  appTab('nav-dir', 'Masjid', ICONS.mosque, () => openDirectory('app', () => enterApp(), 'dir')),
-  appTab('nav-quran', 'Qur\u2019an', ICONS.quran, () => openDirectory('app', () => enterApp(), 'quran')),
-  appTab('nav-more', 'Lainnya', ICONS.more, () => openDirectory('app', () => enterApp(), 'more')),
-  appTab('nav-profil', 'Profil', ICONS.user, () => openDirectory('app', () => enterApp(), 'profil')));
+const toHome = () => { enterApp(); window.scrollTo(0, 0); };
+const NAVS = {
+  jamaah: [['nav-home', 'Beranda', ICONS.home, toHome, true], ['nav-quran', 'Al-Qur\u2019an', ICONS.quran, () => go('quran')], ['nav-dir', 'Masjid', ICONS.mosque, () => go('dir')], ['nav-agenda', 'Agenda', ICONS.agenda, () => go('info')], ['nav-profil', 'Akun', ICONS.user, () => go('profil')]],
+  admin: [['nav-home', 'Beranda', ICONS.home, toHome, true], ['nav-pengurus', 'Pengurus', ICONS.user, () => runAct('team')], ['nav-kas', 'Keuangan', ICONS.zakat, () => runAct('kas')], ['nav-posts', 'Agenda', ICONS.agenda, () => runAct('posts')], ['nav-more', 'Lainnya', ICONS.more, () => go('more')]],
+  super: [['nav-home', 'Beranda', ICONS.home, toHome, true], ['nav-masjid', 'Masjid', ICONS.mosque, () => runAct('masjid')], ['nav-pengguna', 'Pengguna', ICONS.user, () => runAct('jamaah')], ['nav-audit', 'Audit', ICONS.shield, () => runAct('audit')], ['nav-profil', 'Akun', ICONS.user, () => go('profil')]]
+};
+let navKind = '';
+function setNav(kind) {
+  if (kind === navKind) return;
+  navKind = kind;
+  $('app-nav').replaceChildren(...NAVS[kind].map(t => appTab(...t)));
+}
+setHomeBack(() => enterApp());
+setNav('jamaah');
 
 /* Logo/nama di pojok kiri atas = kembali ke beranda */
 $('home-app').addEventListener('click', e => { e.preventDefault(); enterApp(); window.scrollTo(0, 0); });

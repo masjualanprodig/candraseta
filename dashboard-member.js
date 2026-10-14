@@ -1,46 +1,66 @@
-// BAITUNA - dashboard-member.js
-// Tampilan sementara untuk pengguna non-Super Admin (dashboard per peran dibangun di tahap berikutnya).
+// BAITUNA - dashboard-member.js (v72)
+// Beranda Jamaah Umum (Design System v1.2). Pengurus (Ketua Takmir / Bendahara) mendapat tambahan bagian "Kelola Masjid".
+// Admin Masjid dari masjid aktif memakai dashboard pengelolaan (dashboard-mosque.js).
 import { h, STATUS_LABEL } from './ui.js';
 import { ROLE_LABEL } from './permissions.js';
 import { renderMosque } from './dashboard-mosque.js';
 import { getMosque } from './mosque-service.js';
 import { renderPostsManager } from './posts-ui.js';
-import { feedPanel, icon, ICONS } from './feed-ui.js';
-import { openMosque } from './directory.js';
 import { renderKasManager } from './kas-ui.js';
-
+import { ICONS } from './feed-ui.js';
+import { greetingHeader, bannerCarousel, promoBanner, prayerCard, quickGrid, articleSection, whoAmI, go, registerActs } from './home-ui.js';
 
 export async function renderMember(box, memberships) {
+  registerActs({});
   const rows = memberships.filter(m => m.mosques);
-  // Admin Masjid dari masjid aktif: tampilkan dashboard pengelolaan (satu masjid; jika lebih, yang pertama).
   const mine = rows.find(m => m.role === 'admin_masjid' && m.mosques.status === 'active');
   if (mine) { await renderMosque(box, mine.mosques.id); return; }
-  // Ketua Takmir / Bendahara dari masjid aktif: agenda & pengumuman (Ketua) dan kas masjid.
+
+  const who = await whoAmI();
   const act = rows.filter(m => (m.role === 'ketua_takmir' || m.role === 'bendahara') && m.mosques.status === 'active');
+  let manage = null, mosque = null;
   if (act.length) {
     const mid = act[0].mosques.id;
     const isKetua = act.some(m => m.mosques.id === mid && m.role === 'ketua_takmir');
     const isBend = act.some(m => m.mosques.id === mid && m.role === 'bendahara');
-    const mosque = await getMosque(mid);
-    if (mosque) {
-      const home = () => renderMember(box, memberships);
-      const openKas = () => renderKasManager(box, mosque, { onBack: home, roles: { write: isBend, setup: isBend, approve: isKetua } });
-      box.replaceChildren(h('h2', {}, mosque.name), h('p', { class: 'muted' }, 'Dashboard ' + (isKetua ? 'Ketua Takmir' : 'Bendahara')),
-        h('div', { class: 'actions' },
-          isKetua ? h('button', { class: 'act primary', type: 'button', id: 'open-posts', onclick: () => renderPostsManager(box, mosque, home) }, icon(ICONS.agenda), h('span', {}, 'Agenda & pengumuman')) : '',
-          h('button', { class: 'act' + (isKetua ? '' : ' primary'), type: 'button', id: 'open-kas', onclick: openKas }, icon(ICONS.market), h('span', {}, 'Kas masjid'))));
-      return;
-    }
+    mosque = await getMosque(mid);
+    if (mosque) manage = { isKetua, isBend };
   }
-  box.replaceChildren(
-    h('h2', {}, 'Selamat datang'),
-    rows.length
-      ? h('div', { class: 'panel' }, h('h3', {}, 'Keanggotaan Anda'),
-          rows.map(m => h('div', { class: 'mrow' },
-            h('div', { class: 'minfo' }, h('strong', {}, m.mosques.name), h('div', { class: 'muted' }, ROLE_LABEL[m.role] || m.role)),
-            h('span', { class: 'badge b-' + m.mosques.status }, STATUS_LABEL[m.mosques.status] || m.mosques.status))))
-      : h('div', { class: 'panel' }, h('p', {}, 'Akun Anda belum ditugaskan ke masjid mana pun. Hubungi admin pusat untuk mendapatkan undangan.')),
-    h('h3', { class: 'mt' }, 'Kegiatan masjid terbaru'),
-    feedPanel({ limit: 10, onOpen: m => openMosque(m, 'app', () => renderMember(box, memberships)) }),
-    h('p', { class: 'muted' }, 'Dashboard sesuai peran dibangun di tahap berikutnya.'));
+  const home = () => renderMember(box, memberships);
+  const first = who.name ? who.name.split(' ')[0] : '';
+  const chipRow = manage ? act[0] : rows[0];
+  const articles = await articleSection(2);
+  const body = [
+    bannerCarousel([
+      { kicker: 'Sejarah Islam', title: 'Sejarah Islam Bersama BAITUNA', text: 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', cta: 'Pelajari Sekarang', onclick: () => go('sejarah') },
+      { title: 'Belajar Qur’an', text: 'Materi belajar membaca Al-Qur’an, dari dasar sampai lancar.', cta: 'Mulai Belajar', onclick: () => go('belajar'), tone: 'gold' },
+      { title: 'Amalan Sunnah Harian', text: 'Pengingat amalan sunnah untuk dibiasakan setiap hari.', cta: 'Lihat Amalan', onclick: () => go('sunnah') }]),
+    promoBanner({ id: 'pb', title: 'Pasar Umat', text: 'Lihat produk dan jasa dari umat yang sudah diperiksa pengelola.', cta: 'Lihat Produk', onclick: () => go('market') }),
+    prayerCard(),
+    quickGrid('Akses Cepat', [
+      { key: 'open-quran', id: 'qa-quran', onclick: () => go('quran') },
+      { key: 'open-jadwal', id: 'qa-jadwal', onclick: () => go('jadwal') },
+      { key: 'open-nearby', id: 'qa-nearby', onclick: () => go('dir') },
+      { key: 'open-doa', id: 'qa-doa', onclick: () => go('doa') },
+      { key: 'open-zakat', id: 'qa-zakat', onclick: () => go('zakat') },
+      { key: 'open-agenda', id: 'qa-agenda', onclick: () => go('info') },
+      { key: 'open-market', id: 'qa-market', onclick: () => go('market') },
+      { key: 'open-more', id: 'qa-more', onclick: () => go('more') }], { onAll: () => go('more') })];
+  if (manage) {
+    const openKas = () => renderKasManager(box, mosque, { onBack: home, roles: { write: manage.isBend, setup: manage.isBend, approve: manage.isKetua } });
+    const items = [];
+    if (manage.isKetua) items.push({ key: 'open-agenda', id: 'open-posts', label: 'Agenda', onclick: () => renderPostsManager(box, mosque, home) });
+    items.push({ key: 'open-keuangan', id: 'open-kas', label: 'Kas Masjid', onclick: openKas });
+    body.splice(3, 0, quickGrid('Kelola ' + mosque.name, items, { id: 'qm' }));
+  } else if (rows.length) {
+    body.push(h('div', { class: 'panel', id: 'jm-member' }, h('h3', {}, 'Keanggotaan Anda'),
+      rows.map(m => h('div', { class: 'mrow' }, h('div', { class: 'minfo' }, h('strong', {}, m.mosques.name), h('div', { class: 'muted' }, ROLE_LABEL[m.role] || m.role)),
+        h('span', { class: 'badge b-' + m.mosques.status }, STATUS_LABEL[m.mosques.status] || m.mosques.status)))));
+  }
+  if (articles) body.push(articles);
+  box.replaceChildren(h('div', { class: 'home', id: 'home-jamaah' },
+    greetingHeader({ title: first || 'Jamaahku', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.',
+      chip: chipRow ? chipRow.mosques.name + ' · ' + (ROLE_LABEL[chipRow.role] || chipRow.role) : '', name: who.name, email: who.email }),
+    h('div', { class: 'home-body' }, ...body)));
+  window.scrollTo(0, 0);
 }

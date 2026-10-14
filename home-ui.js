@@ -1,0 +1,138 @@
+// BAITUNA - home-ui.js (v72)
+// Komponen bersama beranda tiap peran (Design System v1.2): header sapaan, banner, kartu jadwal salat,
+// Akses Cepat, daftar artikel, kartu statistik, dan daftar aktivitas. Semua data berasal dari fitur yang sudah ada.
+import { h } from './ui.js';
+import { icon, ICONS } from './feed-ui.js';
+import { openDirectory } from './directory.js';
+import { loadLoc, offsetFor, clock } from './jadwal-ui.js';
+import { nextPrayer, PRAYERS, offsetOf, isValidTimes } from './prayer-times.js';
+import { listArticles, catLabel } from './articles-service.js';
+import { publicPhotoUrl, ARTICLE_BUCKET, getSession } from './supabase.js';
+import { initials, getMyProfile, cleanName } from './profile-service.js';
+import { CATALOG } from './quick-catalog.js';
+import { refreshIcons } from './branding-service.js';
+
+let backFn = () => {};
+export const setHomeBack = fn => { backFn = fn; };
+// Buka halaman fitur (direktori/Al-Qur'an/dll.) dan kembali ke beranda lewat tombol Kembali.
+export const go = tab => openDirectory('app', () => backFn(), tab);
+
+export const sectionHead = (title, onAll, id) => h('div', { class: 'sh' }, h('h2', {}, title),
+  onAll ? h('button', { class: 'sh-all', type: 'button', id, onclick: onAll }, 'Lihat Semua', icon(ICONS.chev)) : '');
+
+/* ===== Header sapaan ===== */
+export function greetingHeader({ title, sub, chip, name, email }) {
+  return h('header', { class: 'hh', id: 'hh' },
+    h('div', { class: 'hh-row' },
+      h('button', { class: 'hh-av', type: 'button', id: 'hh-av', 'aria-label': 'Akun saya', onclick: () => go('profil') }, initials(name, email)),
+      h('div', { class: 'hh-txt' },
+        h('span', { class: 'hh-hi' }, 'Assalamu’alaikum'),
+        h('h1', { class: 'hh-title', id: 'hh-title' }, title),
+        sub ? h('p', { class: 'hh-sub' }, sub) : '',
+        chip ? h('span', { class: 'hh-chip', id: 'hh-chip' }, icon(ICONS.mosque), chip) : ''),
+      h('button', { class: 'hh-bell', type: 'button', id: 'hh-bell', 'aria-label': 'Notifikasi', onclick: () => go('notif') }, icon(ICONS.bell))));
+}
+
+/* ===== Banner utama (geser ke samping; titik penanda) ===== */
+export function bannerCarousel(slides, { id = 'banner' } = {}) {
+  const track = h('div', { class: 'bn-track', id, role: 'group', 'aria-label': 'Banner' },
+    ...slides.map((s, i) => h('article', { class: 'bn-slide ' + (s.tone || 'green'), 'data-i': String(i), 'aria-label': (i + 1) + ' dari ' + slides.length },
+      h('div', { class: 'bn-txt' }, s.kicker ? h('span', { class: 'bn-kick' }, s.kicker) : '', h('h2', {}, s.title), h('p', {}, s.text),
+        h('button', { class: 'bn-cta', type: 'button', onclick: s.onclick }, s.cta, icon(ICONS.chev))))));
+  const dots = slides.length > 1 ? h('div', { class: 'bn-dots', 'aria-hidden': 'true' }, ...slides.map((_, i) => h('i', { class: i === 0 ? 'on' : '' }))) : '';
+  if (dots) track.addEventListener('scroll', () => {
+    const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+    [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
+  }, { passive: true });
+  return h('section', { class: 'bn' }, track, dots);
+}
+export const promoBanner = ({ title, text, cta, onclick, id }) =>
+  h('section', { class: 'pb', id }, h('div', { class: 'pb-txt' }, h('h2', {}, title), h('p', {}, text), h('button', { class: 'bn-cta gold', type: 'button', onclick }, cta, icon(ICONS.chev))));
+
+/* ===== Jadwal salat hari ini (dihitung di perangkat) ===== */
+const two = n => String(n).padStart(2, '0');
+const hms = ms => { const t = Math.max(0, Math.floor(ms / 1000)); return two(Math.floor(t / 3600)) + ':' + two(Math.floor(t % 3600 / 60)) + ':' + two(t % 60); };
+// place: {lat,lng,tz,label} (mis. koordinat masjid). Tanpa itu dipakai lokasi yang dipilih pengguna di Jadwal Salat.
+export function prayerCard({ place = null } = {}) {
+  let spot = null;
+  if (place && Number.isFinite(place.lat) && Number.isFinite(place.lng)) spot = { lat: place.lat, lng: place.lng, off: offsetOf(place.tz), label: place.label || '' };
+  else { const l = loadLoc(); if (l) spot = { lat: l.lat, lng: l.lng, off: offsetFor(l), label: l.mode === 'city' ? l.city : 'Lokasi perangkat' }; }
+  const date = new Date().toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const head = h('div', { class: 'pc-head' }, h('div', {}, h('h2', {}, 'Jadwal Salat Hari Ini'), h('p', { class: 'pc-date' }, date + (spot && spot.label ? ' · ' + spot.label : ''))),
+    h('button', { class: 'sh-all', type: 'button', id: 'pc-all', onclick: () => go('jadwal') }, 'Lihat Semua', icon(ICONS.chev)));
+  const card = h('section', { class: 'pc', id: 'pc' }, head);
+  const n = spot ? nextPrayer(Date.now(), spot.lat, spot.lng, spot.off) : null;
+  if (!spot || !n) {
+    card.append(h('p', { class: 'pc-empty', id: 'pc-empty' }, spot ? 'Jadwal belum bisa dihitung untuk lokasi ini.' : 'Pilih kota atau izinkan lokasi agar jadwal salat tampil. Lokasi hanya dipakai di perangkat ini.'),
+      h('button', { class: 'bn-cta gold', type: 'button', id: 'pc-set', onclick: () => go('jadwal') }, 'Atur lokasi', icon(ICONS.chev)));
+    return card;
+  }
+  const label = h('span', { class: 'pc-next' }), count = h('div', { class: 'pc-count', id: 'pc-count', 'aria-live': 'off' });
+  const row = h('div', { class: 'pc-row', id: 'pc-row' });
+  let cur = n;
+  const paint = () => {
+    label.textContent = 'Menuju ' + (PRAYERS.find(p => p[0] === cur.key) || [0, ''])[1];
+    row.replaceChildren(...PRAYERS.map(([k, name]) => h('div', { class: 'pc-t' + (k === cur.key ? ' on' : ''), 'data-k': k }, h('span', {}, name), h('b', {}, Number.isFinite(cur.moments[k]) ? clock(cur.moments[k], spot.off) : '--:--'))));
+  };
+  const tick = () => {
+    if (!card.isConnected) { clearInterval(iv); return; }
+    let left = cur.at - Date.now();
+    if (left <= 0) { const m = nextPrayer(Date.now(), spot.lat, spot.lng, spot.off); if (m) { cur = m; paint(); left = cur.at - Date.now(); } }
+    count.textContent = hms(left);
+  };
+  paint(); count.textContent = hms(cur.at - Date.now());
+  const iv = setInterval(tick, 1000);
+  card.append(h('div', { class: 'pc-mid' }, label, count), row);
+  return card;
+}
+
+/* ===== Akses Cepat ===== */
+// items: [{key,label?,id?,onclick}] ; key mengacu ke quick-catalog (ikon bisa diganti Super Admin).
+export function quickGrid(title, items, { onAll, id = 'qa' } = {}) {
+  const grid = h('div', { class: 'qk-grid', id },
+    ...items.map(it => { const c = CATALOG[it.key] || [it.label, ICONS.more];
+      return h('button', { class: 'qk', type: 'button', id: it.id, 'data-ic': it.key, onclick: it.onclick }, h('span', { class: 'qk-ic' }, icon(c[1])), h('span', { class: 'qk-l' }, it.label || c[0])); }));
+  setTimeout(refreshIcons, 0);
+  return h('section', { class: 'qs' }, sectionHead(title, onAll, id + '-all'), grid);
+}
+
+/* ===== Artikel terbaru (hanya yang terbit; senyap bila belum ada atau gagal dimuat) ===== */
+export async function articleSection(limit = 2) {
+  let items = [];
+  try { items = (await listArticles()).items.slice(0, limit); } catch (e) { return ''; }
+  if (!items.length) return '';
+  return h('section', { class: 'ar', id: 'ar' }, sectionHead('Artikel Terbaru', () => go('berita'), 'ar-all'),
+    ...items.map(a => { const u = a.cover_path ? publicPhotoUrl(a.cover_path, ARTICLE_BUCKET) : null;
+      return h('button', { class: 'ar-item', type: 'button', onclick: () => go('berita') },
+        u ? h('img', { src: u, alt: '', loading: 'lazy', class: 'ar-img' }) : h('span', { class: 'ar-img ar-ph' }, icon(ICONS.news)),
+        h('span', { class: 'ar-t' }, h('b', {}, a.title), h('small', {}, catLabel(a.category) + (a.source_name ? ' · ' + a.source_name : '')))); }));
+}
+
+/* ===== Statistik & aktivitas ===== */
+export const statGrid = (items, id = 'stg') => h('div', { class: 'sg', id }, ...items.map(([ic, n, l]) =>
+  h('div', { class: 'sg-i' }, h('span', { class: 'sg-ic' }, icon(ic)), h('div', {}, h('b', {}, String(n)), h('small', {}, l)))));
+
+export function relTime(iso, now = Date.now()) {
+  const t = new Date(iso).getTime(); if (!Number.isFinite(t)) return '';
+  const m = Math.floor((now - t) / 60000);
+  if (m < 1) return 'baru saja'; if (m < 60) return m + ' menit lalu';
+  const hh = Math.floor(m / 60); if (hh < 24) return hh + ' jam lalu';
+  const d = Math.floor(hh / 24); if (d < 8) return d + ' hari lalu';
+  return new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+export const activityList = (rows, labelOf, onAll) => h('section', { class: 'av', id: 'av' }, sectionHead('Aktivitas Terbaru', onAll, 'av-all'),
+  rows.length ? h('ul', { class: 'av-list' }, ...rows.map(r => h('li', { class: 'av-i' }, h('span', { class: 'av-ic' }, icon(ICONS.clock)), h('div', {}, h('b', {}, labelOf(r.action)), h('small', {}, relTime(r.created_at)))))) : h('p', { class: 'muted av-empty' }, 'Belum ada aktivitas tercatat.'));
+
+// Pegangan aksi beranda (dipakai menu bawah): tiap beranda mendaftarkan fungsinya.
+const acts = {};
+export const registerActs = o => { Object.keys(acts).forEach(k => delete acts[k]); Object.assign(acts, o); };
+export const runAct = k => { if (acts[k]) acts[k](); };
+export const scrollToEl = el => { if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+// Nama untuk sapaan/avatar (gagal memuat profil tidak menghalangi beranda).
+export async function whoAmI() {
+  const u = (getSession() && getSession().user) || {};
+  let name = '';
+  try { if (u.id) name = cleanName((await getMyProfile(u.id)).full_name); } catch (e) { if (e && e.status === 401) throw e; }
+  return { name, email: u.email || '' };
+}

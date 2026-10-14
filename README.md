@@ -384,3 +384,10 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - SQL: `tampilan.sql` (jalankan SETELAH `daftar_audit.sql`, aman diulang). Tabel `app_branding` (publik dibaca, tidak bisa ditulis langsung), fungsi `branding_set` / `branding_reset` (hanya Super Admin, tercatat di Jejak audit), bucket publik `branding` (maks 2 MB).
 - Berkas: `branding-service.js`, `branding-ui.js`. Tampilan dipakai semua orang sebelum login; salinan disimpan di perangkat (`baituna.brand.v1`).
 - Bila foto/ikon gagal dimuat, otomatis kembali ke bawaan. Font Al-Qur'an tidak ikut berubah.
+
+## Tambahan v72 - Dashboard baru per peran (Tahap 3-5)
+- Beranda Jamaah, Admin Masjid, dan Super Admin memakai komponen yang sama (`home-ui.js`, gaya di `home.css`): header sapaan, banner geser, banner Pasar Umat, kartu Jadwal Salat Hari Ini (dihitung di perangkat; hitung mundur berjalan), Akses Cepat, artikel / aktivitas / statistik.
+- Menu bawah mengikuti peran. Jamaah: Beranda, Al-Qur'an, Masjid, Agenda, Akun. Admin Masjid: Beranda, Pengurus, Keuangan, Agenda, Lainnya. Super Admin: Beranda, Masjid, Pengguna, Audit, Akun.
+- Ikon Akses Cepat memakai kunci `open-xxx` (`quick-catalog.js`), jadi bisa diganti dari editor Tampilan aplikasi.
+- Semua angka dan daftar berasal dari data nyata (tanpa contoh palsu). Bagian tanpa data (artikel, aktivitas) disembunyikan.
+- Tidak ada SQL baru di v72.

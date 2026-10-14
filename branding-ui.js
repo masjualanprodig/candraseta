@@ -2,6 +2,7 @@
 // Editor "Tampilan Aplikasi" khusus Super Admin: foto latar splash, font, dan ikon Akses Cepat.
 import { h, ask } from './ui.js';
 import * as B from './branding-service.js';
+import { icon } from './feed-ui.js';
 
 const SAMPLE = 'Satu Masjid, Banyak Manfaat';
 
@@ -67,10 +68,11 @@ export function renderBrandingEditor(box, onBack) {
     const cfg = B.getCurrent(); const tiles = B.tileList();
     const rows = tiles.map(t => {
       const custom = cfg.icons[t.id];
-      const src = document.querySelector('#' + t.id + ' svg.ic');
+      const src = document.querySelector('a.tile#' + t.id + ' svg.ic');
       const thumb = h('span', { class: 'br-thumb' });
       if (custom && B.urlFor(custom)) thumb.appendChild(h('img', { src: B.urlFor(custom), alt: '', class: 'ic-img' }));
       else if (src) { const c = src.cloneNode(true); c.removeAttribute('hidden'); thumb.appendChild(c); }
+      else if (t.ic) thumb.appendChild(icon(t.ic));
       return h('li', { class: 'br-icon', 'data-key': t.id, 'data-custom': custom ? '1' : '0' },
         thumb, h('span', { class: 'br-label' }, t.label),
         fileBtn(custom ? 'Ganti' : 'Pilih', 'image/png,image/jpeg,image/webp,image/svg+xml,.svg', f => guard('Ikon “' + t.label + '” disimpan.', async () => { await B.setIcon(t.id, await B.prepareIcon(f)); }), null, 'btn-sm br-icon-pick'),

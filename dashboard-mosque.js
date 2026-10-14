@@ -12,6 +12,8 @@ import { icon, ICONS } from './feed-ui.js';
 import { getSession } from './supabase.js';
 import { renderKasManager } from './kas-ui.js';
 import { renderAuditLog } from './audit-ui.js';
+import { list as listAudit, actionLabel } from './audit-service.js';
+import { greetingHeader, bannerCarousel, promoBanner, prayerCard, quickGrid, activityList, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
 
 const ROLES_FOR_ADMIN_MASJID = ['ketua_takmir', 'bendahara', 'pengurus_bagian', 'pengelola_usaha'];
 
@@ -150,19 +152,36 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   } catch (e) { if (e && e.status === 401) return; }
   const stat = (n, label) => h('div', { class: 'stat' }, h('b', {}, String(n)), h('span', {}, label));
   const place = [mosque.address, mosque.city, mosque.province].filter(Boolean).join(', ');
-  box.replaceChildren(
-    h('div', { class: 'panel msum mhero' + (url ? ' has-photo' : '') },
-      url ? h('img', { class: 'mhero-img', src: url, alt: 'Foto ' + mosque.name }) : '',
-      h('div', { class: 'mhero-txt' },
-        h('h2', {}, mosque.name),
-        h('p', { class: 'mhero-sub' }, 'Dashboard Admin Masjid'),
-        h('p', { class: 'mhero-place' }, place || 'Alamat belum diisi.'))),
-    counts ? h('div', { class: 'stats' }, stat(counts.live, 'Terbit'), stat(counts.draft, 'Draf'), stat(team.length, 'Pengurus')) : '',
-    h('div', { class: 'actions' },
-      h('button', { class: 'act primary', type: 'button', onclick: () => renderMosque(box, mosqueId, 'posts') }, icon(ICONS.agenda), h('span', {}, 'Agenda & pengumuman')),
-      h('button', { class: 'act', type: 'button', id: 'open-kas', onclick: () => renderMosque(box, mosqueId, 'kas') }, icon(ICONS.market), h('span', {}, 'Kas masjid')),
-      h('button', { class: 'act', type: 'button', id: 'open-audit', onclick: () => renderMosque(box, mosqueId, 'audit') }, icon(ICONS.shield), h('span', {}, 'Jejak audit')),
-      h('button', { class: 'act', type: 'button', onclick: goEdit }, icon(ICONS.mosque), h('span', {}, 'Edit profil & foto masjid'))),
-    teamBox);
+  const who = await whoAmI();
+  let acts = [];
+  try { acts = (await listAudit({ mosque: mosque.id, limit: 3 })) || []; } catch (e) { if (e && e.status === 401) return; acts = null; }
+  const mLat = mosque.latitude == null ? NaN : Number(mosque.latitude), mLng = mosque.longitude == null ? NaN : Number(mosque.longitude);
+  const teamTop = h('div', { id: 'team-anchor' }, teamBox);
+  const toTeam = () => scrollToEl(teamTop);
+  registerActs({ kas: () => renderMosque(box, mosqueId, 'kas'), posts: () => renderMosque(box, mosqueId, 'posts'), team: toTeam });
+  box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
+    greetingHeader({ title: 'Admin Masjid', chip: mosque.name, name: who.name, email: who.email }),
+    h('div', { class: 'home-body' },
+      bannerCarousel([
+        { title: 'Kelola Masjid Lebih Mudah Bersama BAITUNA', text: 'Agenda, kas, dan pengurus masjid dalam satu tempat.', cta: 'Buka Agenda', onclick: () => renderMosque(box, mosqueId, 'posts') },
+        { title: 'Catat Kas dengan Rapi', text: 'Buku kas tidak bisa diubah diam-diam; koreksi tercatat sebagai baris baru.', cta: 'Buka Kas', onclick: () => renderMosque(box, mosqueId, 'kas'), tone: 'gold' }]),
+      promoBanner({ id: 'pb', title: 'Pasar Umat', text: 'Lihat produk dan jasa dari umat yang sudah diperiksa pengelola.', cta: 'Lihat Produk', onclick: () => go('market') }),
+      prayerCard({ place: Number.isFinite(mLat) && Number.isFinite(mLng) ? { lat: mLat, lng: mLng, tz: mosque.timezone || 'Asia/Jakarta', label: mosque.name } : null }),
+      quickGrid('Kelola Masjid', [
+        { key: 'open-pengurus', id: 'qa-pengurus', onclick: toTeam },
+        { key: 'open-keuangan', id: 'open-kas', onclick: () => renderMosque(box, mosqueId, 'kas') },
+        { key: 'open-agenda', id: 'open-posts', label: 'Agenda', onclick: () => renderMosque(box, mosqueId, 'posts') },
+        { key: 'open-profilmasjid', id: 'open-edit', onclick: goEdit },
+        { key: 'open-audit', id: 'open-audit', onclick: () => renderMosque(box, mosqueId, 'audit') },
+        { key: 'open-more', id: 'qa-more', onclick: () => go('more') }]),
+      acts === null ? '' : activityList(acts, actionLabel, () => renderMosque(box, mosqueId, 'audit')),
+      h('div', { class: 'panel msum mhero' + (url ? ' has-photo' : '') },
+        url ? h('img', { class: 'mhero-img', src: url, alt: 'Foto ' + mosque.name }) : '',
+        h('div', { class: 'mhero-txt' },
+          h('h2', {}, mosque.name),
+          h('p', { class: 'mhero-sub' }, 'Dashboard Admin Masjid'),
+          h('p', { class: 'mhero-place' }, place || 'Alamat belum diisi.'))),
+      counts ? h('div', { class: 'stats' }, stat(counts.live, 'Terbit'), stat(counts.draft, 'Draf'), stat(team.length, 'Pengurus')) : '',
+      teamTop)));
   window.scrollTo(0, 0);
 }
