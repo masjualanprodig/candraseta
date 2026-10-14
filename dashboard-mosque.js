@@ -13,7 +13,7 @@ import { getSession } from './supabase.js';
 import { renderKasManager } from './kas-ui.js';
 import { renderAuditLog } from './audit-ui.js';
 import { list as listAudit, actionLabel } from './audit-service.js';
-import { greetingHeader, bannerCarousel, quickGrid, summaryCard, agendaCard, announceCard, activityList, whoAmI, go, registerActs, scrollToEl, BOLT } from './home-ui.js';
+import { greetingHeader, bannerCarousel, promoBanner, prayerCard, quickGrid, summaryCard, agendaCard, announceCard, activityList, whoAmI, go, registerActs, scrollToEl, BOLT } from './home-ui.js';
 import * as K from './kas-service.js';
 import { isUpcoming, dateParts, fmtTimes, fmtWhen } from './post-time.js';
 
@@ -170,6 +170,9 @@ export async function renderMosque(box, mosqueId, view = 'home') {
       bannerCarousel([
         { art: 'banner_masjid', title: mosque.name + ' Bersama BAITUNA', text: 'Mengelola masjid lebih mudah, lebih profesional, dan lebih berdampak.', cta: 'Kelola Masjid', onclick: goEdit },
         { art: 'banner_kas', title: 'Catat Kas dengan Rapi', text: 'Buku kas tidak bisa diubah diam-diam; koreksi tercatat sebagai baris baru.', cta: 'Buka Kas', onclick: toKas, tone: 'gold' }]),
+      promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu dan wawasan.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
+      promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Dukung produk dan jasa umat yang sudah diperiksa pengelola.', cta: 'Lihat Produk', onclick: () => go('market') }),
+      prayerCard(),
       posts ? summaryCard({ id: 'ops', title: 'Ringkasan Operasional Masjid', onAll: toPosts, allLabel: 'Lihat Detail', items: [
         { ic: ICONS.user, value: team.length, label: 'Pengurus' },
         { ic: ICONS.agenda, value: upcoming.length, label: 'Kegiatan Mendatang' },

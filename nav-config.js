@@ -15,7 +15,7 @@ export const NAV_ITEMS = {
     { id: 'nav-pengurus', label: 'Pengurus', ic: ICONS.user, act: 'team' },
     { id: 'nav-kas', label: 'Keuangan', ic: ICONS.zakat, act: 'kas' },
     { id: 'nav-posts', label: 'Agenda', ic: ICONS.agenda, act: 'posts' },
-    { id: 'nav-more', label: 'Lainnya', ic: ICONS.more, tab: 'more', group: 'more' }],
+    { id: 'nav-profil', label: 'Akun', ic: ICONS.user, tab: 'profil' }],
   super: [
     { id: 'nav-home', label: 'Beranda', ic: ICONS.home, home: true },
     { id: 'nav-masjid', label: 'Masjid', ic: ICONS.mosque, act: 'masjid' },
