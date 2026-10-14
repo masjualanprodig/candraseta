@@ -195,6 +195,25 @@ function loginFeed() {
   }));
 }
 
+/* ===== Tombol Kembali bawaan HP / peramban =====
+   Dari halaman fitur: kembali ke Beranda. Di Beranda atau halaman masuk: tekan dua kali untuk keluar. */
+let exitArmed = 0;
+const guard = () => { try { history.pushState({ baituna: 1 }, '', location.href); } catch (e) {} };
+const shown = id => { const e = $(id); return !!e && !e.hidden; };
+function handleBack() {
+  if (shown('view-public')) { $('public-back').click(); return true; }
+  if (shown('view-signup')) { $('su-back').click(); return true; }
+  if (shown('view-app') && !$('hh')) { enterApp(); window.scrollTo(0, 0); return true; }
+  return shown('view-splash') || shown('view-reset');
+}
+addEventListener('popstate', () => {
+  if (handleBack()) { guard(); return; }
+  const now = Date.now();
+  if (now - exitArmed < 2500) { exitArmed = 0; history.back(); return; }
+  exitArmed = now; toast('Tekan Kembali sekali lagi untuk keluar'); guard();
+});
+guard();
+
 /* ===== Start ===== */
 async function start() {
   const wait = new Promise(r => setTimeout(r, 900)); // agar splash tidak berkedip
