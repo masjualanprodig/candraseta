@@ -108,24 +108,25 @@ export async function renderAdmin(box) {
   const openAudit = () => renderAuditLog(box, { onBack: () => renderAdmin(box), mosques: list.map(m => ({ id: m.id, name: m.name })) });
   const openMarket = () => renderMarketManager(box, () => renderAdmin(box));
   const openBrand = () => renderBrandingEditor(box, () => renderAdmin(box));
-  const kontenBox = h('section', { class: 'konten', id: 'konten' }, h('h2', {}, 'Kelola Konten & Fitur'),
+  const openKonten = () => box.replaceChildren(h('section', { class: 'konten', id: 'konten' },
+    h('button', { class: 'btn-sm ghost', id: 'konten-back', type: 'button', onclick: () => renderAdmin(box) }, '← Kembali'), h('h2', {}, 'Konten'),
     h('div', { class: 'actions' },
-      h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => renderAdmin(box)) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderRukunManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Rukun Islam & Iman')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderArticleManager(box, () => renderAdmin(box)) }, icon(ICONS.news), h('span', {}, 'Berita & Artikel Islam')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderDhikrManager(box, () => renderAdmin(box)) }, icon(ICONS.dzikir), h('span', {}, 'Dzikir Pagi & Petang')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderDuaManager(box, () => renderAdmin(box)) }, icon(ICONS.doa), h('span', {}, 'Doa Shahih')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderSunnahManager(box, () => renderAdmin(box)) }, icon(ICONS.sunnah), h('span', {}, 'Amalan Sunnah Harian')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderBelajarManager(box, () => renderAdmin(box)) }, icon(ICONS.belajar), h('span', {}, 'Materi Belajar Qur’an')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderAsmaManager(box, () => renderAdmin(box)) }, icon(ICONS.asma), h('span', {}, 'Penjelasan & Audio Asmaul Husna'))));
+      h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => openKonten()) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => openKonten()) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderRukunManager(box, () => openKonten()) }, icon(ICONS.book), h('span', {}, 'Rukun Islam & Iman')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderArticleManager(box, () => openKonten()) }, icon(ICONS.news), h('span', {}, 'Berita & Artikel Islam')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderDhikrManager(box, () => openKonten()) }, icon(ICONS.dzikir), h('span', {}, 'Dzikir Pagi & Petang')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderDuaManager(box, () => openKonten()) }, icon(ICONS.doa), h('span', {}, 'Doa Shahih')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderSunnahManager(box, () => openKonten()) }, icon(ICONS.sunnah), h('span', {}, 'Amalan Sunnah Harian')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderBelajarManager(box, () => openKonten()) }, icon(ICONS.belajar), h('span', {}, 'Materi Belajar Qur’an')),
+      h('button', { class: 'act', type: 'button', onclick: () => renderAsmaManager(box, () => openKonten()) }, icon(ICONS.asma), h('span', {}, 'Penjelasan & Audio Asmaul Husna')))));
   const listAnchor = h('div', { id: 'mosque-list' });
   registerActs({ jamaah: openJamaah, audit: openAudit, masjid: () => scrollToEl(listAnchor) });
   const badge = n => n ? h('em', { class: 'qk-badge', 'aria-label': n + ' menunggu' }, String(n)) : '';
   const grid = quickGrid('Manajemen Platform', [
     { key: 'open-datamasjid', id: 'qa-masjid', onclick: () => scrollToEl(listAnchor) },
     { key: 'open-pengguna', id: 'adm-jamaah', label: 'Pendaftaran Jamaah', onclick: openJamaah },
-    { key: 'open-konten', id: 'qa-konten', onclick: () => scrollToEl(kontenBox) },
+    { key: 'open-konten', id: 'qa-konten', onclick: openKonten },
     { key: 'open-market', id: 'adm-market', label: 'Verifikasi Pasar', onclick: openMarket },
     { key: 'open-audit', id: 'adm-audit', onclick: openAudit },
     { key: 'open-tampilan', id: 'adm-tampilan', onclick: openBrand },
@@ -143,7 +144,6 @@ export async function renderAdmin(box) {
       h('section', { class: 'sgw' }, sectionHead('Statistik Platform'), statGrid([
         [ICONS.mosque, list.length, 'Masjid terdaftar'], [ICONS.shield, count('active'), 'Masjid aktif'],
         [ICONS.clock, count('pending'), 'Menunggu verifikasi'], [ICONS.user, pending == null ? '–' : pending, 'Jamaah menunggu']])),
-      kontenBox,
     form,
       listAnchor,
     h('div', { class: 'panel' },
