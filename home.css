@@ -130,15 +130,15 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,
 .bn-slide{min-height:176px}
 .bn-slide[data-art]{background-image:linear-gradient(90deg,rgba(6,75,61,.92) 0%,rgba(6,75,61,.78) 48%,rgba(6,75,61,.12) 100%),var(--art-x,none),linear-gradient(135deg,var(--emerald) 0%,var(--green-deep) 100%);background-size:cover,cover,cover;background-position:center,right center,center}
 .bn-slide.gold[data-art]{background-image:linear-gradient(90deg,rgba(95,69,16,.92) 0%,rgba(95,69,16,.78) 48%,rgba(95,69,16,.12) 100%),var(--art-x,none),linear-gradient(135deg,#8A6A1E,#5F4510)}
-.bn-slide[data-art="banner_masjid"]{--art-x:var(--art-banner_masjid,none)}
-.bn-slide[data-art="banner_sejarah"]{--art-x:var(--art-banner_sejarah,none)}
-.bn-slide[data-art="banner_belajar"]{--art-x:var(--art-banner_belajar,none)}
-.bn-slide[data-art="banner_sunnah"]{--art-x:var(--art-banner_sunnah,none)}
-.bn-slide[data-art="banner_kas"]{--art-x:var(--art-banner_kas,none)}
+.bn-slide[data-art="banner_masjid"]{--art-x:var(--art-banner_masjid,url("art-banner.svg"))}
+.bn-slide[data-art="banner_sejarah"]{--art-x:var(--art-banner_sejarah,url("art-banner.svg"))}
+.bn-slide[data-art="banner_belajar"]{--art-x:var(--art-banner_belajar,url("art-banner.svg"))}
+.bn-slide[data-art="banner_sunnah"]{--art-x:var(--art-banner_sunnah,url("art-banner.svg"))}
+.bn-slide[data-art="banner_kas"]{--art-x:var(--art-banner_kas,url("art-banner.svg"))}
 .bn-kick{font-size:.8rem;letter-spacing:.14em;color:#fff;font-weight:800;margin-bottom:2px}
-.pb[data-art]::before{content:"";position:absolute;inset:0;background:var(--art-x,none) right center/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 30%,#000 62%);mask-image:linear-gradient(90deg,transparent 30%,#000 62%);pointer-events:none}
-.pb[data-art="promo_buku"]{--art-x:var(--art-promo_buku,none)}
-.pb[data-art="promo_pasar"]{--art-x:var(--art-promo_pasar,none)}
+.pb[data-art]::before{content:"";position:absolute;inset:0;background:var(--art-x,none) right 4px center/auto 94% no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 46%,#000 70%);mask-image:linear-gradient(90deg,transparent 46%,#000 70%);pointer-events:none}
+.pb[data-art="promo_buku"]{--art-x:var(--art-promo_buku,url("art-buku.svg"))}
+.pb[data-art="promo_pasar"]{--art-x:var(--art-promo_pasar,url("art-pasar.svg"))}
 .pb{min-height:140px;padding:16px 18px}
 .pb h2{font-family:var(--font);font-size:1.2rem}
 /* jadwal salat: ikon per waktu, kotak putih */
@@ -198,3 +198,16 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,
 .sh h2{display:flex;align-items:center;gap:8px}
 .sm .sh h2,.ag .sh h2,.an .sh h2{font-size:.92rem}.sm .sh-all,.ag .sh-all,.an .sh-all{font-size:.74rem;white-space:nowrap}
 .qs{padding:12px 10px 10px}.qk-grid{gap:6px}.qk-l{font-size:.7rem;padding:0}
+
+/* ilustrasi bawaan (art-*.svg) + proporsi lebih ramping seperti mockup */
+.bn-slide[data-art]::after,.pb[data-art]::after{display:none}
+.bn-slide[data-art]{background-image:linear-gradient(90deg,rgba(6,75,61,.94) 0%,rgba(6,75,61,.82) 40%,rgba(6,75,61,0) 72%),var(--art-x,none),linear-gradient(135deg,var(--emerald) 0%,var(--green-deep) 100%);background-size:cover,cover,cover;background-position:center,right center,center}
+.bn-slide.gold[data-art]{background-image:linear-gradient(90deg,rgba(95,69,16,.94) 0%,rgba(95,69,16,.82) 40%,rgba(95,69,16,0) 72%),var(--art-x,none),linear-gradient(135deg,#8A6A1E,#5F4510)}
+.bn-slide{min-height:152px;padding:16px 16px 30px}
+.bn-txt{max-width:58%}
+.bn-slide h2{font-size:1.18rem;margin-bottom:4px}
+.bn-slide p{font-size:.78rem;line-height:1.45;margin-bottom:10px}
+.bn-cta{min-height:44px;padding:0 14px;font-size:.8rem}
+.pb{min-height:118px;padding:14px 16px}
+.pb-txt{max-width:58%}
+.pb h2{font-size:1.12rem;margin-bottom:4px}.pb p{font-size:.78rem;margin-bottom:8px;line-height:1.4}

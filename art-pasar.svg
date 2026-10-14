@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" preserveAspectRatio="xMaxYMid meet">
+<defs>
+<linearGradient id="bag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E8C70"/><stop offset="1" stop-color="#0A5644"/></linearGradient>
+<linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6DE9B"/><stop offset="1" stop-color="#C9983A"/></linearGradient>
+<linearGradient id="kr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D9B98A"/><stop offset="1" stop-color="#B88F5A"/></linearGradient>
+<radialGradient id="dt" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#9A5A32"/><stop offset="1" stop-color="#4E2A14"/></radialGradient>
+<linearGradient id="gl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#E7EFEA" stop-opacity=".45"/></linearGradient>
+</defs>
+<g fill="#2F9A74" opacity=".5"><path d="M200 60c-6-30 10-50 34-60c2 28-8 48-34 60z"/><path d="M214 66c18-20 46-26 70-18c-16 20-42 28-70 18z"/></g>
+<!-- tas hijau -->
+<g>
+<path d="M232 60q0-34 30-34t30 34" fill="none" stroke="#7A5530" stroke-width="5" stroke-linecap="round"/>
+<path d="M214 60h96l8 124H206z" fill="url(#bag)"/>
+<path d="M214 60h14l-6 124h-16z" fill="#fff" opacity=".07"/>
+<path d="M262 82c-2 6-12 12-12 26h24c0-14-10-20-12-26zM246 108h32v34h-32z" fill="none" stroke="url(#gd)" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M254 142v-12q8-9 16 0v12" fill="url(#gd)" opacity=".9"/>
+<path d="M262 76v6" stroke="url(#gd)" stroke-width="2.4"/><circle cx="262" cy="73" r="2.4" fill="url(#gd)"/>
+<path d="M232 170h60" stroke="url(#gd)" stroke-width="2" opacity=".8"/>
+</g>
+<!-- kotak kraft -->
+<g>
+<path d="M306 112h42l-2 62h-42z" fill="url(#kr)"/>
+<path d="M306 112h42l-4-10h-34z" fill="#E6CDA3"/>
+<path d="M327 112v62" stroke="#A47C47" stroke-width="2" opacity=".7"/>
+<path d="M312 138h30M312 146h22" stroke="#7A5530" stroke-width="2" opacity=".6"/>
+</g>
+<!-- toples kurma -->
+<g>
+<rect x="116" y="102" width="68" height="14" rx="4" fill="url(#gd)"/>
+<path d="M120 116h60l6 6v46q0 8-8 8h-56q-8 0-8-8v-46z" fill="url(#gl)" stroke="#BFD3CB" stroke-width="1.5"/>
+<g fill="url(#dt)"><ellipse cx="134" cy="160" rx="10" ry="6"/><ellipse cx="156" cy="162" rx="10" ry="6"/><ellipse cx="146" cy="150" rx="10" ry="6"/><ellipse cx="168" cy="152" rx="9" ry="6"/><ellipse cx="136" cy="140" rx="10" ry="6"/><ellipse cx="158" cy="138" rx="10" ry="6"/><ellipse cx="170" cy="130" rx="8" ry="5"/></g>
+</g>
+<!-- mangkuk kurma -->
+<g>
+<path d="M40 164h86q-4 20-43 20t-43-20z" fill="#6B3E1E"/>
+<path d="M40 164h86" stroke="#8A5A2B" stroke-width="3"/>
+<g fill="url(#dt)"><ellipse cx="56" cy="160" rx="10" ry="6"/><ellipse cx="76" cy="156" rx="10" ry="6"/><ellipse cx="96" cy="158" rx="10" ry="6"/><ellipse cx="112" cy="161" rx="9" ry="5"/><ellipse cx="66" cy="150" rx="9" ry="6"/><ellipse cx="88" cy="148" rx="10" ry="6"/></g>
+</g>
+</svg>

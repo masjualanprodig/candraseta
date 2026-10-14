@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" preserveAspectRatio="xMaxYMid meet">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E8C70"/><stop offset="1" stop-color="#0A5644"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A9D7F"/><stop offset="1" stop-color="#0D6350"/></linearGradient>
+<linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6DE9B"/><stop offset="1" stop-color="#C9983A"/></linearGradient>
+<linearGradient id="pg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F3E8CC"/><stop offset="1" stop-color="#FFF8E5"/></linearGradient>
+<radialGradient id="gl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD978" stop-opacity=".7"/><stop offset="1" stop-color="#FFD978" stop-opacity="0"/></radialGradient>
+</defs>
+<!-- daun -->
+<g fill="#2F9A74" opacity=".55" transform="translate(30,0)"><path d="M250 120c-10-40 10-80 40-100c4 40-8 78-40 100z"/><path d="M262 130c20-30 52-44 84-40c-18 28-48 44-84 40z"/></g>
+<!-- tumpukan buku -->
+<g>
+<rect x="132" y="150" width="200" height="24" rx="4" fill="url(#g1)"/><rect x="138" y="156" width="190" height="12" rx="2" fill="url(#pg)" opacity=".0"/>
+<rect x="132" y="150" width="14" height="24" rx="3" fill="#074A3A"/><rect x="150" y="150" width="3" height="24" fill="url(#gd)"/><rect x="300" y="150" width="3" height="24" fill="url(#gd)"/>
+<rect x="150" y="174" width="176" height="5" fill="url(#pg)"/>
+<rect x="144" y="124" width="184" height="26" rx="4" fill="url(#g2)"/>
+<rect x="144" y="124" width="13" height="26" rx="3" fill="#0A5644"/><rect x="160" y="124" width="3" height="26" fill="url(#gd)"/><rect x="304" y="124" width="3" height="26" fill="url(#gd)"/>
+<rect x="160" y="150" width="166" height="4" fill="url(#pg)"/>
+<rect x="156" y="100" width="172" height="24" rx="4" fill="url(#g1)"/>
+<rect x="156" y="100" width="12" height="24" rx="3" fill="#074A3A"/><rect x="171" y="100" width="3" height="24" fill="url(#gd)"/><rect x="306" y="100" width="3" height="24" fill="url(#gd)"/>
+<rect x="171" y="122" width="154" height="4" fill="url(#pg)"/>
+<!-- hiasan sampul -->
+<g fill="none" stroke="url(#gd)" stroke-width="1.6"><path d="M220 136l10-7 10 7-10 7z"/><path d="M236 110l8-5 8 5-8 5z" opacity=".9"/><path d="M215 162l12-8 12 8-12 8z"/></g>
+</g>
+<!-- rehal + buku terbuka -->
+<g>
+<path d="M30 168l54-34M138 168L84 134" stroke="#8A5A2B" stroke-width="7" stroke-linecap="round"/>
+<path d="M32 170l50-30M136 170L86 140" stroke="#B57B3E" stroke-width="3" stroke-linecap="round"/>
+<path d="M28 132q28-12 56 2q28-14 56-2v34q-28-12-56 2q-28-14-56-2z" fill="url(#pg)" stroke="#D8C79B" stroke-width="1.2"/>
+<path d="M84 134v34" stroke="#C9B57D" stroke-width="1.5"/>
+<g stroke="#B9A67A" stroke-width="1" opacity=".8"><path d="M38 142q20-6 40 2M38 150q20-6 40 2M38 158q20-6 40 2"/><path d="M90 144q20-8 40-2M90 152q20-8 40-2M90 160q20-8 40-2"/></g>
+</g>
+<!-- lentera -->
+<g transform="translate(40,6)">
+<circle cx="338" cy="96" r="38" fill="url(#gl)"/>
+<path d="M338 40v10" stroke="#C9983A" stroke-width="3"/><circle cx="338" cy="38" r="4" fill="none" stroke="#C9983A" stroke-width="2"/>
+<path d="M326 54h24l-4-8h-16z" fill="url(#gd)"/>
+<path d="M322 56h32l-4 52h-24z" fill="#FFE9A8" opacity=".95" stroke="url(#gd)" stroke-width="3"/>
+<path d="M338 66c6 8 6 18 0 24c-6-6-6-16 0-24z" fill="#FFB43A"/>
+<path d="M324 62h28M326 100h24" stroke="#C9983A" stroke-width="2"/>
+<path d="M324 108h28l4 10h-36z" fill="url(#gd)"/>
+</g>
+</svg>
