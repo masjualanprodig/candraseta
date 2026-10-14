@@ -341,3 +341,31 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - **Pasang** (lihat `PANDUAN-BUKU-v67.md`): jalankan `buku.sql` → unggah aplikasi v67 → masuk Super Admin → Lainnya > Pustaka Buku > Kelola buku.
 - Teks privasi diperbarui. Cache service worker v58.
 - Tes: `unit_books.mjs` (35), `books_browser_test.py` (52), SQL `bk_tests.sql` (41).
+
+## Tambahan v68: Kas Masjid (Tahap 4A)
+- **Hanya pencatatan.** BAITUNA tidak memegang atau memindahkan uang, tidak menerima donasi; laporan dibuat pengurus, bukan audit independen (tertulis di setiap laporan).
+- **Siapa**: Bendahara mencatat (satu-satunya yang bisa menulis catatan). Ketua Takmir, Admin Masjid, dan Super Admin melihat. Ketua, Admin Masjid, dan Super Admin boleh menutup buku; Admin Masjid dan Bendahara mengelola akun & kategori; Ketua/Admin Masjid mengatur ringkasan publik. Buka kembali bulan tertutup: Super Admin saja (tercatat di audit).
+- **Menu**: Bendahara/Ketua mendapat tombol Kas masjid di dashboard (Ketua juga tetap punya Agenda); Admin Masjid tombol "Kas masjid"; Super Admin tombol "Kas" di tiap masjid aktif.
+- **Isi**: tab Ringkasan (saldo awal, masuk, keluar, akhir, per kategori, per akun, cetak/simpan PDF, unduh CSV aman rumus, tutup buku), Catatan (daftar, saring per akun, bukti, koreksi), Catat (form), Pengaturan (akun, kategori, ringkasan publik).
+- **Integritas**: catatan tidak bisa diubah/dihapus (dijaga trigger di database); salah catat dikoreksi dengan baris pembalik bertanggal hari ini; bulan yang ditutup tidak menerima catatan bertanggal di dalamnya; tanggal tidak boleh di masa depan (zona Jayapura); pengeluaran yang membuat saldo minus meminta konfirmasi.
+- **Bukti**: foto nota maks 100 KB (otomatis diperkecil), bucket PRIVAT, hanya Bendahara/Ketua/Admin Masjid/Super Admin.
+- **Ringkasan untuk jamaah**: MATI secara bawaan. Bila dihidupkan, profil masjid menampilkan hanya total bulanan; rincian, nama donatur, dan bukti tidak pernah terbuka.
+- **Jejak audit**: tiap catatan, koreksi, tutup/buka bulan, ubah akun/kategori, dan pengaturan publik ditulis ke `audit_logs`.
+- **Batas jujur**: dana zakat diberi jenis akun terpisah, tetapi aturan penyaluran dan istilahnya perlu ditinjau ustaz/amil; masjid tanpa Bendahara belum bisa mencatat (undang lewat panel Pengurus).
+- Pasang: jalankan `kas.sql` → unggah v68. Cache service worker v59. Teks privasi diperbarui.
+- Tes: `unit_kas.mjs` (24), `kas_browser_test.py` (61), SQL `kas_tests.sql` (140).
+
+## Tambahan v69: Pendaftaran Jamaah (4B) dan Jejak Audit (4C)
+**4B - Pendaftaran jamaah**
+- **Daftar akun sendiri**: "Daftar sekarang" di halaman masuk kini membuka formulir (nama lengkap, email, password minimal 8 berisi huruf dan angka, ulangi password, centang persetujuan privasi). Nama dikirim sebagai data akun. Bila proyek Supabase meminta konfirmasi email, pengguna melihat pesan "cek email"; bila tidak, langsung masuk.
+- **Keanggotaan jamaah**: Profil > Keanggotaan jamaah. Pengguna memilih masjid (opsional) dan menulis catatan (maks. 200), lalu mengajukan. Status: menunggu / disetujui / ditolak (dengan alasan). Boleh mengajukan ulang sampai 3 kali.
+- **Persetujuan HANYA Super Admin** (dashboard > Pendaftaran jamaah, ada jumlah menunggu): setujui, tolak (alasan wajib), atau cabut. Admin Masjid tidak punya akses. Semua keputusan masuk jejak audit.
+- **Tanya Jawab**: hanya jamaah yang disetujui yang boleh bertanya. Pengurus masjid aktif, penjawab, dan Super Admin otomatis boleh. Dijaga di server (`qa_ask`), bukan hanya di tampilan.
+- Data pendaftaran tidak bisa dibaca langsung dari aplikasi (tanpa kebijakan tabel); semuanya lewat fungsi server.
+**4C - Jejak audit**
+- Super Admin: dashboard > Jejak audit (semua, saring jenis dan masjid). Admin Masjid: dashboard > Jejak audit (hanya masjidnya, tanpa email pelaku).
+- **Tidak bisa diubah atau dihapus** oleh siapa pun, termasuk pemilik tabel (trigger; hanya pengosongan otomatis kunci asing saat masjid/akun dihapus yang diizinkan). Halaman hanya membaca.
+- Kini juga tercatat: pendaftaran dan keputusan jamaah, buku (tambah/ubah/hapus, hanya nama bagian yang berubah, tanpa nomor WA/link), penjawab Tanya Jawab, penghapusan pertanyaan. Kejadian lama (kas, undangan, pengurus, status masjid) tetap tampil dengan label Indonesia.
+- Halaman berikutnya memakai (waktu, id) agar tidak ada baris terlewat/ganda.
+- Pasang: jalankan `daftar_audit.sql` (setelah tanya.sql; buku.sql dan kas.sql bila dipakai) → unggah v69. Bila `tanya.sql` dijalankan ulang, jalankan `daftar_audit.sql` lagi. Cache service worker v60. Teks privasi diperbarui.
+- Tes: `unit_jamaah.mjs` (15), `daftar_browser_test.py` (49), SQL `dj_tests.sql` (93).

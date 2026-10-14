@@ -17,6 +17,10 @@ import { renderAsmaManager } from './asma-admin-ui.js';
 import { renderMarketManager } from './market-admin-ui.js';
 import { renderBelajarManager } from './belajar-ui.js';
 import { icon, ICONS } from './feed-ui.js';
+import { renderKasManager } from './kas-ui.js';
+import { renderJamaahManager } from './jamaah-ui.js';
+import { renderAuditLog } from './audit-ui.js';
+import { pendingCount } from './jamaah-service.js';
 
 const ACTIONS = {
   approve: { title: 'Aktifkan masjid?', text: 'Masjid akan tampil sebagai masjid terverifikasi. Pastikan identitasnya sudah diperiksa.', reason: false, to: 'active', done: 'Masjid diaktifkan.' },
@@ -49,7 +53,7 @@ async function changeStatus(m, cfg, box) {
 }
 
 export async function renderAdmin(box) {
-  const [list, invites] = await Promise.all([listMosques(), listInvitations().catch(e => { if (e.status === 401) throw e; return null; })]);
+  const [list, invites, pending] = await Promise.all([listMosques(), listInvitations().catch(e => { if (e.status === 401) throw e; return null; }), pendingCount().catch(e => { if (e && e.status === 401) throw e; return null; })]);
   const openList = list.filter(m => m.status === 'active' && invites && openPanels.has(m.id));
   const teams = {};
   await Promise.all(openList.map(async m => { try { teams[m.id] = await fetchTeam(m.id); } catch (e) { if (e.status === 401) throw e; teams[m.id] = []; } }));
@@ -94,6 +98,7 @@ export async function renderAdmin(box) {
       h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status),
       (BUTTONS[m.status] || []).map(([label, key, alt]) =>
         h('button', { class: 'btn-sm' + (alt ? ' alt' : ''), onclick: () => changeStatus(m, ACTIONS[key], box) }, label)),
+      m.status === 'active' ? h('button', { class: 'btn-sm ghost adm-kas', type: 'button', onclick: () => renderKasManager(box, m, { onBack: () => renderAdmin(box), roles: { admin: true, approve: true } }) }, 'Kas') : '',
       m.status === 'active' && invites ? h('button', {
         class: 'btn-sm ghost',
         onclick: () => { openPanels.has(m.id) ? openPanels.delete(m.id) : openPanels.add(m.id); renderAdmin(box); }
@@ -103,7 +108,10 @@ export async function renderAdmin(box) {
   box.replaceChildren(
     h('h2', {}, 'Dashboard Super Admin'),
     stats,
-    h('div', { class: 'actions' }, h('button', { class: 'act', type: 'button', id: 'adm-market', onclick: () => renderMarketManager(box, () => renderAdmin(box)) }, icon(ICONS.market), h('span', {}, 'Verifikasi Pasar Umat')),
+    h('div', { class: 'actions' },
+      h('button', { class: 'act primary', type: 'button', id: 'adm-jamaah', onclick: () => renderJamaahManager(box, () => renderAdmin(box)) }, icon(ICONS.user), h('span', {}, 'Pendaftaran jamaah' + (pending ? ' (' + pending + ' menunggu)' : ''))),
+      h('button', { class: 'act', type: 'button', id: 'adm-audit', onclick: () => renderAuditLog(box, { onBack: () => renderAdmin(box), mosques: list.map(m => ({ id: m.id, name: m.name })) }) }, icon(ICONS.shield), h('span', {}, 'Jejak audit')),
+      h('button', { class: 'act', type: 'button', id: 'adm-market', onclick: () => renderMarketManager(box, () => renderAdmin(box)) }, icon(ICONS.market), h('span', {}, 'Verifikasi Pasar Umat')),
       h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => renderAdmin(box)) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
       h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),
       h('button', { class: 'act', type: 'button', onclick: () => renderRukunManager(box, () => renderAdmin(box)) }, icon(ICONS.book), h('span', {}, 'Rukun Islam & Iman')),

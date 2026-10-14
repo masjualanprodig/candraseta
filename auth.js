@@ -65,3 +65,27 @@ export async function readEmailLink() {
   }
   return null;
 }
+
+// Pendaftaran akun jamaah. Jika proyek meminta konfirmasi email, hasilnya { ok:true, confirm:true }.
+export function signUpError(r) {
+  const code = (r.data && (r.data.error_code || r.data.code)) || '';
+  if (code === 'user_already_exists' || code === 'email_exists') return 'Email ini sudah terdaftar. Silakan masuk, atau pakai Lupa password.';
+  if (code === 'weak_password') return 'Password terlalu lemah. Pakai minimal 8 karakter berisi huruf dan angka.';
+  if (code === 'signup_disabled' || code === 'email_provider_disabled') return 'Pendaftaran akun sedang ditutup.';
+  if (code === 'over_email_send_rate_limit' || /rate_limit/.test(code) || r.status === 429) return 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.';
+  if (r.status === 0) return 'Tidak ada koneksi internet.';
+  if (code === 'validation_failed' || r.status === 400 || r.status === 422) return 'Email atau password belum sesuai. Periksa lagi isian Anda.';
+  return 'Pendaftaran belum berhasil. Coba lagi.';
+}
+export function passwordIssue(pw, email) {
+  if (String(pw || '').length < 8) return 'Password minimal 8 karakter.';
+  if (!/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw)) return 'Password harus berisi huruf dan angka.';
+  if (email && pw.toLowerCase() === String(email).toLowerCase()) return 'Password tidak boleh sama dengan email.';
+  return '';
+}
+export async function signUp({ name, email, password }) {
+  const r = await request('/auth/v1/signup?redirect_to=' + encodeURIComponent(location.origin + '/'), { method: 'POST', body: { email, password, data: { full_name: name } } });
+  if (!r.ok) return { ok: false, error: signUpError(r) };
+  if (r.data && r.data.access_token) { setSession(normalizeSession(r.data)); return { ok: true, confirm: false }; }
+  return { ok: true, confirm: true };
+}

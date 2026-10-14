@@ -1030,3 +1030,58 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 @media (max-width:420px){.books .grid2{grid-template-columns:1fr}}
 .books input[type=file]{padding:.55rem .7rem;font-size:.9rem;color:#44615b;height:auto;line-height:1.4}
 .books input[type=file]::file-selector-button{margin-right:.7rem;border:0;border-radius:999px;padding:.5rem 1rem;background:var(--teal);color:#fff;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
+
+/* ===== Kas masjid (v68) ===== */
+.kas-nav{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:.2rem 0 .8rem}
+.kas-nav b,.kas-nav #kas-month{flex:1;text-align:center;color:var(--teal-d);font-weight:800}
+.kas-stats{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.4rem 0}
+.kas-stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.kas-stat span{font-size:.78rem}
+.kas-stat b{font-size:1.02rem;color:var(--teal-d);overflow-wrap:anywhere}
+.kas-stat.in b,.kas-amt.in{color:#0b7a4b}
+.kas-stat.out b,.kas-amt.out{color:#b3261e}
+.kas-stat.end{border-color:var(--teal);background:#f1f8f5}
+.kas-closed{margin:.5rem 0;padding:.5rem .7rem;border-radius:10px;background:#e6f4ee;color:var(--teal-d);font-size:.9rem}
+.kas-cats{margin:.7rem 0}
+.kas-cats h4{margin:.2rem 0 .3rem;font-size:.92rem;color:var(--teal-d)}
+.kas-crow{display:flex;justify-content:space-between;gap:.6rem;padding:.3rem 0;border-bottom:1px dashed var(--line);font-size:.9rem}
+.kas-crow span{min-width:0;overflow-wrap:anywhere}
+.kas-rt,.kas-pt{margin:.2rem 0;color:var(--teal-d)}
+.kas-row{display:flex;flex-direction:column;gap:.3rem}
+.kas-row.done{opacity:.65}
+.kas-r1{display:flex;justify-content:space-between;gap:.6rem}
+.kas-desc{min-width:0;overflow-wrap:anywhere}
+.kas-amt{white-space:nowrap}
+.kas-r2{font-size:.82rem;overflow-wrap:anywhere}
+.kas-proofimg{max-width:100%;border-radius:10px;border:1px solid var(--line)}
+.kas-pfoot,.kas-lab{font-size:.8rem}
+.kas-pub{margin-top:.8rem}
+@media print{
+  body *{visibility:hidden}
+  .kas-print,.kas-print *{visibility:visible}
+  .kas-print{position:absolute;left:0;top:0;width:100%;padding:12px;background:#fff}
+  .kas-noprint{display:none!important}
+}
+
+/* ===== Pendaftaran jamaah (v69) ===== */
+#view-signup .card{text-align:left}
+#view-signup .field{margin-top:.6rem;height:52px}
+.su-agree{display:flex;gap:.55rem;align-items:flex-start;margin:.9rem 0 .2rem;font-size:.85rem;color:var(--sage)}
+.su-agree input{margin-top:.2rem;flex:none;width:18px;height:18px}
+.jm-state{margin:.6rem 0;padding:.55rem .75rem;border-radius:10px;font-weight:700;font-size:.92rem}
+.jm-state.ok{background:#e6f4ee;color:var(--teal-d)}
+.jm-state.wait{background:#fff6e0;color:#7a5600}
+.jm-state.no{background:#fdecea;color:var(--danger)}
+.jm .rform .in{margin-top:.5rem}
+.jm-row{display:flex;flex-direction:column;gap:.25rem}
+.jm-name{overflow-wrap:anywhere}
+.jm-note{margin:.2rem 0;font-style:italic;overflow-wrap:anywhere}
+.jm-row .muted{overflow-wrap:anywhere;font-size:.85rem}
+/* ===== Jejak audit (v69) ===== */
+.au-groups{margin-top:.2rem}
+.au-row{display:flex;flex-direction:column;gap:.2rem}
+.au-r1{display:flex;justify-content:space-between;gap:.6rem;align-items:baseline}
+.au-act{min-width:0}
+.au-time{font-size:.78rem;white-space:nowrap}
+.au-r2{font-size:.82rem;overflow-wrap:anywhere}
+.au-d{font-size:.84rem;color:var(--teal-d);overflow-wrap:anywhere}

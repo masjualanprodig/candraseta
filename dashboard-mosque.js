@@ -10,6 +10,8 @@ import { renderPostsManager } from './posts-ui.js';
 import { listManagedPosts } from './post-service.js';
 import { icon, ICONS } from './feed-ui.js';
 import { getSession } from './supabase.js';
+import { renderKasManager } from './kas-ui.js';
+import { renderAuditLog } from './audit-ui.js';
 
 const ROLES_FOR_ADMIN_MASJID = ['ketua_takmir', 'bendahara', 'pengurus_bagian', 'pengelola_usaha'];
 
@@ -20,6 +22,8 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const refresh = () => renderMosque(box, mosqueId, view);
   const goHome = () => renderMosque(box, mosqueId, 'home');
   const goEdit = () => renderMosque(box, mosqueId, 'edit');
+  if (view === 'audit') { await renderAuditLog(box, { onBack: goHome, mosque: { id: mosque.id, name: mosque.name } }); return; }
+  if (view === 'kas') { await renderKasManager(box, mosque, { onBack: goHome, roles: { setup: true, approve: true } }); return; }
   if (view === 'posts') { await renderPostsManager(box, mosque, goHome); return; }
 
   const field = (ph, val, max) => h('input', { class: 'in', placeholder: ph, maxlength: String(max), autocomplete: 'off', value: val == null ? '' : String(val) });
@@ -156,6 +160,8 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     counts ? h('div', { class: 'stats' }, stat(counts.live, 'Terbit'), stat(counts.draft, 'Draf'), stat(team.length, 'Pengurus')) : '',
     h('div', { class: 'actions' },
       h('button', { class: 'act primary', type: 'button', onclick: () => renderMosque(box, mosqueId, 'posts') }, icon(ICONS.agenda), h('span', {}, 'Agenda & pengumuman')),
+      h('button', { class: 'act', type: 'button', id: 'open-kas', onclick: () => renderMosque(box, mosqueId, 'kas') }, icon(ICONS.market), h('span', {}, 'Kas masjid')),
+      h('button', { class: 'act', type: 'button', id: 'open-audit', onclick: () => renderMosque(box, mosqueId, 'audit') }, icon(ICONS.shield), h('span', {}, 'Jejak audit')),
       h('button', { class: 'act', type: 'button', onclick: goEdit }, icon(ICONS.mosque), h('span', {}, 'Edit profil & foto masjid'))),
     teamBox);
   window.scrollTo(0, 0);

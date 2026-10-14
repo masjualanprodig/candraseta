@@ -31,6 +31,7 @@ import { ramadanPage } from './ramadan-ui.js';
 import { adzanPage } from './adzan-ui.js';
 import { qaPage } from './qa-ui.js';
 import { booksPage } from './books-ui.js';
+import { kasPublicPanel } from './kas-ui.js';
 import { publicPhotoUrl } from './supabase.js';
 
 let onBack = () => {};
@@ -317,6 +318,7 @@ function renderDetail(m, back = renderList, backLabel = '← Daftar masjid') {
       hasMap ? row('Lokasi', h('a', { class: 'link', href: 'https://www.google.com/maps?q=' + lat + ',' + lng, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps')) : ''),
     prayerPanel(m),
     postsPublic(m),
+    kasPublicPanel(m),
     m.description ? h('div', { class: 'panel' }, h('h3', {}, 'Tentang masjid'), h('p', { class: 'prewrap' }, m.description)) : '',
     chips.length ? h('div', { class: 'panel' }, h('h3', {}, 'Fasilitas'), h('div', { class: 'chips' }, chips.map(c => h('span', { class: 'chip' }, c)))) : '');
   window.scrollTo(0, 0);

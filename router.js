@@ -1,6 +1,6 @@
 // BAITUNA - router.js
 // Router sederhana: menampilkan satu halaman (view) dan menyembunyikan yang lain.
-const VIEWS = ['splash', 'login', 'reset', 'app', 'public'];
+const VIEWS = ['splash', 'login', 'signup', 'reset', 'app', 'public'];
 
 export function show(name) {
   if (!VIEWS.includes(name)) name = 'login';

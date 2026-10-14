@@ -3,7 +3,7 @@
 import { $, h, toast } from './ui.js';
 import { show } from './router.js';
 import { onSessionExpired, restoreSession, getSession, setSession, validToken } from './supabase.js';
-import { signIn, signOut, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
+import { signIn, signOut, signUp, passwordIssue, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
 import { loadAccess } from './permissions.js';
 import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
@@ -90,9 +90,24 @@ $('forgot').addEventListener('click', async e => {
   else say('Jika email terdaftar, tautan reset sudah dikirim. Periksa kotak masuk Anda.', 'ok');
 });
 
-$('register').addEventListener('click', e => {
+$('register').addEventListener('click', e => { e.preventDefault(); $('su-msg').hidden = true; show('signup'); });
+$('su-back').addEventListener('click', e => { e.preventDefault(); show('login'); });
+$('signup-form').addEventListener('submit', async e => {
   e.preventDefault();
-  say('Akun pengurus dibuat lewat undangan admin pusat. Pendaftaran jamaah dibuka di tahap berikutnya.', 'info');
+  const sm = (t, k) => { const m = $('su-msg'); m.textContent = t || ''; m.className = 'msg ' + (k || ''); m.hidden = !t; };
+  const fe = (id, t) => { const x = $(id); x.textContent = t || ''; x.hidden = !t; };
+  sm('');
+  const name = $('su-name').value.replace(/\s+/g, ' ').trim(), email = $('su-email').value.trim(), pw = $('su-pw').value, pw2 = $('su-pw2').value, agree = $('su-agree').checked;
+  const issues = [name.length < 2 ? 'Isi nama lengkap (minimal 2 huruf).' : '', emailOk(email) ? '' : 'Masukkan email yang valid.', passwordIssue(pw, email), pw && pw2 !== pw ? 'Ulangi password dengan benar.' : (pw2 ? '' : 'Ulangi password.'), agree ? '' : 'Centang persetujuan dulu.'];
+  ['su-name-err', 'su-email-err', 'su-pw-err', 'su-pw2-err', 'su-agree-err'].forEach((id, i) => fe(id, issues[i]));
+  if (issues.some(Boolean)) return;
+  const btn = $('su-btn'); btn.disabled = true; btn.firstElementChild.textContent = 'Memproses…';
+  const r = await signUp({ name, email, password: pw });
+  btn.disabled = false; btn.firstElementChild.textContent = 'Daftar';
+  if (!r.ok) { sm(r.error); return; }
+  $('su-pw').value = $('su-pw2').value = '';
+  if (r.confirm) { sm('Pendaftaran diterima. Kami mengirim tautan konfirmasi ke ' + email + '. Buka email itu (periksa juga folder spam), lalu masuk.', 'ok'); return; }
+  toast('Akun dibuat. Selamat datang.'); enterApp();
 });
 
 /* ===== Direktori publik ===== */

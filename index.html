@@ -70,6 +70,28 @@
   </section>
 </main>
 
+<main id="view-signup" class="view home" hidden>
+  <section class="card">
+    <h2>Daftar akun</h2>
+    <p class="muted">Buat akun jamaah BAITUNA. Setelah masuk, ajukan "Keanggotaan jamaah" di Profil agar bisa bertanya di Tanya Jawab.</p>
+    <form id="signup-form" novalidate>
+      <label class="field"><span class="sr-only">Nama lengkap</span><input id="su-name" type="text" autocomplete="name" maxlength="120" placeholder="Nama lengkap" required></label>
+      <p class="err" id="su-name-err" hidden></p>
+      <label class="field"><span class="sr-only">Email</span><input id="su-email" type="email" inputmode="email" autocomplete="email" placeholder="Email" required></label>
+      <p class="err" id="su-email-err" hidden></p>
+      <label class="field"><span class="sr-only">Password</span><input id="su-pw" type="password" autocomplete="new-password" placeholder="Password (minimal 8, huruf dan angka)" required></label>
+      <p class="err" id="su-pw-err" hidden></p>
+      <label class="field"><span class="sr-only">Ulangi password</span><input id="su-pw2" type="password" autocomplete="new-password" placeholder="Ulangi password" required></label>
+      <p class="err" id="su-pw2-err" hidden></p>
+      <label class="su-agree"><input id="su-agree" type="checkbox"> <span>Saya mengerti bahwa nama dan email saya disimpan di server BAITUNA untuk akun ini, sesuai Kebijakan Privasi (menu Profil &gt; Privasi &amp; Disclaimer).</span></label>
+      <p class="err" id="su-agree-err" hidden></p>
+      <p id="su-msg" class="msg" role="alert" hidden></p>
+      <button type="submit" id="su-btn" class="btn-primary"><span>Daftar</span></button>
+    </form>
+    <p class="muted center">Sudah punya akun? <a href="#" id="su-back" class="link">Masuk</a></p>
+  </section>
+</main>
+
 <main id="view-app" class="view appview" hidden>
   <header class="apphead">
     <a href="#" id="home-app" class="homelink" aria-label="BAITUNA, ke beranda"><img src="logo.png" alt="" class="app-logo">

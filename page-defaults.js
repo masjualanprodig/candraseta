@@ -39,6 +39,15 @@ Untuk bertanya Anda harus masuk. Judul, rincian, kategori, dan nama depan (bila 
 ## Pustaka Buku
 Pustaka Buku menampilkan buku yang dijual pengelola. BAITUNA tidak memproses pembayaran dan tidak menyimpan data pembeli: tombol Pesan membuka WhatsApp penjual atau link checkout milik penjual, yang berlaku kebijakan privasi mereka sendiri. Nomor WhatsApp atau link yang diisi pengelola tidak ditampilkan sebagai teks, tetapi terbuka saat tombol Pesan ditekan. Tampilan Grid atau List yang Anda pilih disimpan di perangkat.
 
+## Kas Masjid
+Pengurus masjid dapat mencatat pemasukan dan pengeluaran kas di BAITUNA. Aplikasi hanya mencatat, tidak memegang atau memindahkan uang. Catatan berisi akun kas, kategori, jumlah, tanggal, keterangan, dan (bila diisi) nama pihak terkait serta foto bukti. Catatan hanya dapat dilihat Bendahara, Ketua Takmir, Admin Masjid masjid itu, dan admin pusat. Catatan tidak dapat dihapus; kesalahan dikoreksi dengan catatan pembatalan, dan setiap perubahan penting terekam di jejak audit. Foto bukti disimpan privat. Ringkasan total bulanan baru tampil kepada jamaah jika pengurus mengaktifkannya; rincian dan nama pihak tidak ikut ditampilkan.
+
+## Akun dan Pendaftaran Jamaah
+Untuk membuat akun Anda mengisi nama lengkap, email, dan password (password disimpan terenkripsi oleh layanan autentikasi, bukan terbaca oleh pengelola). Untuk bertanya di Tanya Jawab Anda dapat mengajukan Keanggotaan jamaah: kami menyimpan nomor telepon (bila Anda isi di profil), masjid pilihan, catatan singkat, status pendaftaran, dan alasan penolakan bila ada. Data ini hanya dapat dilihat dan diputuskan oleh admin pusat, dan terhapus saat akun dihapus.
+
+## Jejak Audit
+Perubahan penting (mis. kas, pengurus, undangan, status masjid, keputusan pendaftaran, buku) dicatat otomatis berisi jenis kejadian, waktu, pelaku, dan ringkasan. Catatan tidak dapat diubah atau dihapus. Admin pusat melihat semuanya; Admin Masjid hanya melihat catatan masjidnya.
+
 ## Layanan pihak ketiga
 Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Email kritik dan saran diteruskan lewat penyedia layanan email (Resend). Peta menggunakan data OpenStreetMap. Layanan tersebut dapat menerima alamat IP perangkat Anda sesuai kebijakan masing-masing.
 
