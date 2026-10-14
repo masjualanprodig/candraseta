@@ -8,6 +8,7 @@ import { fastingFor, LEVEL_LABEL, NONE_TEXT, FAST_GROUPS, fastingLabel, ramadanS
 import { amalanFor, hasMark, GERHANA_INFO, ECLIPSE_DATA_UNTIL } from './amalan-service.js';
 import { rkeyOf, refsFor, brief, loadLinks } from './sunnah-link.js';
 import { GRADES } from './sunnah-service.js';
+import { icon, ICONS } from './feed-ui.js';
 
 const BEFORE = 12, AFTER = 24; // rentang bulan yang bisa digeser dari bulan ini
 const DOW = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -157,13 +158,30 @@ export function calendarView(now = new Date()) {
   const ramBox = t0 ? h('p', { class: 'ram-count', id: 'ram-count' }, t0.phase === 'ramadan'
     ? 'Ramadan hari ke-' + t0.day + (t0.daysToEid ? ', ' + daysText(t0.daysToEid).replace(' lagi', '') + ' menuju 1 Syawal (perkiraan)' : ' (perkiraan)')
     : 'Menuju Ramadan ' + t0.hijriYear + ' H: ' + daysText(t0.inDays) + ', sekitar ' + t0.d + ' ' + cal.MASEHI_MONTH[t0.m - 1] + ' ' + t0.y + ' (perkiraan, tunggu sidang isbat).') : '';
-  const el = h('div', { class: 'calwrap' },
+  // Ringkasan atas (desain v79): hari ini, ilustrasi, dan tanggal penting terdekat. Semua tanggal Hijriah tetap perkiraan.
+  const cellOf = (y, m, d) => { const hh = cal.hijriOf(y, m, d), dow = new Date(Date.UTC(y, m - 1, d, 12)).getUTCDay(); return { y, m, d, h: hh, ev: cal.eventFor(hh), dow, fast: fastingFor(hh, dow), extra: amalanFor(hh, dow, y, m, d) }; };
+  const h0 = cal.hijriOf(y0, m0, d0);
+  const ups = cal.upcomingEvents(y0, m0, d0, 4);
+  const full = h('div', { class: 'calwrap', id: 'cal-full' },
     h('div', { class: 'calbar' }, prev, h('div', { class: 'ct' }, title, sub), next),
     ramBox,
     h('div', { class: 'calbar2' }, todayBtn),
     track,
     h('p', { class: 'hint' }, 'Tanggal Hijriah adalah PERKIRAAN (kalender Umm al-Qura) dan perlu dikonfirmasi. Penetapan resmi di Indonesia mengikuti pengumuman Kemenag (sidang isbat) dan bisa berbeda 1–2 hari. Pergantian hari saat Maghrib belum diperhitungkan.'),
     legend);
+  const el = h('div', { class: 'calpage' },
+    h('div', { class: 'caltoday2', id: 'cal-today' },
+      h('p', {}, h('span', { class: 'ct-ic' }, icon(ICONS.agenda)), h('b', {}, cal.masehiText(y0, m0, d0))),
+      h0 ? h('p', {}, h('span', { class: 'ct-ic' }, icon(ICONS.moon)), h('span', {}, cal.hijriText(h0) + ' (perkiraan)')) : ''),
+    h('div', { class: 'calart', 'aria-hidden': 'true' }),
+    ups.length ? h('section', { class: 'calimp', id: 'cal-imp' },
+      h('h3', {}, 'Tanggal Penting Islam'),
+      ...ups.map(u => h('button', { class: 'calimp-row', type: 'button', onclick: () => openEv(cellOf(u.y, u.m, u.d)) },
+        h('span', { class: 'calimp-ic' }, icon(ICONS.mosque)),
+        h('span', { class: 'calimp-t' }, h('b', {}, cal.hijriText(u.hijri).replace(/ \d+ H$/, '')), h('span', {}, u.name), h('small', {}, cal.masehiText(u.y, u.m, u.d) + (u.inDays === 0 ? ' · hari ini' : ' · ' + u.inDays + ' hari lagi'))),
+        icon(ICONS.chev))),
+      h('button', { class: 'calimp-all', type: 'button', id: 'cal-all', onclick: () => full.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 'Lihat Kalender Lengkap')) : '',
+    full);
   show(BEFORE);
   return { el, mount: () => goTo(BEFORE, false) };
 }

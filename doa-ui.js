@@ -6,6 +6,7 @@ import { CATS, GRADES, KINDS, listDuas, createDua, updateDua, deleteDua, matches
 import { listSurahs, loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
 import { ayatBlock, refLabel } from './rukun-ui.js';
+import { icon, ICONS } from './feed-ui.js';
 
 const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.status === 404);
 const PAGE = 30;
@@ -42,17 +43,21 @@ export function doaPage(opts = {}) {
       h('p', { class: 'arab', lang: 'ar', dir: 'rtl' }, it.arabic),
       it.latin ? h('p', { class: 'dlatin' }, it.latin) : '',
       h('p', { class: 'atrans prewrap' }, it.body));
-    return h('article', { class: 'dcard panel dua' },
-      h('div', { class: 'dhead' }, h('b', { class: 'dtitle' }, it.title || (it.kind === 'ayat' ? refLabel(surahs, it) : 'Doa')),
-        it.grade ? h('span', { class: 'hperiod grade ' + it.grade }, GRADES[it.grade]) : ''),
-      h('span', { class: 'dcat muted' }, CATS[it.category] || CATS.lainnya),
+    // Desain v79: baris ringkas (ikon, judul, kategori); diketuk untuk membuka isi doa lengkap.
+    return h('details', { class: 'dcard dua' },
+      h('summary', { class: 'dua-sum' }, h('span', { class: 'dua-ic' }, icon(it.kind === 'ayat' ? ICONS.quran : ICONS.doa)),
+        h('span', { class: 'dhead' }, h('b', { class: 'dtitle' }, it.title || (it.kind === 'ayat' ? refLabel(surahs, it) : 'Doa')),
+          h('span', { class: 'dcat muted' }, CATS[it.category] || CATS.lainnya)),
+        icon(ICONS.chev, 'dua-chev')),
+      h('div', { class: 'dbody' },
+      it.grade ? h('span', { class: 'hperiod grade ' + it.grade }, GRADES[it.grade]) : '',
       body,
       it.source ? h('p', { class: 'dsrc' }, h('b', {}, 'Sumber: '), it.source) : '',
       it.grading ? h('p', { class: 'dsrc' }, h('b', {}, 'Keterangan derajat: '), it.grading) : '',
       it.note ? h('p', { class: 'dnote prewrap' }, it.note) : '',
       h('div', { class: 'row-btns dctl' },
         it.kind === 'teks' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => copy(copyText(it)) }, 'Salin') : '',
-        it.kind === 'teks' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => share(copyText(it)) }, 'Bagikan') : '', favB));
+        it.kind === 'teks' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => share(copyText(it)) }, 'Bagikan') : '', favB)));
   }
 
   function drawChips() {

@@ -7,6 +7,8 @@ import { CITIES } from './cities-id.js';
 import { computePrayerTimes, nextPrayer, fmt, fmtCountdown, zoneLabel, inIndonesia, isValidTimes, todayIn, METHOD, IMSAK_MIN } from './prayer-times.js';
 import * as cal from './islamic-calendar.js';
 import * as N from './notif-service.js';
+import { icon, ICONS } from './feed-ui.js';
+import { PRAYER_IC } from './prayer-icons.js';
 
 const LKEY = 'baituna.loc.v1';
 const NAMES = { imsak: 'Imsak', dhuha: 'Dhuha', fajr: 'Subuh', sunrise: 'Terbit', dhuhr: 'Dzuhur', asr: 'Ashar', maghrib: 'Maghrib', isha: 'Isya' };
@@ -96,19 +98,29 @@ export function jadwalPage({ go } = {}) {
       shownKey = np.key + (np.tomorrow ? '+' : ''); shownDay = day.d;
       const cd = h('b', { class: 'jcd' }, fmtCountdown(np.at - now));
       cd.dataset.at = String(np.at);
-      kids.push(h('div', { class: 'jhero panel' },
+      const hj = cal.supported() ? cal.hijriOf(day.y, day.m, day.d) : null;
+      kids.push(h('div', { class: 'jbar' }, h('span', { class: 'jbar-ic' }, icon(ICONS.pin)),
+        h('span', { class: 'jbar-t' }, loc.mode === 'city' ? loc.city : (near ? 'Dekat ' + near : 'Lokasi perangkat')),
+        h('button', { class: 'jbar-btn', type: 'button', id: 'jd-ubah', onclick: () => { picking = true; draw(); } }, 'Ubah Lokasi')));
+      kids.push(h('div', { class: 'jdate' }, h('span', { class: 'jdate-ic' }, icon(ICONS.agenda)),
+        h('span', { class: 'jdate-t' }, h('b', {}, cal.masehiText(day.y, day.m, day.d)), hj ? h('small', {}, hj.d + ' ' + cal.HIJRI_MONTH[hj.m - 1] + ' ' + hj.y + ' H (perkiraan)') : ''),
+        h('span', { class: 'jdate-z' }, zoneLabel(off))));
+      kids.push(h('div', { class: 'jhero' },
         h('span', { class: 'jlab' }, 'Salat berikutnya' + (np.tomorrow ? ' (besok)' : '')),
-        h('b', { class: 'jname' }, NAMES[np.key]),
-        h('b', { class: 'jtime' }, clock(np.at, off)),
+        h('span', { class: 'jhero-m' }, h('b', { class: 'jname' }, NAMES[np.key]), h('b', { class: 'jtime' }, clock(np.at, off))),
         h('p', { class: 'jin' }, 'dalam ', cd)));
-      kids.push(h('div', { class: 'panel' },
-        h('h3', {}, 'Jadwal hari ini'),
-        h('p', { class: 'muted' }, cal.masehiText(day.y, day.m, day.d) + ' · waktu ' + zoneLabel(off)),
+      kids.push(h('div', { class: 'jlist' },
         h('div', { class: 'jrows' }, ROWS.map(k => {
           const isNext = !np.tomorrow && k === np.key;
           return h('div', { class: 'jrow' + (MINOR.includes(k) ? ' minor' : '') + (isNext ? ' next' : '') + (np.current === k ? ' now' : '') },
-            h('span', {}, NAMES[k], np.current === k ? h('i', { class: 'jbadge' }, 'sedang berlangsung') : ''), h('b', {}, fmt(times[k])));
+            h('i', { class: 'jrow-ic' }, PRAYER_IC[k] ? icon(PRAYER_IC[k]) : ''),
+            h('span', {}, NAMES[k]), np.current === k ? h('i', { class: 'jbadge' }, 'sedang berlangsung') : '', isNext ? h('i', { class: 'jbadge jnext' }, 'Berikutnya') : '', h('b', {}, fmt(times[k])));
         }))));
+      if (go) kids.push(h('div', { class: 'jtiles' },
+        h('button', { class: 'jtile', type: 'button', id: 'jd-kiblat', onclick: () => go('kiblat') }, icon(ICONS.compass), h('span', {}, 'Arah Kiblat')),
+        h('button', { class: 'jtile', type: 'button', id: 'jd-doa', onclick: () => go('doa') }, icon(ICONS.doa), h('span', {}, 'Doa')),
+        h('button', { class: 'jtile', type: 'button', id: 'jd-adzan', onclick: () => go('adzan') }, icon(ICONS.horn), h('span', {}, 'Adzan')),
+        h('button', { class: 'jtile', type: 'button', id: 'jd-notif', onclick: () => go('notif') }, icon(ICONS.bell), h('span', {}, 'Notifikasi'))));
       if (loc.mode === 'gps' && inIndonesia(loc.lat, loc.lng) && ![7, 8, 9].includes(off)) {
         kids.push(h('div', { class: 'panel jwarn', role: 'alert' }, h('b', {}, 'Periksa zona waktu HP. '),
           'Lokasi Anda di Indonesia, tetapi zona waktu HP adalah ' + zoneLabel(off) + '. Jam di jadwal ini mengikuti jam HP, jadi bisa meleset. Atur zona waktu HP ke WIB/WITA/WIT, atau pilih kota.'));
@@ -119,7 +131,7 @@ export function jadwalPage({ go } = {}) {
       h('div', { class: 'row-btns' },
         h('button', { class: 'btn-sm ghost', type: 'button', onclick: useGps }, busy ? 'Mencari…' : 'Perbarui lokasi'),
         h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { picking = true; draw(); } }, 'Ganti kota'),
-        go ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'jd-kiblat', onclick: () => go('kiblat') }, 'Arah Kiblat') : ''),
+        ''),
       err ? h('p', { class: 'hint jerr', role: 'alert' }, err) : ''));
     kids.push(reminderPanel());
     kids.push(note());

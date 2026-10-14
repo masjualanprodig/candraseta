@@ -1,0 +1,90 @@
+/* BAITUNA - pages.css (v79): tampilan halaman fitur mengikuti desain referensi.
+   Dimuat paling akhir. Hanya mengubah tampilan; perilaku dan data tidak berubah. */
+
+/* ===== Kartu dasar halaman fitur ===== */
+.jadwal .panel,.calwrap .panel,.doa .panel,.dzk .panel{border-radius:var(--r-banner);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:14px}
+.jadwal > .wtitle + .muted{margin-bottom:4px}
+
+/* ===== Jadwal Salat ===== */
+.jbar{display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 8px 8px 12px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-sm)}
+.jbar-ic{display:grid;place-items:center}.jbar-ic .ic{width:20px;height:20px;stroke:var(--emerald)}
+.jbar-t{flex:1;min-width:0;font-weight:700;font-size:.88rem;color:var(--green-deep);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jbar-btn{flex:none;min-height:44px;padding:0 12px;border:0;border-radius:12px;background:var(--surface-green,#E8F3EE);color:var(--emerald);font:inherit;font-weight:700;font-size:.78rem;cursor:pointer}
+.jdate{display:flex;align-items:center;gap:12px;margin-top:10px;padding:12px 14px;background:linear-gradient(135deg,#fff 0%,var(--surface-gold,#FBF4E2) 100%);border:1px solid var(--border);border-radius:16px}
+.jdate-ic{flex:none;width:40px;height:40px;border-radius:12px;background:#fff;border:1px solid var(--border);display:grid;place-items:center}.jdate-ic .ic{width:20px;height:20px;stroke:var(--gold-ink)}
+.jdate-t{flex:1;display:grid;gap:2px;min-width:0}.jdate-t b{font-size:.95rem;color:var(--green-deep)}.jdate-t small{font-size:.76rem;color:var(--text-2)}
+.jdate-z{flex:none;font-size:.72rem;font-weight:800;color:var(--emerald);background:var(--surface-green,#E8F3EE);padding:4px 10px;border-radius:999px}
+.jadwal .jhero{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 12px;margin-top:10px;padding:14px 16px;text-align:left;border-radius:18px;background:linear-gradient(135deg,var(--emerald) 0%,var(--green-deep) 100%);color:#fff;box-shadow:var(--shadow-md)}
+.jadwal .jhero .jlab{grid-column:1/-1;font-size:.76rem;opacity:.9}
+.jhero-m{display:flex;align-items:baseline;gap:10px}
+.jadwal .jname{display:inline;font-size:1.25rem;margin:0}
+.jadwal .jtime{display:inline;font-size:1.25rem;line-height:1.2;color:var(--gold-soft)}
+.jadwal .jin{margin:0;justify-self:end;font-size:.8rem;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.14)}
+.jadwal .jin .jcd{font-variant-numeric:tabular-nums}
+.jlist{margin-top:10px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm);overflow:hidden}
+.jadwal .jrows{gap:0;margin:0}
+.jadwal .jrow{justify-content:flex-start;gap:12px;padding:11px 14px;border:0;border-radius:0;background:transparent;font-size:.95rem;color:var(--text)}
+.jadwal .jrow + .jrow{border-top:1px solid var(--border)}
+.jrow-ic{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--surface-gold,#FBF4E2);font-style:normal}
+.jrow-ic .ic{width:18px;height:18px;stroke:var(--gold-ink)}
+.jadwal .jrow > span{flex:1;min-width:0;font-weight:600}
+.jadwal .jrow b{font-size:1.05rem;color:var(--green-deep)}
+.jadwal .jrow.minor{font-size:.86rem;color:var(--text-2)}.jadwal .jrow.minor b{font-size:.92rem;color:var(--text-2)}.jadwal .jrow.minor .jrow-ic{background:#F3F1EC}.jadwal .jrow.minor .jrow-ic .ic{stroke:var(--text-2)}
+.jadwal .jrow.next{background:#FDF3DC;box-shadow:inset 3px 0 0 var(--gold)}
+.jadwal .jrow.now{background:#EAF5F0;box-shadow:inset 3px 0 0 var(--emerald)}
+.jadwal .jbadge{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;font-size:.66rem;background:var(--surface-green,#E8F3EE);color:var(--emerald);vertical-align:middle}
+.jadwal .jbadge.jnext{background:var(--gold-soft);color:var(--green-deep)}
+.jtiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.jtile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;min-height:76px;padding:12px 4px 8px;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-sm);font:inherit;font-size:.72rem;font-weight:600;color:var(--text);cursor:pointer;text-align:center}
+.jtile .ic{width:24px;height:24px;stroke:var(--gold-ink)}
+.jadwal .jloc .row-btns{flex-wrap:wrap}
+
+/* ===== Kalender Islam ===== */
+.calpage{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-bottom:1rem}
+.caltoday2{display:grid;gap:6px;padding:14px 16px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}
+.caltoday2 p{margin:0;display:flex;align-items:center;gap:10px;font-size:.84rem;color:var(--text-2)}
+.caltoday2 p b{font-size:1rem;color:var(--green-deep)}
+.ct-ic{flex:none;display:grid;place-items:center}.ct-ic .ic{width:20px;height:20px;stroke:var(--gold-ink)}
+.calart{height:150px;border-radius:18px;background:linear-gradient(90deg,rgba(6,75,61,.25),rgba(6,75,61,0) 60%),var(--art-banner_masjid,url("art-banner.svg")) right bottom/cover no-repeat,linear-gradient(135deg,var(--emerald),var(--green-deep));box-shadow:var(--shadow-md)}
+.calimp{background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm);padding:14px 12px 12px}
+.calimp h3{margin:0 4px 8px;font-size:1rem;font-weight:800;color:var(--green-deep)}
+.calimp-row{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:10px 6px;border:0;border-top:1px solid var(--border);background:transparent;font:inherit;color:var(--text);text-align:left;cursor:pointer}
+.calimp h3 + .calimp-row{border-top:0}
+.calimp-ic{flex:none;width:40px;height:40px;border-radius:12px;background:var(--surface-gold,#FBF4E2);display:grid;place-items:center}.calimp-ic .ic{width:20px;height:20px;stroke:var(--gold-ink)}
+.calimp-t{flex:1;display:grid;gap:1px;min-width:0}.calimp-t b{font-size:.9rem;color:var(--green-deep)}.calimp-t span{font-size:.82rem}.calimp-t small{font-size:.72rem;color:var(--text-2)}
+.calimp-row > .ic{flex:none;width:18px;height:18px;stroke:var(--text-2)}
+.calimp-all{display:block;width:100%;min-height:46px;margin-top:8px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--emerald),var(--green-deep));color:#fff;font:inherit;font-weight:700;font-size:.88rem;cursor:pointer}
+.calpage .calwrap{margin:0;border-color:var(--border);border-radius:18px;box-shadow:var(--shadow-sm);scroll-margin-top:80px}
+.calpage .legrow{background:#fff;border-color:var(--border)}
+.calpage .legdate{background:var(--surface-gold,#FBF4E2);color:var(--gold-ink)}
+
+/* ===== Pencarian & tab pil (dipakai Doa, Dzikir, dan halaman daftar lain) ===== */
+.doa input[type=search]{min-height:46px;border-radius:14px;border:1px solid var(--border);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7A73' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") 14px center/18px no-repeat;padding-left:42px;box-shadow:var(--shadow-sm)}
+.doa .achip,.dzikir .achip{background:#fff;border:1px solid var(--border);color:var(--green-deep);font-size:.82rem;min-height:44px}
+.doa .achip[aria-selected="true"],.dzikir .achip[aria-selected="true"]{background:var(--emerald);border-color:var(--emerald);color:#fff}
+.dzikir .seg{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.dzikir .segb[aria-selected="true"]{background:var(--emerald)}
+
+/* ===== Doa: daftar ringkas, diketuk untuk membuka ===== */
+.doa .dcount{margin:4px 2px 6px;font-size:.78rem}
+.doa .dua{margin:0;background:#fff;border:1px solid var(--border);border-radius:0;box-shadow:none;padding:0}
+.doa .dua:first-of-type{border-top-left-radius:18px;border-top-right-radius:18px}
+.doa .dua:last-of-type{border-bottom-left-radius:18px;border-bottom-right-radius:18px}
+.doa .dua + .dua{border-top:0}
+.dua-sum{display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 14px;cursor:pointer;list-style:none}
+.dua-sum::-webkit-details-marker{display:none}
+.dua-ic{flex:none;width:38px;height:38px;border-radius:50%;background:var(--surface-gold,#FBF4E2);display:grid;place-items:center}.dua-ic .ic{width:19px;height:19px;stroke:var(--gold-ink)}
+.dua-sum .dhead{flex:1;display:grid;gap:1px;margin:0;min-width:0}
+.dua-sum .dtitle{font-size:.92rem;color:var(--text)}
+.dua-sum .dcat{font-size:.72rem}
+.dua-chev{flex:none;width:18px;height:18px;stroke:var(--text-2);transition:transform .2s}
+.dua[open] .dua-chev{transform:rotate(90deg)}
+.dua[open] .dua-sum{background:#FBF8F1}
+.dbody{padding:4px 14px 14px;border-top:1px dashed var(--border)}
+.dbody > .hperiod{display:inline-block;margin:10px 0 2px}
+
+/* ===== Dzikir ===== */
+.dzikir .dcard{background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}
+.dzikir .snum{border-radius:50%;background:var(--surface-gold,#FBF4E2);color:var(--gold-ink)}
+.dzikir .dtap{background:linear-gradient(135deg,var(--emerald),var(--green-deep));border-radius:16px}
+.dzikir .dsum.panel{background:linear-gradient(135deg,#fff,var(--surface-gold,#FBF4E2));border-radius:18px}

@@ -51,13 +51,7 @@ export const promoBanner = ({ title, text, cta, onclick, id, art }) =>
   h('section', { class: 'pb', id, 'data-art': art || '' }, h('div', { class: 'pb-txt' }, h('h2', {}, title), h('p', {}, text), h('button', { class: 'bn-cta gold', type: 'button', onclick }, cta, icon(ICONS.chev))));
 
 /* ===== Jadwal salat hari ini (dihitung di perangkat) ===== */
-const PC_IC = {
-  fajr: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
-  dhuhr: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/>',
-  asr: '<circle cx="9" cy="9" r="3"/><path d="M9 3v1.5M3 9h1.5M4.8 4.8l1 1M13.2 4.8l-1 1"/><path d="M8 20h9a3.5 3.5 0 0 0 .4-7A5 5 0 0 0 8 14a3 3 0 0 0 0 6z"/>',
-  maghrib: '<path d="M6 17a6 6 0 0 1 12 0"/><path d="M3 20h18M12 6v3M4.6 11l1.7 1M19.4 11l-1.7 1"/>',
-  isha: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/><path d="M17 4v3M15.5 5.5h3"/>'
-};
+import { PRAYER_IC as PC_IC } from './prayer-icons.js';
 const two = n => String(n).padStart(2, '0');
 const hms = ms => { const t = Math.max(0, Math.floor(ms / 1000)); return two(Math.floor(t / 3600)) + ':' + two(Math.floor(t % 3600 / 60)) + ':' + two(t % 60); };
 // place: {lat,lng,tz,label} (mis. koordinat masjid). Tanpa itu dipakai lokasi yang dipilih pengguna di Jadwal Salat.
