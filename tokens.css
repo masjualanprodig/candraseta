@@ -1,0 +1,33 @@
+/* BAITUNA - tokens.css : design tokens resmi (Design System v1.2). Semua warna, huruf, jarak, radius, dan bayangan berasal dari sini.
+   Jangan membuat warna baru di tempat lain; tambahkan di sini dengan fungsi yang jelas. */
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:200 800;font-display:swap;
+  src:local("Plus Jakarta Sans"),local("PlusJakartaSans"),url("PlusJakartaSans.woff2") format("woff2")}
+:root{
+  /* Warna utama */
+  --emerald:#086653;--green-deep:#064B3D;--green-dark:#073F34;
+  /* Warna sekunder (aksen saja) */
+  --gold:#D5A84B;--gold-soft:#E8C879;--gold-pale:#F7EAC7;
+  /* Latar dan permukaan */
+  --bg:#FAF8F1;--surface:#FFFFFF;--surface-green:#E8F2EE;--surface-gold:#FBF3DF;--border:#E1E7E3;
+  /* Teks */
+  --text:#163D35;--text-2:#687C76;--text-muted:#84928D;--text-on-dark:#FFFFFF;
+  /* Status (hanya untuk informasi yang sesuai) */
+  --success:#247A54;--warning:#A96F17;--error:#B42318;--info:#2865A6;
+  /* Tipografi */
+  --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-arabic:"Noto Sans Arabic","Amiri Quran","Scheherazade New","Geeza Pro","Traditional Arabic",serif;
+  --fs-display:clamp(1.9rem,8vw,2.25rem);--fs-title:1.5rem;--fs-section:1.15rem;--fs-card:1rem;--fs-body:.95rem;--fs-caption:.8rem;--fs-meta:.72rem;
+  /* Jarak (kelipatan 4) */
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-7:28px;--gutter:16px;
+  /* Radius */
+  --r-input:14px;--r-btn:16px;--r-card:20px;--r-banner:24px;--r-pill:999px;
+  /* Bayangan lembut (tanpa hitam pekat) */
+  --shadow-sm:0 2px 8px rgba(22,61,53,.06);--shadow-md:0 6px 22px rgba(22,61,53,.08);--shadow-lg:0 14px 40px rgba(7,63,52,.18);
+  --glow-emerald:0 8px 28px rgba(8,102,83,.5);
+  /* Permukaan kaca (khusus splash dan login) */
+  --glass-bg:rgba(255,255,255,.14);--glass-border:rgba(255,255,255,.38);--glass-text:#FFFFFF;--glass-ph:rgba(255,255,255,.82);
+  /* Sentuhan minimal */
+  --tap:44px;
+  /* Nama lama (kompatibilitas): dipetakan ke token baru */
+  --teal:var(--emerald);--teal-d:var(--green-deep);--ivory:var(--bg);--sage:var(--text-2);--line:var(--border);--danger:var(--error);--r:var(--r-card);
+}

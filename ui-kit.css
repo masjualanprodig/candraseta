@@ -1,0 +1,128 @@
+/* BAITUNA - ui-kit.css : komponen dasar (Design System v1.2). Dimuat TERAKHIR; hanya memakai token dari tokens.css. */
+
+/* ===== Dasar ===== */
+body{font-family:var(--font);font-size:var(--fs-body);color:var(--text);background:var(--bg)}
+h1,h2,h3,h4{font-family:var(--font);letter-spacing:-.005em}
+.muted{color:var(--text-2)}
+.hint{color:var(--text-muted)}
+:focus-visible{outline:3px solid var(--emerald);outline-offset:2px;border-radius:6px}
+
+/* ===== Kartu ===== */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--shadow-sm)}
+.panel h3,dialog h3{color:var(--green-deep)}
+
+/* ===== Tombol ===== */
+.btn-primary{min-height:52px;border-radius:var(--r-pill);background:var(--emerald);color:var(--text-on-dark);font-weight:700;box-shadow:0 4px 14px rgba(8,102,83,.28);transition:background .15s,transform .1s,box-shadow .15s}
+.btn-primary:hover{background:var(--green-deep)}
+.btn-primary:active{transform:scale(.985);box-shadow:0 2px 8px rgba(8,102,83,.3)}
+.btn-primary:disabled{opacity:.6;box-shadow:none}
+.btn-sm{min-height:36px;background:var(--emerald);color:var(--text-on-dark);transition:background .15s,transform .1s}
+.btn-sm:hover{background:var(--green-deep)}
+.btn-sm:active{transform:scale(.97)}
+.btn-sm.alt{background:var(--surface);color:var(--error);border:1.5px solid var(--error)}
+.btn-sm.alt:hover{background:#fdf1ef}
+.btn-sm.ghost{background:var(--surface);color:var(--emerald);border:1.5px solid var(--emerald)}
+.btn-sm.ghost:hover{background:var(--surface-green)}
+.btn-gold{display:flex;align-items:center;justify-content:center;gap:.6rem;min-height:54px;padding:0 1.2rem;border-radius:var(--r-pill);border:1.5px solid var(--gold);color:var(--green-deep);background:var(--surface-gold);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
+.btn-gold svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ===== Input ===== */
+.in,.field{border-radius:var(--r-input);border-color:var(--border);background:var(--surface);color:var(--text)}
+.in:focus,.field:focus-within{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(8,102,83,.14)}
+.in::placeholder,.field input::placeholder{color:var(--text-muted)}
+.field input{color:var(--text)}
+.err,.mk-err{color:var(--error)}
+.msg{background:#fdecea;color:var(--error)}
+.msg.ok{background:var(--surface-green);color:var(--green-deep)}
+.msg.info{background:var(--surface-gold);color:#7a5600}
+
+/* ===== Chip, badge, segmen ===== */
+.chip{background:var(--surface-green);color:var(--emerald)}
+.chip-draft{background:var(--surface-gold);color:var(--warning)}
+.badge{border-radius:var(--r-pill)}
+.seg{border-color:var(--border);background:var(--surface)}
+.segb{color:var(--emerald)}
+.segb[aria-selected="true"]{background:var(--emerald);color:var(--text-on-dark)}
+.achip{background:var(--surface-green);color:var(--emerald)}
+.achip[aria-pressed="true"],.achip[aria-selected="true"]{background:var(--emerald);color:var(--text-on-dark)}
+.empty{color:var(--text-2)}
+
+/* ===== Latar masjid (splash, masuk, daftar, atur ulang password) ===== */
+.hero-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,#9CC7E4 0%,#CFE3E8 20%,#F7EAC7 42%,#F3CF86 55%,#E8C879 62%,var(--green-dark) 100%)}
+.has-photo .hero-bg{background:var(--hero-img,url("bg-masjid.jpg")) center top/cover no-repeat,var(--green-dark)}
+.hero-art{position:fixed;left:50%;transform:translateX(-50%);top:25%;width:min(100%,640px);height:27%;object-fit:contain;object-position:center bottom;z-index:1;pointer-events:none}
+.has-photo .hero-art{display:none}
+.hero-shade{position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(7,63,52,0) 0%,rgba(7,63,52,0) 40%,rgba(6,75,61,.78) 60%,rgba(7,63,52,.95) 80%,var(--green-dark) 100%)}
+.auth{display:block;color:var(--text-on-dark)}
+.auth-wrap{position:relative;z-index:2;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;gap:20px;padding:max(env(safe-area-inset-top),22px) 24px max(env(safe-area-inset-bottom),20px);max-width:520px;margin:0 auto}
+.auth-brand{text-align:center}
+.auth-brand .hero-logo{width:min(26vw,96px);margin:0 auto;display:block;mix-blend-mode:normal}
+.auth-brand .brand-name{color:var(--green-deep);font-size:clamp(2rem,9vw,2.5rem);margin-top:.4rem;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.auth-brand .brand-tag{color:var(--green-deep);opacity:.82;letter-spacing:.04em;font-size:.88rem;font-weight:500;margin-top:.4rem}
+.orn{display:flex;align-items:center;justify-content:center;gap:.7rem;margin:.7rem auto 0;width:min(70%,300px);color:var(--gold)}
+.orn::before,.orn::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.orn::after{background:linear-gradient(270deg,transparent,var(--gold))}
+.orn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.4}
+.auth-panel{width:100%}
+.auth-panel h2{font-size:1.15rem;font-weight:700;color:var(--text-on-dark);margin:0 0 .2rem}
+.auth-panel .muted,.auth .muted{color:rgba(255,255,255,.86)}
+.auth form{margin-top:.6rem}
+.auth .field{background:linear-gradient(rgba(7,63,52,.34),rgba(7,63,52,.34)),var(--glass-bg);border:1px solid var(--glass-border);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:var(--r-pill);height:54px;margin-top:.7rem;padding:0 1.1rem;color:var(--glass-text);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.auth .field:focus-within{border-color:var(--gold-soft);box-shadow:0 0 0 3px rgba(232,200,121,.28)}
+.auth .field input{color:var(--glass-text)}
+.auth .field input::placeholder{color:var(--glass-ph)}
+.auth .field svg{stroke:var(--glass-text)}
+.auth .icon-btn{color:var(--glass-text)}
+.auth .icon-btn svg{stroke:var(--glass-text)}
+.auth .err{color:#FFD2CC;font-weight:600}
+.auth .msg{background:rgba(255,255,255,.94);color:var(--error)}
+.auth .msg.ok{background:rgba(255,255,255,.94);color:var(--green-deep)}
+.auth .msg.info{background:rgba(255,255,255,.94);color:#7a5600}
+.auth .link{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.auth .link.right{display:block;text-align:right;margin:.6rem .3rem .9rem;font-size:.92rem;font-weight:600}
+.auth .btn-primary{position:relative;display:flex;align-items:center;justify-content:center;height:56px;background:linear-gradient(135deg,#0B7A62 0%,var(--emerald) 55%,var(--green-deep) 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.24),var(--glow-emerald);font-size:1.05rem}
+.auth .btn-primary svg{position:absolute;right:22px;width:24px;height:24px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.auth .divider{color:rgba(255,255,255,.86);margin:1.1rem 0 .9rem}
+.auth .divider::before,.auth .divider::after{background:rgba(255,255,255,.32)}
+.auth .btn-gold{background:rgba(7,63,52,.28);border-color:var(--gold-soft);color:var(--gold-soft);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.auth-terms{font-size:.8rem;line-height:1.5;text-align:center;color:rgba(255,255,255,.9);margin:1rem .2rem 0}
+.auth-terms a{color:var(--gold-soft);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.explore{position:relative;z-index:3;background:var(--bg);color:var(--text);border-radius:28px 28px 0 0;padding:1.4rem 16px 2rem;margin-top:-8px;box-shadow:0 -10px 30px rgba(7,63,52,.16)}
+.explore h2{font-size:1.15rem;font-weight:700;color:var(--green-deep)}
+.explore .muted{color:var(--text-2)}
+/* Form daftar dan atur ulang: lembar kaca gelap */
+.auth-sheet{position:relative;background:rgba(7,63,52,.74);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:28px;padding:1.3rem 1.2rem 1.2rem;box-shadow:var(--shadow-lg)}
+.auth-sheet h2{font-size:1.45rem;font-weight:800;color:#fff;margin:0 0 .3rem}
+.auth .su-agree{color:rgba(255,255,255,.9)}
+.auth .su-agree input{accent-color:var(--gold)}
+/* Splash */
+.splash.auth .auth-wrap{justify-content:flex-start;padding-top:max(env(safe-area-inset-top),12vh)}
+.splash .loader{margin:1.2rem auto 0;width:120px;height:5px;border-radius:6px;background:rgba(6,75,61,.18);overflow:hidden}
+.splash .loader span{display:block;width:40%;height:100%;border-radius:6px;background:var(--emerald);animation:slide 1.2s ease-in-out infinite}
+@media (max-height:700px){.auth-brand .hero-logo{width:72px}.auth-wrap{gap:10px}.auth .field{height:50px;margin-top:.5rem}.auth .btn-primary{height:52px}.auth .btn-gold{min-height:50px}.auth-terms{margin-top:.6rem}}
+@media (min-width:700px){.auth-wrap{justify-content:center;gap:28px}}
+#view-signup .hero-art,#view-reset .hero-art{display:none}
+@media (max-height:720px){.hero-art{display:none}}
+.auth .su-agree{margin:1rem 0 .9rem}
+@media (min-width:700px){.hero-art{display:none}}
+.auth .icon-btn{min-width:44px;min-height:44px;display:grid;place-items:center;margin-right:-12px;background:transparent;border:0;cursor:pointer}
+.auth .link.right{display:flex;justify-content:flex-end;align-items:center;min-height:44px;margin:.1rem .3rem .3rem}
+
+/* ===== Editor Tampilan Aplikasi (Super Admin) + ikon Akses Cepat kustom ===== */
+button,input,select,textarea{font-family:inherit}
+.tile img.ic-img{width:24px;height:24px;object-fit:contain;flex:none}
+.br-sec{margin-top:var(--sp-4)}
+.br-sec h3{margin:0 0 var(--sp-2)}
+.br-row{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-3)}
+.br-file{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+label.btn-sm{cursor:pointer;display:inline-flex;align-items:center;min-height:var(--tap);position:relative}
+.br-bg{height:160px;border-radius:var(--r-card);margin-top:var(--sp-3);border:1px solid var(--border);background:linear-gradient(180deg,#9CC7E4 0%,#F7EAC7 50%,var(--green-dark) 100%) center/cover no-repeat}
+.br-sample{font-size:1.25rem;font-weight:700;margin:var(--sp-2) 0;word-break:break-word}
+.br-icons{list-style:none;margin:var(--sp-3) 0 0;padding:0;display:grid;gap:var(--sp-2)}
+.br-icon{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--border)}
+.br-icon:last-child{border-bottom:0}
+.br-thumb{width:44px;height:44px;border-radius:12px;background:var(--surface-green);color:var(--emerald);display:grid;place-items:center;flex:none}
+.br-thumb svg,.br-thumb img{width:24px;height:24px;object-fit:contain}
+.br-label{flex:1;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.tile svg[hidden]{display:none}
+.br-sec .btn-sm,.br-icon .btn-sm,#br-back{min-height:var(--tap)}
