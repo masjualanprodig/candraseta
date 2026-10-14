@@ -6,7 +6,8 @@ import { onSessionExpired, restoreSession, getSession, setSession, validToken } 
 import { signIn, signOut, signUp, passwordIssue, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
 import { loadAccess } from './permissions.js';
 import { initBranding, refreshIcons } from './branding-service.js';
-import { go, runAct, setHomeBack } from './home-ui.js';
+import { go, runAct, setHomeBack, flushAct } from './home-ui.js';
+import { setNavKind, navItems } from './nav-config.js';
 import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
@@ -57,7 +58,7 @@ async function enterApp() {
     setNav(access.isAdmin ? 'super' : isMosqueAdmin ? 'admin' : 'jamaah');
     if (access.isAdmin) await renderAdmin(box);
     else await renderMember(box, access.memberships);
-    refreshIcons();
+    refreshIcons(); flushAct();
   } catch (e) {
     if (e.status === 401) return;
     console.error(e);
@@ -147,16 +148,12 @@ $('open-calendar').addEventListener('click', e => { e.preventDefault(); openDire
    Super Admin: Beranda, Masjid, Pengguna, Audit, Akun */
 const appTab = (id, label, ic, onclick, selected) => h('button', { id, class: 'atab', type: 'button', role: 'tab', 'aria-selected': String(!!selected), onclick }, icon(ic), h('span', {}, label));
 const toHome = () => { enterApp(); window.scrollTo(0, 0); };
-const NAVS = {
-  jamaah: [['nav-home', 'Beranda', ICONS.home, toHome, true], ['nav-quran', 'Al-Qur\u2019an', ICONS.quran, () => go('quran')], ['nav-dir', 'Masjid', ICONS.mosque, () => go('dir')], ['nav-agenda', 'Agenda', ICONS.agenda, () => go('info')], ['nav-profil', 'Akun', ICONS.user, () => go('profil')]],
-  admin: [['nav-home', 'Beranda', ICONS.home, toHome, true], ['nav-pengurus', 'Pengurus', ICONS.user, () => runAct('team')], ['nav-kas', 'Keuangan', ICONS.zakat, () => runAct('kas')], ['nav-posts', 'Agenda', ICONS.agenda, () => runAct('posts')], ['nav-more', 'Lainnya', ICONS.more, () => go('more')]],
-  super: [['nav-home', 'Beranda', ICONS.home, toHome, true], ['nav-masjid', 'Masjid', ICONS.mosque, () => runAct('masjid')], ['nav-pengguna', 'Pengguna', ICONS.user, () => runAct('jamaah')], ['nav-audit', 'Audit', ICONS.shield, () => runAct('audit')], ['nav-profil', 'Akun', ICONS.user, () => go('profil')]]
-};
-let navKind = '';
+const navTap = t => t.home ? toHome() : t.tab ? go(t.tab) : runAct(t.act);
+let navKindShown = '';
 function setNav(kind) {
-  if (kind === navKind) return;
-  navKind = kind;
-  $('app-nav').replaceChildren(...NAVS[kind].map(t => appTab(...t)));
+  if (kind === navKindShown) return;
+  navKindShown = kind; setNavKind(kind);
+  $('app-nav').replaceChildren(...navItems().map(t => appTab(t.id, t.label, t.ic, () => navTap(t), !!t.home)));
 }
 setHomeBack(() => enterApp());
 setNav('jamaah');

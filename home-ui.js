@@ -127,6 +127,10 @@ export const activityList = (rows, labelOf, onAll) => h('section', { class: 'av'
 const acts = {};
 export const registerActs = o => { Object.keys(acts).forEach(k => delete acts[k]); Object.assign(acts, o); };
 export const runAct = k => { if (acts[k]) acts[k](); };
+// Dari halaman fitur: kembali ke beranda lalu buka bagian yang dipilih di menu bawah.
+let pendingAct = '';
+export const requestAct = k => { pendingAct = k; backFn(); };
+export const flushAct = () => { const k = pendingAct; pendingAct = ''; if (k) runAct(k); };
 export const scrollToEl = el => { if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
 // Nama untuk sapaan/avatar (gagal memuat profil tidak menghalangi beranda).

@@ -1,6 +1,8 @@
 // BAITUNA - directory.js
 // Direktori masjid publik + profil masjid. Bisa dibuka tanpa login.
 // Hanya masjid berstatus aktif yang tampil (dijaga database).
+import { navItems } from './nav-config.js';
+import { requestAct } from './home-ui.js';
 import { $, h } from './ui.js';
 import { show } from './router.js';
 import { getSession } from './supabase.js';
@@ -92,10 +94,11 @@ function tabs() {
     class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(selected !== undefined ? selected : state.tab === key),
     onclick: onclick || (() => go(key))
   }, icon(ic), h('span', {}, label));
-  if (authed) { // bilah bawah yang sama dengan halaman Beranda: Profil di pojok kanan bawah
+  if (authed) { // bilah bawah yang sama dengan Beranda peran masing-masing
     return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Menu utama' },
-      t('Beranda', 'home', ICONS.home, false, () => $('public-back').click()), t('Masjid', 'dir', ICONS.mosque), t('Qur\u2019an', 'quran', ICONS.quran),
-      t('Lainnya', 'more', ICONS.more, MORE_AUTH.includes(state.tab)), t('Profil', 'profil', ICONS.user));
+      ...navItems().map(it => t(it.label, it.tab || it.id, it.ic,
+        it.home ? false : it.tab ? (it.group === 'more' ? MORE_AUTH.includes(state.tab) : state.tab === it.tab) : false,
+        it.home ? () => $('public-back').click() : it.tab ? () => go(it.tab) : () => requestAct(it.act))));
   }
   return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Bagian' }, t('Masjid', 'dir', ICONS.mosque), t('Agenda', 'info', ICONS.agenda), t('Kalender', 'cal', ICONS.moon), t('Qur\u2019an', 'quran', ICONS.quran), t('Lainnya', 'more', ICONS.more, MORE.includes(state.tab)));
 }

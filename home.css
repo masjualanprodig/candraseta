@@ -95,3 +95,15 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,75,61,.45) 0%,rgba(6
 .konten h2{margin:0;font-size:1.02rem;font-weight:800;color:var(--green-deep)}
 .home-body .panel.mhero{background:linear-gradient(135deg,var(--emerald) 0,var(--green-deep) 100%);color:#fff;border:0;border-radius:var(--r-banner)}
 .home-body .panel.mhero.has-photo{background:var(--green-deep);overflow:hidden}
+
+/* ===== Tahap 6: halaman fitur memakai sistem yang sama ===== */
+.btn-sm,.btn-ghost{display:inline-flex;align-items:center;justify-content:center;min-height:44px}
+.achip,.mk-chip,.segb,.zk-tab{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+#view-public .linkbtn{min-height:44px;display:inline-flex;align-items:center}
+.tabs:not(.bottomnav) .tab{min-height:44px}
+#view-public .apphead{background:linear-gradient(135deg,var(--emerald) 0%,var(--green-deep) 100%);border-bottom:0;color:#fff;padding:max(env(safe-area-inset-top),10px) 16px 12px;border-radius:0 0 22px 22px;box-shadow:var(--shadow-md)}
+#view-public .apphead strong{color:#fff}
+#view-public .apphead .muted{color:rgba(255,255,255,.88)}
+#view-public .app-logo{filter:brightness(0) invert(1)}
+#view-public .apphead .btn-ghost{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.12)}
+#view-public .appbody{padding-top:1rem}
