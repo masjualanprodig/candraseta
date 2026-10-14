@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#086653">
+<meta name="robots" content="noindex">
+<title>Pasang BAITUNA</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text,#1F2D2A);line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:460px;margin:0 auto;padding:0 16px max(28px,env(safe-area-inset-bottom))}
+.hero{margin:0 -16px;padding:max(28px,env(safe-area-inset-top)) 20px 64px;text-align:center;color:#fff;background:linear-gradient(135deg,#086653,#064B3D);border-radius:0 0 32px 32px}
+.hero img{width:84px;height:84px;border-radius:22px;background:#fff;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.hero h1{margin:14px 0 2px;font-size:1.6rem;font-weight:800}
+.hero p{margin:0;font-size:.95rem;color:#fff;opacity:.92}
+.card{position:relative;margin-top:-40px;padding:20px 18px;background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:0 10px 30px rgba(6,75,61,.14)}
+.card+.card{margin-top:14px}
+h2{margin:0 0 6px;font-size:1.05rem;font-weight:800;color:#064B3D}
+p{margin:0 0 10px;font-size:.92rem;color:#4A5C57}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;margin-top:6px;border:0;border-radius:16px;background:linear-gradient(135deg,#E8C879,#D5A84B);color:#064B3D;font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;text-decoration:none}
+.btn.alt{background:#fff;border:1.5px solid #086653;color:#086653}
+.btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+ol{margin:6px 0 0;padding:0;list-style:none;counter-reset:s}
+ol li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border);font-size:.92rem}
+ol li:first-child{border-top:0}
+ol li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:#E8F2EE;color:#086653;font-weight:800;display:grid;place-items:center;font-size:.85rem}
+ol li b{color:#064B3D}
+.ic{display:inline-block;width:18px;height:18px;vertical-align:-4px;stroke:#086653;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.note{padding:12px 14px;border-radius:14px;background:#FBF3DF;color:#6B5413;font-size:.86rem;margin-top:10px}
+.ok{padding:14px;border-radius:14px;background:#E8F2EE;color:#064B3D;font-weight:700;text-align:center}
+[hidden]{display:none!important}
+.foot{margin-top:18px;text-align:center;font-size:.78rem;color:#6B7A75}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <img src="logo.png" alt="Logo BAITUNA" width="84" height="84">
+    <h1>BAITUNA</h1>
+    <p>Satu Masjid, Banyak Manfaat</p>
+  </header>
+
+  <!-- Sudah terpasang -->
+  <section class="card" id="p-done" hidden>
+    <div class="ok">BAITUNA sudah terpasang di perangkat ini.</div>
+    <a class="btn alt" href="./" id="open-done">Buka BAITUNA</a>
+  </section>
+
+  <!-- Dibuka di dalam aplikasi lain (WhatsApp, Instagram, Facebook, dll.) -->
+  <section class="card" id="p-inapp" hidden>
+    <h2>Buka dulu di peramban</h2>
+    <p>Halaman ini terbuka di dalam aplikasi lain, sehingga BAITUNA belum bisa dipasang dari sini.</p>
+    <ol>
+      <li><span>Ketuk titik tiga <b>⋮</b> atau ikon <b>bagikan</b> di pojok layar.</span></li>
+      <li><span>Pilih <b>Buka di Chrome</b> atau <b>Buka di Safari</b> (<b>Open in browser</b>).</span></li>
+      <li><span>Setelah halaman ini terbuka lagi, ikuti langkah pemasangan.</span></li>
+    </ol>
+  </section>
+
+  <!-- Android / Chrome: satu ketukan -->
+  <section class="card" id="p-android" hidden>
+    <h2>Pasang di HP atau tablet</h2>
+    <p>Ketuk tombol di bawah, lalu pilih <b>Pasang</b> / <b>Instal</b>. Ikon BAITUNA akan muncul di layar utama.</p>
+    <button class="btn" id="btn-install" type="button">
+      <svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 11 12 15.5 16.5 11M5 19h14"/></svg>Pasang BAITUNA
+    </button>
+    <div class="note" id="android-manual" hidden>
+      Tombol belum aktif? Buka menu peramban <b>⋮</b>, lalu pilih <b>Instal aplikasi</b> atau <b>Tambahkan ke layar utama</b>.
+    </div>
+  </section>
+
+  <!-- iPhone / iPad (Safari): 3 langkah -->
+  <section class="card" id="p-ios" hidden>
+    <h2>Pasang di iPhone atau iPad</h2>
+    <p>Apple tidak mengizinkan tombol pasang otomatis. Cukup 3 langkah di <b>Safari</b>:</p>
+    <ol>
+      <li><span>Ketuk ikon <b>Bagikan</b>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7"/></svg>
+        di bagian bawah (iPhone) atau atas (iPad) layar.</span></li>
+      <li><span>Gulir lalu pilih <b>Tambah ke Layar Utama</b> (<b>Add to Home Screen</b>).</span></li>
+      <li><span>Ketuk <b>Tambah</b>. Ikon BAITUNA muncul di layar utama.</span></li>
+    </ol>
+    <div class="note">Jika memakai Chrome di iPhone, buka halaman ini di <b>Safari</b> terlebih dahulu.</div>
+  </section>
+
+  <!-- Peramban lain / komputer -->
+  <section class="card" id="p-other" hidden>
+    <h2>Pasang BAITUNA</h2>
+    <p>Buka menu peramban (<b>⋮</b> atau <b>⋯</b>), lalu pilih <b>Instal aplikasi</b> atau <b>Tambahkan ke layar utama</b>. Kalau pilihan itu tidak ada, BAITUNA tetap bisa dipakai langsung lewat tombol di bawah.</p>
+  </section>
+
+  <section class="card" id="p-use">
+    <a class="btn alt" href="./" id="open-app">Buka BAITUNA tanpa memasang</a>
+  </section>
+
+  <p class="foot">Gratis. Tidak perlu Play Store atau App Store.<br>Jadwal salat dihitung di perangkat Anda; lokasi tidak dikirim ke server.</p>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var ua = navigator.userAgent || '';
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isAndroid = /Android/i.test(ua);
+  // Peramban di dalam aplikasi lain tidak bisa memasang.
+  var inApp = /FBAN|FBAV|Instagram|Line\/|MicroMessenger|Twitter|TikTok|; wv\)|WhatsApp|GSA\/|Snapchat/i.test(ua);
+  var isSafariIOS = isIOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(ua);
+  var deferred = null;
+  function show(id) { $(id).hidden = false; }
+
+  if ('serviceWorker' in navigator) addEventListener('load', function () { navigator.serviceWorker.register('service-worker.js').catch(function () {}); });
+
+  if (standalone) { show('p-done'); $('p-use').hidden = true; return; }
+  if (inApp) { show('p-inapp'); return; }
+  if (isIOS) { show('p-ios'); return; }
+
+  if (isAndroid) show('p-android'); else show('p-other');
+
+  addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); deferred = e;
+    show('p-android'); $('p-other').hidden = true; $('android-manual').hidden = true;
+  });
+  $('btn-install').addEventListener('click', function () {
+    if (!deferred) { $('android-manual').hidden = false; return; }
+    deferred.prompt();
+    deferred.userChoice.then(function (r) {
+      deferred = null;
+      if (r && r.outcome === 'accepted') { $('p-android').hidden = true; show('p-done'); $('p-use').hidden = true; }
+    });
+  });
+  addEventListener('appinstalled', function () { $('p-android').hidden = true; $('p-other').hidden = true; show('p-done'); $('p-use').hidden = true; });
+  // Jika peramban tidak mengirim tombol pasang dalam 3 detik, tampilkan cara manual.
+  setTimeout(function () { if (!deferred && isAndroid) $('android-manual').hidden = false; }, 3000);
+})();
+</script>
+</body>
+</html>
