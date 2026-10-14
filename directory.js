@@ -260,7 +260,7 @@ function renderList() {
     (state.provinces || []).map(p => h('option', { value: p }, p)));
   prov.value = state.province;
   const search = h('form', {
-    class: 'panel', novalidate: 'novalidate',
+    class: 'panel msearch', novalidate: 'novalidate',
     onsubmit: ev => { ev.preventDefault(); state.q = q.value; state.province = prov.value; load(true); }
   }, h('div', { class: 'grid2' }, q, prov), h('div', { class: 'mt' }, h('button', { class: 'btn-sm', type: 'submit' }, 'Cari')));
 
@@ -273,7 +273,7 @@ function renderList() {
       ? 'Tidak ada masjid yang cocok. Coba kata kunci atau provinsi lain.'
       : 'Belum ada masjid terverifikasi yang ditampilkan.'));
   } else {
-    body = h('div', { class: 'panel' },
+    body = h('div', { class: 'panel mlist' },
       state.items.map(m => h('div', { class: 'mrow' },
         thumb(m),
         h('div', { class: 'minfo' },

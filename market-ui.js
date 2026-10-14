@@ -13,6 +13,15 @@ const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.sta
 const photoUrl = p => (p ? publicPhotoUrl(p, M.MARKET_BUCKET) : null);
 const fmtDate = iso => { try { return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }); } catch { return ''; } };
 
+// Ikon kategori (desain v82).
+const CAT_IC = {
+  '': ICONS.market,
+  makanan: '<path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M8 8c0-1.5 1-2 1-3.5M12 8c0-1.5 1-2 1-3.5M16 8c0-1.5 1-2 1-3.5"/>',
+  pakaian: '<path d="M8 4 4 7l2 4 2-1v10h8V10l2 1 2-4-4-3c-.5 1.5-2 2.5-4 2.5S8.5 5.5 8 4z"/>',
+  buku: ICONS.book,
+  jasa: '<path d="M14.5 6.5a4 4 0 0 0-5 5L4 17l3 3 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+  lainnya: ICONS.more
+};
 export function marketPage(opts = {}) {
   const wrap = h('div', { class: 'market' });
   const onLogin = opts.onLogin || (() => {});
@@ -79,12 +88,12 @@ export function marketPage(opts = {}) {
     search.value = q; let tm = null;
     search.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { q = search.value.trim(); load(true); }, 350); });
     const chips = h('div', { class: 'mk-chips', role: 'group', 'aria-label': 'Kategori' }, ...[{ key: '', label: 'Semua' }, ...M.CATS].map(c =>
-      h('button', { class: 'mk-chip' + (cat === c.key ? ' on' : ''), type: 'button', 'data-cat': c.key, 'aria-pressed': String(cat === c.key), onclick: () => { cat = c.key; chips.querySelectorAll('.mk-chip').forEach(x => { const on = x.dataset.cat === cat; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); }); load(true); } }, c.label)));
+      h('button', { class: 'mk-chip' + (cat === c.key ? ' on' : ''), type: 'button', 'data-cat': c.key, 'aria-pressed': String(cat === c.key), 'aria-label': c.label, onclick: () => { cat = c.key; chips.querySelectorAll('.mk-chip').forEach(x => { const on = x.dataset.cat === cat; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); }); load(true); } }, h('span', { class: 'mk-chip-ic' }, icon(CAT_IC[c.key] || ICONS.more)), h('span', { class: 'mk-chip-l' }, c.label))));
     setTimeout(() => load(true), 0);
     return [
       h('p', { class: 'muted mk-intro' }, 'Produk dan jasa usaha jamaah. Setiap produk diperiksa Super Admin sebelum tayang.'),
       h('div', { class: 'mk-actions' }, h('button', { class: 'btn-sm', type: 'button', id: 'mk-sell', onclick: () => go('my') }, 'Jualan di sini'), h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => go('rules') }, 'Aturan & tips')),
-      search, chips, grid, more, notice()
+      search, chips, h('h3', { class: 'mk-sec' }, 'Produk Terbaru'), grid, more, notice()
     ];
   }
 

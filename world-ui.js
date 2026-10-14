@@ -13,7 +13,8 @@ const norm = s => String(s || '').toLowerCase();
 /* ===== 1. Publik ===== */
 export function worldGallery() {
   const wrap = h('div', { class: 'world' }, h('p', { class: 'muted center' }, 'Memuat galeri…'));
-  let items = [], q = '';
+  let items = [], q = '', area = 'all';
+  const isId = m => /^indonesia$/i.test(String(m.country || '').trim());
 
   const card = m => h('button', { class: 'wcard', type: 'button', onclick: () => detail(m) },
     photoUrl(m) ? h('img', { class: 'wimg', src: photoUrl(m), alt: 'Foto ' + m.name, loading: 'lazy' })
@@ -28,14 +29,18 @@ export function worldGallery() {
     const grid = h('div', { class: 'wgrid' });
     const fill = () => {
       const t = norm(q).trim();
-      const rows = t ? items.filter(m => norm(m.name + ' ' + m.country + ' ' + m.city).includes(t)) : items;
+      const inArea = items.filter(m => area === 'all' || (area === 'id' ? isId(m) : !isId(m)));
+      const rows = t ? inArea.filter(m => norm(m.name + ' ' + m.country + ' ' + m.city).includes(t)) : inArea;
       grid.replaceChildren(...(rows.length ? rows.map(card) : [emptyState(t ? 'Tidak ada masjid yang cocok dengan pencarian Anda.' : 'Galeri masih kosong. Masjid dunia akan ditambahkan oleh admin pusat.')]));
     };
     search.addEventListener('input', () => { q = search.value; fill(); });
+    // Tab wilayah (desain v82): Semua / Dunia (luar Indonesia) / Indonesia, dipilah dari isian negara.
+    const seg = h('div', { class: 'seg wseg', role: 'tablist', 'aria-label': 'Wilayah' }, ...[['all', 'Semua'], ['world', 'Dunia'], ['id', 'Indonesia']].map(([k, l]) =>
+      h('button', { class: 'segb', type: 'button', role: 'tab', 'data-area': k, 'aria-selected': String(area === k), onclick: () => { area = k; seg.querySelectorAll('.segb').forEach(b => b.setAttribute('aria-selected', String(b.dataset.area === k))); fill(); } }, l)));
     wrap.replaceChildren(
       h('h2', { class: 'wtitle' }, 'Masjid dunia'),
       h('p', { class: 'muted' }, 'Kumpulan masjid terkenal dari berbagai negara, dipilih oleh admin pusat BAITUNA.'),
-      items.length ? search : '', grid);
+      items.length ? search : '', items.length ? seg : '', grid);
     fill();
   }
 

@@ -131,3 +131,54 @@
 .news .acard.feat .atitle{color:#fff;font-size:1.15rem;margin:2px 0 4px}
 .news .acard.feat .ameta{color:rgba(255,255,255,.85)}
 .news .acard.feat .acover-empty{background:linear-gradient(135deg,var(--emerald),var(--green-deep));color:#fff}
+
+/* ===== Galeri Masjid Dunia (v82): foto besar, nama & lokasi di atas foto ===== */
+.world input[type=search],#public-content .msearch input[type=search],.market #mk-q{min-height:46px;border-radius:14px;border:1px solid var(--border);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7A73' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") 14px center/18px no-repeat;padding-left:42px;box-shadow:var(--shadow-sm)}
+.world .wseg{margin:10px 0 0;background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.world .wseg .segb[aria-selected="true"],#public-content .seg .segb[aria-selected="true"]{background:var(--emerald)}
+.world .wgrid{gap:12px}
+.world .wcard{position:relative;border:0;border-radius:20px;box-shadow:var(--shadow-md)}
+.world .wimg{aspect-ratio:16/10}
+.world .wbody{position:absolute;left:0;right:0;bottom:0;padding:48px 16px 14px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(6,40,32,.88));color:#fff}
+.world .wname{font-size:1.1rem;color:#fff}
+.world .wplace{color:rgba(255,255,255,.9);font-weight:500;font-size:.8rem}
+.world .wplace .ic{stroke:#fff}
+.world .wdesc{display:none}
+.world .wimg-empty{background:linear-gradient(135deg,var(--emerald),var(--green-deep));color:#fff}
+.world .wimg-empty .ic{stroke:#fff}
+
+/* ===== Direktori & Masjid Terdekat (v82): kartu berfoto ===== */
+#public-content .seg{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+#public-content .msearch{border-radius:18px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+#public-content .mlist{padding:0;border:0;background:transparent;display:grid;gap:10px}
+#public-content .mlist .mrow,.nearby .ncard{display:flex;flex-wrap:nowrap;align-items:center;gap:12px;padding:10px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}
+#public-content .mlist .mrow{border-top:1px solid var(--border)}
+#public-content .mlist .thumb,.nearby .thumb{width:84px;height:84px;border-radius:14px;border:0}
+#public-content .mlist .minfo{flex:1 1 auto}
+#public-content .mlist .minfo strong,.nearby .minfo b,.nearby .minfo strong{color:var(--green-deep);font-size:.95rem}
+#public-content .mlist .macts{flex-direction:column;align-items:flex-end;gap:6px}
+#public-content .mlist .badge{font-size:.66rem}
+.nearby .ncard{align-items:flex-start}
+.nearby .ncard.sel{border-color:var(--gold);background:#FFFAF0}
+.nearby .ndist{display:inline-block;margin-top:4px;padding:2px 10px;border-radius:999px;background:var(--surface-green,#E8F3EE);font-size:.78rem}
+.nearby .ndist b{font-size:.84rem}
+.nearby .nmap{border-radius:18px;border-color:var(--border);box-shadow:var(--shadow-sm)}
+.nearby .nlist{display:grid;gap:10px}
+
+/* ===== Pasar Umat (v82): kategori berikon, kartu produk ===== */
+.market .mk-chips{flex-wrap:nowrap;overflow-x:auto;gap:10px;margin:12px -2px 4px;padding:2px 2px 6px;scrollbar-width:none}
+.market .mk-chips::-webkit-scrollbar{display:none}
+.market .mk-chip{flex:none;flex-direction:column;gap:5px;min-width:68px;min-height:72px;padding:8px 6px;border:0;border-radius:14px;background:transparent;color:var(--text);font-size:.7rem;font-weight:600}
+.mk-chip-ic{width:46px;height:46px;border-radius:14px;background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm);display:grid;place-items:center}
+.mk-chip-ic .ic{width:22px;height:22px;stroke:var(--gold-ink)}
+.market .mk-chip.on{background:transparent;color:var(--green-deep)}
+.market .mk-chip.on .mk-chip-ic{background:var(--emerald);border-color:var(--emerald)}
+.market .mk-chip.on .mk-chip-ic .ic{stroke:#fff}
+.mk-chip-l{max-width:80px;text-align:center;line-height:1.2}
+.mk-sec{margin:8px 2px 0;font-size:1rem;font-weight:800;color:var(--green-deep)}
+.market .mk-card{border-color:var(--border);border-radius:16px;box-shadow:var(--shadow-sm)}
+.market .mk-card .mk-ph{aspect-ratio:1}
+.market .mk-ct{padding:8px 10px 10px}
+.market .mk-t{color:var(--text)}
+.market .mk-p{color:var(--emerald)}
+.market .mk-chip{justify-content:flex-start;align-items:center;width:76px}
