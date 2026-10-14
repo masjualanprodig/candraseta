@@ -6,8 +6,7 @@ import { icon, ICONS } from './feed-ui.js';
 import { openDirectory } from './directory.js';
 import { loadLoc, offsetFor, clock } from './jadwal-ui.js';
 import { nextPrayer, PRAYERS, offsetOf, isValidTimes } from './prayer-times.js';
-import { listArticles, catLabel } from './articles-service.js';
-import { publicPhotoUrl, ARTICLE_BUCKET, getSession } from './supabase.js';
+import { publicPhotoUrl, ARTICLE_BUCKET, getSession, request } from './supabase.js';
 import { initials, getMyProfile, cleanName } from './profile-service.js';
 import { CATALOG } from './quick-catalog.js';
 import { refreshIcons } from './branding-service.js';
@@ -17,26 +16,28 @@ export const setHomeBack = fn => { backFn = fn; };
 // Buka halaman fitur (direktori/Al-Qur'an/dll.) dan kembali ke beranda lewat tombol Kembali.
 export const go = tab => openDirectory('app', () => backFn(), tab);
 
-export const sectionHead = (title, onAll, id) => h('div', { class: 'sh' }, h('h2', {}, title),
-  onAll ? h('button', { class: 'sh-all', type: 'button', id, onclick: onAll }, 'Lihat Semua', icon(ICONS.chev)) : '');
+export const sectionHead = (title, onAll, id, ic, allLabel = 'Lihat Semua') => h('div', { class: 'sh' }, h('h2', {}, ic ? icon(ic) : '', title),
+  onAll ? h('button', { class: 'sh-all', type: 'button', id, onclick: onAll }, allLabel, icon(ICONS.chev)) : '');
 
 /* ===== Header sapaan ===== */
-export function greetingHeader({ title, sub, chip, name, email }) {
-  return h('header', { class: 'hh', id: 'hh' },
-    h('div', { class: 'hh-row' },
-      h('button', { class: 'hh-av', type: 'button', id: 'hh-av', 'aria-label': 'Akun saya', onclick: () => go('profil') }, initials(name, email)),
+// avatar: undefined = inisial nama, false = tanpa avatar, string = alamat foto (mis. foto masjid)
+export function greetingHeader({ title, sub, chip, name, email, avatar }) {
+  const av = avatar === false ? '' : h('button', { class: 'hh-av' + (avatar ? ' has-img' : ''), type: 'button', id: 'hh-av', 'aria-label': 'Akun saya', onclick: () => go('profil') },
+    avatar ? h('img', { src: avatar, alt: '' }) : initials(name, email));
+  return h('header', { class: 'hh' + (av ? '' : ' no-av'), id: 'hh' },
+    h('div', { class: 'hh-row' }, av,
       h('div', { class: 'hh-txt' },
         h('span', { class: 'hh-hi' }, 'Assalamu’alaikum'),
         h('h1', { class: 'hh-title', id: 'hh-title' }, title),
         sub ? h('p', { class: 'hh-sub' }, sub) : '',
-        chip ? h('span', { class: 'hh-chip', id: 'hh-chip' }, icon(ICONS.mosque), chip) : ''),
+        chip ? h('span', { class: 'hh-chip', id: 'hh-chip' }, chip) : ''),
       h('button', { class: 'hh-bell', type: 'button', id: 'hh-bell', 'aria-label': 'Notifikasi', onclick: () => go('notif') }, icon(ICONS.bell))));
 }
 
 /* ===== Banner utama (geser ke samping; titik penanda) ===== */
 export function bannerCarousel(slides, { id = 'banner' } = {}) {
   const track = h('div', { class: 'bn-track', id, role: 'group', 'aria-label': 'Banner' },
-    ...slides.map((s, i) => h('article', { class: 'bn-slide ' + (s.tone || 'green'), 'data-i': String(i), 'aria-label': (i + 1) + ' dari ' + slides.length },
+    ...slides.map((s, i) => h('article', { class: 'bn-slide ' + (s.tone || 'green'), 'data-i': String(i), 'data-art': s.art || '', 'aria-label': (i + 1) + ' dari ' + slides.length },
       h('div', { class: 'bn-txt' }, s.kicker ? h('span', { class: 'bn-kick' }, s.kicker) : '', h('h2', {}, s.title), h('p', {}, s.text),
         h('button', { class: 'bn-cta', type: 'button', onclick: s.onclick }, s.cta, icon(ICONS.chev))))));
   const dots = slides.length > 1 ? h('div', { class: 'bn-dots', 'aria-hidden': 'true' }, ...slides.map((_, i) => h('i', { class: i === 0 ? 'on' : '' }))) : '';
@@ -46,10 +47,17 @@ export function bannerCarousel(slides, { id = 'banner' } = {}) {
   }, { passive: true });
   return h('section', { class: 'bn' }, track, dots);
 }
-export const promoBanner = ({ title, text, cta, onclick, id }) =>
-  h('section', { class: 'pb', id }, h('div', { class: 'pb-txt' }, h('h2', {}, title), h('p', {}, text), h('button', { class: 'bn-cta gold', type: 'button', onclick }, cta, icon(ICONS.chev))));
+export const promoBanner = ({ title, text, cta, onclick, id, art }) =>
+  h('section', { class: 'pb', id, 'data-art': art || '' }, h('div', { class: 'pb-txt' }, h('h2', {}, title), h('p', {}, text), h('button', { class: 'bn-cta gold', type: 'button', onclick }, cta, icon(ICONS.chev))));
 
 /* ===== Jadwal salat hari ini (dihitung di perangkat) ===== */
+const PC_IC = {
+  fajr: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
+  dhuhr: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/>',
+  asr: '<circle cx="9" cy="9" r="3"/><path d="M9 3v1.5M3 9h1.5M4.8 4.8l1 1M13.2 4.8l-1 1"/><path d="M8 20h9a3.5 3.5 0 0 0 .4-7A5 5 0 0 0 8 14a3 3 0 0 0 0 6z"/>',
+  maghrib: '<path d="M6 17a6 6 0 0 1 12 0"/><path d="M3 20h18M12 6v3M4.6 11l1.7 1M19.4 11l-1.7 1"/>',
+  isha: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/><path d="M17 4v3M15.5 5.5h3"/>'
+};
 const two = n => String(n).padStart(2, '0');
 const hms = ms => { const t = Math.max(0, Math.floor(ms / 1000)); return two(Math.floor(t / 3600)) + ':' + two(Math.floor(t % 3600 / 60)) + ':' + two(t % 60); };
 // place: {lat,lng,tz,label} (mis. koordinat masjid). Tanpa itu dipakai lokasi yang dipilih pengguna di Jadwal Salat.
@@ -72,7 +80,7 @@ export function prayerCard({ place = null } = {}) {
   let cur = n;
   const paint = () => {
     label.textContent = 'Menuju ' + (PRAYERS.find(p => p[0] === cur.key) || [0, ''])[1];
-    row.replaceChildren(...PRAYERS.map(([k, name]) => h('div', { class: 'pc-t' + (k === cur.key ? ' on' : ''), 'data-k': k }, h('span', {}, name), h('b', {}, Number.isFinite(cur.moments[k]) ? clock(cur.moments[k], spot.off) : '--:--'))));
+    row.replaceChildren(...PRAYERS.map(([k, name]) => h('div', { class: 'pc-t' + (k === cur.key ? ' on' : ''), 'data-k': k }, PC_IC[k] ? h('i', { class: 'pc-ic' }, icon(PC_IC[k])) : '', h('span', {}, name), h('b', {}, Number.isFinite(cur.moments[k]) ? clock(cur.moments[k], spot.off) : '--:--'))));
   };
   const tick = () => {
     if (!card.isConnected) { clearInterval(iv); return; }
@@ -88,24 +96,29 @@ export function prayerCard({ place = null } = {}) {
 
 /* ===== Akses Cepat ===== */
 // items: [{key,label?,id?,onclick}] ; key mengacu ke quick-catalog (ikon bisa diganti Super Admin).
-export function quickGrid(title, items, { onAll, id = 'qa' } = {}) {
+export const BOLT = '<path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/>';
+export function quickGrid(title, items, { onAll, id = 'qa', ic } = {}) {
   const grid = h('div', { class: 'qk-grid', id },
     ...items.map(it => { const c = CATALOG[it.key] || [it.label, ICONS.more];
       return h('button', { class: 'qk', type: 'button', id: it.id, 'data-ic': it.key, onclick: it.onclick }, h('span', { class: 'qk-ic' }, icon(c[1])), h('span', { class: 'qk-l' }, it.label || c[0])); }));
   setTimeout(refreshIcons, 0);
-  return h('section', { class: 'qs' }, sectionHead(title, onAll, id + '-all'), grid);
+  return h('section', { class: 'qs' }, sectionHead(title, onAll, id + '-all', ic), grid);
 }
 
 /* ===== Artikel terbaru (hanya yang terbit; senyap bila belum ada atau gagal dimuat) ===== */
 export async function articleSection(limit = 2) {
   let items = [];
-  try { items = (await listArticles()).items.slice(0, limit); } catch (e) { return ''; }
+  try {
+    const r = await request('/rest/v1/articles?select=id,title,category,source_name,cover_path,published_at,body&status=eq.published&order=published_at.desc&limit=' + Number(limit));
+    items = r.ok && Array.isArray(r.data) ? r.data : [];
+  } catch (e) { return ''; }
   if (!items.length) return '';
+  const mins = a => Math.max(1, Math.ceil(String(a.body || '').trim().split(/\s+/).filter(Boolean).length / 200));   // perkiraan: 200 kata per menit
   return h('section', { class: 'ar', id: 'ar' }, sectionHead('Artikel Terbaru', () => go('berita'), 'ar-all'),
-    ...items.map(a => { const u = a.cover_path ? publicPhotoUrl(a.cover_path, ARTICLE_BUCKET) : null;
+    h('div', { class: 'ar-grid' }, ...items.map(a => { const u = a.cover_path ? publicPhotoUrl(a.cover_path, ARTICLE_BUCKET) : null;
       return h('button', { class: 'ar-item', type: 'button', onclick: () => go('berita') },
         u ? h('img', { src: u, alt: '', loading: 'lazy', class: 'ar-img' }) : h('span', { class: 'ar-img ar-ph' }, icon(ICONS.news)),
-        h('span', { class: 'ar-t' }, h('b', {}, a.title), h('small', {}, catLabel(a.category) + (a.source_name ? ' · ' + a.source_name : '')))); }));
+        h('span', { class: 'ar-t' }, h('b', {}, a.title), h('small', {}, mins(a) + ' menit membaca'))); })));
 }
 
 /* ===== Statistik & aktivitas ===== */
@@ -140,3 +153,29 @@ export async function whoAmI() {
   try { if (u.id) name = cleanName((await getMyProfile(u.id)).full_name); } catch (e) { if (e && e.status === 401) throw e; }
   return { name, email: u.email || '' };
 }
+
+/* ===== Kartu ringkasan (Admin Masjid): 3 angka berderet dengan garis pemisah ===== */
+export const summaryCard = ({ id, title, sub, onAll, allLabel, items }) => h('section', { class: 'sm', id },
+  sectionHead(title, onAll, id + '-all', null, allLabel),
+  sub ? h('p', { class: 'sm-sub' }, sub) : '',
+  h('div', { class: 'sm-row' }, ...items.map(it => h('div', { class: 'sm-i' + (it.tone ? ' ' + it.tone : '') },
+    h('span', { class: 'sm-ic' }, icon(it.ic)), h('b', {}, String(it.value)), h('small', {}, it.label)))));
+
+/* ===== Agenda terdekat: blok tanggal + judul + jam + tempat ===== */
+export const agendaCard = ({ post, parts, times, onAll }) => h('section', { class: 'ag', id: 'ag' },
+  sectionHead('Agenda Kegiatan', onAll, 'ag-all', ICONS.agenda),
+  post ? h('div', { class: 'ag-body' },
+    h('div', { class: 'ag-date' }, h('span', {}, parts.dow), h('b', {}, String(parts.d)), h('span', {}, parts.mon)),
+    h('div', { class: 'ag-txt' }, h('strong', {}, post.title),
+      h('span', { class: 'ag-meta' }, icon(ICONS.clock), times),
+      post.location ? h('span', { class: 'ag-meta' }, icon(ICONS.pin), post.location) : ''))
+  : h('p', { class: 'ag-empty' }, 'Belum ada agenda mendatang.'));
+
+/* ===== Pengumuman terbaru ===== */
+export const announceCard = ({ post, when, onAll, onOpen }) => h('section', { class: 'an', id: 'an' },
+  sectionHead('Pengumuman Terbaru', onAll, 'an-all', ICONS.horn),
+  post ? h('button', { class: 'an-item', type: 'button', onclick: onOpen },
+    h('span', { class: 'an-img' }, icon(ICONS.horn)),
+    h('span', { class: 'an-t' }, h('b', {}, post.title), h('small', {}, icon(ICONS.agenda), when)),
+    icon(ICONS.chev))
+  : h('p', { class: 'ag-empty' }, 'Belum ada pengumuman.'));

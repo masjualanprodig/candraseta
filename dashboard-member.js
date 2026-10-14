@@ -27,15 +27,14 @@ export async function renderMember(box, memberships) {
     if (mosque) manage = { isKetua, isBend };
   }
   const home = () => renderMember(box, memberships);
-  const first = who.name ? who.name.split(' ')[0] : '';
-  const chipRow = manage ? act[0] : rows[0];
   const articles = await articleSection(2);
   const body = [
     bannerCarousel([
-      { kicker: 'Sejarah Islam', title: 'Sejarah Islam Bersama BAITUNA', text: 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', cta: 'Pelajari Sekarang', onclick: () => go('sejarah') },
-      { title: 'Belajar Qur’an', text: 'Materi belajar membaca Al-Qur’an, dari dasar sampai lancar.', cta: 'Mulai Belajar', onclick: () => go('belajar'), tone: 'gold' },
-      { title: 'Amalan Sunnah Harian', text: 'Pengingat amalan sunnah untuk dibiasakan setiap hari.', cta: 'Lihat Amalan', onclick: () => go('sunnah') }]),
-    promoBanner({ id: 'pb', title: 'Pasar Umat', text: 'Lihat produk dan jasa dari umat yang sudah diperiksa pengelola.', cta: 'Lihat Produk', onclick: () => go('market') }),
+      { art: 'banner_sejarah', kicker: 'Sejarah Islam', title: 'Bersama BAITUNA', text: 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', cta: 'Pelajari Sekarang', onclick: () => go('sejarah') },
+      { art: 'banner_belajar', title: 'Belajar Qur’an', text: 'Materi belajar membaca Al-Qur’an, dari dasar sampai lancar.', cta: 'Mulai Belajar', onclick: () => go('belajar'), tone: 'gold' },
+      { art: 'banner_sunnah', title: 'Amalan Sunnah Harian', text: 'Pengingat amalan sunnah untuk dibiasakan setiap hari.', cta: 'Lihat Amalan', onclick: () => go('sunnah') }]),
+    promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu dan wawasan.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
+    promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Dukung produk dan jasa umat yang sudah diperiksa pengelola.', cta: 'Lihat Produk', onclick: () => go('market') }),
     prayerCard(),
     quickGrid('Akses Cepat', [
       { key: 'open-quran', id: 'qa-quran', onclick: () => go('quran') },
@@ -59,8 +58,8 @@ export async function renderMember(box, memberships) {
   }
   if (articles) body.push(articles);
   box.replaceChildren(h('div', { class: 'home', id: 'home-jamaah' },
-    greetingHeader({ title: first || 'Jamaahku', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.',
-      chip: chipRow ? chipRow.mosques.name + ' · ' + (ROLE_LABEL[chipRow.role] || chipRow.role) : '', name: who.name, email: who.email }),
+    greetingHeader({ title: 'Jamaahku', sub: manage ? (manage.isKetua ? 'Ketua Takmir' : 'Bendahara') + ' · ' + mosque.name : 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.',
+      name: who.name, email: who.email, avatar: false }),
     h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
 }

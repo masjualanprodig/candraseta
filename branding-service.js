@@ -16,26 +16,29 @@ export const DEFAULT_FONT_STACK = '"Plus Jakarta Sans","Segoe UI",system-ui,-app
 
 const PATH_RE = /^[A-Za-z0-9._-]{1,80}$/;
 const KEY_RE = /^open-[a-z]{2,20}$/;
+export const ART_SLOTS = [['banner_masjid', 'Banner utama Admin Masjid dan Super Admin'], ['banner_kas', 'Banner kedua Admin Masjid dan Super Admin'], ['banner_sejarah', 'Banner Jamaah: Sejarah Islam'], ['banner_belajar', 'Banner Jamaah: Belajar Qur’an'], ['banner_sunnah', 'Banner Jamaah: Amalan Sunnah'], ['promo_buku', 'Kartu Pustaka Buku'], ['promo_pasar', 'Kartu Pasar Umat']];
+const SLOT_RE = /^(banner|promo)_[a-z]{2,12}$/;
 const NAME_RE = /^[A-Za-z0-9 ._-]{1,40}$/;
 
 export const urlFor = p => (typeof p === 'string' && PATH_RE.test(p) && !p.includes('..')) ? publicPhotoUrl(p, BUCKET) : null;
 
 // Bersihkan konfigurasi dari server/cadangan: hanya bentuk yang dikenal yang dipakai.
 export function clean(rows) {
-  const out = { splash_bg: null, font: null, icons: {} };
+  const out = { splash_bg: null, font: null, icons: {}, arts: {} };
   const list = Array.isArray(rows) ? rows : [];
   for (const r of list) {
     if (!r || typeof r !== 'object' || !r.value || typeof r.value !== 'object') continue;
     const v = r.value;
     if (r.key === 'splash_bg' && PATH_RE.test(v.path || '')) out.splash_bg = { path: v.path };
     else if (r.key === 'font' && PATH_RE.test(v.path || '') && Object.values(FONT_FORMATS).includes(v.format) && NAME_RE.test(v.name || '')) out.font = { path: v.path, format: v.format, name: v.name };
+    else if (r.key === 'arts') { for (const k of Object.keys(v)) if (SLOT_RE.test(k) && typeof v[k] === 'string' && PATH_RE.test(v[k]) && !v[k].includes('..')) out.arts[k] = v[k]; }
     else if (r.key === 'icons') for (const k of Object.keys(v)) if (KEY_RE.test(k) && typeof v[k] === 'string' && PATH_RE.test(v[k]) && !v[k].includes('..')) out.icons[k] = v[k];
   }
   return out;
 }
 
 export function readCache() {
-  try { const j = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); return j ? clean([{ key: 'splash_bg', value: j.splash_bg || {} }, { key: 'font', value: j.font || {} }, { key: 'icons', value: j.icons || {} }]) : null; } catch (e) { return null; }
+  try { const j = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); return j ? clean([{ key: 'splash_bg', value: j.splash_bg || {} }, { key: 'font', value: j.font || {} }, { key: 'icons', value: j.icons || {} }, { key: 'arts', value: j.arts || {} }]) : null; } catch (e) { return null; }
 }
 function writeCache(cfg) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(cfg)); } catch (e) { /* abaikan */ } }
 
@@ -47,7 +50,7 @@ export async function fetchConfig() {
 }
 
 /* ---------- Menerapkan ke tampilan ---------- */
-let current = { splash_bg: null, font: null, icons: {} };
+let current = { splash_bg: null, font: null, icons: {}, arts: {} };
 export const getCurrent = () => current;
 
 function applyBackground(cfg) {
@@ -96,9 +99,16 @@ function applyIcons(cfg) {
 // Beranda digambar ulang saat berpindah halaman: pasang lagi ikon kustom pada elemen baru.
 export const refreshIcons = () => applyIcons(current);
 
+function applyArts(cfg) {
+  const root = document.documentElement;
+  for (const [k] of ART_SLOTS) {
+    const u = cfg.arts && cfg.arts[k] && urlFor(cfg.arts[k]);
+    if (u) root.style.setProperty('--art-' + k, 'url("' + u + '")'); else root.style.removeProperty('--art-' + k);
+  }
+}
 export function applyBranding(cfg) {
-  current = cfg || { splash_bg: null, font: null, icons: {} };
-  applyBackground(current); applyFont(current); applyIcons(current);
+  current = cfg || { splash_bg: null, font: null, icons: {}, arts: {} };
+  applyBackground(current); applyFont(current); applyIcons(current); applyArts(current);
 }
 
 // Dipanggil sekali saat aplikasi mulai: pakai cadangan dulu (cepat), lalu segarkan dari server.
@@ -218,5 +228,22 @@ export async function resetAllIcons() {
   const icons = (await live()).icons; const files = Object.values(icons);
   await rpc('branding_reset', { p_key: 'icons' });
   await Promise.all(files.map(dropFile));
+  const cfg = await fetchConfig(); if (cfg) applyBranding(cfg);
+}
+
+export async function setArt(slot, prepared) {
+  if (!SLOT_RE.test(slot)) throw { code: 'bad' };
+  const arts = { ...((await live()).arts || {}) }; const old = arts[slot];
+  const name = await upload('art-' + slot.replace('_', '-'), prepared.blob, 'jpg');
+  arts[slot] = name;
+  try { await rpc('branding_set', { p_key: 'arts', p_value: arts }); } catch (e) { await dropFile(name); throw e; }
+  await dropFile(old);
+  const cfg = await fetchConfig(); if (cfg) applyBranding(cfg);
+}
+export async function resetArt(slot) {
+  const arts = { ...((await live()).arts || {}) }; const old = arts[slot]; if (!old) return;
+  delete arts[slot];
+  if (Object.keys(arts).length) await rpc('branding_set', { p_key: 'arts', p_value: arts }); else await rpc('branding_reset', { p_key: 'arts' });
+  await dropFile(old);
   const cfg = await fetchConfig(); if (cfg) applyBranding(cfg);
 }

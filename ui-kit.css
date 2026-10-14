@@ -126,3 +126,8 @@ label.btn-sm{cursor:pointer;display:inline-flex;align-items:center;min-height:va
 .br-label{flex:1;min-width:0;font-weight:600;overflow-wrap:anywhere}
 .tile svg[hidden]{display:none}
 .br-sec .btn-sm,.br-icon .btn-sm,#br-back{min-height:var(--tap)}
+
+/* editor: gambar banner & kartu */
+.br-art{display:flex;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--border)}
+.br-art-prev{flex:none;width:96px;height:56px;border-radius:12px;background:var(--surface-green) center/cover no-repeat;border:1px solid var(--border)}
+.br-art-tx{display:grid;gap:6px;min-width:0}.br-art-tx b{font-size:.84rem}

@@ -3,9 +3,9 @@
 .appbody:has(> .home){max-width:640px;padding:0 0 6.5rem}
 .appbody h2{font-family:var(--font)}
 #app-content .home{display:block;place-items:normal}
-.hh{position:relative;overflow:hidden;color:#fff;padding:max(env(safe-area-inset-top),18px) 16px 78px;border-radius:0 0 28px 28px;
-  background:linear-gradient(180deg,rgba(6,75,61,.52) 0%,rgba(6,75,61,.9) 100%),url("masjid-hero.svg") center 30%/cover no-repeat,var(--green-deep)}
-html.has-photo .hh{background:linear-gradient(180deg,rgba(6,75,61,.45) 0%,rgba(6,75,61,.88) 100%),var(--hero-img,url("bg-masjid.jpg")) center 30%/cover no-repeat,var(--green-deep)}
+.hh{position:relative;overflow:hidden;color:#fff;padding:max(env(safe-area-inset-top),18px) 16px 120px;min-height:230px;border-radius:0 0 28px 28px;
+  background:linear-gradient(180deg,rgba(6,75,61,.5) 0%,rgba(6,75,61,.2) 55%,rgba(6,75,61,.3) 100%),url("masjid-hero.svg") center 30%/cover no-repeat,var(--green-deep)}
+html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,40,32,.34) 42%,rgba(6,40,32,.12) 100%),var(--hero-img,url("bg-masjid.jpg")) center 30%/cover no-repeat,var(--green-deep)}
 .hh-row{display:flex;align-items:flex-start;gap:12px}
 .hh-av{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:var(--emerald);color:#fff;font:inherit;font-weight:800;font-size:1rem;cursor:pointer}
 .hh-txt{flex:1;min-width:0}
@@ -16,7 +16,7 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,75,61,.45) 0%,rgba(6
 .hh-chip .ic{width:15px;height:15px;stroke:#fff}
 .hh-bell{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.92);color:var(--emerald);display:grid;place-items:center;cursor:pointer}
 .hh-bell .ic{width:21px;height:21px;stroke:var(--emerald)}
-.home-body{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:0 16px;margin-top:-58px;position:relative}
+.home-body{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:0 16px;margin-top:-44px;position:relative}
 /* banner utama */
 .bn{position:relative}
 .bn-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:0;border-radius:var(--r-banner);box-shadow:var(--shadow-lg);scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -107,3 +107,94 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,75,61,.45) 0%,rgba(6
 #view-public .app-logo{filter:brightness(0) invert(1)}
 #view-public .apphead .btn-ghost{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.12)}
 #view-public .appbody{padding-top:1rem}
+
+/* Beranda Super Admin: banner utama berbingkai putih, foto latar tidak tertutup */
+.home-body > .bn{background:#fff;border-radius:calc(var(--r-banner) + 6px);padding:5px;box-shadow:var(--shadow-lg)}
+.home-body > .bn .bn-track{box-shadow:none}
+.home-body > .bn .bn-dots{bottom:17px}
+.hh-txt,.hh-title,.hh-hi,.hh-sub{text-shadow:0 1px 6px rgba(0,0,0,.55)}
+.mp-body{margin-top:0;padding-top:14px}
+.mp-head{display:flex;align-items:center;gap:10px}.mp-head h2{margin:0;font-size:1.2rem;font-weight:800;color:var(--green-deep)}
+#masjid-page .mrow{margin-bottom:10px}
+
+/* ===== Tahap 6b: beranda Admin Masjid & Jamaah mengikuti mockup ===== */
+/* header: foto masjid sebagai avatar, tanpa avatar untuk jamaah */
+.hh-av.has-img{padding:0;overflow:hidden;background:#fff}.hh-av.has-img img{width:100%;height:100%;object-fit:cover;display:block}
+.hh-av{width:56px;height:56px;border-width:3px}
+.hh.no-av .hh-title{font-size:1.7rem}
+.hh.no-av .hh-sub{max-width:30ch;font-size:.9rem}
+.hh-sub{margin-top:4px}
+.hh-title{font-family:var(--font)}
+/* banner: judul berhuruf serif, gambar bisa diunggah Super Admin (slot data-art) */
+.bn-slide h2{font-family:Georgia,"Times New Roman",serif;font-size:1.3rem;letter-spacing:.005em}
+.bn-slide{min-height:176px}
+.bn-slide[data-art]{background-image:linear-gradient(90deg,rgba(6,75,61,.92) 0%,rgba(6,75,61,.78) 48%,rgba(6,75,61,.12) 100%),var(--art-x,none),linear-gradient(135deg,var(--emerald) 0%,var(--green-deep) 100%);background-size:cover,cover,cover;background-position:center,right center,center}
+.bn-slide.gold[data-art]{background-image:linear-gradient(90deg,rgba(95,69,16,.92) 0%,rgba(95,69,16,.78) 48%,rgba(95,69,16,.12) 100%),var(--art-x,none),linear-gradient(135deg,#8A6A1E,#5F4510)}
+.bn-slide[data-art="banner_masjid"]{--art-x:var(--art-banner_masjid,none)}
+.bn-slide[data-art="banner_sejarah"]{--art-x:var(--art-banner_sejarah,none)}
+.bn-slide[data-art="banner_belajar"]{--art-x:var(--art-banner_belajar,none)}
+.bn-slide[data-art="banner_sunnah"]{--art-x:var(--art-banner_sunnah,none)}
+.bn-slide[data-art="banner_kas"]{--art-x:var(--art-banner_kas,none)}
+.bn-kick{font-size:.8rem;letter-spacing:.14em;color:#fff;font-weight:800;margin-bottom:2px}
+.pb[data-art]::before{content:"";position:absolute;inset:0;background:var(--art-x,none) right center/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 30%,#000 62%);mask-image:linear-gradient(90deg,transparent 30%,#000 62%);pointer-events:none}
+.pb[data-art="promo_buku"]{--art-x:var(--art-promo_buku,none)}
+.pb[data-art="promo_pasar"]{--art-x:var(--art-promo_pasar,none)}
+.pb{min-height:140px;padding:16px 18px}
+.pb h2{font-family:var(--font);font-size:1.2rem}
+/* jadwal salat: ikon per waktu, kotak putih */
+.pc-t{background:#fff;box-shadow:var(--shadow-sm);padding:8px 2px 9px}
+.pc-ic{display:grid;place-items:center;color:var(--gold-ink)}.pc-ic .ic{width:20px;height:20px;stroke:var(--gold-ink)}
+.pc-t.on{background:#FBEFC8;box-shadow:0 0 0 1px var(--gold-soft)}
+.pc::before{content:"";position:absolute;inset:0;background:url("masjid-hero.svg") center bottom/130% auto no-repeat;opacity:.09;pointer-events:none}
+.pc{position:relative;overflow:hidden}.pc>*{position:relative}
+/* Akses Cepat: kartu dengan kotak-kotak ikon */
+.qs{padding:14px 12px 12px;border-radius:var(--r-banner);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-md)}
+.qs .sh{margin-bottom:10px}
+.qs .sh h2{display:flex;align-items:center;gap:8px}.sh h2 .ic{width:20px;height:20px;stroke:var(--emerald)}
+.qk-grid{gap:8px}
+.qk{min-height:78px;padding:10px 2px 8px;border:1px solid var(--border);border-radius:14px;background:#fff;box-shadow:var(--shadow-sm);justify-content:center;gap:5px}
+.qk-ic{width:auto;height:auto;border:0;border-radius:0;background:none;box-shadow:none}
+.qk-ic .ic,.qk-ic svg{width:26px;height:26px}
+.qk-l{font-size:.72rem;padding:0 2px}
+.qk-badge{top:-8px;right:-14px}
+/* artikel: dua kartu berdampingan */
+.ar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ar-item{padding:6px;gap:8px;align-items:center}
+.ar-img{width:52px;height:52px;border-radius:12px}
+.ar-t b{font-size:.78rem;-webkit-line-clamp:3}.ar-t small{font-size:.68rem}
+/* Admin Masjid: ringkasan, agenda, pengumuman */
+.sm,.ag,.an{border-radius:var(--r-banner);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-md);padding:14px 14px 12px}
+.sm .sh,.ag .sh,.an .sh{margin-bottom:6px}
+.sh h2 .ic{flex:none}
+.sm-sub{margin:-2px 0 6px;font-size:.74rem;color:var(--text-2)}
+.sm-row{display:grid;grid-template-columns:repeat(3,1fr)}
+.sm-i{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;text-align:center;min-width:0}
+.sm-i+.sm-i{border-left:1px solid var(--border)}
+.sm-ic{display:grid;place-items:center}.sm-ic .ic{width:28px;height:28px;stroke:var(--green-deep)}
+.sm-i b{font-size:1.02rem;color:var(--green-deep);line-height:1.2;overflow-wrap:anywhere}
+.sm-i small{font-size:.7rem;color:var(--text-2);line-height:1.25}
+.sm-i.tin .sm-ic .ic{stroke:#2F8F4E}.sm-i.tout .sm-ic .ic{stroke:#D9731A}
+#fin .sm-i b{font-size:.86rem}
+.ag{background:linear-gradient(135deg,#E3F1E8 0%,#EEF6EC 60%,#F6F7E8 100%);position:relative;overflow:hidden}
+.ag::after{content:"";position:absolute;right:-8px;bottom:0;width:48%;height:100%;background:url("masjid-hero.svg") right bottom/contain no-repeat;opacity:.16;pointer-events:none}
+.ag>*{position:relative;z-index:1}
+.ag-body{display:flex;gap:14px;align-items:center;padding:4px 0}
+.ag-date{flex:none;display:grid;justify-items:center;line-height:1.15;color:var(--green-deep);min-width:52px}
+.ag-date span{font-size:.82rem}.ag-date b{font-size:1.7rem}
+.ag-txt{display:grid;gap:3px;min-width:0}.ag-txt strong{font-size:.92rem;color:var(--green-deep);line-height:1.3}
+.ag-meta{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text-2)}.ag-meta .ic{width:15px;height:15px;stroke:var(--emerald)}
+.ag-empty{margin:6px 0 2px;font-size:.84rem;color:var(--text-2)}
+.an-item{display:flex;align-items:center;gap:12px;width:100%;padding:6px;border:0;border-radius:14px;background:rgba(255,255,255,.7);font:inherit;color:var(--text);text-align:left;cursor:pointer;min-height:64px}
+.an-img{flex:none;width:84px;height:62px;border-radius:12px;background:linear-gradient(135deg,var(--surface-green),var(--surface-gold));display:grid;place-items:center}.an-img .ic{width:26px;height:26px;stroke:var(--emerald)}
+.an-t{flex:1;display:grid;gap:3px;min-width:0}.an-t b{font-size:.9rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.an-t small{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--text-2)}.an-t small .ic{width:14px;height:14px;stroke:var(--emerald)}
+.an-item>.ic{flex:none;width:18px;height:18px;stroke:var(--text-2)}
+.tm{display:grid;gap:8px}.tm-h{margin:0;font-size:1.02rem;font-weight:800;color:var(--green-deep)}
+/* menu bawah melayang seperti mockup */
+.appbar,.bottomnav{left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom,0px));border:1px solid var(--border);border-radius:24px;box-shadow:0 8px 24px rgba(6,75,61,.16);padding-bottom:.35rem}
+.appbar .atab[aria-selected="true"],.bottomnav .tab[aria-selected="true"]{background:#DDEEE6;color:var(--green-deep)}
+#view-app .appbody{padding-bottom:7.5rem}#public-content{padding-bottom:7.5rem}
+
+.sh h2{display:flex;align-items:center;gap:8px}
+.sm .sh h2,.ag .sh h2,.an .sh h2{font-size:.92rem}.sm .sh-all,.ag .sh-all,.an .sh-all{font-size:.74rem;white-space:nowrap}
+.qs{padding:12px 10px 10px}.qk-grid{gap:6px}.qk-l{font-size:.7rem;padding:0}

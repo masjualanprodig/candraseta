@@ -47,14 +47,14 @@ async function changeStatus(m, cfg, box) {
   try {
     await updateMosqueStatus(m.id, cfg.to, cfg.reason ? answer : null);
     toast(cfg.done);
-    await renderAdmin(box);
+    await renderAdmin(box, 'masjid');
   } catch (e) {
     if (e.status === 401) return;
     toast('Perubahan gagal disimpan. ' + hint(e), true);
   }
 }
 
-export async function renderAdmin(box) {
+export async function renderAdmin(box, view = 'home') {
   const [list, invites, pending] = await Promise.all([listMosques(), listInvitations().catch(e => { if (e.status === 401) throw e; return null; }), pendingCount().catch(e => { if (e && e.status === 401) throw e; return null; })]);
   const openList = list.filter(m => m.status === 'active' && invites && openPanels.has(m.id));
   const teams = {};
@@ -79,7 +79,7 @@ export async function renderAdmin(box) {
           contact_phone: phone.value.trim() || null, address: addr.value.trim() || null
         });
         toast('Masjid ditambahkan dengan status menunggu verifikasi.');
-        await renderAdmin(box);
+        await renderAdmin(box, 'masjid');
       } catch (e) {
         if (e.status !== 401) toast('Gagal menambah masjid. ' + hint(e), true);
       }
@@ -96,12 +96,12 @@ export async function renderAdmin(box) {
       h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status),
       (BUTTONS[m.status] || []).map(([label, key, alt]) =>
         h('button', { class: 'btn-sm' + (alt ? ' alt' : ''), onclick: () => changeStatus(m, ACTIONS[key], box) }, label)),
-      m.status === 'active' ? h('button', { class: 'btn-sm ghost adm-kas', type: 'button', onclick: () => renderKasManager(box, m, { onBack: () => renderAdmin(box), roles: { admin: true, approve: true } }) }, 'Kas') : '',
+      m.status === 'active' ? h('button', { class: 'btn-sm ghost adm-kas', type: 'button', onclick: () => renderKasManager(box, m, { onBack: () => renderAdmin(box, 'masjid'), roles: { admin: true, approve: true } }) }, 'Kas') : '',
       m.status === 'active' && invites ? h('button', {
         class: 'btn-sm ghost',
-        onclick: () => { openPanels.has(m.id) ? openPanels.delete(m.id) : openPanels.add(m.id); renderAdmin(box); }
+        onclick: () => { openPanels.has(m.id) ? openPanels.delete(m.id) : openPanels.add(m.id); renderAdmin(box, 'masjid'); }
       }, openPanels.has(m.id) ? 'Tutup pengurus' : 'Pengurus') : ''),
-    m.status === 'active' && invites && openPanels.has(m.id) ? teamPanel({ mosqueId: m.id, team: teams[m.id] || [], invites: invites.filter(i => i.mosque_id === m.id), roles: INVITE_ROLES, canRevokeAdmin: true, selfId: me && me.id, onChange: () => renderAdmin(box) }) : ''));
+    m.status === 'active' && invites && openPanels.has(m.id) ? teamPanel({ mosqueId: m.id, team: teams[m.id] || [], invites: invites.filter(i => i.mosque_id === m.id), roles: INVITE_ROLES, canRevokeAdmin: true, selfId: me && me.id, onChange: () => renderAdmin(box, 'masjid') }) : ''));
 
   const who = await whoAmI();
   const openJamaah = () => renderJamaahManager(box, () => renderAdmin(box));
@@ -121,10 +121,11 @@ export async function renderAdmin(box) {
       h('button', { class: 'act', type: 'button', onclick: () => renderBelajarManager(box, () => openKonten()) }, icon(ICONS.belajar), h('span', {}, 'Materi Belajar Qur’an')),
       h('button', { class: 'act', type: 'button', onclick: () => renderAsmaManager(box, () => openKonten()) }, icon(ICONS.asma), h('span', {}, 'Penjelasan & Audio Asmaul Husna')))));
   const listAnchor = h('div', { id: 'mosque-list' });
-  registerActs({ jamaah: openJamaah, audit: openAudit, masjid: () => scrollToEl(listAnchor) });
+  const openMasjid = () => renderAdmin(box, 'masjid');
+  registerActs({ jamaah: openJamaah, audit: openAudit, masjid: openMasjid });
   const badge = n => n ? h('em', { class: 'qk-badge', 'aria-label': n + ' menunggu' }, String(n)) : '';
   const grid = quickGrid('Manajemen Platform', [
-    { key: 'open-datamasjid', id: 'qa-masjid', onclick: () => scrollToEl(listAnchor) },
+    { key: 'open-datamasjid', id: 'qa-masjid', onclick: openMasjid },
     { key: 'open-pengguna', id: 'adm-jamaah', label: 'Pendaftaran Jamaah', onclick: openJamaah },
     { key: 'open-konten', id: 'qa-konten', onclick: openKonten },
     { key: 'open-market', id: 'adm-market', label: 'Verifikasi Pasar', onclick: openMarket },
@@ -132,22 +133,30 @@ export async function renderAdmin(box) {
     { key: 'open-tampilan', id: 'adm-tampilan', onclick: openBrand },
     { key: 'open-more', id: 'qa-more', onclick: () => go('more') }]);
   if (pending) { const t = grid.querySelector('#adm-jamaah .qk-ic'); if (t) t.append(badge(pending)); }
+  if (view === 'masjid') {
+    box.replaceChildren(h('div', { class: 'home', id: 'masjid-page' },
+      h('div', { class: 'home-body mp-body' },
+        h('div', { class: 'mp-head' }, h('button', { class: 'btn-sm ghost', id: 'masjid-back', type: 'button', onclick: () => renderAdmin(box) }, '← Beranda'), h('h2', {}, 'Masjid')),
+        form,
+        listAnchor,
+        h('div', { class: 'panel' },
+          h('h3', {}, 'Daftar masjid (' + list.length + ')'),
+          rows.length ? rows : h('p', { class: 'muted' }, 'Belum ada masjid. Tambahkan masjid pertama di atas.')),
+        invites ? '' : h('p', { class: 'muted' }, 'Fitur undangan pengurus belum aktif: jalankan invitations.sql di Supabase SQL Editor.'))));
+    window.scrollTo(0, 0);
+    return;
+  }
   box.replaceChildren(h('div', { class: 'home', id: 'home-super' },
     greetingHeader({ title: 'Super Admin', sub: 'BAITUNA', name: who.name, email: who.email }),
     h('div', { class: 'home-body' },
       bannerCarousel([
-        { title: 'Satu Platform, Banyak Masjid', text: 'Kelola dan pantau masjid yang terdaftar di BAITUNA.', cta: 'Kelola Masjid', onclick: () => scrollToEl(listAnchor) },
-        { title: 'Pendaftaran Jamaah', text: pending ? pending + ' pendaftaran menunggu keputusan Anda.' : 'Tidak ada pendaftaran yang menunggu.', cta: 'Buka Antrean', onclick: openJamaah, tone: 'gold' }]),
-      promoBanner({ id: 'pb', title: 'Pasar Umat', text: 'Periksa dan setujui produk serta jasa sebelum tampil ke umat.', cta: 'Verifikasi', onclick: openMarket }),
+        { art: 'banner_masjid', title: 'Satu Platform, Banyak Masjid', text: 'Kelola, pantau, dan kembangkan ekosistem masjid bersama BAITUNA.', cta: 'Kelola Masjid', onclick: openMasjid },
+        { art: 'banner_kas', title: 'Pendaftaran Jamaah', text: pending ? pending + ' pendaftaran menunggu keputusan Anda.' : 'Tidak ada pendaftaran yang menunggu.', cta: 'Buka Antrean', onclick: openJamaah, tone: 'gold' }]),
+      promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Kelola koleksi buku Islami untuk memperkaya ilmu umat.', cta: 'Kelola Buku', onclick: () => go('buku') }),
+      promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Periksa dan setujui produk serta jasa sebelum tampil ke umat.', cta: 'Verifikasi', onclick: openMarket }),
       prayerCard(),
       grid,
       h('section', { class: 'sgw' }, sectionHead('Statistik Platform'), statGrid([
         [ICONS.mosque, list.length, 'Masjid terdaftar'], [ICONS.shield, count('active'), 'Masjid aktif'],
-        [ICONS.clock, count('pending'), 'Menunggu verifikasi'], [ICONS.user, pending == null ? '–' : pending, 'Jamaah menunggu']])),
-    form,
-      listAnchor,
-    h('div', { class: 'panel' },
-      h('h3', {}, 'Daftar masjid (' + list.length + ')'),
-      rows.length ? rows : h('p', { class: 'muted' }, 'Belum ada masjid. Tambahkan masjid pertama di atas.')),
-    invites ? '' : h('p', { class: 'muted' }, 'Fitur undangan pengurus belum aktif: jalankan invitations.sql di Supabase SQL Editor.'))));
+        [ICONS.clock, count('pending'), 'Menunggu verifikasi'], [ICONS.user, pending == null ? '–' : pending, 'Jamaah menunggu']])))));
 }

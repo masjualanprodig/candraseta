@@ -35,6 +35,21 @@ export function renderBrandingEditor(box, onBack) {
         url ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'br-bg-reset', onclick: async () => { if (await ask({ title: 'Kembalikan foto bawaan?', text: 'Foto latar kembali ke bawaan BAITUNA.' })) guard('Foto bawaan dipakai lagi.', () => B.resetBackground()); } }, 'Kembalikan bawaan') : ''));
   }
 
+  /* ===== 1b. Gambar banner & kartu beranda ===== */
+  function artSection() {
+    const arts = B.getCurrent().arts || {};
+    return h('section', { class: 'panel br-sec', id: 'br-sec-art' },
+      h('h3', {}, 'Gambar banner & kartu beranda'),
+      h('p', { class: 'muted' }, 'Gambar dipakai di sisi kanan banner dan kartu beranda (otomatis diperkecil, data lokasi dibuang). Pakai gambar yang terang di sisi kanan; tulisan ada di sisi kiri. Pastikan Anda berhak memakai gambarnya.'),
+      ...B.ART_SLOTS.map(([key, label]) => { const u = B.urlFor(arts[key]);
+        return h('div', { class: 'br-art', 'data-key': key },
+          h('div', { class: 'br-art-prev', 'data-custom': u ? '1' : '0', style: u ? 'background-image:url("' + u + '")' : '' }),
+          h('div', { class: 'br-art-tx' }, h('b', {}, label),
+            h('div', { class: 'br-row' },
+              fileBtn(u ? 'Ganti' : 'Pilih gambar', 'image/jpeg,image/png,image/webp', f => guard('Gambar disimpan.', async () => { await B.setArt(key, await B.prepareBackground(f)); }), 'br-art-file-' + key),
+              u ? h('button', { class: 'btn-sm ghost br-art-reset', type: 'button', onclick: async () => { if (await ask({ title: 'Hapus gambar ini?', text: 'Kembali ke tampilan bawaan.' })) guard('Gambar dikembalikan.', () => B.resetArt(key)); } }, 'Hapus') : ''))); }));
+  }
+
   /* ===== 2. Font ===== */
   let pending = null;   // font yang sudah divalidasi, menunggu "Simpan"
   let sampleStyle = null;
@@ -92,7 +107,7 @@ export function renderBrandingEditor(box, onBack) {
       h('button', { class: 'btn-sm ghost', type: 'button', id: 'br-back', onclick: () => { if (sampleStyle) sampleStyle.remove(); onBack && onBack(); } }, '← Kembali'),
       h('h2', {}, 'Tampilan Aplikasi'),
       h('p', { class: 'muted' }, 'Khusus Super Admin. Perubahan berlaku untuk semua pengguna. Setiap perubahan tercatat di Jejak audit.'),
-      status, bgSection(), fontSection(), iconSection());
+      status, bgSection(), artSection(), fontSection(), iconSection());
   }
   paint();
   B.fetchConfig().then(c => { if (c && !busy) { B.applyBranding(c); paint(); } });
