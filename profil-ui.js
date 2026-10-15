@@ -19,7 +19,7 @@ import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran
 import { listSurahs } from './quran-service.js';
 import { legalView } from './page-ui.js';
 
-export const APP_VERSION = 'v93';
+export const APP_VERSION = 'v94';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
 const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1', 'baituna.notif.v1', 'baituna.notifseen.v1', 'baituna.ramadan.v1', 'baituna.ramadancache.v1', 'baituna.adzanlib.v1', 'baituna.push.v1', 'baituna.qa.v1', 'baituna.qa.vote.v1', 'baituna.books.v1', 'baituna.brand.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
@@ -67,7 +67,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
   /* --- Edit profil --- */
   function editView() {
     const name = h('input', { class: 'in', value: (profile && profile.full_name) || '', maxlength: '120', placeholder: 'mis. Budi Santoso', autocomplete: 'name', 'aria-label': 'Nama lengkap' });
-    const phone = h('input', { class: 'in', value: (profile && profile.phone) || '', maxlength: '30', placeholder: 'mis. 0812 3456 7890 (opsional)', inputmode: 'tel', autocomplete: 'tel', 'aria-label': 'Nomor telepon' });
+    const phone = h('input', { class: 'in', value: (profile && profile.phone) || '', maxlength: '30', placeholder: 'mis. 0812 3456 7890 (bisa dipakai untuk masuk)', inputmode: 'tel', autocomplete: 'tel', 'aria-label': 'Nomor telepon' });
     const email = h('input', { class: 'in', value: me.email || '', disabled: 'disabled', 'aria-label': 'Email' });
     const status = h('p', { class: 'hint' });
     const save = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan');
@@ -113,7 +113,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
       if (!phoneOk(f.phone)) { toast('Nomor telepon tidak valid (angka, +, spasi, tanda hubung; minimal 6 angka).', true); return; }
       save.disabled = true;
       try { profile = await updateMyProfile(me.id, f); toast('Profil disimpan.'); view = 'main'; draw(); window.scrollTo(0, 0); return; }
-      catch (e) { if (e && e.status === 401) return; const m = e && e.status === 0 ? 'Tidak ada koneksi internet.' : 'Belum tersimpan. ' + hint(e); status.textContent = m; toast(m, true); }
+      catch (e) { if (e && e.status === 401) return; const m = e && e.status === 0 ? 'Tidak ada koneksi internet.' : (e && (e.status === 409 || e.code === '23505')) ? 'Nomor HP ini sudah dipakai akun lain.' : 'Belum tersimpan. ' + hint(e); status.textContent = m; toast(m, true); }
       save.disabled = false;
     } }, avBlock, h('label', { class: 'hint' }, 'Nama lengkap'), name, h('label', { class: 'hint' }, 'Nomor telepon'), phone,
       h('label', { class: 'hint' }, 'Email (tidak bisa diubah di sini)'), email, status, h('div', { class: 'mt row-btns' }, save));

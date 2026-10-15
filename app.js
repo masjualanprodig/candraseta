@@ -3,7 +3,7 @@
 import { $, h, toast } from './ui.js';
 import { show } from './router.js';
 import { onSessionExpired, restoreSession, getSession, setSession, validToken } from './supabase.js';
-import { signIn, signOut, signUp, passwordIssue, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
+import { signIn, signOut, signUp, phoneValid, passwordIssue, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
 import { loadAccess } from './permissions.js';
 import { initBranding, refreshIcons } from './branding-service.js';
 import { go, runAct, setHomeBack, flushAct } from './home-ui.js';
@@ -75,10 +75,10 @@ $('toggle-pw').addEventListener('click', () => {
 
 $('login-form').addEventListener('submit', async e => {
   e.preventDefault(); say('');
-  const email = $('email').value.trim(), pw = $('password').value;
-  fieldErr('email-err', emailOk(email) ? '' : 'Masukkan email yang valid.');
+  const email = $('email').value.trim(), pw = $('password').value, idOk = emailOk(email) || phoneValid(email);
+  fieldErr('email-err', idOk ? '' : 'Masukkan email atau nomor HP yang valid.');
   fieldErr('pw-err', pw ? '' : 'Masukkan password.');
-  if (!emailOk(email) || !pw) return;
+  if (!idOk || !pw) return;
   const btn = $('login-btn'); btn.disabled = true; btn.firstElementChild.textContent = 'Memproses…';
   const r = await signIn(email, pw);
   btn.disabled = false; btn.firstElementChild.textContent = 'Masuk';
@@ -90,11 +90,11 @@ $('login-form').addEventListener('submit', async e => {
 $('forgot').addEventListener('click', async e => {
   e.preventDefault();
   const email = $('email').value.trim();
-  if (!emailOk(email)) { fieldErr('email-err', 'Isi email dulu, lalu pilih Lupa password.'); return; }
+  if (!emailOk(email) && !phoneValid(email)) { fieldErr('email-err', 'Isi email atau nomor HP dulu, lalu pilih Lupa password.'); return; }
   fieldErr('email-err', '');
   const r = await requestPasswordReset(email);
   if (!r.ok) say(r.error);
-  else say('Jika email terdaftar, tautan reset sudah dikirim. Periksa kotak masuk Anda.', 'ok');
+  else say('Jika akun terdaftar, tautan reset sudah dikirim ke email akun. Periksa kotak masuk Anda.', 'ok');
 });
 
 $('register').addEventListener('click', e => { e.preventDefault(); $('su-msg').hidden = true; show('signup'); });
@@ -104,12 +104,12 @@ $('signup-form').addEventListener('submit', async e => {
   const sm = (t, k) => { const m = $('su-msg'); m.textContent = t || ''; m.className = 'msg ' + (k || ''); m.hidden = !t; };
   const fe = (id, t) => { const x = $(id); x.textContent = t || ''; x.hidden = !t; };
   sm('');
-  const name = $('su-name').value.replace(/\s+/g, ' ').trim(), email = $('su-email').value.trim(), pw = $('su-pw').value, pw2 = $('su-pw2').value, agree = $('su-agree').checked;
-  const issues = [name.length < 2 ? 'Isi nama lengkap (minimal 2 huruf).' : '', emailOk(email) ? '' : 'Masukkan email yang valid.', passwordIssue(pw, email), pw && pw2 !== pw ? 'Ulangi password dengan benar.' : (pw2 ? '' : 'Ulangi password.'), agree ? '' : 'Centang persetujuan dulu.'];
-  ['su-name-err', 'su-email-err', 'su-pw-err', 'su-pw2-err', 'su-agree-err'].forEach((id, i) => fe(id, issues[i]));
+  const name = $('su-name').value.replace(/\s+/g, ' ').trim(), phone = $('su-phone').value.trim(), email = $('su-email').value.trim(), pw = $('su-pw').value, pw2 = $('su-pw2').value, agree = $('su-agree').checked;
+  const issues = [name.length < 2 ? 'Isi nama lengkap (minimal 2 huruf).' : '', phoneValid(phone) ? '' : 'Masukkan nomor HP/WhatsApp yang valid (9-15 angka).', emailOk(email) ? '' : 'Masukkan email yang valid.', passwordIssue(pw, email), pw && pw2 !== pw ? 'Ulangi password dengan benar.' : (pw2 ? '' : 'Ulangi password.'), agree ? '' : 'Centang persetujuan dulu.'];
+  ['su-name-err', 'su-phone-err', 'su-email-err', 'su-pw-err', 'su-pw2-err', 'su-agree-err'].forEach((id, i) => fe(id, issues[i]));
   if (issues.some(Boolean)) return;
   const btn = $('su-btn'); btn.disabled = true; btn.firstElementChild.textContent = 'Memproses…';
-  const r = await signUp({ name, email, password: pw });
+  const r = await signUp({ name, email, phone, password: pw });
   btn.disabled = false; btn.firstElementChild.textContent = 'Daftar';
   if (!r.ok) { sm(r.error); return; }
   $('su-pw').value = $('su-pw2').value = '';

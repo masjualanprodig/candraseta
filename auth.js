@@ -5,14 +5,38 @@ import { request, getSession, setSession, persistSession, normalizeSession } fro
 export function friendlyAuthError(r) {
   const code = (r.data && (r.data.error_code || r.data.code)) || '';
   const raw = JSON.stringify(r.data || {});
-  if (code === 'invalid_credentials' || /invalid login/i.test(raw)) return 'Email atau password salah.';
+  if (code === 'invalid_credentials' || /invalid login/i.test(raw)) return 'Email/No. HP atau password salah.';
   if (code === 'email_not_confirmed') return 'Email belum dikonfirmasi. Periksa kotak masuk Anda.';
   if (/rate_limit/.test(code) || r.status === 429) return 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.';
   if (r.status === 0) return 'Tidak ada koneksi internet.';
   return 'Gagal masuk. Periksa koneksi lalu coba lagi.';
 }
 
-export async function signIn(email, password) {
+// Nomor HP Indonesia/internasional sederhana: 9-15 angka, boleh diawali +, spasi, tanda hubung, kurung.
+export const phoneDigits = v => String(v || '').replace(/\D/g, '');
+export const phoneValid = v => /^[0-9+()\s-]{9,30}$/.test(String(v || '').trim()) && phoneDigits(v).length >= 9 && phoneDigits(v).length <= 15;
+// Email akun pemilik nomor HP (null bila tidak ada / lebih dari satu / galat jaringan).
+export async function emailForPhone(phone) {
+  const r = await request('/rest/v1/rpc/login_email_for_phone', { method: 'POST', body: { p_phone: phone } });
+  return r.ok && typeof r.data === 'string' && r.data.includes('@') ? r.data : null;
+}
+export async function phoneAvailable(phone) {
+  const r = await request('/rest/v1/rpc/phone_available', { method: 'POST', body: { p_phone: phone } });
+  if (r.status === 0) return { ok: false, error: 'Tidak ada koneksi internet.' };
+  if (!r.ok) return { ok: true, free: true };   // fungsi belum dipasang / galat lain: biarkan server yang memutuskan
+  return { ok: true, free: r.data !== false };
+}
+// identifier = email ATAU nomor HP
+export async function signIn(identifier, password) {
+  let email = String(identifier || '').trim();
+  if (!email.includes('@')) {
+    const em = await emailForPhone(email);
+    if (!em) return { ok: false, error: 'Email/No. HP atau password salah.' };
+    email = em;
+  }
+  return signInEmail(email, password);
+}
+async function signInEmail(email, password) {
   const r = await request('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } });
   if (!r.ok || !r.data || !r.data.access_token) return { ok: false, error: friendlyAuthError(r) };
   setSession(normalizeSession(r.data));
@@ -25,7 +49,9 @@ export async function signOut() {
   setSession(null);
 }
 
-export async function requestPasswordReset(email) {
+export async function requestPasswordReset(identifier) {
+  let email = String(identifier || '').trim();
+  if (!email.includes('@')) { email = await emailForPhone(email); if (!email) return { ok: true }; }   // pesan netral
   const r = await request('/auth/v1/recover?redirect_to=' + encodeURIComponent(location.origin + '/'), { method: 'POST', body: { email } });
   if (r.status === 429) return { ok: false, error: 'Terlalu sering meminta tautan. Coba lagi beberapa menit lagi.' };
   if (r.status === 0) return { ok: false, error: 'Tidak ada koneksi internet.' };
@@ -83,8 +109,9 @@ export function passwordIssue(pw, email) {
   if (email && pw.toLowerCase() === String(email).toLowerCase()) return 'Password tidak boleh sama dengan email.';
   return '';
 }
-export async function signUp({ name, email, password }) {
-  const r = await request('/auth/v1/signup?redirect_to=' + encodeURIComponent(location.origin + '/'), { method: 'POST', body: { email, password, data: { full_name: name } } });
+export async function signUp({ name, email, phone, password }) {
+  if (phone) { const a = await phoneAvailable(phone); if (!a.ok) return { ok: false, error: a.error }; if (!a.free) return { ok: false, error: 'Nomor HP ini sudah terdaftar. Silakan masuk, atau pakai nomor lain.' }; }
+  const r = await request('/auth/v1/signup?redirect_to=' + encodeURIComponent(location.origin + '/'), { method: 'POST', body: { email, password, data: { full_name: name, phone: phone || undefined } } });
   if (!r.ok) return { ok: false, error: signUpError(r) };
   if (r.data && r.data.access_token) { setSession(normalizeSession(r.data)); return { ok: true, confirm: false }; }
   return { ok: true, confirm: true };
