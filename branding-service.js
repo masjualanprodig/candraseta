@@ -181,7 +181,7 @@ export async function upload(prefix, blob, extn) {
   return name;
 }
 const rpc = (fn, body) => db('rpc/' + fn, { method: 'POST', body });
-const dropFile = p => p ? storageRemove(p, BUCKET).catch(() => {}) : Promise.resolve();
+export const dropFile = p => p ? storageRemove(p, BUCKET).catch(() => {}) : Promise.resolve();
 const live = async () => (await fetchConfig()) || current;   // ambil kondisi terbaru agar tidak menimpa perubahan lain
 
 export async function setBackground(prepared) {

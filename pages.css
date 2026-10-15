@@ -254,3 +254,29 @@
 .am-aitem .am-audio{width:100%;margin:6px 0}
 .as-fullwrap .flab{display:block;margin:0 0 8px}
 .as-fullwrap select.in{width:100%;min-height:44px}
+
+/* ===== v92 Pembuat Beranda ===== */
+.bn-slide[data-art="custom"]{background-size:cover,cover,cover}
+.hb-text{margin:6px 4px;color:var(--text,#1c2b25);overflow-wrap:anywhere;white-space:pre-line}
+.hb-h1{font-family:Georgia,"Times New Roman",serif;font-size:1.5rem;line-height:1.25}
+.hb-h2{font-size:1.1rem;font-weight:700;color:var(--green-deep,#064b3d)}
+.hb-p{font-size:.95rem;line-height:1.55}
+.hb-ph{border:2px dashed var(--border,#d9d2c3);border-radius:16px;padding:14px;text-align:center;color:var(--muted,#6b7a72);background:var(--surface,#fff)}
+.hb-ph b{display:block;color:var(--green-deep,#064b3d)}
+.hbe-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.hbe-tabs button{min-height:44px}
+.hbe-tabs button.on{background:var(--emerald,#0b6b55);color:#fff}
+.hbe-item{border:1px solid var(--border,#d9d2c3);border-radius:16px;background:var(--surface,#fff);padding:10px;margin:8px 0}
+.hbe-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hbe-top .hbe-name{flex:1;min-width:120px;font-weight:700;overflow-wrap:anywhere}
+.hbe-top .hbe-name small{display:block;font-weight:400;color:var(--muted,#6b7a72)}
+.hbe-acts{display:flex;gap:6px;flex-wrap:wrap}
+.hbe-acts button{min-height:44px;min-width:44px}
+.hbe-edit{margin-top:10px;display:grid;gap:8px}
+.hbe-edit label{display:grid;gap:4px;font-size:.85rem;color:var(--muted,#6b7a72)}
+.hbe-slide{border:1px dashed var(--border,#d9d2c3);border-radius:12px;padding:8px;display:grid;gap:8px}
+.hbe-chk{display:flex;flex-wrap:wrap;gap:6px}
+.hbe-chk label{display:flex;align-items:center;gap:6px;border:1px solid var(--border,#d9d2c3);border-radius:12px;padding:8px 10px;min-height:44px;color:inherit;font-size:.9rem}
+.hbe-add{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.hbe-bar{position:sticky;bottom:84px;display:flex;gap:8px;flex-wrap:wrap;padding:8px;background:var(--surface,#fff);border:1px solid var(--border,#d9d2c3);border-radius:16px;box-shadow:var(--shadow-md,0 4px 14px rgba(0,0,0,.12));z-index:3}
+.hbe-prev{pointer-events:none;border:1px solid var(--border,#d9d2c3);border-radius:18px;padding:8px;margin:8px 0;display:grid;gap:10px;background:var(--bg,#faf7f0)}

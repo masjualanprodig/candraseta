@@ -37,9 +37,9 @@ export function greetingHeader({ title, sub, chip, name, email, avatar }) {
 /* ===== Banner utama (geser ke samping; titik penanda) ===== */
 export function bannerCarousel(slides, { id = 'banner' } = {}) {
   const track = h('div', { class: 'bn-track', id, role: 'group', 'aria-label': 'Banner' },
-    ...slides.map((s, i) => h('article', { class: 'bn-slide ' + (s.tone || 'green'), 'data-i': String(i), 'data-art': s.art || '', 'aria-label': (i + 1) + ' dari ' + slides.length },
-      h('div', { class: 'bn-txt' }, s.kicker ? h('span', { class: 'bn-kick' }, s.kicker) : '', h('h2', {}, s.title), h('p', {}, s.text),
-        h('button', { class: 'bn-cta', type: 'button', onclick: s.onclick }, s.cta, icon(ICONS.chev))))));
+    ...slides.map((s, i) => h('article', { class: 'bn-slide ' + (s.tone || 'green'), 'data-i': String(i), 'data-art': s.art || '', 'aria-label': (i + 1) + ' dari ' + slides.length, ...(s.art === 'custom' ? { style: '--art-x:' + (s.img ? 'url("' + s.img + '")' : 'url("art-banner.svg")') } : {}) },
+      h('div', { class: 'bn-txt' }, s.kicker ? h('span', { class: 'bn-kick' }, s.kicker) : '', h('h2', {}, s.title), s.text ? h('p', {}, s.text) : '',
+        s.cta ? h('button', { class: 'bn-cta', type: 'button', onclick: s.onclick }, s.cta, icon(ICONS.chev)) : ''))));
   const dots = slides.length > 1 ? h('div', { class: 'bn-dots', 'aria-hidden': 'true' }, ...slides.map((_, i) => h('i', { class: i === 0 ? 'on' : '' }))) : '';
   if (dots) track.addEventListener('scroll', () => {
     const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));

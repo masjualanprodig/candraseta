@@ -13,6 +13,7 @@ import { getSession } from './supabase.js';
 import { renderKasManager } from './kas-ui.js';
 import { renderAuditLog } from './audit-ui.js';
 import { list as listAudit, actionLabel } from './audit-service.js';
+import { homeBody } from './home-builder.js';
 import { greetingHeader, bannerCarousel, promoBanner, prayerCard, quickGrid, summaryCard, agendaCard, announceCard, activityList, whoAmI, go, registerActs, scrollToEl, BOLT } from './home-ui.js';
 import * as K from './kas-service.js';
 import { isUpcoming, dateParts, fmtTimes, fmtWhen } from './post-time.js';
@@ -202,26 +203,24 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const toKas = () => renderMosque(box, mosqueId, 'kas'), toPosts = () => renderMosque(box, mosqueId, 'posts');
   registerActs({ kas: toKas, posts: toPosts, team: toTeam });
   const nextAg = upcoming[0] || null, lastInfo = infos[0] || null;
-  box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
-    greetingHeader({ title: who.name || mosque.name, sub: who.name ? 'Admin ' + mosque.name : 'Admin Masjid', name: who.name, email: who.email, avatar: url || undefined }),
-    h('div', { class: 'home-body' },
-      bannerCarousel([
-        { art: 'banner_masjid', title: mosque.name + ' Bersama BAITUNA', text: 'Kelola masjid lebih mudah dan profesional.', cta: 'Kelola Masjid', onclick: goEdit },
-        { art: 'banner_kas', title: 'Catat Kas dengan Rapi', text: 'Buku kas tidak bisa diubah diam-diam; koreksi tercatat sebagai baris baru.', cta: 'Buka Kas', onclick: toKas, tone: 'gold' }]),
-      promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
-      promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
-      prayerCard(),
-      posts ? summaryCard({ id: 'ops', title: 'Ringkasan Operasional Masjid', onAll: toPosts, allLabel: 'Lihat Detail', items: [
+  const B = {
+    banner: bannerCarousel([
+      { art: 'banner_masjid', title: mosque.name + ' Bersama BAITUNA', text: 'Kelola masjid lebih mudah dan profesional.', cta: 'Kelola Masjid', onclick: goEdit },
+      { art: 'banner_kas', title: 'Catat Kas dengan Rapi', text: 'Buku kas tidak bisa diubah diam-diam; koreksi tercatat sebagai baris baru.', cta: 'Buka Kas', onclick: toKas, tone: 'gold' }]),
+    buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
+    pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
+    jadwal: prayerCard(),
+    ops: posts ? summaryCard({ id: 'ops', title: 'Ringkasan Operasional Masjid', onAll: toPosts, allLabel: 'Lihat Detail', items: [
         { ic: ICONS.user, value: team.length, label: 'Pengurus' },
         { ic: ICONS.agenda, value: upcoming.length, label: 'Kegiatan Mendatang' },
         { ic: ICONS.horn, value: infos.length, label: 'Pengumuman Aktif' }] }) : '',
-      rep ? summaryCard({ id: 'fin', title: 'Ringkasan Keuangan Masjid', sub: K.monthLabel(rep.month || K.monthKey()), onAll: toKas, allLabel: 'Lihat Laporan', hint: (!Number(rep.masuk) && !Number(rep.keluar) && !Number(rep.saldo_akhir)) ? 'Belum ada catatan kas bulan ini.' : '', hintLabel: 'Catat Kas', onHint: toKas, items: [
+    fin: rep ? summaryCard({ id: 'fin', title: 'Ringkasan Keuangan Masjid', sub: K.monthLabel(rep.month || K.monthKey()), onAll: toKas, allLabel: 'Lihat Laporan', hint: (!Number(rep.masuk) && !Number(rep.keluar) && !Number(rep.saldo_akhir)) ? 'Belum ada catatan kas bulan ini.' : '', hintLabel: 'Catat Kas', onHint: toKas, items: [
         { ic: ICONS.zakat, value: K.money(rep.masuk), label: 'Kas Masuk', tone: 'tin' },
         { ic: ICONS.zakat, value: K.money(rep.keluar), label: 'Kas Keluar', tone: 'tout' },
         { ic: ICONS.zakat, value: K.money(rep.saldo_akhir), label: 'Saldo Kas' }] }) : '',
-      posts ? agendaCard({ post: nextAg, parts: nextAg ? dateParts(nextAg.starts_at, ztz) : null, times: nextAg ? fmtTimes(nextAg.starts_at, nextAg.ends_at, ztz) : '', onAll: toPosts }) : '',
-      posts ? announceCard({ post: lastInfo, when: lastInfo ? fmtWhen(lastInfo.published_at || lastInfo.created_at, ztz) : '', onAll: toPosts, onOpen: toPosts, onCreate: toPosts }) : '',
-      quickGrid('Akses Cepat', [
+    agenda: posts ? agendaCard({ post: nextAg, parts: nextAg ? dateParts(nextAg.starts_at, ztz) : null, times: nextAg ? fmtTimes(nextAg.starts_at, nextAg.ends_at, ztz) : '', onAll: toPosts }) : '',
+    info: posts ? announceCard({ post: lastInfo, when: lastInfo ? fmtWhen(lastInfo.published_at || lastInfo.created_at, ztz) : '', onAll: toPosts, onOpen: toPosts, onCreate: toPosts }) : '',
+    akses: quickGrid('Akses Cepat', [
         { key: 'open-pengurus', id: 'qa-pengurus', onclick: toTeam },
         { key: 'open-keuangan', id: 'open-kas', onclick: toKas },
         { key: 'open-agenda', id: 'open-posts', label: 'Agenda', onclick: toPosts },
@@ -230,10 +229,14 @@ export async function renderMosque(box, mosqueId, view = 'home') {
         { key: 'open-audit', id: 'open-audit', onclick: () => renderMosque(box, mosqueId, 'audit') },
         { key: 'open-market', id: 'qa-market', onclick: () => go('market') },
         { key: 'open-more', id: 'qa-more', onclick: () => go('more') }], { ic: BOLT }),
-      acts === null ? '' : activityList(acts, actionLabel, () => renderMosque(box, mosqueId, 'audit')),
-      h('section', { class: 'panel', id: 'reg-card' }, h('h3', {}, 'Daftarkan Masjid Baru'),
+    aktivitas: acts === null ? '' : activityList(acts, actionLabel, () => renderMosque(box, mosqueId, 'audit')),
+    daftar: h('section', { class: 'panel', id: 'reg-card' }, h('h3', {}, 'Daftarkan Masjid Baru'),
         h('p', { class: 'muted' }, 'Mengurus masjid lain? Daftarkan di sini. Masjid tampil di direktori setelah diverifikasi Super Admin.'),
         h('button', { class: 'btn-sm', id: 'open-register', type: 'button', onclick: () => renderMosque(box, mosqueId, 'register') }, 'Daftarkan Masjid')),
-      teamTop)));
+    tim: teamTop };
+  const body = await homeBody('admin', B);
+  box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
+    greetingHeader({ title: who.name || mosque.name, sub: who.name ? 'Admin ' + mosque.name : 'Admin Masjid', name: who.name, email: who.email, avatar: url || undefined }),
+    h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
 }

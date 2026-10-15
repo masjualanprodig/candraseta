@@ -20,6 +20,8 @@ import { icon, ICONS } from './feed-ui.js';
 import { renderKasManager } from './kas-ui.js';
 import { renderAuditLog } from './audit-ui.js';
 import { renderBrandingEditor } from './branding-ui.js';
+import { homeBody } from './home-builder.js';
+import { renderHomeBuilder } from './home-builder-ui.js';
 import { greetingHeader, bannerCarousel, promoBanner, prayerCard, quickGrid, statGrid, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
 
 const ACTIONS = {
@@ -86,6 +88,7 @@ export async function renderAdmin(box, view = 'home') {
   const openKonten = () => box.replaceChildren(h('section', { class: 'konten', id: 'konten' },
     h('button', { class: 'btn-sm ghost', id: 'konten-back', type: 'button', onclick: () => renderAdmin(box) }, '← Kembali'), h('h2', {}, 'Editor'),
     h('div', { class: 'actions' },
+      h('button', { class: 'act', id: 'act-beranda', type: 'button', onclick: () => renderHomeBuilder(box, () => openKonten()) }, icon(ICONS.gear), h('span', {}, 'Tampilan Beranda (Builder)')),
       h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => openKonten()) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
       h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => openKonten()) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),
       h('button', { class: 'act', type: 'button', onclick: () => renderRukunManager(box, () => openKonten()) }, icon(ICONS.book), h('span', {}, 'Rukun Islam & Iman')),
@@ -122,17 +125,19 @@ export async function renderAdmin(box, view = 'home') {
     window.scrollTo(0, 0);
     return;
   }
+  const B = {
+    banner: bannerCarousel([
+      { art: 'banner_masjid', title: 'Satu Platform, Banyak Masjid', text: 'Kelola dan pantau masjid bersama BAITUNA.', cta: 'Kelola Masjid', onclick: openMasjid },
+      { art: 'banner_kas', title: 'Verifikasi Masjid', text: waiting ? waiting + ' masjid menunggu verifikasi Anda.' : 'Tidak ada masjid yang menunggu verifikasi.', cta: 'Buka Daftar Masjid', onclick: openMasjid, tone: 'gold' }]),
+    buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Kelola koleksi buku Islami umat.', cta: 'Kelola Buku', onclick: () => go('buku') }),
+    pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi', onclick: openMarket }),
+    jadwal: prayerCard(),
+    mgmt: grid,
+    stats: h('section', { class: 'sgw' }, sectionHead('Statistik Platform'), statGrid([
+        [ICONS.mosque, list.length, 'Masjid terdaftar'], [ICONS.shield, count('active'), 'Masjid aktif'],
+        [ICONS.clock, count('pending'), 'Menunggu verifikasi'], [ICONS.user, count('rejected') + count('suspended'), 'Ditolak / nonaktif']])) };
+  const body = await homeBody('super', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-super' },
     greetingHeader({ title: 'Super Admin', sub: 'BAITUNA', name: who.name, email: who.email }),
-    h('div', { class: 'home-body' },
-      bannerCarousel([
-        { art: 'banner_masjid', title: 'Satu Platform, Banyak Masjid', text: 'Kelola dan pantau masjid bersama BAITUNA.', cta: 'Kelola Masjid', onclick: openMasjid },
-        { art: 'banner_kas', title: 'Verifikasi Masjid', text: waiting ? waiting + ' masjid menunggu verifikasi Anda.' : 'Tidak ada masjid yang menunggu verifikasi.', cta: 'Buka Daftar Masjid', onclick: openMasjid, tone: 'gold' }]),
-      promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Kelola koleksi buku Islami umat.', cta: 'Kelola Buku', onclick: () => go('buku') }),
-      promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi', onclick: openMarket }),
-      prayerCard(),
-      grid,
-      h('section', { class: 'sgw' }, sectionHead('Statistik Platform'), statGrid([
-        [ICONS.mosque, list.length, 'Masjid terdaftar'], [ICONS.shield, count('active'), 'Masjid aktif'],
-        [ICONS.clock, count('pending'), 'Menunggu verifikasi'], [ICONS.user, count('rejected') + count('suspended'), 'Ditolak / nonaktif']])))));
+    h('div', { class: 'home-body' }, ...body)));
 }
