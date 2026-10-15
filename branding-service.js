@@ -75,7 +75,6 @@ function applyFont(cfg) {
 // Daftar kartu Akses Cepat yang ada di halaman (untuk editor).
 export function tileList() {
   const out = [], seen = new Set();
-  for (const a of document.querySelectorAll('#explore .tiles a.tile[id]')) if (KEY_RE.test(a.id) && !seen.has(a.id)) { seen.add(a.id); out.push({ id: a.id, label: (a.querySelector('span') || a).textContent.trim() }); }
   for (const k of Object.keys(CATALOG)) if (!seen.has(k)) { seen.add(k); out.push({ id: k, label: CATALOG[k][0], ic: CATALOG[k][1] }); }
   return out;
 }

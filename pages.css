@@ -287,3 +287,5 @@
 .hbe-chk-one{display:flex;align-items:center;gap:8px;min-height:44px;color:inherit}
 .hb-mock{padding:12px;border:1px dashed var(--border,#d9d2c3);border-radius:16px;background:var(--surface,#fff);display:grid;gap:4px}
 .hbe-new{width:22px;height:22px;flex:none;border-radius:50%;background:var(--emerald,#0b6b55);color:#fff;display:grid;place-items:center;font-weight:700;line-height:1}
+/* v96: halaman masuk tanpa bagian "Jelajahi" -> tidak perlu ruang kosong di bawah */
+#view-login.login{padding-bottom:0}

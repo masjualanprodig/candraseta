@@ -11,9 +11,9 @@ import { setNavKind, navItems } from './nav-config.js';
 import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
-import { openDirectory, openMosque } from './directory.js';
+import { openDirectory } from './directory.js';
 import { setProfilStart } from './profil-ui.js';
-import { feedPanel, icon, ICONS } from './feed-ui.js';
+import { icon, ICONS } from './feed-ui.js';
 import { armReminders } from './notif-service.js';
 
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -120,28 +120,6 @@ $('signup-form').addEventListener('submit', async e => {
 /* ===== Tampilan yang diatur Super Admin (foto latar, font, ikon); bila kosong: bg-masjid.jpg atau ilustrasi bawaan ===== */
 initBranding();
 $('open-privacy').addEventListener('click', e => { e.preventDefault(); setProfilStart('privasi'); openDirectory('login', () => show('login'), 'profil'); });
-$('scroll-explore').addEventListener('click', e => { e.preventDefault(); $('explore').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
-
-/* ===== Direktori publik ===== */
-$('open-directory').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'dir'); });
-$('open-agenda').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'info'); });
-$('open-world').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'world'); });
-$('open-rukun').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'rukun'); });
-$('open-berita').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'berita'); });
-$('open-jadwal').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'jadwal'); });
-$('open-ramadan').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'ramadan'); });
-$('open-kiblat').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'kiblat'); });
-$('open-notif').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'notif'); });
-$('open-market').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'market'); });
-$('open-tracker').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'tracker'); });
-$('open-asma').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'asma'); });
-$('open-belajar').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'belajar'); });
-$('open-sunnah').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'sunnah'); });
-$('open-doa').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'doa'); });
-$('open-dzikir').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'dzikir'); });
-$('open-history').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'sejarah'); });
-$('open-quran').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'quran'); });
-$('open-calendar').addEventListener('click', e => { e.preventDefault(); openDirectory('login', () => show('login'), 'cal'); });
 
 /* Bilah menu bawah (tetap di bawah saat digulir), isinya mengikuti peran:
    Jamaah: Beranda, Al-Qur'an, Masjid, Agenda, Akun | Admin Masjid: Beranda, Pengurus, Keuangan, Agenda, Lainnya
@@ -183,17 +161,8 @@ $('reset-form').addEventListener('submit', async e => {
 /* ===== Logout ===== */
 $('logout-btn').addEventListener('click', async () => {
   await signOut();
-  clearApp(); show('login'); loginFeed();
+  clearApp(); show('login');
 });
-
-/* ===== Agenda terdekat di halaman masuk (tanpa login) ===== */
-function loginFeed() {
-  $('login-feed').replaceChildren(feedPanel({
-    limit: 3, only: 'agenda',
-    onOpen: m => openMosque(m, 'login', () => show('login')),
-    more: h('p', { class: 'muted center' }, h('a', { href: '#', class: 'link', onclick: e => { e.preventDefault(); openDirectory('login', () => show('login'), 'info'); } }, 'Lihat semua agenda & pengumuman'))
-  }));
-}
 
 /* ===== Tombol Kembali bawaan HP / peramban =====
    Dari halaman fitur: kembali ke Beranda. Di Beranda atau halaman masuk: tekan dua kali untuk keluar. */
@@ -226,7 +195,7 @@ async function start() {
   await wait;
   if (link && link.recovery) { show('reset'); return; }
   if (getSession()) { enterApp(); return; }
-  show('login'); loginFeed();
+  show('login');
   if (link && link.error) say(link.error);
 }
 
