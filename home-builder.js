@@ -1,7 +1,7 @@
 // BAITUNA - home-builder.js (v92)
 // Menyusun beranda dari daftar blok (lihat home-layout-service.js). Tanpa susunan tersimpan => beranda bawaan.
 import { h } from './ui.js';
-import { bannerCarousel, quickGrid, go, sectionHead } from './home-ui.js';
+import { bannerCarousel, quickGrid, quickBtn, go, sectionHead } from './home-ui.js';
 import { CATALOG } from './quick-catalog.js';
 import { LINKS, defaultBlocks, cleanBlocks, fetchLayout, builtinLabel, defaultsOf, kindOf, cleanOverride } from './home-layout-service.js';
 import { promoBanner } from './home-ui.js';
@@ -32,6 +32,7 @@ export function applyOverride(role, id, node, o, { preview = false } = {}) {
     if (o.items) {
       const grid = node.querySelector('.qk-grid'); if (!grid) return node;
       const byId = {}; [...grid.children].forEach(c => { byId[c.id] = c; });
+      o.items.forEach(k => { const L = k.startsWith('x-') && LINKS[k.slice(2)]; if (L && !byId[k]) byId[k] = quickBtn({ key: L[1], label: L[0], id: k, onclick: () => { if (!preview) go(L[2]); } }); });
       grid.replaceChildren(...o.items.map(k => byId[k]).filter(Boolean));
     }
     return node;

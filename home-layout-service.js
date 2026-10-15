@@ -5,7 +5,7 @@ import { request, db } from './supabase.js';
 import { upload, dropFile, urlFor } from './branding-service.js';
 
 export const ROLES = [['jamaah', 'Jamaah'], ['admin', 'Admin Masjid'], ['super', 'Super Admin']];
-export const LIMITS = { blocks: 30, slides: 6, items: 12, title: 80, text: 200, cta: 30, ftitle: 60, para: 600 };
+export const LIMITS = { gridItems: 20, blocks: 30, slides: 6, items: 12, title: 80, text: 200, cta: 30, ftitle: 60, para: 600 };
 
 // Tujuan tautan yang boleh dipilih (kunci -> [nama, kunci ikon di quick-catalog, tab halaman fitur]).
 export const LINKS = {
@@ -59,6 +59,8 @@ export const DEFAULTS = {
     stats: { title: 'Statistik Platform' }
   }
 };
+// Menu tambahan (di luar bawaan) memakai id 'x-<tujuan>', mis. 'x-quran'.
+export const extraId = k => 'x-' + k;
 export const defaultsOf = (role, id) => (DEFAULTS[role] || {})[id] || {};
 // Jenis ubahan: 'slides' (banner), 'promo' (judul+teks+tombol+gambar), 'grid' (judul+menu), 'title' (hanya judul).
 export const kindOf = (role, id) => { const d = defaultsOf(role, id); return d.slides ? 'slides' : d.items ? 'grid' : d.cta ? 'promo' : 'title'; };
@@ -97,7 +99,7 @@ export function cleanOverride(role, id, o) {
     if (sl.some(r => Object.keys(r).length)) out.slides = sl;
   }
   if (kind === 'grid' && Array.isArray(o.items)) {
-    const ok = new Set((d.items || []).map(x => x[0]));
+    const ok = new Set([...(d.items || []).map(x => x[0]), ...Object.keys(LINKS).map(k => 'x-' + k)]);
     let items = [...new Set(o.items.filter(k => typeof k === 'string' && ITEM_RE.test(k) && ok.has(k)))];
     for (const r of REQUIRED_ITEMS[role + ':' + id] || []) if (!items.includes(r)) items.push(r);
     if (items.length) out.items = items;

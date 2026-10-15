@@ -120,16 +120,29 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
     }
     // grid
     const defIds = d.items.map(x => x[0]), label = Object.fromEntries(d.items.map(x => [x[0], x[1]]));
+    Object.entries(LINKS).forEach(([k, v]) => { label['x-' + k] = v[0]; });
     const need = REQUIRED_ITEMS[role + ':' + b.id] || [];
     if (!b._ord) { const shown = (o.items || defIds); b._ord = [...shown, ...defIds.filter(k => !shown.includes(k))]; b._hid = new Set(o.items ? defIds.filter(k => !o.items.includes(k)) : []); }
     const sync = () => { const shown = b._ord.filter(k => !b._hid.has(k)); if (shown.join() === defIds.join()) delete o.items; else o.items = shown; bump(); };
+    const total = () => b._ord.length - b._hid.size;
     const rows = b._ord.map((k, j) => h('div', { class: 'hbe-row' },
-      (() => { const c = h('input', { type: 'checkbox', 'aria-label': label[k] }); c.checked = !b._hid.has(k); if (need.includes(k)) c.disabled = true;
-        c.addEventListener('change', () => { if (c.checked) b._hid.delete(k); else { if (b._ord.length - b._hid.size <= 1) { c.checked = true; toast('Minimal satu menu harus tampil.', true); return; } b._hid.add(k); } sync(); refreshBar(); }); return c; })(),
-      h('span', { class: 'hbe-rl' }, label[k], need.includes(k) ? ' (wajib)' : ''),
+      k.startsWith('x-') ? h('span', { class: 'hbe-new', title: 'Menu tambahan' }, '+')
+      : (() => { const c = h('input', { type: 'checkbox', 'aria-label': label[k] }); c.checked = !b._hid.has(k); if (need.includes(k)) c.disabled = true;
+        c.addEventListener('change', () => { if (c.checked) b._hid.delete(k); else { if (total() <= 1) { c.checked = true; toast('Minimal satu menu harus tampil.', true); return; } b._hid.add(k); } sync(); refreshBar(); }); return c; })(),
+      h('span', { class: 'hbe-rl' }, label[k], need.includes(k) ? ' (wajib)' : '', k.startsWith('x-') ? ' (tambahan)' : ''),
       h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Naikkan menu', ...(j === 0 ? { disabled: 'disabled' } : {}), onclick: () => { [b._ord[j - 1], b._ord[j]] = [b._ord[j], b._ord[j - 1]]; sync(); draw(); } }, '↑'),
-      h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Turunkan menu', ...(j === b._ord.length - 1 ? { disabled: 'disabled' } : {}), onclick: () => { [b._ord[j + 1], b._ord[j]] = [b._ord[j], b._ord[j + 1]]; sync(); draw(); } }, '↓')));
-    return h('div', { class: 'hbe-edit' }, field('Judul bagian', dInput(o, 'title', d.title, LIMITS.ftitle)), h('small', { class: 'muted' }, 'Centang menu yang tampil, atur urutannya dengan tombol panah.'), h('div', { class: 'hbe-rows' }, ...rows), reset);
+      h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Turunkan menu', ...(j === b._ord.length - 1 ? { disabled: 'disabled' } : {}), onclick: () => { [b._ord[j + 1], b._ord[j]] = [b._ord[j], b._ord[j + 1]]; sync(); draw(); } }, '↓'),
+      k.startsWith('x-') ? h('button', { class: 'btn-sm alt hb-x-del', type: 'button', 'aria-label': 'Hapus menu ' + label[k], onclick: () => { b._ord.splice(j, 1); sync(); draw(); } }, '✕') : ''));
+    // tambah menu: pilih tujuan yang belum ada
+    const free = Object.entries(LINKS).filter(([k]) => !b._ord.includes('x-' + k));
+    const addSel = h('select', { class: 'in', id: 'hb-x-sel', 'aria-label': 'Menu yang ditambahkan' }, ...free.map(([k, v]) => h('option', { value: k }, v[0])));
+    const addBtn = h('button', { class: 'btn-sm ghost', id: 'hb-x-add', type: 'button', onclick: () => {
+      if (b._ord.length >= LIMITS.gridItems) { toast('Maksimal ' + LIMITS.gridItems + ' menu.', true); return; }
+      b._ord.push('x-' + addSel.value); sync(); draw(); } }, '+ Tambah menu');
+    const cols = total() % 4;
+    return h('div', { class: 'hbe-edit' }, field('Judul bagian', dInput(o, 'title', d.title, LIMITS.ftitle)),
+      h('small', { class: 'muted' }, 'Centang menu yang tampil, atur urutan dengan panah, dan tambahkan menu lain. ' + (total() + ' menu tampil' + (cols ? ' (baris terakhir belum penuh: tambah ' + (4 - cols) + ' menu lagi agar rapi)' : ' (susunan 4 kolom penuh)') + '.')),
+      h('div', { class: 'hbe-rows' }, ...rows), free.length ? h('div', { class: 'hbe-add' }, addSel, addBtn) : '', reset);
   }
 
   function item(b, i) {

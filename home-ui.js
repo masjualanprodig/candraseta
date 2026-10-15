@@ -91,10 +91,10 @@ export function prayerCard({ place = null } = {}) {
 /* ===== Akses Cepat ===== */
 // items: [{key,label?,id?,onclick}] ; key mengacu ke quick-catalog (ikon bisa diganti Super Admin).
 export const BOLT = '<path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/>';
+export const quickBtn = it => { const c = CATALOG[it.key] || [it.label, ICONS.more];
+  return h('button', { class: 'qk', type: 'button', id: it.id, 'data-ic': it.key, onclick: it.onclick }, h('span', { class: 'qk-ic' }, icon(c[1])), h('span', { class: 'qk-l' }, it.label || c[0])); };
 export function quickGrid(title, items, { onAll, id = 'qa', ic } = {}) {
-  const grid = h('div', { class: 'qk-grid', id },
-    ...items.map(it => { const c = CATALOG[it.key] || [it.label, ICONS.more];
-      return h('button', { class: 'qk', type: 'button', id: it.id, 'data-ic': it.key, onclick: it.onclick }, h('span', { class: 'qk-ic' }, icon(c[1])), h('span', { class: 'qk-l' }, it.label || c[0])); }));
+  const grid = h('div', { class: 'qk-grid', id }, ...items.map(quickBtn));
   setTimeout(refreshIcons, 0);
   return h('section', { class: 'qs' }, sectionHead(title, onAll, id + '-all', ic), grid);
 }
