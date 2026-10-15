@@ -86,6 +86,19 @@ export function mergeFull(base, setting, urlOf) {
     uploaded: !!uploaded
   };
 }
+// Daftar audio untuk pengguna/admin: semua berkas unggahan (maks. 10, urut id). Bila belum ada unggahan, audio bawaan (boleh null) dipakai sebagai satu-satunya pilihan.
+export const AUDIO_MAX_COUNT = 10;
+export function buildFullList(base, rows, urlOf) {
+  const list = Array.isArray(rows) ? rows : [];
+  const t = (v, d, max) => typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : d;
+  const up = list.filter(r => r && typeof r.file_path === 'string' && AUDIO_FILE_OK.test(r.file_path))
+    .map(r => ({ id: r.id, path: r.file_path, src: urlOf(r.file_path), title: t(r.title, 'Lantunan Asmaul Husna', 150), source: t(r.source, '', 500), license: t(r.license, '', 500), uploaded: true }))
+    .slice(0, AUDIO_MAX_COUNT);
+  if (up.length) return up;
+  const meta = list.find(r => r && r.file_path == null) || null; // keterangan audio bawaan yang pernah diubah
+  const one = mergeFull(base, meta, urlOf);
+  return one ? [{ ...one, id: null, path: null }] : [];
+}
 export async function loadAudioMap() {
   try { const r = await fetch(AUDIO_URL); if (!r.ok) return {}; return parseAudio(await r.json()); } catch (e) { return {}; }
 }

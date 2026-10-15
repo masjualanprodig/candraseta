@@ -4,8 +4,6 @@
 import { clearOfflineQuran } from './quran-service.js';
 import { clearAudioCache } from './adzan-service.js';
 import { disable as disablePush } from './push-service.js';
-import { jamaahPanel } from './jamaah-ui.js';
-import { myRole } from './qa-service.js';
 import { h, toast, hint, ask } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
 import { saranPage } from './saran-ui.js';
@@ -21,7 +19,7 @@ import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran
 import { listSurahs } from './quran-service.js';
 import { legalView } from './page-ui.js';
 
-export const APP_VERSION = 'v90';
+export const APP_VERSION = 'v91';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
 const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1', 'baituna.notif.v1', 'baituna.notifseen.v1', 'baituna.ramadan.v1', 'baituna.ramadancache.v1', 'baituna.adzanlib.v1', 'baituna.push.v1', 'baituna.qa.v1', 'baituna.qa.vote.v1', 'baituna.books.v1', 'baituna.brand.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
@@ -192,7 +190,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
   const FAQ = [
     ['Bagaimana jadwal salat dihitung?', 'Dihitung di HP Anda dengan rumus astronomi memakai acuan Kemenag RI. Hasilnya bisa berbeda beberapa menit dari jadwal resmi atau pengumuman masjid; ikuti jadwal masjid setempat. Buka Lainnya → Jadwal Salat.'],
     ['Apakah lokasi saya dikirim ke server?', 'Tidak. Lokasi hanya dipakai di HP Anda untuk menghitung jadwal dan menampilkan masjid terdekat, dan hanya disimpan di perangkat ini.'],
-    ['Bagaimana menjadi pengurus masjid?', 'Akun pengurus dibuat lewat undangan dari Admin Masjid atau admin pusat. Gunakan email yang diundang untuk masuk. Jamaah umum bisa mendaftar sendiri lewat Daftar sekarang di halaman masuk, lalu mengajukan Keanggotaan jamaah di Profil; hanya admin pusat yang menyetujui.'],
+    ['Bagaimana menjadi pengurus masjid?', 'Akun pengurus dibuat lewat undangan dari Admin Masjid atau admin pusat. Gunakan email yang diundang untuk masuk. Jamaah umum bisa mendaftar sendiri lewat Daftar di halaman masuk dan langsung dapat bertanya di Tanya Jawab.'],
     ['Saya lupa password.', 'Di halaman masuk, isi email lalu pilih "Lupa password". Tautan reset dikirim ke email Anda. Jika masih bisa masuk, ganti password di Profil → Ubah Profil → Ganti password.'],
     ['Mengapa doa atau dzikir masih kosong?', 'Isi doa dan dzikir dimasukkan oleh admin pusat dengan sumber dan derajatnya, sehingga baru tampil setelah diisi.'],
     ['Apakah aplikasi membunyikan adzan atau pengingat?', 'Ya, dengan batas. Adzan dan pengingat berbunyi selama BAITUNA terbuka (menu Adzan dan Notifikasi). Agar notifikasi tetap tampil saat aplikasi tertutup, aktifkan push di Notifikasi > Pengaturan; nadanya memakai nada bawaan HP dan bisa tertunda mode hemat baterai. Jangan jadikan satu-satunya alarm ibadah.'],
@@ -212,17 +210,9 @@ export function profilPage({ onSignIn, onLogout } = {}) {
 
   const saranView = () => [back(), saranPage({ name: (profile && cleanName(profile.full_name)) || '', email: (me && me.email) || '' })];
 
-  function jamaahView() {
-    const holder = h('div', { id: 'jm-holder' });
-    const paint = role => holder.replaceChildren(jamaahPanel({ name: profile && profile.full_name, role }));
-    paint(null);
-    myRole().then(r => { if (view === 'jamaah') paint(r); }).catch(() => {});
-    return sub('Keanggotaan jamaah', holder);
-  }
-
   function main() {
     const items = [];
-    if (me) items.push(row(ICONS.user, 'Ubah profil', go('edit')), row(ICONS.lock, 'Ganti password', go('password')), row(ICONS.shield, 'Keanggotaan jamaah', go('jamaah')));
+    if (me) items.push(row(ICONS.user, 'Ubah profil', go('edit')), row(ICONS.lock, 'Ganti password', go('password')));
     items.push(row(ICONS.bookmark, 'Favorit', go('fav')), row(ICONS.progress, 'Progres saya', go('progres')),
       row(ICONS.gear, 'Pengaturan', go('settings')), row(ICONS.help, 'Bantuan', go('help')), row(ICONS.about, 'Tentang BAITUNA', go('about')), row(ICONS.shield, 'Privasi & Disclaimer', go('privasi')), row(ICONS.chat, 'Kritik & Saran', go('saran')));
     return [h('h2', { class: 'wtitle' }, 'Profil'), loadErr ? h('p', { class: 'hint' }, 'Data profil belum bisa dimuat. Periksa koneksi.') : '', headCard(),

@@ -119,19 +119,12 @@ export function qaPage({ go, onSignIn } = {}) {
     if (!signedIn()) {
       draw(back('← Kembali', () => showList()), h('h2', { class: 'wtitle' }, 'Ajukan pertanyaan'),
         h('div', { class: 'panel', id: 'qa-login' }, h('p', {}, 'Untuk bertanya, silakan masuk dulu. Ini menjaga agar pertanyaan tetap tertib dan tidak disalahgunakan.'),
-          h('p', { class: 'muted' }, 'Belum punya akun? Pilih Daftar sekarang di halaman masuk, lalu ajukan Keanggotaan jamaah di Profil.'),
+          h('p', { class: 'muted' }, 'Belum punya akun? Pilih Daftar di halaman masuk, lalu masuk dan ajukan pertanyaan.'),
           h('button', { class: 'btn-primary', type: 'button', id: 'qa-signin', onclick: () => onSignIn && onSignIn() }, 'Masuk')));
       return;
     }
     let role = st.role;
     if (role.approved === undefined) { try { role = await S.myRole(); st.role = role; } catch (e) { /* lanjut */ } }
-    if (role && role.approved === false) {
-      draw(back('← Kembali', () => showList()), h('h2', { class: 'wtitle' }, 'Ajukan pertanyaan'),
-        h('div', { class: 'panel', id: 'qa-gate' }, h('p', {}, 'Untuk bertanya, Anda perlu terdaftar sebagai jamaah dan disetujui admin pusat. Ini menjaga Tanya Jawab tetap tertib.'),
-          h('p', { class: 'muted' }, 'Buka Profil lalu pilih Keanggotaan jamaah untuk mengajukan atau melihat statusnya.'),
-          h('button', { class: 'btn-primary', type: 'button', id: 'qa-goprofil', onclick: () => go && go('profil') }, 'Buka Profil')));
-      return;
-    }
     if (!st.cats.length) await loadCats();
     const title = h('input', { class: 'in', id: 'qa-title', maxlength: String(S.LIMIT.titleMax), placeholder: 'Tulis pertanyaan Anda secara singkat' });
     const body = h('textarea', { class: 'in tall', id: 'qa-body', rows: '6', maxlength: String(S.LIMIT.bodyMax), placeholder: 'Rincian (boleh dikosongkan). Jangan menulis data pribadi yang sensitif.' });

@@ -1,8 +1,8 @@
 // BAITUNA - dashboard-mosque.js
 // Dashboard Admin Masjid: profil masjid, tim pengurus, dan undangan.
 import { getPosition } from './nearby-service.js';
-import { h, toast, hint, ask } from './ui.js';
-import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, setMosquePhoto } from './mosque-service.js';
+import { h, toast, hint, ask, STATUS_LABEL } from './ui.js';
+import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, setMosquePhoto, registerMosque, myAdminMosques } from './mosque-service.js';
 import { prepareImage, newPhotoPath, PHOTO_ERRORS, MAX_BYTES } from './photo.js';
 import { storageUpload, storageRemove, publicPhotoUrl } from './supabase.js';
 import { teamPanel } from './team-panel.js';
@@ -19,6 +19,43 @@ import { isUpcoming, dateParts, fmtTimes, fmtWhen } from './post-time.js';
 
 const ROLES_FOR_ADMIN_MASJID = ['ketua_takmir', 'bendahara', 'pengurus_bagian', 'pengelola_usaha'];
 
+
+/* ===== Daftarkan masjid baru (Admin Masjid). Masjid berstatus "menunggu" sampai Super Admin memverifikasi. ===== */
+async function renderRegister(box, onBack) {
+  const me = getSession() && getSession().user;
+  let mine = [];
+  try { mine = me ? await myAdminMosques(me.id) : []; } catch (e) { if (e && e.status === 401) return; mine = []; }
+  const field = (ph, max, id) => h('input', { class: 'in', id, placeholder: ph, maxlength: String(max), autocomplete: 'off', 'aria-label': ph });
+  const name = field('Nama masjid *', 150, 'rg-name'), city = field('Kota/Kabupaten', 80, 'rg-city'), prov = field('Provinsi', 80, 'rg-prov'), phone = field('Telepon resmi', 30, 'rg-phone');
+  const addr = h('textarea', { class: 'in mt', id: 'rg-addr', placeholder: 'Alamat', maxlength: '300', 'aria-label': 'Alamat' });
+  const err = h('p', { class: 'mk-err', id: 'rg-err', role: 'alert' }, '');
+  const btn = h('button', { class: 'btn-sm', type: 'submit', id: 'rg-submit' }, 'Daftarkan masjid');
+  const form = h('form', { class: 'panel', novalidate: 'novalidate', id: 'rg-form', onsubmit: async ev => {
+    ev.preventDefault(); err.textContent = '';
+    const n = name.value.trim();
+    if (n.length < 3) { err.textContent = 'Nama masjid minimal 3 huruf.'; return; }
+    btn.disabled = true;
+    try {
+      await registerMosque({ name: n, city: city.value.trim(), province: prov.value.trim(), phone: phone.value.trim(), address: addr.value.trim() });
+      toast('Masjid terkirim. Menunggu verifikasi Super Admin.');
+      await renderRegister(box, onBack); return;
+    } catch (e) {
+      if (e && e.status === 401) return;
+      err.textContent = e && e.code === '22023' && e.message ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : e && e.status === 0 ? 'Tidak ada koneksi internet.' : 'Belum terkirim. ' + hint(e);
+    }
+    btn.disabled = false;
+  } }, h('h3', {}, 'Data masjid'), h('div', { class: 'grid2' }, name, city, prov, phone), addr, err, h('div', { class: 'mt' }, btn));
+  const rows = mine.map(m => h('div', { class: 'mrow' },
+    h('div', { class: 'minfo' }, h('strong', {}, m.name), h('div', { class: 'muted' }, [m.city, m.province].filter(Boolean).join(', ') || 'Lokasi belum diisi'), m.status_reason ? h('div', { class: 'muted' }, 'Alasan: ' + m.status_reason) : ''),
+    h('div', { class: 'macts' }, h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status))));
+  box.replaceChildren(h('div', { class: 'home', id: 'register-page' }, h('div', { class: 'home-body mp-body' },
+    h('div', { class: 'mp-head' }, h('button', { class: 'btn-sm ghost', id: 'rg-back', type: 'button', onclick: onBack }, '← Kembali'), h('h2', {}, 'Daftarkan Masjid')),
+    h('p', { class: 'muted' }, 'Isi data masjid. Setelah dikirim, masjid berstatus menunggu dan baru tampil di direktori setelah diverifikasi Super Admin. Anda otomatis menjadi Admin Masjid-nya. Maksimal 3 masjid menunggu verifikasi sekaligus.'),
+    form,
+    h('div', { class: 'panel' }, h('h3', {}, 'Masjid yang Anda kelola (' + mine.length + ')'), rows.length ? rows : h('p', { class: 'muted' }, 'Belum ada.')))));
+  window.scrollTo(0, 0);
+}
+
 export async function renderMosque(box, mosqueId, view = 'home') {
   const [mosque, team, allInvites] = await Promise.all([getMosque(mosqueId), fetchTeam(mosqueId), listInvitations()]);
   if (!mosque) { box.replaceChildren(h('p', { class: 'muted' }, 'Masjid tidak ditemukan.')); return; }
@@ -29,6 +66,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   if (view === 'audit') { await renderAuditLog(box, { onBack: goHome, mosque: { id: mosque.id, name: mosque.name } }); return; }
   if (view === 'kas') { await renderKasManager(box, mosque, { onBack: goHome, roles: { setup: true, approve: true } }); return; }
   if (view === 'posts') { await renderPostsManager(box, mosque, goHome); return; }
+  if (view === 'register') { await renderRegister(box, goHome); return; }
 
   const field = (ph, val, max) => h('input', { class: 'in', placeholder: ph, maxlength: String(max), autocomplete: 'off', value: val == null ? '' : String(val) });
   const name = field('Nama masjid *', mosque.name, 150), city = field('Kota/Kabupaten', mosque.city, 80),
@@ -193,6 +231,9 @@ export async function renderMosque(box, mosqueId, view = 'home') {
         { key: 'open-market', id: 'qa-market', onclick: () => go('market') },
         { key: 'open-more', id: 'qa-more', onclick: () => go('more') }], { ic: BOLT }),
       acts === null ? '' : activityList(acts, actionLabel, () => renderMosque(box, mosqueId, 'audit')),
+      h('section', { class: 'panel', id: 'reg-card' }, h('h3', {}, 'Daftarkan Masjid Baru'),
+        h('p', { class: 'muted' }, 'Mengurus masjid lain? Daftarkan di sini. Masjid tampil di direktori setelah diverifikasi Super Admin.'),
+        h('button', { class: 'btn-sm', id: 'open-register', type: 'button', onclick: () => renderMosque(box, mosqueId, 'register') }, 'Daftarkan Masjid')),
       teamTop)));
   window.scrollTo(0, 0);
 }

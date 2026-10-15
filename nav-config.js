@@ -19,7 +19,6 @@ export const NAV_ITEMS = {
   super: [
     { id: 'nav-home', label: 'Beranda', ic: ICONS.home, home: true },
     { id: 'nav-masjid', label: 'Masjid', ic: ICONS.mosque, act: 'masjid' },
-    { id: 'nav-pengguna', label: 'Pengguna', ic: ICONS.user, act: 'jamaah' },
     { id: 'nav-audit', label: 'Audit', ic: ICONS.shield, act: 'audit' },
     { id: 'nav-profil', label: 'Akun', ic: ICONS.user, tab: 'profil' }]
 };

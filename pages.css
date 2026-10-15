@@ -247,3 +247,10 @@
 #app-content .segb[aria-selected="true"]{background:var(--emerald)}
 #app-content input[type=file].in{height:auto;min-height:50px;padding:6px 8px;display:flex;align-items:center}
 #app-content input[type=file]::file-selector-button{min-height:38px;margin-right:10px;padding:0 14px;border:1px solid var(--border);border-radius:999px;background:var(--surface-green,#E8F3EE);color:var(--emerald);font:inherit;font-weight:700;font-size:.82rem;cursor:pointer}
+
+/* v91: daftar audio Asmaul Husna */
+.am-aitem{margin:10px 0;padding:12px;border:1px solid var(--border);border-radius:14px;background:#fff}
+.am-aitem .am-at{display:block;margin-bottom:6px;color:var(--green-deep)}
+.am-aitem .am-audio{width:100%;margin:6px 0}
+.as-fullwrap .flab{display:block;margin:0 0 8px}
+.as-fullwrap select.in{width:100%;min-height:44px}

@@ -80,7 +80,7 @@ export function askError(e) {
   if (e && e.status === 0) return 'Tidak ada koneksi. Coba lagi saat online.';
   if (e && e.code === '54000') return /harian/.test(e.message || '') ? 'Batas 5 pertanyaan per hari sudah tercapai. Coba lagi besok.' : 'Anda masih punya 3 pertanyaan yang menunggu dijawab. Tunggu salah satunya dijawab dulu.';
   if (e && e.code === '28000') return 'Silakan masuk dulu.';
-  if (e && e.code === '42501') return 'Daftar sebagai jamaah dulu di Profil > Keanggotaan jamaah, dan tunggu disetujui admin pusat.';
+  if (e && e.code === '42501') return 'Masuk dulu dengan akun Anda. Jika sudah masuk, minta admin menjalankan pembaruan database terbaru (tanpa_gerbang_jamaah.sql).';
   if (e && e.code === '22023') return e.message || 'Isian belum benar.';
   if (e && (e.status === 404 || e.code === 'PGRST202')) return 'Fitur Tanya Jawab belum aktif di server. Pengelola perlu menjalankan tanya.sql.';
   return 'Belum terkirim. Coba lagi sebentar lagi.';

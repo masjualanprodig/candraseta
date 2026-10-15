@@ -2,7 +2,7 @@
 // Asmaul Husna: daftar + pencarian, detail, favorit, tandai hafal, kuis hafalan, dan audio (tampil hanya bila berkas suara tersedia).
 import { h, toast } from './ui.js';
 import { loadAsma, loadAudioMap, applyEdits, matches, loadProgress, saveProgress, toggleFav, toggleHafal, recordQuiz, scoreOf, makeQuiz, shareText, QUIZ_LEN, PASS } from './asma-service.js';
-import { loadEdits, loadFullAudio } from './asma-edit-service.js';
+import { loadEdits, loadFullList } from './asma-edit-service.js';
 import { loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
 
@@ -93,6 +93,24 @@ function fullCard(full, onOther) {
       h('p', { class: 'muted' }, 'Isi dan pelafalan lantunan ini belum ditinjau ustaz.')));
   box.__stop = () => { st = 'idle'; el.pause(); paint(); };
   return box;
+}
+
+/* ---- daftar lantunan: bila lebih dari satu, pengguna memilih lewat dropdown (pilihan terakhir diingat di perangkat) ---- */
+const PICK_KEY = 'baituna.asma.audio.v1';
+function fullPlayer(list, onOther) {
+  const wrap = h('div', { class: 'as-fullwrap', id: 'as-fullwrap' }), body = h('div');
+  let cur = null, idx = 0;
+  try { const k = localStorage.getItem(PICK_KEY); const j = list.findIndex(x => x.id != null && String(x.id) === k); if (j >= 0) idx = j; } catch (e) { /* tanpa penyimpanan */ }
+  const pick = i => { if (cur) cur.__stop(); cur = fullCard(list[i], onOther); body.replaceChildren(cur); };
+  if (list.length > 1) {
+    const sel = h('select', { class: 'in', id: 'as-pick', 'aria-label': 'Pilih lantunan' }, ...list.map((x, i) => h('option', { value: String(i) }, x.title)));
+    sel.value = String(idx);
+    sel.addEventListener('change', () => { const i = Number(sel.value); pick(i); try { if (list[i].id != null) localStorage.setItem(PICK_KEY, String(list[i].id)); } catch (e) { /* abaikan */ } });
+    wrap.append(h('label', { class: 'flab' }, h('span', { class: 'hint' }, 'Pilih lantunan'), sel));
+  }
+  wrap.append(body); pick(idx);
+  wrap.__stop = () => { if (cur) cur.__stop(); };
+  return wrap;
 }
 
 export function asmaPage() {
@@ -251,7 +269,7 @@ export function asmaPage() {
   }
   function load() {
     loadErr = null; data = null; draw();
-    Promise.all([loadAsma(), loadAudioMap(), loadFullAudio(), loadEdits()]).then(([d, map, full, edits]) => { data = { ...d, names: applyEdits(d.names, edits) }; player = makePlayer(map, onAudio); if (full) fullBox = fullCard(full, () => player.stop()); draw(); }).catch(e => { loadErr = e || new Error('x'); draw(); });
+    Promise.all([loadAsma(), loadAudioMap(), loadFullList(), loadEdits()]).then(([d, map, fulls, edits]) => { data = { ...d, names: applyEdits(d.names, edits) }; player = makePlayer(map, onAudio); if (fulls && fulls.length) fullBox = fullPlayer(fulls, () => player.stop()); draw(); }).catch(e => { loadErr = e || new Error('x'); draw(); });
   }
   const watch = setInterval(() => { if (!wrap.isConnected) { clearInterval(watch); if (player) player.stop(); } }, 2000);
   wrap.append(content); load();
