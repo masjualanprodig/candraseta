@@ -1,5 +1,5 @@
 -- ============================================================
--- BAITUNA - beranda_builder.sql (v92)
+-- BAITUNA - beranda_builder.sql (v93; v92 + bagian bawaan bisa diubah)
 -- Pembuat Beranda: Super Admin mengatur susunan blok beranda untuk 3 peran
 -- (jamaah, admin = Admin Masjid, super = Super Admin). Disimpan di app_branding
 -- dengan kunci layout_jamaah / layout_admin / layout_super.
@@ -13,7 +13,7 @@ alter table public.app_branding add constraint app_branding_key_check
 
 create or replace function public.layout_set(p_role text, p_blocks jsonb) returns void
 language plpgsql security definer set search_path = '' as $$
-declare b jsonb; s jsonb; i jsonb; t text; n int := 0; k int; has_req boolean := false; req text;
+declare b jsonb; s jsonb; i jsonb; t text; n int := 0; k int; has_req boolean := false; req text; o jsonb; has_item boolean;
 begin
   if not public.is_super_admin() then raise exception 'hanya Super Admin' using errcode = '42501'; end if;
   if p_role not in ('jamaah', 'admin', 'super') then raise exception 'peran tidak dikenal' using errcode = '22023'; end if;
@@ -27,6 +27,37 @@ begin
     if t = 'b' then
       if coalesce(b->>'id', '') !~ '^[a-z]{2,12}$' then raise exception 'blok bawaan tidak valid' using errcode = '22023'; end if;
       if b->>'id' = req then has_req := true; end if;
+      o := b->'o';
+      if o is not null and o <> 'null'::jsonb then
+        if jsonb_typeof(o) <> 'object' then raise exception 'ubahan tidak valid' using errcode = '22023'; end if;
+        if length(coalesce(o->>'title', '')) > 60 then raise exception 'judul maksimal 60 huruf' using errcode = '22023'; end if;
+        if length(coalesce(o->>'text', '')) > 200 then raise exception 'teks maksimal 200 huruf' using errcode = '22023'; end if;
+        if length(coalesce(o->>'cta', '')) > 30 then raise exception 'teks tombol maksimal 30 huruf' using errcode = '22023'; end if;
+        if coalesce(o->>'link', '') !~ '^[a-z]{0,12}$' then raise exception 'tautan tidak valid' using errcode = '22023'; end if;
+        if o->>'img' is not null and not public.branding_path_ok(o->>'img') then raise exception 'gambar tidak valid' using errcode = '22023'; end if;
+        if o->'slides' is not null then
+          if jsonb_typeof(o->'slides') <> 'array' or jsonb_array_length(o->'slides') > 6 then raise exception 'slide maksimal 6' using errcode = '22023'; end if;
+          for s in select * from jsonb_array_elements(o->'slides') loop
+            if jsonb_typeof(s) <> 'object' then raise exception 'slide tidak valid' using errcode = '22023'; end if;
+            if length(coalesce(s->>'title', '')) > 80 then raise exception 'judul slide maksimal 80 huruf' using errcode = '22023'; end if;
+            if length(coalesce(s->>'text', '')) > 200 then raise exception 'teks slide maksimal 200 huruf' using errcode = '22023'; end if;
+            if length(coalesce(s->>'cta', '')) > 30 then raise exception 'teks tombol maksimal 30 huruf' using errcode = '22023'; end if;
+            if coalesce(s->>'link', '') !~ '^[a-z]{0,12}$' then raise exception 'tautan tidak valid' using errcode = '22023'; end if;
+            if coalesce(s->>'tone', 'green') not in ('green', 'gold') then raise exception 'warna tidak valid' using errcode = '22023'; end if;
+            if s->>'img' is not null and not public.branding_path_ok(s->>'img') then raise exception 'gambar tidak valid' using errcode = '22023'; end if;
+            if jsonb_typeof(coalesce(s->'hide', 'false'::jsonb)) <> 'boolean' then raise exception 'ubahan slide tidak valid' using errcode = '22023'; end if;
+          end loop;
+        end if;
+        if o->'items' is not null then
+          if jsonb_typeof(o->'items') <> 'array' or jsonb_array_length(o->'items') < 1 or jsonb_array_length(o->'items') > 20 then raise exception 'menu berisi 1 sampai 20' using errcode = '22023'; end if;
+          has_item := false;
+          for i in select * from jsonb_array_elements(o->'items') loop
+            if jsonb_typeof(i) <> 'string' or (i #>> '{}') !~ '^[a-z0-9-]{2,24}$' then raise exception 'menu tidak valid' using errcode = '22023'; end if;
+            if (i #>> '{}') = 'qa-konten' then has_item := true; end if;
+          end loop;
+          if p_role = 'super' and b->>'id' = 'mgmt' and not has_item then raise exception 'menu Editor wajib ada' using errcode = '22023'; end if;
+        end if;
+      end if;
     elsif t = 'banner' then
       if jsonb_typeof(b->'slides') <> 'array' or jsonb_array_length(b->'slides') < 1 or jsonb_array_length(b->'slides') > 6 then raise exception 'banner berisi 1 sampai 6 slide' using errcode = '22023'; end if;
       for s in select * from jsonb_array_elements(b->'slides') loop

@@ -280,3 +280,9 @@
 .hbe-add{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
 .hbe-bar{position:sticky;bottom:84px;display:flex;gap:8px;flex-wrap:wrap;padding:8px;background:var(--surface,#fff);border:1px solid var(--border,#d9d2c3);border-radius:16px;box-shadow:var(--shadow-md,0 4px 14px rgba(0,0,0,.12));z-index:3}
 .hbe-prev{pointer-events:none;border:1px solid var(--border,#d9d2c3);border-radius:18px;padding:8px;margin:8px 0;display:grid;gap:10px;background:var(--bg,#faf7f0)}
+.hbe-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border,#e6dfce)}
+.hbe-row input[type=checkbox]{width:22px;height:22px;flex:none}
+.hbe-rl{flex:1;min-width:0;overflow-wrap:anywhere}
+.hbe-row button{min-height:44px;min-width:44px}
+.hbe-chk-one{display:flex;align-items:center;gap:8px;min-height:44px;color:inherit}
+.hb-mock{padding:12px;border:1px dashed var(--border,#d9d2c3);border-radius:16px;background:var(--surface,#fff);display:grid;gap:4px}

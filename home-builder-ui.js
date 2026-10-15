@@ -4,11 +4,11 @@
 import { h, toast, ask } from './ui.js';
 import { prepareImage } from './photo.js';
 import { errorText } from './branding-service.js';
-import { ROLES, LINKS, LIMITS, BUILTINS, REQUIRED, builtinLabel, defaultBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
+import { ROLES, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
 import { layoutNodes } from './home-builder.js';
 
 const TYPE_NAME = { banner: 'Banner slide', fitur: 'Kotak fitur', text: 'Teks' };
-const clone = o => JSON.parse(JSON.stringify(o, (k, v) => (k === '_file' || k === '_url') ? undefined : v));
+const clone = o => JSON.parse(JSON.stringify(o, (k, v) => k.startsWith('_') ? undefined : v));
 const msgOf = e => (e && e.code === '22023' && e.message) ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : errorText(e);
 
 export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
@@ -31,7 +31,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
   const hiddenBuiltins = () => BUILTINS[role].filter(([id]) => !blocks.some(b => b.t === 'b' && b.id === id));
 
   function summary(b) {
-    if (b.t === 'b') return ['Bawaan: ' + builtinLabel(role, b.id), 'Bagian aplikasi yang sudah ada'];
+    if (b.t === 'b') { const ch = b.o && pruneBlocks(role, [b])[0].o; return ['Bawaan: ' + builtinLabel(role, b.id), ch ? 'Sudah Anda ubah' : 'Bagian aplikasi yang sudah ada']; }
     if (b.t === 'banner') return [TYPE_NAME.banner, b.slides.length + ' slide · ' + ((b.slides[0] && b.slides[0].title) || '(tanpa judul)')];
     if (b.t === 'fitur') return [TYPE_NAME.fitur, (b.title || 'Akses Cepat') + ' · ' + b.items.length + ' menu'];
     return [TYPE_NAME.text + ' (' + ({ h1: 'Judul', h2: 'Subjudul', p: 'Paragraf' })[b.style] + ')', (b.text || '').slice(0, 60) || '(kosong)'];
@@ -84,6 +84,54 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
       field('Isi teks (maks. ' + LIMITS.para + ' huruf)', ta));
   }
 
+  // ----- Ubah bagian bawaan: isian diisi nilai bawaan; yang disimpan hanya yang berbeda -----
+  const pickImg = (target, info) => {
+    const fileIn = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'hb-file', 'aria-label': 'Gambar' });
+    fileIn.addEventListener('change', async () => {
+      const f = fileIn.files && fileIn.files[0]; if (!f) return;
+      try { const p = await prepareImage(f); target._file = p; target._url = URL.createObjectURL(p.blob); bump(); draw(); }
+      catch (e) { toast(errorText(e), true); fileIn.value = ''; }
+    });
+    const has = target._file || target.img;
+    return [field('Gambar (JPEG/PNG/WebP)', fileIn), h('small', { class: 'muted' }, target._file ? 'Gambar baru siap diunggah saat Simpan.' : target.img ? 'Memakai gambar unggahan.' : 'Memakai gambar bawaan.'),
+      has ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { delete target.img; delete target._file; delete target._url; bump(); draw(); } }, 'Pakai gambar bawaan') : ''];
+  };
+  // input teks yang menyimpan ke target[key] hanya bila berbeda dari bawaan
+  const dInput = (target, key, def, max) => input(target[key] !== undefined ? target[key] : def, max, v => { if (!v.trim() || v === def) delete target[key]; else target[key] = v; });
+  const dSelect = (target, key, def, opts) => select(opts, target[key] !== undefined ? target[key] : def, v => { if (v === def) delete target[key]; else target[key] = v; });
+  const linkOpts = [['', '(bawaan)'], ...Object.entries(LINKS).map(([k2, v]) => [k2, v[0]])];
+
+  function editBuiltin(b) {
+    const d = defaultsOf(role, b.id), kind = kindOf(role, b.id), o = b.o = b.o || {};
+    const reset = h('button', { class: 'btn-sm ghost hb-b-reset', type: 'button', onclick: () => { delete b.o; delete b._ord; delete b._hid; bump(); draw(); } }, 'Kembalikan bagian ini ke bawaan');
+    const hint = h('small', { class: 'muted' }, 'Isian terisi nilai bawaan. Hanya yang Anda ubah yang disimpan.');
+    if (kind === 'title') return h('div', { class: 'hbe-edit' }, field('Judul bagian', dInput(o, 'title', d.title, LIMITS.ftitle)), h('small', { class: 'muted' }, 'Isi bagian ini diambil dari data nyata, jadi hanya judulnya yang bisa diubah.'), reset);
+    if (kind === 'promo') return h('div', { class: 'hbe-edit' }, hint, field('Judul', dInput(o, 'title', d.title, LIMITS.title)), field('Teks', dInput(o, 'text', d.text, LIMITS.text)),
+      field('Teks tombol', dInput(o, 'cta', d.cta, LIMITS.cta)), field('Tombol menuju', dSelect(o, 'link', '', linkOpts)), ...pickImg(o), reset);
+    if (kind === 'slides') {
+      o.slides = o.slides || []; while (o.slides.length < d.slides.length) o.slides.push({});
+      const list = d.slides.map((ds, k) => { const s = o.slides[k] = o.slides[k] || {};
+        return h('div', { class: 'hbe-slide' }, h('b', {}, 'Slide ' + (k + 1) + (ds.kicker ? ' (' + ds.kicker + ')' : '')),
+          field('Judul', dInput(s, 'title', ds.title, LIMITS.title)), field('Teks', dInput(s, 'text', ds.text, LIMITS.text)),
+          field('Teks tombol', dInput(s, 'cta', ds.cta, LIMITS.cta)), field('Tombol menuju', dSelect(s, 'link', '', ds.link ? [['', '(bawaan: ' + LINKS[ds.link][0] + ')'], ...linkOpts.slice(1)] : linkOpts)),
+          field('Warna', dSelect(s, 'tone', ds.tone, [['green', 'Hijau'], ['gold', 'Emas']])), ...pickImg(s),
+          h('label', { class: 'hbe-chk-one' }, (() => { const c = h('input', { type: 'checkbox' }); c.checked = !!s.hide; c.addEventListener('change', () => { if (c.checked) s.hide = true; else delete s.hide; bump(); refreshBar(); }); return c; })(), ' Sembunyikan slide ini')); });
+      return h('div', { class: 'hbe-edit' }, hint, ...list, h('small', { class: 'muted' }, 'Ingin slide tambahan? Tambahkan blok "Banner slide" baru.'), reset);
+    }
+    // grid
+    const defIds = d.items.map(x => x[0]), label = Object.fromEntries(d.items.map(x => [x[0], x[1]]));
+    const need = REQUIRED_ITEMS[role + ':' + b.id] || [];
+    if (!b._ord) { const shown = (o.items || defIds); b._ord = [...shown, ...defIds.filter(k => !shown.includes(k))]; b._hid = new Set(o.items ? defIds.filter(k => !o.items.includes(k)) : []); }
+    const sync = () => { const shown = b._ord.filter(k => !b._hid.has(k)); if (shown.join() === defIds.join()) delete o.items; else o.items = shown; bump(); };
+    const rows = b._ord.map((k, j) => h('div', { class: 'hbe-row' },
+      (() => { const c = h('input', { type: 'checkbox', 'aria-label': label[k] }); c.checked = !b._hid.has(k); if (need.includes(k)) c.disabled = true;
+        c.addEventListener('change', () => { if (c.checked) b._hid.delete(k); else { if (b._ord.length - b._hid.size <= 1) { c.checked = true; toast('Minimal satu menu harus tampil.', true); return; } b._hid.add(k); } sync(); refreshBar(); }); return c; })(),
+      h('span', { class: 'hbe-rl' }, label[k], need.includes(k) ? ' (wajib)' : ''),
+      h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Naikkan menu', ...(j === 0 ? { disabled: 'disabled' } : {}), onclick: () => { [b._ord[j - 1], b._ord[j]] = [b._ord[j], b._ord[j - 1]]; sync(); draw(); } }, '↑'),
+      h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Turunkan menu', ...(j === b._ord.length - 1 ? { disabled: 'disabled' } : {}), onclick: () => { [b._ord[j + 1], b._ord[j]] = [b._ord[j], b._ord[j + 1]]; sync(); draw(); } }, '↓')));
+    return h('div', { class: 'hbe-edit' }, field('Judul bagian', dInput(o, 'title', d.title, LIMITS.ftitle)), h('small', { class: 'muted' }, 'Centang menu yang tampil, atur urutannya dengan tombol panah.'), h('div', { class: 'hbe-rows' }, ...rows), reset);
+  }
+
   function item(b, i) {
     const [name, sub] = summary(b);
     const req = b.t === 'b' && (REQUIRED[role] || []).includes(b.id);
@@ -94,10 +142,10 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
         h('div', { class: 'hbe-acts' },
           h('button', { class: 'btn-sm ghost hb-up', type: 'button', 'aria-label': 'Naikkan', ...(i === 0 ? { disabled: 'disabled' } : {}), onclick: () => move(i, -1) }, '↑'),
           h('button', { class: 'btn-sm ghost hb-down', type: 'button', 'aria-label': 'Turunkan', ...(i === blocks.length - 1 ? { disabled: 'disabled' } : {}), onclick: () => move(i, 1) }, '↓'),
-          b.t !== 'b' ? h('button', { class: 'btn-sm ghost hb-edit', type: 'button', 'aria-expanded': String(isOpen), onclick: () => { isOpen ? open.delete(b) : open.add(b); draw(); } }, isOpen ? 'Tutup' : 'Ubah') : '',
+          h('button', { class: 'btn-sm ghost hb-edit', type: 'button', 'aria-expanded': String(isOpen), onclick: () => { isOpen ? open.delete(b) : open.add(b); draw(); } }, isOpen ? 'Tutup' : 'Ubah'),
           req ? h('button', { class: 'btn-sm ghost hb-del', type: 'button', disabled: 'disabled', title: 'Bagian ini wajib agar menu tidak hilang' }, 'Wajib')
               : h('button', { class: 'btn-sm alt hb-del', type: 'button', onclick: () => remove(i) }, b.t === 'b' ? 'Sembunyikan' : 'Hapus'))),
-      isOpen ? (b.t === 'banner' ? editBanner(b) : b.t === 'fitur' ? editFitur(b) : editText(b)) : '');
+      isOpen ? (b.t === 'b' ? editBuiltin(b) : b.t === 'banner' ? editBanner(b) : b.t === 'fitur' ? editFitur(b) : editText(b)) : '');
   }
 
   // Cek isian sebelum dikirim; mengembalikan teks galat atau ''.
