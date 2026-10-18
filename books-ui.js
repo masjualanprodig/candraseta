@@ -5,7 +5,7 @@ import { h, toast, ask, hint } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
 import { getSession, storageUpload, storageRemove } from './supabase.js';
 import { loadAccess } from './permissions.js';
-import { prepareProductPhoto, PRODUCT_ERRORS } from './photo.js';
+import { prepareSquarePhoto, PRODUCT_ERRORS } from './photo.js';
 import * as B from './books-service.js';
 
 export const NOTE = 'Pembayaran dan pengiriman diurus langsung dengan penjual di luar BAITUNA. Periksa dulu penjual, harga, dan ongkos kirim sebelum membayar.';
@@ -138,7 +138,7 @@ export function booksPage({ go } = {}) {
     const target = h('input', { class: 'in', id: 'bk-f-target', maxlength: String(B.LIMIT.urlMax), autocomplete: 'off' });
     const active = h('input', { type: 'checkbox', id: 'bk-f-active' }); active.checked = true;
     const file = h('input', { class: 'in', type: 'file', id: 'bk-f-file', accept: 'image/jpeg,image/png,image/webp', 'aria-label': 'Banner buku' });
-    const fstat = h('p', { class: 'hint', id: 'bk-f-status' }, 'Banner: 1 gambar, maksimal 100 KB. Gambar yang lebih besar otomatis diperkecil dan dikompres.');
+    const fstat = h('p', { class: 'hint', id: 'bk-f-status' }, 'Banner otomatis dijadikan kotak 1080 × 1080 (gambar utuh, tidak terpotong; latar putih) dan dikompres maksimal 100 KB.');
     const prev = h('div', { id: 'bk-f-prev' });
     const err = h('p', { class: 'mk-err', id: 'bk-f-err', role: 'alert' }, '');
     const tlabel = h('label', { class: 'hint bk-lab', for: 'bk-f-target' }, 'Nomor WhatsApp penjual *');
@@ -172,7 +172,7 @@ export function booksPage({ go } = {}) {
       try {
         let img = null;
         const f = file.files && file.files[0];
-        if (f) { fstat.textContent = 'Memproses banner…'; img = await prepareProductPhoto(f); }
+        if (f) { fstat.textContent = 'Memproses banner…'; img = await prepareSquarePhoto(f); }
         if (img) { uploaded = B.newCoverPath(); fstat.textContent = 'Mengunggah banner…'; await storageUpload(uploaded, img.blob, B.BUCKET); }
         if (e0) {
           const patch = { ...v.ok }; if (uploaded) patch.cover_path = uploaded; else if (removeCover) patch.cover_path = null;
@@ -185,7 +185,7 @@ export function booksPage({ go } = {}) {
         if (uploaded) storageRemove(uploaded, B.BUCKET).catch(() => {});
         if (e && e.status === 401) return;
         const msg = e && PRODUCT_ERRORS[e.code] ? PRODUCT_ERRORS[e.code] : B.saveError(e);
-        err.textContent = msg; fstat.textContent = 'Banner: 1 gambar, maksimal 100 KB.';
+        err.textContent = msg; fstat.textContent = 'Banner kotak 1080 × 1080, maksimal 100 KB.';
       }
       busy = false; save.disabled = false;
     });

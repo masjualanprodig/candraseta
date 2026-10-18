@@ -87,3 +87,29 @@ export async function prepareProductPhoto(file) {
   } finally { if (bmp.close) bmp.close(); }
   throw { code: 'size' };
 }
+
+// Sampul buku: dijadikan KOTAK 1080 x 1080 (gambar utuh diletakkan di tengah, latar putih; tidak ada bagian yang terpotong),
+// lalu dikompres JPEG sampai <= 100 KB (bila perlu ukuran turun bertahap 1080 -> 900 -> 720 -> 540). EXIF/GPS terbuang.
+export const SQUARE_SIDE = 1080;
+export async function prepareSquarePhoto(file) {
+  if (!file || !/^image\/(jpeg|png|webp)$/.test(file.type)) throw { code: 'type' };
+  if (file.size > MAX_INPUT) throw { code: 'big' };
+  let bmp;
+  try { bmp = await createImageBitmap(file); } catch (e) { throw { code: 'decode' }; }
+  try {
+    for (const side of [SQUARE_SIDE, 900, 720, 540]) {
+      const canvas = document.createElement('canvas'); canvas.width = side; canvas.height = side;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, side, side);
+      const k = Math.min(side / bmp.width, side / bmp.height);
+      const w = Math.max(1, Math.round(bmp.width * k)), h = Math.max(1, Math.round(bmp.height * k));
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(bmp, Math.round((side - w) / 2), Math.round((side - h) / 2), w, h);
+      for (const q of [0.82, 0.74, 0.66, 0.58, 0.5, 0.42, 0.34]) {
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', q));
+        if (blob && blob.size <= PRODUCT_MAX_BYTES) return { blob, width: side, height: side, originalSize: file.size };
+      }
+    }
+  } finally { if (bmp.close) bmp.close(); }
+  throw { code: 'size' };
+}

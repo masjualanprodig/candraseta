@@ -307,3 +307,11 @@
 .bk-desc h4{margin:.8rem 0 .3rem;font-size:1.05rem}
 .rt-area ul,.rt-area ol{margin:.3rem 0;padding-left:1.4rem}
 .rt-area h4{margin:.6rem 0 .2rem}
+
+/* v98 - sampul buku kotak (1:1) */
+.bk-gi{aspect-ratio:1/1}
+.bk-img{object-fit:contain;background:#fff}
+.bk-ph{background:#e8efe9}
+.bk-l-img{width:88px;height:88px;flex:0 0 88px;aspect-ratio:1/1}
+.bk-cover{max-width:min(100%,540px);aspect-ratio:1/1;object-fit:contain;background:#fff;border:1px solid var(--line,#d9e2dc)}
+.bk-pv{width:140px;height:140px;object-fit:contain;background:#fff;border:1px solid var(--line,#d9e2dc)}
