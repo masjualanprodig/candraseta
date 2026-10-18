@@ -8,15 +8,50 @@ export const BUCKET = 'book-covers';
 export const VIEW_KEY = 'baituna.books.v1';
 export const KINDS = [{ key: 'fisik', label: 'Buku fisik' }, { key: 'digital', label: 'Buku digital' }];
 export const kindLabel = k => (KINDS.find(x => x.key === k) || {}).label || 'Buku';
-export const LIMIT = { titleMin: 3, titleMax: 150, descMin: 10, descMax: 2000, priceMax: 100000000, urlMax: 500 };
-const COLS = 'id,title,description,kind,price,order_type,order_wa,order_url,cover_path,active,created_at,updated_at';
+export const LIMIT = { titleMin: 3, titleMax: 150, descMin: 10, descMax: 2000, htmlMax: 8000, labelMax: 30, priceMax: 100000000, urlMax: 500 };
+const COLS = 'id,title,description,kind,price,order_type,order_label,order_wa,order_url,cover_path,active,created_at,updated_at';
 const oneLine = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
 
 export const priceText = p => { const n = Number(p); return !Number.isFinite(n) || n < 0 ? '' : n === 0 ? 'Gratis' : rp(n); };
 export const coverUrl = b => (b && b.cover_path ? publicPhotoUrl(b.cover_path, BUCKET) : null);
+
+/* ===== Deskripsi berformat (HTML terbatas) =====
+   Hanya tag aman yang dipertahankan; semua atribut dibuang. Teks polos lama tetap tampil rapi. */
+const ALLOW = { B: 'b', STRONG: 'b', I: 'i', EM: 'i', U: 'u', UL: 'ul', OL: 'ol', LI: 'li', BR: 'br', P: 'p', DIV: 'p', H4: 'h4', H3: 'h4', H2: 'h4', H1: 'h4' };
+const DROP = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'NOSCRIPT', 'TEMPLATE', 'SVG', 'MATH', 'TITLE', 'HEAD']);
+const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const hasTags = t => /<\/?(b|strong|i|em|u|ul|ol|li|p|div|br|h[1-4])\b[^>]*>/i.test(String(t || ''));
+export const plainToHtml = t => esc(String(t == null ? '' : t).replace(/\r\n?/g, '\n').trim()).replace(/\n/g, '<br>');
+export function htmlToText(t) {
+  return String(t == null ? '' : t).replace(/<\s*br\s*\/?>/gi, '\n').replace(/<\/(p|div|li|h[1-4]|ul|ol)\s*>/gi, '\n').replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+export function sanitizeHtml(input) {
+  const src = String(input == null ? '' : input);
+  if (!hasTags(src)) return plainToHtml(src);
+  if (typeof DOMParser === 'undefined') return plainToHtml(htmlToText(src));
+  const doc = new DOMParser().parseFromString('<!doctype html><body>' + src, 'text/html');
+  const walk = n => {
+    let out = '';
+    for (const c of n.childNodes) {
+      if (c.nodeType === 3) out += esc(c.nodeValue.replace(/\u00a0/g, ' '));
+      else if (c.nodeType === 1) {
+        if (DROP.has(c.nodeName.toUpperCase())) continue;
+        const tag = ALLOW[c.nodeName.toUpperCase()];
+        if (!tag) out += walk(c);
+        else if (tag === 'br') out += '<br>';
+        else out += '<' + tag + '>' + walk(c) + '</' + tag + '>';
+      }
+    }
+    return out;
+  };
+  return walk(doc.body).replace(/<(b|i|u|p|h4)><\/\1>/g, '').replace(/(<br>){3,}/g, '<br><br>').replace(/^(<br>)+|(<br>)+$/g, '').trim();
+}
+export const descToHtml = t => sanitizeHtml(t);
+
 // Deskripsi singkat untuk tampilan list: dipotong di batas kata.
 export function shortDesc(t, max = 110) {
-  const s = oneLine(t); if (s.length <= max) return s;
+  const s = oneLine(htmlToText(t).replace(/\n/g, ' ')); if (s.length <= max) return s;
   const cut = s.slice(0, max), sp = cut.lastIndexOf(' ');
   return (sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,.;:-]+$/, '') + '…';
 }
@@ -37,17 +72,20 @@ export function orderHref(b) {
   if (b.order_type === 'url') return httpsOk(b.order_url) ? b.order_url : null;
   return null;
 }
+export const orderLabel = b => (b && b.order_label) || (b && b.order_type === 'wa' ? 'Pesan via WhatsApp' : 'Pesan lewat link checkout');
 export const orderTarget = b => b.order_type === 'wa' ? 'WhatsApp ' + waDisplay(b.order_wa) : 'link checkout';
 
 // Hasil: { ok:{...} } | { error, field }
 export function validate(f) {
-  const title = oneLine(f.title), description = String(f.description == null ? '' : f.description).replace(/\r\n?/g, '\n').trim();
+  const title = oneLine(f.title), description = sanitizeHtml(f.description), plain = htmlToText(description);
   if (title.length < LIMIT.titleMin || title.length > LIMIT.titleMax) return { error: 'Nama buku ' + LIMIT.titleMin + ' sampai ' + LIMIT.titleMax + ' huruf.', field: 'title' };
-  if (description.length < LIMIT.descMin || description.length > LIMIT.descMax) return { error: 'Deskripsi ' + LIMIT.descMin + ' sampai ' + LIMIT.descMax + ' huruf.', field: 'description' };
+  if (plain.length < LIMIT.descMin || plain.length > LIMIT.descMax || description.length > LIMIT.htmlMax) return { error: 'Deskripsi ' + LIMIT.descMin + ' sampai ' + LIMIT.descMax + ' huruf (format yang terlalu banyak juga bisa melewati batas).', field: 'description' };
   if (!KINDS.some(k => k.key === f.kind)) return { error: 'Pilih jenis buku.', field: 'kind' };
   const price = parsePrice(f.price);
   if (price == null) return { error: 'Harga belum benar. Isi angka, mis. 85000 (atau 0 / "gratis"). Maksimal Rp 100.000.000.', field: 'price' };
-  const out = { title, description, kind: f.kind, price, active: f.active !== false, order_type: f.orderType };
+  const label = oneLine(f.orderLabel);
+  if (label.length > LIMIT.labelMax) return { error: 'Teks tombol maksimal ' + LIMIT.labelMax + ' huruf.', field: 'label' };
+  const out = { title, description, kind: f.kind, price, active: f.active !== false, order_type: f.orderType, order_label: label || null };
   if (f.orderType === 'wa') {
     const wa = normalizeWa(f.orderTarget);
     if (!wa) return { error: 'Nomor WhatsApp tidak valid. Contoh: 0812 3456 7890.', field: 'target' };
@@ -71,7 +109,7 @@ export const notReady = e => !!e && (e.status === 404 || e.code === 'PGRST205' |
 // Pencarian dan penyaring di perangkat (jumlah buku kecil).
 export function filterBooks(items, { kind = '', q = '' } = {}) {
   const s = oneLine(q).toLowerCase();
-  return items.filter(b => (!kind || b.kind === kind) && (!s || (b.title + ' ' + b.description).toLowerCase().includes(s)));
+  return items.filter(b => (!kind || b.kind === kind) && (!s || (b.title + ' ' + htmlToText(b.description)).toLowerCase().includes(s)));
 }
 
 /* ===== Tampilan pilihan pengguna (disimpan di perangkat) ===== */

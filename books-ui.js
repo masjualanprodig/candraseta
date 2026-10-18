@@ -10,6 +10,40 @@ import * as B from './books-service.js';
 
 export const NOTE = 'Pembayaran dan pengiriman diurus langsung dengan penjual di luar BAITUNA. Periksa dulu penjual, harga, dan ongkos kirim sebelum membayar.';
 
+
+/* ===== Editor teks sederhana (tebal, miring, garis bawah, daftar) ===== */
+function richEditor(id, placeholder) {
+  const el = h('div', { class: 'in rt-area', id, contenteditable: 'true', role: 'textbox', 'aria-multiline': 'true', 'aria-label': 'Deskripsi', 'data-placeholder': placeholder, spellcheck: 'true' });
+  const run = cmd => { el.focus(); try { document.execCommand(cmd, false, null); } catch (e) { /* abaikan */ } sync(); };
+  const mk = (txt, cmd, label, cls) => h('button', { class: 'rt-b' + (cls ? ' ' + cls : ''), type: 'button', 'data-cmd': cmd, 'aria-label': label, title: label, 'aria-pressed': 'false',
+    onmousedown: ev => ev.preventDefault(), onclick: () => run(cmd) }, txt);
+  const bar = h('div', { class: 'rt-bar', role: 'toolbar', 'aria-label': 'Format teks' },
+    mk('B', 'bold', 'Tebal', 'rt-bold'), mk('I', 'italic', 'Miring', 'rt-ital'), mk('U', 'underline', 'Garis bawah', 'rt-under'),
+    mk('• Daftar', 'insertUnorderedList', 'Daftar butir'), mk('1. Daftar', 'insertOrderedList', 'Daftar nomor'),
+    h('button', { class: 'rt-b', type: 'button', 'data-cmd': 'heading', 'aria-label': 'Judul kecil', title: 'Judul kecil', onmousedown: ev => ev.preventDefault(),
+      onclick: () => { el.focus(); let on = false; try { on = String(document.queryCommandValue('formatBlock')).toLowerCase() === 'h4'; } catch (e) { /* abaikan */ } try { document.execCommand('formatBlock', false, on ? 'p' : 'h4'); } catch (e) { /* abaikan */ } sync(); } }, 'Judul'),
+    mk('Hapus format', 'removeFormat', 'Hapus format'));
+  function sync() {
+    for (const b of bar.querySelectorAll('[data-cmd]')) {
+      const c = b.getAttribute('data-cmd'); let on = false;
+      if (c !== 'heading' && c !== 'removeFormat') { try { on = document.queryCommandState(c); } catch (e) { /* abaikan */ } }
+      b.setAttribute('aria-pressed', String(!!on));
+    }
+  }
+  el.addEventListener('keyup', sync); el.addEventListener('mouseup', sync); el.addEventListener('focus', sync);
+  // Tempel selalu sebagai teks polos agar format dari tempat lain tidak ikut.
+  el.addEventListener('paste', ev => {
+    const t = ev.clipboardData && ev.clipboardData.getData('text/plain'); if (t == null) return;
+    ev.preventDefault(); try { document.execCommand('insertText', false, t); } catch (e) { /* abaikan */ }
+  });
+  const box = h('div', { class: 'rt-box' }, bar, el);
+  return {
+    el, box,
+    get: () => { const v = B.sanitizeHtml(el.innerHTML); return B.htmlToText(v) ? v : ''; },
+    set: html => { el.innerHTML = B.descToHtml(html); },
+  };
+}
+
 export function booksPage({ go } = {}) {
   const wrap = h('div', { class: 'books' });
   const st = { items: null, fail: null, kind: '', q: '', view: B.loadView(), isAdmin: false, open: '' };
@@ -17,6 +51,7 @@ export function booksPage({ go } = {}) {
   const back = (label, fn) => h('button', { class: 'btn-ghost bk-back', type: 'button', id: 'bk-back', onclick: fn }, label);
   const empty = t => h('div', { class: 'empty' }, icon(ICONS.book, 'ic-lg'), h('p', { class: 'muted' }, t));
 
+  const descNode = d => { const n = h('div', { class: 'bk-desc' }); n.innerHTML = B.descToHtml(d); return n; };
   const thumb = (b, cls) => {
     const u = B.coverUrl(b);
     return u ? h('img', { class: 'bk-img ' + cls, src: u, alt: 'Sampul ' + b.title, loading: 'lazy', decoding: 'async' })
@@ -72,7 +107,7 @@ export function booksPage({ go } = {}) {
     if (!b) { draw(back('← Pustaka', showList), empty('Buku tidak ditemukan atau sudah tidak ditampilkan.')); return; }
     const href = B.orderHref(b);
     const order = h('button', { class: 'btn-primary', type: 'button', id: 'bk-order', onclick: () => { if (!href) { toast('Cara pemesanan buku ini belum benar.', true); return; } window.open(href, '_blank', 'noopener,noreferrer'); } },
-      b.order_type === 'wa' ? 'Pesan via WhatsApp' : 'Pesan lewat link checkout');
+      B.orderLabel(b));
     if (!href) order.setAttribute('disabled', 'disabled');
     const cu = B.coverUrl(b);
     draw(back('← Pustaka', showList),
@@ -80,8 +115,8 @@ export function booksPage({ go } = {}) {
         cu ? h('img', { class: 'bk-cover', src: cu, alt: 'Sampul ' + b.title, decoding: 'async' }) : h('div', { class: 'bk-cover bk-ph', 'aria-hidden': 'true' }, icon(ICONS.book, 'ic-lg')),
         h('div', { class: 'chips mt' }, h('span', { class: 'chip' }, B.kindLabel(b.kind))),
         h('h3', { class: 'bk-dt' }, b.title), h('p', { class: 'bk-price bk-dp' }, B.priceText(b.price)),
-        h('p', { class: 'bk-desc' }, b.description),
-        order, h('p', { class: 'hint' }, 'Tombol ini membuka ' + (b.order_type === 'wa' ? 'WhatsApp penjual' : 'halaman pemesanan') + ' di tab baru. ' + NOTE)));
+        descNode(b.description),
+        order));
   }
 
   /* ===== Kelola (Super Admin) ===== */
@@ -94,10 +129,12 @@ export function booksPage({ go } = {}) {
     const reload = () => showManage();
     const lab = (t, f) => h('label', { class: 'hint bk-lab', for: f }, t);
     const title = h('input', { class: 'in', id: 'bk-f-title', maxlength: String(B.LIMIT.titleMax), placeholder: 'Contoh: Fiqih Salat Praktis', autocomplete: 'off' });
-    const desc = h('textarea', { class: 'in tall', id: 'bk-f-desc', rows: '6', maxlength: String(B.LIMIT.descMax), placeholder: 'Tentang isi buku, penulis, jumlah halaman, dll.' });
+    const rt = richEditor('bk-f-desc', 'Tentang isi buku, penulis, jumlah halaman, dll.');
+    const desc = rt.el;
     const kind = h('select', { class: 'in', id: 'bk-f-kind', 'aria-label': 'Jenis buku' }, ...B.KINDS.map(k => h('option', { value: k.key }, k.label)));
     const price = h('input', { class: 'in', id: 'bk-f-price', inputmode: 'numeric', maxlength: '14', placeholder: 'Contoh: 85000', autocomplete: 'off' });
     const otype = h('select', { class: 'in', id: 'bk-f-otype', 'aria-label': 'Cara pemesanan' }, h('option', { value: 'wa' }, 'Pesan via WhatsApp'), h('option', { value: 'url' }, 'Link checkout (URL)'));
+    const label = h('input', { class: 'in', id: 'bk-f-label', maxlength: String(B.LIMIT.labelMax), placeholder: 'Kosongkan untuk teks bawaan', autocomplete: 'off' });
     const target = h('input', { class: 'in', id: 'bk-f-target', maxlength: String(B.LIMIT.urlMax), autocomplete: 'off' });
     const active = h('input', { type: 'checkbox', id: 'bk-f-active' }); active.checked = true;
     const file = h('input', { class: 'in', type: 'file', id: 'bk-f-file', accept: 'image/jpeg,image/png,image/webp', 'aria-label': 'Banner buku' });
@@ -109,7 +146,7 @@ export function booksPage({ go } = {}) {
     otype.addEventListener('change', sync); sync();
     let removeCover = false;
     function fill(b) {
-      title.value = b.title; desc.value = b.description; kind.value = b.kind; price.value = String(b.price); otype.value = b.order_type; sync();
+      title.value = b.title; rt.set(b.description); label.value = b.order_label || ''; kind.value = b.kind; price.value = String(b.price); otype.value = b.order_type; sync();
       target.value = b.order_type === 'wa' ? b.order_wa : b.order_url; active.checked = !!b.active;
       const u = B.coverUrl(b); prev.replaceChildren(u ? h('img', { class: 'bk-pv', src: u, alt: 'Banner saat ini' }) : '');
       if (u) prev.append(h('button', { class: 'btn-sm alt', type: 'button', id: 'bk-f-rmcover', onclick: ev => { removeCover = true; prev.replaceChildren(h('p', { class: 'hint' }, 'Banner akan dihapus saat disimpan.')); } }, 'Hapus banner'));
@@ -119,16 +156,17 @@ export function booksPage({ go } = {}) {
     let busy = false;
     const form = h('form', { class: 'panel rform', id: 'bk-form', novalidate: 'novalidate' },
       h('h3', {}, e0 ? 'Ubah: ' + e0.title : 'Tambah buku'),
-      lab('Nama buku *', 'bk-f-title'), title, lab('Deskripsi *', 'bk-f-desc'), desc,
+      lab('Nama buku *', 'bk-f-title'), title, lab('Deskripsi *', 'bk-f-desc'), rt.box,
       h('div', { class: 'grid2' }, h('div', {}, lab('Jenis buku *', 'bk-f-kind'), kind), h('div', {}, lab('Harga (Rp) * — isi 0 bila gratis', 'bk-f-price'), price)),
       lab('Cara pemesanan *', 'bk-f-otype'), otype, tlabel, target,
+      lab('Teks tombol pesan (opsional, maks. ' + B.LIMIT.labelMax + ' huruf)', 'bk-f-label'), label,
       h('label', { class: 'qa-check' }, active, ' Tampilkan di pustaka (hilangkan centang untuk menyembunyikan)'),
       h('label', { class: 'hint bk-lab', for: 'bk-f-file' }, 'Banner buku (opsional)'), file, prev, fstat, err,
       h('div', { class: 'mt row-btns' }, save, e0 ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'bk-f-cancel', onclick: reload }, 'Batal ubah') : ''));
     form.addEventListener('submit', async ev => {
       ev.preventDefault(); if (busy) return;
-      const v = B.validate({ title: title.value, description: desc.value, kind: kind.value, price: price.value, orderType: otype.value, orderTarget: target.value, active: active.checked });
-      if (v.error) { err.textContent = v.error; ({ title, description: desc, kind, price, target, orderType: otype })[v.field].focus(); return; }
+      const v = B.validate({ title: title.value, description: rt.get(), kind: kind.value, price: price.value, orderType: otype.value, orderTarget: target.value, orderLabel: label.value, active: active.checked });
+      if (v.error) { err.textContent = v.error; ({ title, description: desc, kind, price, target, orderType: otype, label })[v.field].focus(); return; }
       err.textContent = ''; busy = true; save.disabled = true;
       let uploaded = null;
       try {
