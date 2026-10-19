@@ -58,7 +58,6 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
         u ? h('img', { class: 'hbe-thumb', src: u, alt: 'Gambar slide ' + (k + 1) }) : h('div', { class: 'hbe-thumb hbe-thumb-empty' }, 'Belum ada gambar'),
         field(u ? 'Ganti gambar (JPEG/PNG/WebP)' : 'Gambar (JPEG/PNG/WebP) — wajib', fileIn),
         field('Saat banner diketuk, menuju', select([['', '(tidak menuju ke mana-mana)'], ...Object.entries(LINKS).map(([k2, v]) => [k2, v[0]])], s.link || '', v => { if (v) s.link = v; else delete s.link; })),
-        field('Link menuju fitur (opsional)', select([['', '— tanpa link —'], ...Object.entries(LINKS).map(([k2, v]) => [k2, v[0]])], s.link || '', v => { if (v) s.link = v; else delete s.link; })),
         s.title ? h('small', { class: 'muted' }, 'Slide lama ini punya judul: “' + s.title + '”. Judul tetap tampil di atas gambar.') : '',
         h('div', { class: 'hbe-acts' },
           h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Naikkan slide', ...(k === 0 ? { disabled: 'disabled' } : {}), onclick: () => move2(k, -1) }, '↑'),
