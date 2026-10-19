@@ -5,6 +5,9 @@ import { request, db } from './supabase.js';
 import { upload, dropFile, urlFor } from './branding-service.js';
 
 export const ROLES = [['jamaah', 'Jamaah'], ['admin', 'Admin Masjid'], ['super', 'Super Admin']];
+export const SPEEDS = [[0, 'Tidak otomatis'], [2, '2 detik'], [3, '3 detik'], [4, '4 detik'], [5, '5 detik'], [6, '6 detik'], [8, '8 detik'], [10, '10 detik'], [15, '15 detik']];
+export const DEFAULT_SPEED = 5;
+const speedOf = (v, def) => (Number.isInteger(v) && v >= 0 && v <= 30) ? v : def;
 export const LIMITS = { gridItems: 20, blocks: 30, slides: 6, items: 12, title: 80, text: 200, cta: 30, ftitle: 60, para: 600 };
 
 // Tujuan tautan yang boleh dipilih (kunci -> [nama, kunci ikon di quick-catalog, tab halaman fitur]).
@@ -98,6 +101,7 @@ export function cleanOverride(role, id, o) {
     });
     if (sl.some(r => Object.keys(r).length)) out.slides = sl;
   }
+  if (kind === 'slides' && Number.isInteger(o.speed) && o.speed > 0 && o.speed <= 30) out.speed = o.speed;
   if (kind === 'grid' && Array.isArray(o.items)) {
     const ok = new Set([...(d.items || []).map(x => x[0]), ...Object.keys(LINKS).map(k => 'x-' + k)]);
     let items = [...new Set(o.items.filter(k => typeof k === 'string' && ITEM_RE.test(k) && ok.has(k)))];
@@ -116,12 +120,14 @@ export function cleanBlocks(role, raw) {
     if (!b || typeof b !== 'object') continue;
     if (b.t === 'b') { if (known.has(b.id) && !seen.has(b.id)) { seen.add(b.id); const o = cleanOverride(role, b.id, b.o); out.push(o ? { t: 'b', id: b.id, o } : { t: 'b', id: b.id }); } }
     else if (b.t === 'banner' && Array.isArray(b.slides)) {
-      const slides = b.slides.slice(0, LIMITS.slides).filter(s => s && typeof s === 'object' && str(s.title, 80).trim()).map(s => {
-        const o = { title: str(s.title, LIMITS.title), text: str(s.text, LIMITS.text), cta: str(s.cta, LIMITS.cta), link: LINKS[s.link] ? s.link : '', tone: s.tone === 'gold' ? 'gold' : 'green' };
+      // Slide baru = gambar saja. Slide lama yang berjudul tetap dipakai apa adanya.
+      const slides = b.slides.slice(0, LIMITS.slides).filter(s => s && typeof s === 'object' && ((typeof s.img === 'string' && urlFor(s.img)) || str(s.title, 80).trim())).map(s => {
+        const o = {};
         if (typeof s.img === 'string' && urlFor(s.img)) o.img = s.img;
+        if (str(s.title, 80).trim()) Object.assign(o, { title: str(s.title, LIMITS.title), text: str(s.text, LIMITS.text), cta: str(s.cta, LIMITS.cta), link: LINKS[s.link] ? s.link : '', tone: s.tone === 'gold' ? 'gold' : 'green' });
         return o;
       });
-      if (slides.length) out.push({ t: 'banner', slides });
+      if (slides.length) out.push({ t: 'banner', speed: speedOf(b.speed, DEFAULT_SPEED), slides });
     } else if (b.t === 'fitur' && Array.isArray(b.items)) {
       const items = [...new Set(b.items.filter(k => typeof k === 'string' && LINKS[k]))].slice(0, LIMITS.items);
       if (items.length) out.push({ t: 'fitur', title: str(b.title, LIMITS.ftitle), items });

@@ -4,7 +4,8 @@
 import { h, toast, ask } from './ui.js';
 import { prepareImage } from './photo.js';
 import { errorText } from './branding-service.js';
-import { ROLES, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
+import { urlFor } from './branding-service.js';
+import { ROLES, SPEEDS, DEFAULT_SPEED, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
 import { layoutNodes } from './home-builder.js';
 
 const TYPE_NAME = { banner: 'Banner slide', fitur: 'Kotak fitur', text: 'Teks' };
@@ -32,7 +33,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
 
   function summary(b) {
     if (b.t === 'b') { const ch = b.o && pruneBlocks(role, [b])[0].o; return ['Bawaan: ' + builtinLabel(role, b.id), ch ? 'Sudah Anda ubah' : 'Bagian aplikasi yang sudah ada']; }
-    if (b.t === 'banner') return [TYPE_NAME.banner, b.slides.length + ' slide · ' + ((b.slides[0] && b.slides[0].title) || '(tanpa judul)')];
+    if (b.t === 'banner') return [TYPE_NAME.banner, b.slides.length + ' slide · gambar saja · ' + (b.speed > 0 ? 'geser tiap ' + b.speed + ' dtk' : 'tidak otomatis')];
     if (b.t === 'fitur') return [TYPE_NAME.fitur, (b.title || 'Akses Cepat') + ' · ' + b.items.length + ' menu'];
     return [TYPE_NAME.text + ' (' + ({ h1: 'Judul', h2: 'Subjudul', p: 'Paragraf' })[b.style] + ')', (b.text || '').slice(0, 60) || '(kosong)'];
   }
@@ -42,27 +43,32 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
   const select = (opts, val, on) => { const e = h('select', { class: 'in' }, ...opts.map(([v, l]) => h('option', { value: v }, l))); e.value = val; e.addEventListener('change', () => { on(e.value); bump(); refreshBar(); }); return e; };
 
   function editBanner(b) {
+    if (!Number.isInteger(b.speed)) b.speed = DEFAULT_SPEED;
+    const slideImg = x => x._url || (x.img && urlFor(x.img)) || '';
+    const move2 = (k, d) => { const j = k + d; if (j < 0 || j >= b.slides.length) return; [b.slides[k], b.slides[j]] = [b.slides[j], b.slides[k]]; bump(); draw(); };
     const list = b.slides.map((s, k) => {
-      const fileIn = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'hb-file', 'aria-label': 'Gambar slide ' + (k + 1) });
-      const info = h('small', { class: 'muted' }, s._file ? 'Gambar baru siap diunggah saat Simpan.' : s.img ? 'Memakai gambar unggahan.' : 'Tanpa gambar: memakai gambar bawaan.');
+      const fileIn = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'hb-file', 'aria-label': (s._file || s.img ? 'Ganti gambar slide ' : 'Pilih gambar slide ') + (k + 1) });
       fileIn.addEventListener('change', async () => {
         const f = fileIn.files && fileIn.files[0]; if (!f) return;
         try { const p = await prepareImage(f); s._file = p; s._url = URL.createObjectURL(p.blob); bump(); draw(); }
         catch (e) { toast(errorText(e), true); fileIn.value = ''; }
       });
-      return h('div', { class: 'hbe-slide' }, h('b', {}, 'Slide ' + (k + 1)),
-        field('Judul (wajib)', input(s.title, LIMITS.title, v => { s.title = v; })),
-        field('Teks', input(s.text, LIMITS.text, v => { s.text = v; })),
-        field('Teks tombol (kosongkan = tanpa tombol)', input(s.cta, LIMITS.cta, v => { s.cta = v; })),
-        field('Tombol menuju', select([['', '— pilih —'], ...Object.entries(LINKS).map(([k2, v]) => [k2, v[0]])], s.link || '', v => { s.link = v; })),
-        field('Warna', select([['green', 'Hijau'], ['gold', 'Emas']], s.tone || 'green', v => { s.tone = v; })),
-        field('Gambar latar (JPEG/PNG/WebP)', fileIn), info,
+      const u = slideImg(s);
+      return h('div', { class: 'hbe-slide hbe-simg' }, h('b', {}, 'Slide ' + (k + 1)),
+        u ? h('img', { class: 'hbe-thumb', src: u, alt: 'Gambar slide ' + (k + 1) }) : h('div', { class: 'hbe-thumb hbe-thumb-empty' }, 'Belum ada gambar'),
+        field(u ? 'Ganti gambar (JPEG/PNG/WebP)' : 'Gambar (JPEG/PNG/WebP) — wajib', fileIn),
+        s.title ? h('small', { class: 'muted' }, 'Slide lama ini punya judul: “' + s.title + '”. Judul tetap tampil di atas gambar.') : '',
         h('div', { class: 'hbe-acts' },
-          (s.img || s._file) ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { delete s.img; delete s._file; delete s._url; bump(); draw(); } }, 'Hapus gambar') : '',
-          b.slides.length > 1 ? h('button', { class: 'btn-sm alt', type: 'button', onclick: () => { b.slides.splice(k, 1); bump(); draw(); } }, 'Hapus slide') : ''));
+          h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Naikkan slide', ...(k === 0 ? { disabled: 'disabled' } : {}), onclick: () => move2(k, -1) }, '↑'),
+          h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Turunkan slide', ...(k === b.slides.length - 1 ? { disabled: 'disabled' } : {}), onclick: () => move2(k, 1) }, '↓'),
+          b.slides.length > 1 ? h('button', { class: 'btn-sm alt hb-sl-del', type: 'button', onclick: () => { b.slides.splice(k, 1); bump(); draw(); } }, 'Hapus slide') : ''));
     });
-    return h('div', { class: 'hbe-edit' }, ...list,
-      b.slides.length < LIMITS.slides ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { b.slides.push({ title: '', text: '', cta: '', link: '', tone: 'green' }); bump(); draw(); } }, '+ Tambah slide (' + b.slides.length + ' dari ' + LIMITS.slides + ')') : h('small', { class: 'muted' }, 'Maksimal ' + LIMITS.slides + ' slide.'));
+    return h('div', { class: 'hbe-edit' },
+      h('small', { class: 'muted' }, 'Banner hanya berisi gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres.'),
+      ...list,
+      b.slides.length < LIMITS.slides ? h('button', { class: 'btn-sm ghost hb-sl-add', type: 'button', onclick: () => { b.slides.push({}); bump(); draw(); } }, '+ Tambah slide (' + b.slides.length + ' dari ' + LIMITS.slides + ')') : h('small', { class: 'muted' }, 'Maksimal ' + LIMITS.slides + ' slide.'),
+      field('Kecepatan geser otomatis', select(SPEEDS.map(([v, l]) => [String(v), l]), String(b.speed), v => { b.speed = Number(v); })),
+      h('small', { class: 'muted' }, b.slides.length < 2 ? 'Geser otomatis berjalan bila slide lebih dari satu.' : 'Slide berpindah sendiri setiap beberapa detik; berhenti saat disentuh.'));
   }
   function editFitur(b) {
     const boxes = Object.entries(LINKS).map(([k, v]) => {
@@ -116,7 +122,8 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
           field('Teks tombol', dInput(s, 'cta', ds.cta, LIMITS.cta)), field('Tombol menuju', dSelect(s, 'link', '', ds.link ? [['', '(bawaan: ' + LINKS[ds.link][0] + ')'], ...linkOpts.slice(1)] : linkOpts)),
           field('Warna', dSelect(s, 'tone', ds.tone, [['green', 'Hijau'], ['gold', 'Emas']])), ...pickImg(s),
           h('label', { class: 'hbe-chk-one' }, (() => { const c = h('input', { type: 'checkbox' }); c.checked = !!s.hide; c.addEventListener('change', () => { if (c.checked) s.hide = true; else delete s.hide; bump(); refreshBar(); }); return c; })(), ' Sembunyikan slide ini')); });
-      return h('div', { class: 'hbe-edit' }, hint, ...list, h('small', { class: 'muted' }, 'Ingin slide tambahan? Tambahkan blok "Banner slide" baru.'), reset);
+      const spd = field('Kecepatan geser otomatis', select(SPEEDS.map(([v, l]) => [String(v), l]), String(o.speed || 0), v => { if (Number(v) > 0) o.speed = Number(v); else delete o.speed; }));
+      return h('div', { class: 'hbe-edit' }, hint, ...list, spd, h('small', { class: 'muted' }, 'Ingin slide tambahan? Tambahkan blok "Banner slide" baru.'), reset);
     }
     // grid
     const defIds = d.items.map(x => x[0]), label = Object.fromEntries(d.items.map(x => [x[0], x[1]]));
@@ -157,7 +164,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
           h('button', { class: 'btn-sm ghost hb-down', type: 'button', 'aria-label': 'Turunkan', ...(i === blocks.length - 1 ? { disabled: 'disabled' } : {}), onclick: () => move(i, 1) }, '↓'),
           h('button', { class: 'btn-sm ghost hb-edit', type: 'button', 'aria-expanded': String(isOpen), onclick: () => { isOpen ? open.delete(b) : open.add(b); draw(); } }, isOpen ? 'Tutup' : 'Ubah'),
           req ? h('button', { class: 'btn-sm ghost hb-del', type: 'button', disabled: 'disabled', title: 'Bagian ini wajib agar menu tidak hilang' }, 'Wajib')
-              : h('button', { class: 'btn-sm alt hb-del', type: 'button', onclick: () => remove(i) }, b.t === 'b' ? 'Sembunyikan' : 'Hapus'))),
+              : h('button', { class: 'btn-sm alt hb-del', type: 'button', onclick: () => remove(i) }, 'Hapus'))),
       isOpen ? (b.t === 'b' ? editBuiltin(b) : b.t === 'banner' ? editBanner(b) : b.t === 'fitur' ? editFitur(b) : editText(b)) : '');
   }
 
@@ -166,7 +173,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
     if (!blocks.length) return 'Beranda tidak boleh kosong. Tambahkan minimal satu blok.';
     for (let i = 0; i < blocks.length; i++) {
       const b = blocks[i], n = 'Blok ' + (i + 1) + ': ';
-      if (b.t === 'banner') { for (const s of b.slides) if (!(s.title || '').trim()) return n + 'judul slide wajib diisi.'; for (const s of b.slides) if ((s.cta || '').trim() && !s.link) return n + 'pilih tujuan tombol, atau kosongkan teks tombol.'; }
+      if (b.t === 'banner') { for (let k = 0; k < b.slides.length; k++) { const s = b.slides[k]; if (!(s._file || s.img || (s.title || '').trim())) return n + 'slide ' + (k + 1) + ' belum ada gambar.'; } }
       if (b.t === 'fitur' && !b.items.length) return n + 'pilih minimal satu menu.';
       if (b.t === 'text' && !(b.text || '').trim()) return n + 'teks masih kosong.';
     }
@@ -206,9 +213,9 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
   function draw() {
     const y = window.scrollY;
     const hidden = hiddenBuiltins();
-    const sel = hidden.length ? h('select', { class: 'in', id: 'hb-b-sel', 'aria-label': 'Bagian bawaan yang disembunyikan' }, ...hidden.map(([id, l]) => h('option', { value: id }, l))) : null;
+    const sel = hidden.length ? h('select', { class: 'in', id: 'hb-b-sel', 'aria-label': 'Bagian bawaan yang sudah dihapus' }, ...hidden.map(([id, l]) => h('option', { value: id }, l))) : null;
     const add = t => { if (blocks.length >= LIMITS.blocks) { toast('Maksimal ' + LIMITS.blocks + ' blok.', true); return; }
-      const nb = t === 'banner' ? { t, slides: [{ title: '', text: '', cta: '', link: '', tone: 'green' }] } : t === 'fitur' ? { t, title: '', items: [] } : { t, style: 'p', align: 'left', text: '' };
+      const nb = t === 'banner' ? { t, speed: DEFAULT_SPEED, slides: [{}] } : t === 'fitur' ? { t, title: '', items: [] } : { t, style: 'p', align: 'left', text: '' };
       blocks.push(nb); open.add(nb); bump(); draw(); };
     saveBtn = h('button', { class: 'btn-sm', id: 'hb-save', type: 'button', onclick: doSave }, 'Simpan');
     bar = h('div', { class: 'hbe-bar' }, saveBtn, h('button', { class: 'btn-sm ghost', id: 'hb-prev-btn', type: 'button', onclick: () => { showPrev = !showPrev; draw(); } }, showPrev ? 'Tutup pratinjau' : 'Pratinjau'),
@@ -223,7 +230,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
         h('button', { class: 'btn-sm ghost', id: 'hb-add-banner', type: 'button', onclick: () => add('banner') }, '+ Banner slide'),
         h('button', { class: 'btn-sm ghost', id: 'hb-add-fitur', type: 'button', onclick: () => add('fitur') }, '+ Kotak fitur'),
         h('button', { class: 'btn-sm ghost', id: 'hb-add-text', type: 'button', onclick: () => add('text') }, '+ Teks')),
-      sel ? h('div', { class: 'hbe-add' }, sel, h('button', { class: 'btn-sm ghost', id: 'hb-add-b', type: 'button', onclick: () => { if (blocks.length >= LIMITS.blocks) { toast('Maksimal ' + LIMITS.blocks + ' blok.', true); return; } blocks.push({ t: 'b', id: sel.value }); bump(); draw(); } }, '+ Tampilkan bagian bawaan')) : '',
+      sel ? h('div', { class: 'hbe-add' }, sel, h('button', { class: 'btn-sm ghost', id: 'hb-add-b', type: 'button', onclick: () => { if (blocks.length >= LIMITS.blocks) { toast('Maksimal ' + LIMITS.blocks + ' blok.', true); return; } blocks.push({ t: 'b', id: sel.value }); bump(); draw(); } }, '+ Tambahkan bagian bawaan')) : '',
       showPrev ? h('div', { class: 'hbe-prev', id: 'hb-prev', 'aria-label': 'Pratinjau susunan' }, ...layoutNodes(role, blocks, {}, { preview: true })) : '',
       bar);
     refreshBar(); window.scrollTo(0, y);

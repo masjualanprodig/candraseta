@@ -1,7 +1,7 @@
 // BAITUNA - home-builder.js (v92)
 // Menyusun beranda dari daftar blok (lihat home-layout-service.js). Tanpa susunan tersimpan => beranda bawaan.
 import { h } from './ui.js';
-import { bannerCarousel, quickGrid, quickBtn, go, sectionHead } from './home-ui.js';
+import { bannerCarousel, autoplay, quickGrid, quickBtn, go, sectionHead } from './home-ui.js';
 import { CATALOG } from './quick-catalog.js';
 import { LINKS, defaultBlocks, cleanBlocks, fetchLayout, builtinLabel, defaultsOf, kindOf, cleanOverride } from './home-layout-service.js';
 import { promoBanner } from './home-ui.js';
@@ -26,6 +26,7 @@ function rebind(btn, link, preview) {
 export function applyOverride(role, id, node, o, { preview = false } = {}) {
   if (!node || !o) return node;
   const kind = kindOf(role, id);
+  if (kind === 'slides' && o.speed) autoplay(node.querySelector && node.querySelector('.bn-track'), o.speed);
   if (kind === 'title') { setTitle(node, o.title); return node; }
   if (kind === 'grid') {
     setTitle(node, o.title);
@@ -76,6 +77,7 @@ export function mockBuiltin(role, id) {
 function slideNode(s, preview) {
   const link = LINKS[s.link];
   const img = s._url || (s.img && urlFor(s.img));
+  if (!(s.title && s.title.trim())) return { imgOnly: true, img: img || '' };   // model baru: gambar saja
   return { art: 'custom', img: img || '', title: s.title, text: s.text, tone: s.tone, cta: link && s.cta ? s.cta : '', onclick: () => { if (!preview && link) go(link[2]); } };
 }
 
@@ -101,7 +103,10 @@ export function layoutNodes(role, saved, builtins, { preview = false } = {}) {
       const o = preview ? cleanOverrideForPreview(role, b) : b.o;
       const n = applyOverride(role, b.id, base, o, { preview });
       if (n) out.push(n);
-    } else if (b.t === 'banner') { if (b.slides.some(s => s.title && s.title.trim())) out.push(bannerCarousel(b.slides.filter(s => s.title && s.title.trim()).map(s => slideNode(s, preview)), { id: 'cb' + (++seq) })); }
+    } else if (b.t === 'banner') {
+      const sl = b.slides.filter(x => (x.title && x.title.trim()) || x.img || x._url);
+      if (sl.length) out.push(bannerCarousel(sl.map(x => slideNode(x, preview)), { id: 'cb' + (++seq), speed: Number.isInteger(b.speed) ? b.speed : 5 }));
+    }
     else if (b.t === 'fitur') { if (b.items.length) out.push(quickGrid(b.title || 'Akses Cepat', b.items.map(k => ({ key: LINKS[k][1], label: LINKS[k][0], id: 'cf-' + k + '-' + seq, onclick: () => { if (!preview) go(LINKS[k][2]); } })), { id: 'cq' + (++seq) })); }
     else if (b.t === 'text') { if (b.text && b.text.trim()) out.push(h(b.style === 'p' ? 'p' : b.style === 'h1' ? 'h2' : 'h3', { class: 'hb-text hb-' + b.style, style: 'text-align:' + b.align }, b.text)); }
   }

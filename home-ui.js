@@ -35,9 +35,34 @@ export function greetingHeader({ title, sub, chip, name, email, avatar }) {
 }
 
 /* ===== Banner utama (geser ke samping; titik penanda) ===== */
-export function bannerCarousel(slides, { id = 'banner' } = {}) {
+// Geser otomatis tiap `seconds` detik (0 = mati). Berhenti saat disentuh, saat tab tersembunyi, dan bila banner sudah dilepas dari halaman.
+export function autoplay(track, seconds) {
+  const sec = Number(seconds);
+  if (!(sec > 0) || !track) return;
+  try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) { /* abaikan */ }
+  let timer = null, seen = false, idle = 0, hold = false;
+  const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+  const tick = () => {
+    if (!track.isConnected) { if (seen || ++idle > 20) stop(); return; }
+    seen = true;
+    if (hold || document.hidden) return;
+    const n = track.querySelectorAll('.bn-slide').length, w = track.clientWidth;
+    if (n < 2 || !w) return;
+    const i = Math.round(track.scrollLeft / w);
+    track.scrollTo({ left: ((i + 1) % n) * w, behavior: 'smooth' });
+  };
+  const start = () => { stop(); timer = setInterval(tick, Math.max(1, sec) * 1000); };
+  const pause = () => { hold = true; };
+  const resume = () => { hold = false; start(); };
+  track.addEventListener('touchstart', pause, { passive: true }); track.addEventListener('touchend', resume, { passive: true }); track.addEventListener('touchcancel', resume, { passive: true });
+  track.addEventListener('pointerdown', pause, { passive: true }); track.addEventListener('pointerup', resume, { passive: true });
+  start();
+}
+export function bannerCarousel(slides, { id = 'banner', speed = 0 } = {}) {
   const track = h('div', { class: 'bn-track', id, role: 'group', 'aria-label': 'Banner' },
-    ...slides.map((s, i) => h('article', { class: 'bn-slide ' + (s.tone || 'green'), 'data-i': String(i), 'data-art': s.art || '', 'aria-label': (i + 1) + ' dari ' + slides.length, ...(s.art === 'custom' ? { style: '--art-x:' + (s.img ? 'url("' + s.img + '")' : 'url("art-banner.svg")') } : {}) },
+    ...slides.map((s, i) => s.imgOnly
+      ? h('article', { class: 'bn-slide bn-img', 'data-i': String(i), 'aria-label': (i + 1) + ' dari ' + slides.length }, s.img ? h('img', { src: s.img, alt: s.alt || 'Banner ' + (i + 1), decoding: 'async', draggable: 'false' }) : '')
+      : h('article', { class: 'bn-slide ' + (s.tone || 'green'), 'data-i': String(i), 'data-art': s.art || '', 'aria-label': (i + 1) + ' dari ' + slides.length, ...(s.art === 'custom' ? { style: '--art-x:' + (s.img ? 'url("' + s.img + '")' : 'url("art-banner.svg")') } : {}) },
       h('div', { class: 'bn-txt' }, s.kicker ? h('span', { class: 'bn-kick' }, s.kicker) : '', h('h2', {}, s.title), s.text ? h('p', {}, s.text) : '',
         s.cta ? h('button', { class: 'bn-cta', type: 'button', onclick: s.onclick }, s.cta, icon(ICONS.chev)) : ''))));
   const dots = slides.length > 1 ? h('div', { class: 'bn-dots', 'aria-hidden': 'true' }, ...slides.map((_, i) => h('i', { class: i === 0 ? 'on' : '' }))) : '';
@@ -45,6 +70,7 @@ export function bannerCarousel(slides, { id = 'banner' } = {}) {
     const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
     [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
   }, { passive: true });
+  autoplay(track, speed);
   return h('section', { class: 'bn' }, track, dots);
 }
 export const promoBanner = ({ title, text, cta, onclick, id, art }) =>
