@@ -15,18 +15,24 @@ export const NOTE = 'Pembayaran dan pengiriman diurus langsung dengan penjual di
 function richEditor(id, placeholder) {
   const el = h('div', { class: 'in rt-area', id, contenteditable: 'true', role: 'textbox', 'aria-multiline': 'true', 'aria-label': 'Deskripsi', 'data-placeholder': placeholder, spellcheck: 'true' });
   const run = cmd => { el.focus(); try { document.execCommand(cmd, false, null); } catch (e) { /* abaikan */ } sync(); };
-  const mk = (txt, cmd, label, cls) => h('button', { class: 'rt-b' + (cls ? ' ' + cls : ''), type: 'button', 'data-cmd': cmd, 'aria-label': label, title: label, 'aria-pressed': 'false',
-    onmousedown: ev => ev.preventDefault(), onclick: () => run(cmd) }, txt);
+  const SV = d => '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor">' + d + '</svg>';
+  const ICO = {
+    ul: SV('<circle cx="4" cy="6" r="1.8"/><circle cx="4" cy="12" r="1.8"/><circle cx="4" cy="18" r="1.8"/><rect x="9" y="5" width="12" height="2.2" rx="1"/><rect x="9" y="11" width="12" height="2.2" rx="1"/><rect x="9" y="17" width="12" height="2.2" rx="1"/>'),
+    ol: SV('<text x="1" y="8" font-size="7" font-weight="700" font-family="Arial,sans-serif">1</text><text x="1" y="14.5" font-size="7" font-weight="700" font-family="Arial,sans-serif">2</text><text x="1" y="21" font-size="7" font-weight="700" font-family="Arial,sans-serif">3</text><rect x="9" y="5" width="12" height="2.2" rx="1"/><rect x="9" y="11" width="12" height="2.2" rx="1"/><rect x="9" y="17" width="12" height="2.2" rx="1"/>'),
+    clear: SV('<path d="M15.1 3.6a2 2 0 0 1 2.8 0l2.5 2.5a2 2 0 0 1 0 2.8L11.9 17.4H17v2H8.6L3.6 14.4a2 2 0 0 1 0-2.8l11.5-8zM9.1 17.4l7.5-7.5-3.7-3.7-8.1 8.1 3.1 3.1h1.2z"/>'),
+  };
+  const mk = (content, cmd, label, cls, svg) => { const b = h('button', { class: 'rt-b' + (cls ? ' ' + cls : ''), type: 'button', 'data-cmd': cmd, 'aria-label': label, title: label, 'aria-pressed': 'false',
+    onmousedown: ev => ev.preventDefault(), onclick: () => run(cmd) }, svg ? '' : content); if (svg) b.innerHTML = svg; return b; };
   const bar = h('div', { class: 'rt-bar', role: 'toolbar', 'aria-label': 'Format teks' },
     mk('B', 'bold', 'Tebal', 'rt-bold'), mk('I', 'italic', 'Miring', 'rt-ital'), mk('U', 'underline', 'Garis bawah', 'rt-under'),
-    mk('• Daftar', 'insertUnorderedList', 'Daftar butir'), mk('1. Daftar', 'insertOrderedList', 'Daftar nomor'),
-    h('button', { class: 'rt-b', type: 'button', 'data-cmd': 'heading', 'aria-label': 'Judul kecil', title: 'Judul kecil', onmousedown: ev => ev.preventDefault(),
-      onclick: () => { el.focus(); let on = false; try { on = String(document.queryCommandValue('formatBlock')).toLowerCase() === 'h4'; } catch (e) { /* abaikan */ } try { document.execCommand('formatBlock', false, on ? 'p' : 'h4'); } catch (e) { /* abaikan */ } sync(); } }, 'Judul'),
-    mk('Hapus format', 'removeFormat', 'Hapus format'));
+    h('span', { class: 'rt-sep', 'aria-hidden': 'true' }),
+    mk('', 'insertUnorderedList', 'Daftar butir', '', ICO.ul), mk('', 'insertOrderedList', 'Daftar nomor', '', ICO.ol),
+    h('span', { class: 'rt-sep', 'aria-hidden': 'true' }),
+    mk('', 'removeFormat', 'Hapus format', '', ICO.clear));
   function sync() {
     for (const b of bar.querySelectorAll('[data-cmd]')) {
       const c = b.getAttribute('data-cmd'); let on = false;
-      if (c !== 'heading' && c !== 'removeFormat') { try { on = document.queryCommandState(c); } catch (e) { /* abaikan */ } }
+      if (c !== 'removeFormat') { try { on = document.queryCommandState(c); } catch (e) { /* abaikan */ } }
       b.setAttribute('aria-pressed', String(!!on));
     }
   }

@@ -315,3 +315,9 @@
 .bk-l-img{width:88px;height:88px;flex:0 0 88px;aspect-ratio:1/1}
 .bk-cover{max-width:min(100%,540px);aspect-ratio:1/1;object-fit:contain;background:#fff;border:1px solid var(--line,#d9e2dc)}
 .bk-pv{width:140px;height:140px;object-fit:contain;background:#fff;border:1px solid var(--line,#d9e2dc)}
+
+/* v99 - toolbar editor deskripsi: satu baris, ikon saja */
+.rt-bar{flex-wrap:nowrap;gap:.15rem;padding:.35rem .5rem;overflow-x:auto;align-items:center}
+.rt-b{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:44px;width:44px;height:44px;padding:0;border-radius:12px;font-size:1.15rem;line-height:1}
+.rt-b svg{display:block}
+.rt-sep{flex:0 0 1px;align-self:stretch;margin:.5rem .3rem;background:#bfe0d1}
