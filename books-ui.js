@@ -14,11 +14,23 @@ export const NOTE = 'Pembayaran dan pengiriman diurus langsung dengan penjual di
 /* ===== Editor teks sederhana (tebal, miring, garis bawah, daftar) ===== */
 function richEditor(id, placeholder) {
   const el = h('div', { class: 'in rt-area', id, contenteditable: 'true', role: 'textbox', 'aria-multiline': 'true', 'aria-label': 'Deskripsi', 'data-placeholder': placeholder, spellcheck: 'true' });
-  const run = cmd => { el.focus(); try { document.execCommand(cmd, false, null); } catch (e) { /* abaikan */ } sync(); };
+  const HL = '#fff200';
+  const hlOn = () => { try { const v = String(document.queryCommandValue('hiliteColor') || document.queryCommandValue('backColor')).toLowerCase().replace(/\s/g, ''); return !!v && v !== 'transparent' && v !== 'rgba(0,0,0,0)' && v !== 'rgb(255,255,255)' && v !== 'white' && v !== 'inherit'; } catch (e) { return false; } };
+  const run = cmd => {
+    el.focus();
+    try {
+      if (cmd === 'hilite') { document.execCommand('styleWithCSS', false, true); document.execCommand('hiliteColor', false, hlOn() ? 'transparent' : HL); document.execCommand('styleWithCSS', false, false); }
+      else document.execCommand(cmd, false, null);
+    } catch (e) { /* abaikan */ }
+    sync();
+  };
   const SV = d => '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor">' + d + '</svg>';
   const ICO = {
     ul: SV('<circle cx="4" cy="6" r="1.8"/><circle cx="4" cy="12" r="1.8"/><circle cx="4" cy="18" r="1.8"/><rect x="9" y="5" width="12" height="2.2" rx="1"/><rect x="9" y="11" width="12" height="2.2" rx="1"/><rect x="9" y="17" width="12" height="2.2" rx="1"/>'),
     ol: SV('<text x="1" y="8" font-size="7" font-weight="700" font-family="Arial,sans-serif">1</text><text x="1" y="14.5" font-size="7" font-weight="700" font-family="Arial,sans-serif">2</text><text x="1" y="21" font-size="7" font-weight="700" font-family="Arial,sans-serif">3</text><rect x="9" y="5" width="12" height="2.2" rx="1"/><rect x="9" y="11" width="12" height="2.2" rx="1"/><rect x="9" y="17" width="12" height="2.2" rx="1"/>'),
+    hl: SV('<path d="M3 20h18v3H3z" fill="#ffe600"/><path d="M12 3 6 16h2.4l1.1-2.8h5l1.1 2.8H18L12 3zm0 4.6 1.7 4.2h-3.4L12 7.6z"/>'),
+    full: SV('<path d="M4 4h6v2.2H6.2V10H4V4zm10 0h6v6h-2.2V6.2H14V4zM4 14h2.2v3.8H10V20H4v-6zm13.8 0H20v6h-6v-2.2h3.8V14z"/>'),
+    shrink: SV('<path d="M9.8 4v6H4V7.8h3.6V4h2.2zM14.2 4h2.2v3.8H20V10h-5.8V4zM4 14h5.8v6H7.6v-3.8H4V14zm10.2 0H20v2.2h-3.6V20h-2.2v-6z"/>'),
     clear: SV('<path d="M15.1 3.6a2 2 0 0 1 2.8 0l2.5 2.5a2 2 0 0 1 0 2.8L11.9 17.4H17v2H8.6L3.6 14.4a2 2 0 0 1 0-2.8l11.5-8zM9.1 17.4l7.5-7.5-3.7-3.7-8.1 8.1 3.1 3.1h1.2z"/>'),
   };
   const mk = (content, cmd, label, cls, svg) => { const b = h('button', { class: 'rt-b' + (cls ? ' ' + cls : ''), type: 'button', 'data-cmd': cmd, 'aria-label': label, title: label, 'aria-pressed': 'false',
@@ -28,11 +40,13 @@ function richEditor(id, placeholder) {
     h('span', { class: 'rt-sep', 'aria-hidden': 'true' }),
     mk('', 'insertUnorderedList', 'Daftar butir', '', ICO.ul), mk('', 'insertOrderedList', 'Daftar nomor', '', ICO.ol),
     h('span', { class: 'rt-sep', 'aria-hidden': 'true' }),
-    mk('', 'removeFormat', 'Hapus format', '', ICO.clear));
+    mk('', 'hilite', 'Stabilo (sorot teks)', 'rt-hl', ICO.hl), mk('', 'removeFormat', 'Hapus format', '', ICO.clear));
+  const fullBtn = h('button', { class: 'rt-b rt-full-btn', type: 'button', id: 'bk-f-expand', 'aria-label': 'Perbesar editor', title: 'Perbesar editor', 'aria-pressed': 'false', onmousedown: ev => ev.preventDefault() });
+  fullBtn.innerHTML = ICO.full; bar.append(h('span', { class: 'rt-sep', 'aria-hidden': 'true' }), fullBtn);
   function sync() {
     for (const b of bar.querySelectorAll('[data-cmd]')) {
       const c = b.getAttribute('data-cmd'); let on = false;
-      if (c !== 'removeFormat') { try { on = document.queryCommandState(c); } catch (e) { /* abaikan */ } }
+      if (c === 'hilite') on = hlOn(); else if (c !== 'removeFormat') { try { on = document.queryCommandState(c); } catch (e) { /* abaikan */ } }
       b.setAttribute('aria-pressed', String(!!on));
     }
   }
@@ -43,6 +57,16 @@ function richEditor(id, placeholder) {
     ev.preventDefault(); try { document.execCommand('insertText', false, t); } catch (e) { /* abaikan */ }
   });
   const box = h('div', { class: 'rt-box' }, bar, el);
+  const setFull = on => {
+    box.classList.toggle('rt-full', on); document.documentElement.classList.toggle('rt-lock', on);
+    fullBtn.innerHTML = on ? ICO.shrink : ICO.full; const t = on ? 'Perkecil editor' : 'Perbesar editor';
+    fullBtn.setAttribute('aria-label', t); fullBtn.setAttribute('title', t); fullBtn.setAttribute('aria-pressed', String(on));
+    if (on) el.focus();
+  };
+  fullBtn.addEventListener('click', () => setFull(!box.classList.contains('rt-full')));
+  el.addEventListener('keydown', ev => { if (ev.key === 'Escape' && box.classList.contains('rt-full')) { ev.preventDefault(); setFull(false); } });
+  // Bila halaman diganti saat editor penuh layar, kunci gulir dilepas.
+  new MutationObserver(() => { if (!box.isConnected) document.documentElement.classList.remove('rt-lock'); }).observe(document.body, { childList: true, subtree: true });
   return {
     el, box,
     get: () => { const v = B.sanitizeHtml(el.innerHTML); return B.htmlToText(v) ? v : ''; },

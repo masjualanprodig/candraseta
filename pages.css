@@ -321,3 +321,18 @@
 .rt-b{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:44px;width:44px;height:44px;padding:0;border-radius:12px;font-size:1.15rem;line-height:1}
 .rt-b svg{display:block}
 .rt-sep{flex:0 0 1px;align-self:stretch;margin:.5rem .3rem;background:#bfe0d1}
+
+/* v100 - stabilo + editor bisa diperbesar */
+.rt-b{min-width:36px;width:36px}
+.rt-bar{padding:.35rem .25rem}
+.rt-sep{margin:.5rem .15rem}
+.rt-full-btn{margin-left:auto}
+.bk-desc mark,.rt-area mark,.rt-area span[style*="background"]{background:#fff200;color:#111;padding:0 .08em;border-radius:2px}
+.rt-box.rt-full{position:fixed;inset:0;z-index:5000;margin:0;border-radius:0;border:0;display:flex;flex-direction:column;height:100vh;height:100dvh;background:#fff}
+.rt-box.rt-full .rt-bar{flex:0 0 auto;padding-top:calc(.35rem + env(safe-area-inset-top,0px))}
+.rt-box.rt-full .rt-area.in{flex:1 1 auto;max-height:none;min-height:0;font-size:1.05rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom,0px))}
+html.rt-lock,html.rt-lock body{overflow:hidden}
+.rt-b{min-width:34px;width:34px;border-radius:10px}
+.rt-bar{gap:0;justify-content:space-between}
+.rt-sep{flex:0 0 1px;margin:.55rem 0}
+.rt-full-btn{margin-left:0}

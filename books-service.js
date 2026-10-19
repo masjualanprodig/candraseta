@@ -17,14 +17,20 @@ export const coverUrl = b => (b && b.cover_path ? publicPhotoUrl(b.cover_path, B
 
 /* ===== Deskripsi berformat (HTML terbatas) =====
    Hanya tag aman yang dipertahankan; semua atribut dibuang. Teks polos lama tetap tampil rapi. */
-const ALLOW = { B: 'b', STRONG: 'b', I: 'i', EM: 'i', U: 'u', UL: 'ul', OL: 'ol', LI: 'li', BR: 'br', P: 'p', DIV: 'p', H4: 'h4', H3: 'h4', H2: 'h4', H1: 'h4' };
+const ALLOW = { B: 'b', STRONG: 'b', I: 'i', EM: 'i', U: 'u', UL: 'ul', OL: 'ol', LI: 'li', BR: 'br', P: 'p', DIV: 'p', MARK: 'mark', H4: 'h4', H3: 'h4', H2: 'h4', H1: 'h4' };
 const DROP = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'NOSCRIPT', 'TEMPLATE', 'SVG', 'MATH', 'TITLE', 'HEAD']);
 const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-export const hasTags = t => /<\/?(b|strong|i|em|u|ul|ol|li|p|div|br|h[1-4])\b[^>]*>/i.test(String(t || ''));
+export const hasTags = t => /<\/?(b|strong|i|em|u|ul|ol|li|p|div|br|h[1-4]|mark|span)\b[^>]*>/i.test(String(t || ''));
 export const plainToHtml = t => esc(String(t == null ? '' : t).replace(/\r\n?/g, '\n').trim()).replace(/\n/g, '<br>');
 export function htmlToText(t) {
   return String(t == null ? '' : t).replace(/<\s*br\s*\/?>/gi, '\n').replace(/<\/(p|div|li|h[1-4]|ul|ol)\s*>/gi, '\n').replace(/<[^>]*>/g, '')
     .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+// Penanda stabilo: <span style="background-color:..."> (hasil peramban) atau <mark>; latar transparan/putih berarti tanpa stabilo.
+function hiliteOn(style) {
+  const m = /background(?:-color)?\s*:\s*([^;]+)/i.exec(String(style || '')); if (!m) return false;
+  const v = m[1].trim().toLowerCase();
+  return !(v === 'transparent' || v === 'inherit' || v === 'initial' || v === 'unset' || v === 'none' || v === 'white' || v === '#fff' || v === '#ffffff' || /^rgba?\(\s*255\s*,\s*255\s*,\s*255\s*(,\s*1(\.0)?\s*)?\)$/.test(v) || /^rgba\([^)]*,\s*0(\.0+)?\s*\)$/.test(v) || /^rgba?\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)$/.test(v));
 }
 export function sanitizeHtml(input) {
   const src = String(input == null ? '' : input);
@@ -37,7 +43,8 @@ export function sanitizeHtml(input) {
       if (c.nodeType === 3) out += esc(c.nodeValue.replace(/\u00a0/g, ' '));
       else if (c.nodeType === 1) {
         if (DROP.has(c.nodeName.toUpperCase())) continue;
-        const tag = ALLOW[c.nodeName.toUpperCase()];
+        let tag = ALLOW[c.nodeName.toUpperCase()];
+        if (!tag && c.nodeName.toUpperCase() === 'SPAN' && hiliteOn(c.getAttribute('style'))) tag = 'mark';
         if (!tag) out += walk(c);
         else if (tag === 'br') out += '<br>';
         else out += '<' + tag + '>' + walk(c) + '</' + tag + '>';
@@ -45,7 +52,7 @@ export function sanitizeHtml(input) {
     }
     return out;
   };
-  return walk(doc.body).replace(/<(b|i|u|p|h4)><\/\1>/g, '').replace(/(<br>){3,}/g, '<br><br>').replace(/^(<br>)+|(<br>)+$/g, '').trim();
+  return walk(doc.body).replace(/<(b|i|u|p|h4|mark)><\/\1>/g, '').replace(/(<br>){3,}/g, '<br><br>').replace(/^(<br>)+|(<br>)+$/g, '').replace(/<mark><mark>/g, '<mark>').replace(/<\/mark><\/mark>/g, '</mark>').trim();
 }
 export const descToHtml = t => sanitizeHtml(t);
 
