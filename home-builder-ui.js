@@ -57,6 +57,8 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
       return h('div', { class: 'hbe-slide hbe-simg' }, h('b', {}, 'Slide ' + (k + 1)),
         u ? h('img', { class: 'hbe-thumb', src: u, alt: 'Gambar slide ' + (k + 1) }) : h('div', { class: 'hbe-thumb hbe-thumb-empty' }, 'Belum ada gambar'),
         field(u ? 'Ganti gambar (JPEG/PNG/WebP)' : 'Gambar (JPEG/PNG/WebP) — wajib', fileIn),
+        field('Saat banner diketuk, menuju', select([['', '(tidak menuju ke mana-mana)'], ...Object.entries(LINKS).map(([k2, v]) => [k2, v[0]])], s.link || '', v => { if (v) s.link = v; else delete s.link; })),
+        field('Link menuju fitur (opsional)', select([['', '— tanpa link —'], ...Object.entries(LINKS).map(([k2, v]) => [k2, v[0]])], s.link || '', v => { if (v) s.link = v; else delete s.link; })),
         s.title ? h('small', { class: 'muted' }, 'Slide lama ini punya judul: “' + s.title + '”. Judul tetap tampil di atas gambar.') : '',
         h('div', { class: 'hbe-acts' },
           h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Naikkan slide', ...(k === 0 ? { disabled: 'disabled' } : {}), onclick: () => move2(k, -1) }, '↑'),
@@ -64,7 +66,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
           b.slides.length > 1 ? h('button', { class: 'btn-sm alt hb-sl-del', type: 'button', onclick: () => { b.slides.splice(k, 1); bump(); draw(); } }, 'Hapus slide') : ''));
     });
     return h('div', { class: 'hbe-edit' },
-      h('small', { class: 'muted' }, 'Banner hanya berisi gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres.'),
+      h('small', { class: 'muted' }, 'Banner hanya berisi gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres. Tiap slide bisa diberi link ke fitur tertentu.'),
       ...list,
       b.slides.length < LIMITS.slides ? h('button', { class: 'btn-sm ghost hb-sl-add', type: 'button', onclick: () => { b.slides.push({}); bump(); draw(); } }, '+ Tambah slide (' + b.slides.length + ' dari ' + LIMITS.slides + ')') : h('small', { class: 'muted' }, 'Maksimal ' + LIMITS.slides + ' slide.'),
       field('Kecepatan geser otomatis', select(SPEEDS.map(([v, l]) => [String(v), l]), String(b.speed), v => { b.speed = Number(v); })),

@@ -124,6 +124,7 @@ export function cleanBlocks(role, raw) {
       const slides = b.slides.slice(0, LIMITS.slides).filter(s => s && typeof s === 'object' && ((typeof s.img === 'string' && urlFor(s.img)) || str(s.title, 80).trim())).map(s => {
         const o = {};
         if (typeof s.img === 'string' && urlFor(s.img)) o.img = s.img;
+        if (LINKS[s.link]) o.link = s.link;
         if (str(s.title, 80).trim()) Object.assign(o, { title: str(s.title, LIMITS.title), text: str(s.text, LIMITS.text), cta: str(s.cta, LIMITS.cta), link: LINKS[s.link] ? s.link : '', tone: s.tone === 'gold' ? 'gold' : 'green' });
         return o;
       });

@@ -61,7 +61,7 @@ export function autoplay(track, seconds) {
 export function bannerCarousel(slides, { id = 'banner', speed = 0 } = {}) {
   const track = h('div', { class: 'bn-track', id, role: 'group', 'aria-label': 'Banner' },
     ...slides.map((s, i) => s.imgOnly
-      ? h('article', { class: 'bn-slide bn-img', 'data-i': String(i), 'aria-label': (i + 1) + ' dari ' + slides.length }, s.img ? h('img', { src: s.img, alt: s.alt || 'Banner ' + (i + 1), decoding: 'async', draggable: 'false' }) : '')
+      ? h('article', { class: 'bn-slide bn-img' + (s.onclick ? ' bn-link' : ''), 'data-i': String(i), 'aria-label': s.label || ((i + 1) + ' dari ' + slides.length), ...(s.onclick ? { role: 'button', tabindex: '0', onclick: s.onclick, onkeydown: ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); s.onclick(); } } } : {}) }, s.img ? h('img', { src: s.img, alt: s.alt || 'Banner ' + (i + 1), decoding: 'async', draggable: 'false' }) : '')
       : h('article', { class: 'bn-slide ' + (s.tone || 'green'), 'data-i': String(i), 'data-art': s.art || '', 'aria-label': (i + 1) + ' dari ' + slides.length, ...(s.art === 'custom' ? { style: '--art-x:' + (s.img ? 'url("' + s.img + '")' : 'url("art-banner.svg")') } : {}) },
       h('div', { class: 'bn-txt' }, s.kicker ? h('span', { class: 'bn-kick' }, s.kicker) : '', h('h2', {}, s.title), s.text ? h('p', {}, s.text) : '',
         s.cta ? h('button', { class: 'bn-cta', type: 'button', onclick: s.onclick }, s.cta, icon(ICONS.chev)) : ''))));

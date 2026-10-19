@@ -77,7 +77,7 @@ export function mockBuiltin(role, id) {
 function slideNode(s, preview) {
   const link = LINKS[s.link];
   const img = s._url || (s.img && urlFor(s.img));
-  if (!(s.title && s.title.trim())) return { imgOnly: true, img: img || '' };   // model baru: gambar saja
+  if (!(s.title && s.title.trim())) return { imgOnly: true, img: img || '', label: link ? 'Buka ' + link[0] : '', onclick: link ? () => { if (!preview) go(link[2]); } : null };   // model baru: gambar saja
   return { art: 'custom', img: img || '', title: s.title, text: s.text, tone: s.tone, cta: link && s.cta ? s.cta : '', onclick: () => { if (!preview && link) go(link[2]); } };
 }
 

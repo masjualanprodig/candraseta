@@ -343,3 +343,6 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .bn-slide.bn-img img{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
 .hbe-thumb{display:block;width:100%;max-width:320px;aspect-ratio:16/9;object-fit:cover;border-radius:12px;background:#e8efe9;margin:.4rem 0}
 .hbe-thumb-empty{display:flex;align-items:center;justify-content:center;color:#6b756f;font-size:.9rem;border:1.5px dashed #c9d6ce}
+.bn-slide.bn-link{cursor:pointer}.bn-slide.bn-link:focus-visible{outline:3px solid var(--gold,#c9a227);outline-offset:-3px}
+.bn-slide.bn-link{cursor:pointer}
+.bn-slide.bn-link:focus-visible{outline:3px solid var(--gold,#c9a227);outline-offset:-3px}
