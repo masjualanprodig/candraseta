@@ -139,6 +139,6 @@ export async function renderAdmin(box, view = 'home') {
         { ic: ICONS.clock, value: count('pending'), label: 'Menunggu Verifikasi' }, { ic: ICONS.user, value: count('rejected') + count('suspended'), label: 'Ditolak / Nonaktif' }] }) };
   const body = await homeBody('super', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-super' },
-    greetingHeader({ title: who.name || 'Super Admin', sub: 'Super Admin BAITUNA', name: who.name, email: who.email, avatar: who.avatar || undefined }),
+    greetingHeader({ title: who.name || 'Super Admin', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', place: { name: 'Super Admin BAITUNA', ic: ICONS.shield }, name: who.name, email: who.email, avatar: who.avatar || undefined }),
     h('div', { class: 'home-body' }, ...body)));
 }

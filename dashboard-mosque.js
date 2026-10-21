@@ -238,7 +238,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     tim: teamTop };
   const body = await homeBody('admin', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
-    greetingHeader({ title: who.name || mosque.name, sub: 'Admin ' + mosque.name, place: { name: mosque.name, sub: [mosque.city, mosque.province].filter(Boolean).join(', ') || 'Lokasi belum diisi', onclick: goEdit }, name: who.name, email: who.email, avatar: who.avatar || url || undefined }),
+    greetingHeader({ title: who.name || mosque.name, sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', place: { name: 'Admin ' + mosque.name, sub: [mosque.city, mosque.province].filter(Boolean).join(', ') || 'Lokasi belum diisi', onclick: goEdit }, name: who.name, email: who.email, avatar: who.avatar || url || undefined }),
     h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
 }

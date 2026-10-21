@@ -35,7 +35,7 @@ export function greetingHeader({ title, sub, chip, name, email, avatar, place })
         sub ? h('p', { class: 'hh-sub' }, sub) : '',
         chip ? h('span', { class: 'hh-chip', id: 'hh-chip' }, chip) : ''),
       h('button', { class: 'hh-bell', type: 'button', id: 'hh-bell', 'aria-label': 'Notifikasi', onclick: () => go('notif') }, icon(ICONS.bell))),
-    place ? h('button', { class: 'hh-place', type: 'button', id: 'hh-place', onclick: place.onclick }, h('span', { class: 'hh-pi' }, icon(ICONS.mosque)), h('span', { class: 'hh-pl' }, h('b', {}, place.name), place.sub ? h('small', {}, place.sub) : ''), icon(ICONS.chev)) : '');
+    place ? h(place.onclick ? 'button' : 'div', { class: 'hh-place', id: 'hh-place', ...(place.onclick ? { type: 'button', onclick: place.onclick } : {}) }, h('span', { class: 'hh-pi' }, icon(place.ic || ICONS.mosque)), h('span', { class: 'hh-pl' }, h('b', {}, place.name), place.sub ? h('small', {}, place.sub) : ''), place.onclick ? icon(ICONS.chev) : '') : '');
 }
 
 /* ===== Banner utama (geser ke samping; titik penanda) ===== */

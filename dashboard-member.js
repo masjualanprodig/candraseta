@@ -61,7 +61,7 @@ export async function renderMember(box, memberships) {
   }
   const body = await homeBody('jamaah', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-jamaah' },
-    greetingHeader({ title: who.name || 'Jamaahku', sub: manage ? (manage.isKetua ? 'Ketua Takmir ' : 'Bendahara ') + mosque.name : 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.',
+    greetingHeader({ title: who.name || 'Jamaahku', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', place: manage ? { name: (manage.isKetua ? 'Ketua Takmir ' : 'Bendahara ') + mosque.name, sub: [mosque.city, mosque.province].filter(Boolean).join(', ') || undefined } : undefined,
       name: who.name, email: who.email, avatar: who.avatar || false }),
     h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
