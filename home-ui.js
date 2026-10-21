@@ -1,7 +1,7 @@
 // BAITUNA - home-ui.js (v72)
 // Komponen bersama beranda tiap peran (Design System v1.2): header sapaan, banner, kartu jadwal salat,
 // Akses Cepat, daftar artikel, kartu statistik, dan daftar aktivitas. Semua data berasal dari fitur yang sudah ada.
-import { h, ask } from './ui.js';
+import { h, ask, restoreScroll } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
 import { openDirectory } from './directory.js';
 import { loadLoc, offsetFor, clock } from './jadwal-ui.js';
@@ -16,7 +16,20 @@ import { canSound, tick, chime } from './dzikir-sound.js';
 let backFn = () => {};
 export const setHomeBack = fn => { backFn = fn; };
 // Buka halaman fitur (direktori/Al-Qur'an/dll.) dan kembali ke beranda lewat tombol Kembali.
-export const go = tab => openDirectory('app', () => backFn(), tab);
+export const go = tab => { leaveHome(); openDirectory('app', () => backFn(), tab); };
+
+/* ===== Ingat posisi gulir Beranda: kembali dari fitur/layar pengelolaan tidak melempar ke paling atas ===== */
+let homeY = 0, leftHome = false, restoring = false;
+export const forgetHome = () => { homeY = 0; };
+export function initHomeMemory(box) {
+  window.addEventListener('scroll', () => { if (!restoring && !leftHome && document.getElementById('hh')) homeY = window.scrollY; }, { passive: true });
+  new MutationObserver(() => {
+    if (document.getElementById('hh')) {
+      if (leftHome) { leftHome = false; restoring = true; restoreScroll(homeY); setTimeout(() => { restoring = false; }, 1000); }
+    } else leftHome = true;
+  }).observe(box, { childList: true });
+}
+export const leaveHome = () => { if (document.getElementById('hh')) { leftHome = true; } };
 
 export const sectionHead = (title, onAll, id, ic, allLabel = 'Lihat Semua') => h('div', { class: 'sh' }, h('h2', {}, ic ? icon(ic) : '', title),
   onAll ? h('button', { class: 'sh-all', type: 'button', id, onclick: onAll }, allLabel, icon(ICONS.chev)) : '');

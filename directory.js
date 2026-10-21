@@ -3,6 +3,7 @@
 // Hanya masjid berstatus aktif yang tampil (dijaga database).
 import { navItems } from './nav-config.js';
 import { requestAct } from './home-ui.js';
+import { restoreScroll } from './ui.js';
 import { $, h } from './ui.js';
 import { show } from './router.js';
 import { getSession } from './supabase.js';
@@ -40,6 +41,7 @@ let onBack = () => {};
 let state = { tab: 'dir', view: 'list', q: '', province: '', items: [], more: false, loaded: false, provinces: null, error: false };
 
 export function openDirectory(from, back, tab) {
+  trail.length = 0;
   onBack = back;
   if (tab) state.tab = tab;
   $('public-back').textContent = from === 'app' ? 'Kembali' : 'Masuk';
@@ -73,6 +75,7 @@ export function openDirectory(from, back, tab) {
 
 // Membuka profil satu masjid langsung (mis. dari beranda agenda).
 export function openMosque(m, from, back) {
+  trail.length = 0;
   onBack = back; state.tab = 'info';
   $('public-back').textContent = from === 'app' ? 'Kembali' : 'Masuk';
   show('public');
@@ -84,7 +87,21 @@ const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalen
 const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'profil', 'jadwal', 'kiblat', 'ramadan', 'adzan', 'tanya', 'buku'];
 // Setelah masuk, Profil ada di bilah bawah; Agenda dan Kalender pindah ke menu Lainnya.
 const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'jadwal', 'kiblat', 'ramadan', 'adzan', 'tanya', 'buku'];
-const go = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'market') renderMarket(); else if (key === 'notif') renderNotif(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'kiblat') renderKiblat(); else if (key === 'ramadan') renderRamadan(); else if (key === 'adzan') renderAdzan(); else if (key === 'tanya') renderTanya(); else if (key === 'buku') renderBuku(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
+const jump = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'market') renderMarket(); else if (key === 'notif') renderNotif(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'kiblat') renderKiblat(); else if (key === 'ramadan') renderRamadan(); else if (key === 'adzan') renderAdzan(); else if (key === 'tanya') renderTanya(); else if (key === 'buku') renderBuku(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
+// Riwayat halaman fitur: tombol Kembali (termasuk Kembali bawaan HP) kembali ke halaman yang baru saja dilihat, lengkap dengan posisi gulirnya.
+const trail = [];
+const go = key => {
+  if (key === state.tab) { jump(key); return; }
+  const k = trail.map(e => e.tab).lastIndexOf(key);
+  if (k >= 0) trail.length = k; else { trail.push({ tab: state.tab, y: window.scrollY }); if (trail.length > 30) trail.shift(); }
+  jump(key);
+};
+export function exitPublic() { trail.length = 0; onBack(); }
+export function backPublic() {
+  const e = trail.pop();
+  if (!e) { onBack(); return; }
+  jump(e.tab); restoreScroll(e.y);
+}
 
 function tabs() {
   const sub = document.getElementById('public-sub');
@@ -98,7 +115,7 @@ function tabs() {
     return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Menu utama' },
       ...navItems().map(it => t(it.label, it.tab || it.id, it.ic,
         it.home ? false : it.tab ? (it.group === 'more' ? MORE_AUTH.includes(state.tab) : state.tab === it.tab) : false,
-        it.home ? () => $('public-back').click() : it.tab ? () => go(it.tab) : () => requestAct(it.act))));
+        it.home ? () => exitPublic() : it.tab ? () => go(it.tab) : () => requestAct(it.act))));
   }
   return h('nav', { class: 'tabs bottomnav', role: 'tablist', 'aria-label': 'Bagian' }, t('Masjid', 'dir', ICONS.mosque), t('Agenda', 'info', ICONS.agenda), t('Kalender', 'cal', ICONS.moon), t('Qur\u2019an', 'quran', ICONS.quran), t('Lainnya', 'more', ICONS.more, MORE.includes(state.tab)));
 }
@@ -136,11 +153,11 @@ function renderJadwal() {
 }
 
 function renderProfil() {
-  $('public-content').replaceChildren(tabs(), profilPage({ onSignIn: () => $('public-back').click(), onLogout: () => $('logout-btn').click() }));
+  $('public-content').replaceChildren(tabs(), profilPage({ onSignIn: () => exitPublic(), onLogout: () => $('logout-btn').click() }));
 }
 
 function renderMarket() {
-  $('public-content').replaceChildren(tabs(), marketPage({ onLogin: () => $('public-back').click() }));
+  $('public-content').replaceChildren(tabs(), marketPage({ onLogin: () => exitPublic() }));
 }
 
 function renderBuku() {
@@ -148,7 +165,7 @@ function renderBuku() {
 }
 
 function renderTanya() {
-  $('public-content').replaceChildren(tabs(), qaPage({ go, onSignIn: () => $('public-back').click() }));
+  $('public-content').replaceChildren(tabs(), qaPage({ go, onSignIn: () => exitPublic() }));
 }
 
 function renderAdzan() {
@@ -230,7 +247,7 @@ function renderCalendar() {
   box.replaceChildren(tabs(), v.el);
   v.mount();
 }
-$('public-back').addEventListener('click', () => onBack());
+$('public-back').addEventListener('click', () => backPublic());
 
 async function load(reset) {
   const box = $('public-content');

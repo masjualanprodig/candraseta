@@ -6,12 +6,12 @@ import { onSessionExpired, restoreSession, getSession, setSession, validToken } 
 import { signIn, signOut, signUp, phoneValid, passwordIssue, requestPasswordReset, updatePassword, readEmailLink } from './auth.js';
 import { loadAccess } from './permissions.js';
 import { initBranding, refreshIcons } from './branding-service.js';
-import { go, runAct, setHomeBack, flushAct } from './home-ui.js';
+import { go, runAct, setHomeBack, flushAct, initHomeMemory, forgetHome } from './home-ui.js';
 import { setNavKind, navItems } from './nav-config.js';
 import { acceptMyInvitations } from './mosque-service.js';
 import { renderAdmin } from './dashboard-admin.js';
 import { renderMember } from './dashboard-member.js';
-import { openDirectory } from './directory.js';
+import { openDirectory, exitPublic } from './directory.js';
 import { setProfilStart } from './profil-ui.js';
 import { icon, ICONS } from './feed-ui.js';
 import { armReminders } from './notif-service.js';
@@ -125,7 +125,8 @@ $('open-privacy').addEventListener('click', e => { e.preventDefault(); setProfil
    Jamaah: Beranda, Al-Qur'an, Masjid, Agenda, Akun | Admin Masjid: Beranda, Pengurus, Keuangan, Agenda, Lainnya
    Super Admin: Beranda, Masjid, Pengguna, Audit, Akun */
 const appTab = (id, label, ic, onclick, selected) => h('button', { id, class: 'atab', type: 'button', role: 'tab', 'aria-selected': String(!!selected), onclick }, icon(ic), h('span', {}, label));
-const toHome = () => { enterApp(); window.scrollTo(0, 0); };
+const toHome = () => { forgetHome(); enterApp(); window.scrollTo(0, 0); };
+initHomeMemory($('app-content'));
 const navTap = t => t.home ? toHome() : t.tab ? go(t.tab) : runAct(t.act);
 let navKindShown = '';
 function setNav(kind) {
@@ -137,8 +138,8 @@ setHomeBack(() => enterApp());
 setNav('jamaah');
 
 /* Logo/nama di pojok kiri atas = kembali ke beranda */
-$('home-app').addEventListener('click', e => { e.preventDefault(); enterApp(); window.scrollTo(0, 0); });
-$('home-public').addEventListener('click', e => { e.preventDefault(); $('public-back').click(); window.scrollTo(0, 0); });
+$('home-app').addEventListener('click', e => { e.preventDefault(); forgetHome(); enterApp(); window.scrollTo(0, 0); });
+$('home-public').addEventListener('click', e => { e.preventDefault(); exitPublic(); window.scrollTo(0, 0); });
 
 /* ===== Reset password ===== */
 $('reset-form').addEventListener('submit', async e => {
@@ -161,7 +162,7 @@ $('reset-form').addEventListener('submit', async e => {
 /* ===== Logout ===== */
 $('logout-btn').addEventListener('click', async () => {
   await signOut();
-  clearApp(); show('login');
+  forgetHome(); clearApp(); show('login');
 });
 
 /* ===== Tombol Kembali bawaan HP / peramban =====
@@ -170,9 +171,11 @@ let exitArmed = 0;
 const guard = () => { try { history.pushState({ baituna: 1 }, '', location.href); } catch (e) {} };
 const shown = id => { const e = $(id); return !!e && !e.hidden; };
 function handleBack() {
-  if (shown('view-public')) { $('public-back').click(); return true; }
+  // Dari dalam sebuah halaman (detail, layar pengelolaan): naik satu tingkat lewat tombol "←" di halaman itu, bukan loncat ke Beranda.
+  const inner = id => [...document.querySelectorAll('#' + id + ' button')].find(b => /^←/.test(b.textContent.trim()) && !b.disabled && b.offsetParent !== null);
+  if (shown('view-public')) { const b = inner('public-content'); if (b) b.click(); else $('public-back').click(); return true; }
   if (shown('view-signup')) { $('su-back').click(); return true; }
-  if (shown('view-app') && !$('hh')) { enterApp(); window.scrollTo(0, 0); return true; }
+  if (shown('view-app') && !$('hh')) { const b = inner('app-content'); if (b) b.click(); else enterApp(); return true; }
   return shown('view-splash') || shown('view-reset');
 }
 addEventListener('popstate', () => {

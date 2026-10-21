@@ -44,3 +44,16 @@ export function ask(cfg) {
     d.showModal();
   });
 }
+
+// Kembalikan posisi gulir setelah halaman selesai digambar (isi bisa datang menyusul, jadi dicoba beberapa kali).
+export function restoreScroll(y) {
+  const t = Math.max(0, Math.floor(Number(y) || 0));
+  if (!t) return;
+  let seen = null, stop = false;   // berhenti bila pengguna sudah menggulir sendiri
+  [0, 120, 350, 800].forEach(ms => setTimeout(() => {
+    if (stop) return;
+    if (seen !== null && Math.abs(window.scrollY - seen) > 5) { stop = true; return; }
+    if (Math.abs(window.scrollY - t) > 2) window.scrollTo(0, t);
+    seen = window.scrollY;
+  }, ms));
+}
