@@ -377,3 +377,5 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .sm-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .sm-act{display:flex;align-items:center;justify-content:center;gap:4px;min-height:44px;padding:0 10px;border:0;border-radius:999px;background:#DDEEE6;color:var(--green-deep);font:inherit;font-weight:700;font-size:.86rem;cursor:pointer}
 .sm-act.gold{background:linear-gradient(180deg,#F3D27A,#E3B24A);color:#3d2a05}.sm-act .ic{width:16px;height:16px;stroke:currentColor}
+/* v111: kotak peran sejajar dengan teks sapaan (bukan dengan foto profil) */
+.hh:not(.no-av) .hh-place{margin-left:68px;max-width:calc(100% - 68px)}
