@@ -20,6 +20,7 @@ import { icon, ICONS } from './feed-ui.js';
 import { renderKasManager } from './kas-ui.js';
 import { renderAuditLog } from './audit-ui.js';
 import { renderBrandingEditor } from './branding-ui.js';
+import { renderUserManager } from './pengguna-ui.js';
 import { homeBody } from './home-builder.js';
 import { renderHomeBuilder } from './home-builder-ui.js';
 import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, summaryCard, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
@@ -85,10 +86,12 @@ export async function renderAdmin(box, view = 'home') {
   const openAudit = () => renderAuditLog(box, { onBack: () => renderAdmin(box), mosques: list.map(m => ({ id: m.id, name: m.name })) });
   const openMarket = () => renderMarketManager(box, () => renderAdmin(box));
   const openBrand = () => renderBrandingEditor(box, () => renderAdmin(box));
+  const openUsers = () => renderUserManager(box, { onBack: () => renderAdmin(box), mosques: list });
   const openKonten = () => box.replaceChildren(h('section', { class: 'konten', id: 'konten' },
     h('button', { class: 'btn-sm ghost', id: 'konten-back', type: 'button', onclick: () => renderAdmin(box) }, '← Kembali'), h('h2', {}, 'Editor'),
     h('div', { class: 'actions' },
       h('button', { class: 'act', id: 'act-beranda', type: 'button', onclick: () => renderHomeBuilder(box, () => openKonten()) }, icon(ICONS.gear), h('span', {}, 'Tampilan Beranda (Builder)')),
+      h('button', { class: 'act', id: 'act-pengguna', type: 'button', onclick: () => renderUserManager(box, { onBack: () => openKonten(), mosques: list }) }, icon(ICONS.users), h('span', {}, 'Pengguna')),
       h('button', { class: 'act', type: 'button', onclick: () => renderWorldManager(box, () => openKonten()) }, icon(ICONS.globe), h('span', {}, 'Galeri masjid dunia')),
       h('button', { class: 'act', type: 'button', onclick: () => renderHistoryManager(box, () => openKonten()) }, icon(ICONS.book), h('span', {}, 'Sejarah Islam')),
       h('button', { class: 'act', type: 'button', onclick: () => renderRukunManager(box, () => openKonten()) }, icon(ICONS.book), h('span', {}, 'Rukun Islam & Iman')),
@@ -110,6 +113,7 @@ export async function renderAdmin(box, view = 'home') {
     { key: 'open-audit', id: 'adm-audit', onclick: openAudit },
     { key: 'open-tampilan', id: 'adm-tampilan', onclick: openBrand },
     { key: 'open-notif', id: 'adm-notif', onclick: () => go('notif') },
+    { key: 'open-pengguna', id: 'adm-pengguna', onclick: openUsers },
     { key: 'open-more', id: 'qa-more', onclick: () => go('more') }]);
   if (waiting) { const t = grid.querySelector('#qa-masjid .qk-ic'); if (t) t.append(badge(waiting)); }
   if (view === 'masjid') {
@@ -136,7 +140,7 @@ export async function renderAdmin(box, view = 'home') {
     mgmt: grid,
     stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', items: [
         { ic: ICONS.mosque, value: list.length, label: 'Masjid Terdaftar' }, { ic: ICONS.shield, value: count('active'), label: 'Masjid Aktif' },
-        { ic: ICONS.clock, value: count('pending'), label: 'Menunggu Verifikasi' }, { ic: ICONS.user, value: count('rejected') + count('suspended'), label: 'Ditolak / Nonaktif' }] }) };
+        { ic: ICONS.clock, value: count('pending'), label: 'Menunggu Verifikasi' }, { ic: ICONS.mosqueoff, value: count('rejected') + count('suspended'), label: 'Ditolak / Nonaktif' }] }) };
   const body = await homeBody('super', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-super' },
     greetingHeader({ title: who.name || 'Super Admin', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', place: { name: 'Super Admin BAITUNA', ic: ICONS.shield }, name: who.name, email: who.email, avatar: who.avatar || undefined }),

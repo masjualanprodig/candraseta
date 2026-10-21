@@ -40,6 +40,8 @@ export const ICONS = {
   news: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 12.5h8M8 16h5"/>',
   share: '<circle cx="6.5" cy="12" r="2.2"/><circle cx="17.5" cy="6.5" r="2.2"/><circle cx="17.5" cy="17.5" r="2.2"/><path d="M8.5 11l7-3.5M8.5 13l7 3.5"/>',
   home: '<path d="M4 11.5L12 4l8 7.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/>',
+  users: '<circle cx="9" cy="8.5" r="3.3"/><path d="M3 20c.4-3.6 3-5.6 6-5.6s5.6 2 6 5.6"/><path d="M15.5 5.4a3.2 3.2 0 0 1 0 6M17 14.7c2.2.6 3.7 2.4 4 5.3"/>',
+  mosqueoff: '<path d="M12 3c1.2 1.3 1.8 2.4 1.8 3.6M5 20v-8.5a7 7 0 0 1 14 0V20M3.5 20h17M10 20v-4a2 2 0 0 1 4 0v4"/><path d="M4 4l16 16"/>',
   user: '<circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c.6-3.6 3.7-5.7 7.5-5.7s6.9 2.1 7.5 5.7"/>',
   bookmark: '<path d="M6.5 4h11a1 1 0 0 1 1 1v15l-6.5-4-6.5 4V5a1 1 0 0 1 1-1z"/>',
   progress: '<path d="M4 19V9M10 19V5M16 19v-7M21 19H3"/>',

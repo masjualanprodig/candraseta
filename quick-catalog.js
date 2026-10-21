@@ -9,5 +9,5 @@ export const CATALOG = {
   'open-market': ['Pasar Umat', ICONS.market], 'open-more': ['Lainnya', ICONS.more],
   'open-pengurus': ['Pengurus', ICONS.user], 'open-keuangan': ['Keuangan', ICONS.zakat], 'open-profilmasjid': ['Profil Masjid', ICONS.mosque],
   'open-audit': ['Jejak Audit', ICONS.shield], 'open-pengumuman': ['Pengumuman', ICONS.horn],
-  'open-datamasjid': ['Data Masjid', ICONS.mosque], 'open-pengguna': ['Pengguna', ICONS.user], 'open-konten': ['Editor Konten', ICONS.book], 'open-tampilan': ['Pengaturan Tampilan', ICONS.gear], 'open-notif': ['Notifikasi', ICONS.bell]
+  'open-datamasjid': ['Data Masjid', ICONS.mosque], 'open-pengguna': ['Pengguna', ICONS.users], 'open-konten': ['Editor Konten', ICONS.book], 'open-tampilan': ['Pengaturan Tampilan', ICONS.gear], 'open-notif': ['Notifikasi', ICONS.bell]
 };

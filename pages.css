@@ -379,3 +379,16 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .sm-act.gold{background:linear-gradient(180deg,#F3D27A,#E3B24A);color:#3d2a05}.sm-act .ic{width:16px;height:16px;stroke:currentColor}
 /* v111: kotak peran sejajar dengan teks sapaan (bukan dengan foto profil) */
 .hh:not(.no-av) .hh-place{margin-left:68px;max-width:calc(100% - 68px)}
+
+/* ===== v113: Pengguna (Super Admin) ===== */
+.us-list{display:grid;gap:10px;margin-top:8px}
+.us-row{display:grid;gap:4px}
+.us-r1{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.us-name{font-size:.98rem;color:var(--green-deep);overflow-wrap:anywhere}
+.us-mail{font-size:.82rem;overflow-wrap:anywhere}
+.us-meta{font-size:.8rem;color:var(--text-2)}
+.us-badge{display:inline-flex;align-items:center;min-height:26px;padding:2px 10px;border-radius:999px;font-size:.74rem;font-weight:700;background:#E9EFEA;color:var(--text-2)}
+.us-badge.us-admin{background:#DDEEE6;color:var(--green-deep)}.us-badge.us-super{background:#F6E7B8;color:#5F4510}
+.us-row .row-btns,.us-pick .row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.us-pick{display:grid;gap:6px;margin-top:6px}
+#us-q{margin:8px 0}

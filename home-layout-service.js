@@ -58,7 +58,7 @@ export const DEFAULTS = {
     buku: { ...PROMO.buku, text: 'Kelola koleksi buku Islami umat.', cta: 'Kelola Buku' },
     pasar: { ...PROMO.pasar, text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi' },
     tasbih: { title: 'Tasbih Digital' }, jadwal: { title: 'Jadwal Salat Hari Ini' },
-    mgmt: { title: 'Manajemen Platform', items: [['qa-masjid', 'Data Masjid', 'open-datamasjid'], ['qa-konten', 'Editor Konten', 'open-konten'], ['adm-market', 'Verifikasi Pasar', 'open-market'], ['adm-audit', 'Jejak Audit', 'open-audit'], ['adm-tampilan', 'Pengaturan Tampilan', 'open-tampilan'], ['adm-notif', 'Notifikasi', 'open-notif'], ['qa-more', 'Lainnya', 'open-more']] },
+    mgmt: { title: 'Manajemen Platform', items: [['qa-masjid', 'Data Masjid', 'open-datamasjid'], ['qa-konten', 'Editor Konten', 'open-konten'], ['adm-market', 'Verifikasi Pasar', 'open-market'], ['adm-audit', 'Jejak Audit', 'open-audit'], ['adm-tampilan', 'Pengaturan Tampilan', 'open-tampilan'], ['adm-notif', 'Notifikasi', 'open-notif'], ['adm-pengguna', 'Pengguna', 'open-pengguna'], ['qa-more', 'Lainnya', 'open-more']] },
     stats: { title: 'Statistik Platform' }
   }
 };
