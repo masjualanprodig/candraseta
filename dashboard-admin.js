@@ -22,7 +22,7 @@ import { renderAuditLog } from './audit-ui.js';
 import { renderBrandingEditor } from './branding-ui.js';
 import { homeBody } from './home-builder.js';
 import { renderHomeBuilder } from './home-builder-ui.js';
-import { greetingHeader, bannerCarousel, promoBanner, prayerCard, quickGrid, statGrid, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
+import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, summaryCard, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
 
 const ACTIONS = {
   approve: { title: 'Aktifkan masjid?', text: 'Masjid akan tampil sebagai masjid terverifikasi. Pastikan identitasnya sudah diperiksa.', reason: false, to: 'active', done: 'Masjid diaktifkan.' },
@@ -131,13 +131,14 @@ export async function renderAdmin(box, view = 'home') {
       { art: 'banner_kas', title: 'Verifikasi Masjid', text: waiting ? waiting + ' masjid menunggu verifikasi Anda.' : 'Tidak ada masjid yang menunggu verifikasi.', cta: 'Buka Daftar Masjid', onclick: openMasjid, tone: 'gold' }]),
     buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Kelola koleksi buku Islami umat.', cta: 'Kelola Buku', onclick: () => go('buku') }),
     pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi', onclick: openMarket }),
+    tasbih: tasbihCard(),
     jadwal: prayerCard(),
     mgmt: grid,
-    stats: h('section', { class: 'sgw' }, sectionHead('Statistik Platform'), statGrid([
-        [ICONS.mosque, list.length, 'Masjid terdaftar'], [ICONS.shield, count('active'), 'Masjid aktif'],
-        [ICONS.clock, count('pending'), 'Menunggu verifikasi'], [ICONS.user, count('rejected') + count('suspended'), 'Ditolak / nonaktif']])) };
+    stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', items: [
+        { ic: ICONS.mosque, value: list.length, label: 'Masjid Terdaftar' }, { ic: ICONS.shield, value: count('active'), label: 'Masjid Aktif' },
+        { ic: ICONS.clock, value: count('pending'), label: 'Menunggu Verifikasi' }, { ic: ICONS.user, value: count('rejected') + count('suspended'), label: 'Ditolak / Nonaktif' }] }) };
   const body = await homeBody('super', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-super' },
-    greetingHeader({ title: who.name || 'Super Admin', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', chip: 'Super Admin', name: who.name, email: who.email, avatar: who.avatar || undefined }),
+    greetingHeader({ title: who.name || 'Super Admin', sub: 'Super Admin BAITUNA', name: who.name, email: who.email, avatar: who.avatar || undefined }),
     h('div', { class: 'home-body' }, ...body)));
 }

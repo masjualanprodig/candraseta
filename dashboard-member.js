@@ -9,7 +9,7 @@ import { renderPostsManager } from './posts-ui.js';
 import { renderKasManager } from './kas-ui.js';
 import { ICONS } from './feed-ui.js';
 import { homeBody } from './home-builder.js';
-import { greetingHeader, bannerCarousel, promoBanner, prayerCard, quickGrid, articleSection, whoAmI, go, registerActs } from './home-ui.js';
+import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, articleSection, whoAmI, go, registerActs } from './home-ui.js';
 
 export async function renderMember(box, memberships) {
   registerActs({});
@@ -36,6 +36,7 @@ export async function renderMember(box, memberships) {
       { art: 'banner_sunnah', title: 'Amalan Sunnah Harian', text: 'Pengingat amalan sunnah untuk dibiasakan setiap hari.', cta: 'Lihat Amalan', onclick: () => go('sunnah') }]),
     buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
     pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
+    tasbih: tasbihCard(),
     jadwal: prayerCard(),
     akses: quickGrid('Akses Cepat', [
       { key: 'open-quran', id: 'qa-quran', onclick: () => go('quran') },
@@ -60,7 +61,7 @@ export async function renderMember(box, memberships) {
   }
   const body = await homeBody('jamaah', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-jamaah' },
-    greetingHeader({ title: who.name || 'Jamaahku', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', chip: manage ? (manage.isKetua ? 'Ketua Takmir' : 'Bendahara') + ' · ' + mosque.name : undefined,
+    greetingHeader({ title: who.name || 'Jamaahku', sub: manage ? (manage.isKetua ? 'Ketua Takmir ' : 'Bendahara ') + mosque.name : 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.',
       name: who.name, email: who.email, avatar: who.avatar || false }),
     h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);

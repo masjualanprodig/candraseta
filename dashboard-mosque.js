@@ -14,7 +14,7 @@ import { renderKasManager } from './kas-ui.js';
 import { renderAuditLog } from './audit-ui.js';
 import { list as listAudit, actionLabel } from './audit-service.js';
 import { homeBody } from './home-builder.js';
-import { greetingHeader, bannerCarousel, promoBanner, prayerCard, quickGrid, summaryCard, agendaCard, announceCard, activityList, whoAmI, go, registerActs, scrollToEl, BOLT } from './home-ui.js';
+import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, summaryCard, agendaCard, announceCard, activityList, whoAmI, go, registerActs, scrollToEl, BOLT } from './home-ui.js';
 import * as K from './kas-service.js';
 import { isUpcoming, dateParts, fmtTimes, fmtWhen } from './post-time.js';
 
@@ -209,12 +209,14 @@ export async function renderMosque(box, mosqueId, view = 'home') {
       { art: 'banner_kas', title: 'Catat Kas dengan Rapi', text: 'Buku kas tidak bisa diubah diam-diam; koreksi tercatat sebagai baris baru.', cta: 'Buka Kas', onclick: toKas, tone: 'gold' }]),
     buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
     pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
+    tasbih: tasbihCard(),
     jadwal: prayerCard(),
-    ops: posts ? summaryCard({ id: 'ops', title: 'Ringkasan Operasional Masjid', onAll: toPosts, allLabel: 'Lihat Detail', items: [
-        { ic: ICONS.user, value: team.length, label: 'Pengurus' },
-        { ic: ICONS.agenda, value: upcoming.length, label: 'Kegiatan Mendatang' },
-        { ic: ICONS.horn, value: infos.length, label: 'Pengumuman Aktif' }] }) : '',
-    fin: rep ? summaryCard({ id: 'fin', title: 'Ringkasan Keuangan Masjid', sub: K.monthLabel(rep.month || K.monthKey()), onAll: toKas, allLabel: 'Lihat Laporan', hint: (!Number(rep.masuk) && !Number(rep.keluar) && !Number(rep.saldo_akhir)) ? 'Belum ada catatan kas bulan ini.' : '', hintLabel: 'Catat Kas', onHint: toKas, items: [
+    ops: posts ? summaryCard({ id: 'ops', title: 'Ringkasan Operasional', onAll: toPosts, allLabel: 'Lihat Detail', items: [
+        { ic: ICONS.user, value: team.length, label: 'Pengurus Aktif' },
+        { ic: ICONS.agenda, value: upcoming.length, label: 'Agenda Mendatang' },
+        { ic: ICONS.horn, value: infos.length, label: 'Pengumuman Aktif' },
+        { ic: ICONS.news, value: allInvites.filter(i => i.mosque_id === mosqueId && i.status === 'pending').length, label: 'Undangan Pending' }] }) : '',
+    fin: rep ? summaryCard({ id: 'fin', title: 'Ringkasan Keuangan Masjid', sub: K.monthLabel(rep.month || K.monthKey()), onAll: toKas, allLabel: 'Lihat Laporan', hint: (!Number(rep.masuk) && !Number(rep.keluar) && !Number(rep.saldo_akhir)) ? 'Belum ada catatan kas bulan ini.' : '', actions: [{ id: 'fin-catat', label: 'Catat Kas', gold: true, onclick: toKas }, { id: 'fin-lapor', label: 'Lihat Laporan', onclick: toKas }], items: [
         { ic: ICONS.zakat, value: K.money(rep.masuk), label: 'Kas Masuk', tone: 'tin' },
         { ic: ICONS.zakat, value: K.money(rep.keluar), label: 'Kas Keluar', tone: 'tout' },
         { ic: ICONS.zakat, value: K.money(rep.saldo_akhir), label: 'Saldo Kas' }] }) : '',
@@ -236,7 +238,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     tim: teamTop };
   const body = await homeBody('admin', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
-    greetingHeader({ title: who.name || mosque.name, sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', chip: who.name ? 'Admin ' + mosque.name : 'Admin Masjid', name: who.name, email: who.email, avatar: who.avatar || url || undefined }),
+    greetingHeader({ title: who.name || mosque.name, sub: 'Admin ' + mosque.name, place: { name: mosque.name, sub: [mosque.city, mosque.province].filter(Boolean).join(', ') || 'Lokasi belum diisi', onclick: goEdit }, name: who.name, email: who.email, avatar: who.avatar || url || undefined }),
     h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
 }

@@ -22,11 +22,11 @@ export const LINKS = {
 
 // Bagian bawaan tiap peran, urutan = tampilan bawaan. required = tak boleh dihapus (agar tidak kehilangan akses menu).
 export const BUILTINS = {
-  jamaah: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['kelola', 'Kelola Masjid (hanya pengurus)'], ['jadwal', 'Jadwal Salat'], ['akses', 'Akses Cepat'], ['anggota', 'Keanggotaan (hanya anggota)'], ['artikel', 'Artikel Terbaru']],
-  admin: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['jadwal', 'Jadwal Salat'], ['ops', 'Ringkasan Operasional'], ['fin', 'Ringkasan Keuangan'], ['agenda', 'Agenda Terdekat'], ['info', 'Pengumuman'], ['akses', 'Akses Cepat'], ['aktivitas', 'Aktivitas Terbaru'], ['daftar', 'Daftarkan Masjid Baru'], ['tim', 'Pengurus Masjid']],
-  super: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['jadwal', 'Jadwal Salat'], ['mgmt', 'Manajemen Platform'], ['stats', 'Statistik Platform']]
+  jamaah: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['tasbih', 'Tasbih Digital'], ['kelola', 'Kelola Masjid (hanya pengurus)'], ['jadwal', 'Jadwal Salat'], ['akses', 'Akses Cepat'], ['anggota', 'Keanggotaan (hanya anggota)'], ['artikel', 'Artikel Terbaru']],
+  admin: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['tasbih', 'Tasbih Digital'], ['ops', 'Ringkasan Operasional'], ['fin', 'Ringkasan Keuangan'], ['jadwal', 'Jadwal Salat'], ['agenda', 'Agenda Terdekat'], ['info', 'Pengumuman'], ['akses', 'Akses Cepat'], ['aktivitas', 'Aktivitas Terbaru'], ['daftar', 'Daftarkan Masjid Baru'], ['tim', 'Pengurus Masjid']],
+  super: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['tasbih', 'Tasbih Digital'], ['mgmt', 'Manajemen Platform'], ['stats', 'Statistik Platform'], ['jadwal', 'Jadwal Salat']]
 };
-export const REQUIRED = { jamaah: [], admin: ['akses'], super: ['mgmt'] };
+export const REQUIRED = { jamaah: ['tasbih'], admin: ['akses', 'tasbih'], super: ['mgmt', 'tasbih'] };
 export const REQUIRED_ITEMS = { 'super:mgmt': ['qa-konten'] };   // menu yang tak boleh disembunyikan
 
 // Nilai bawaan tiap bagian (untuk mengisi editor dan pratinjau). Hanya yang berbeda dari bawaan yang disimpan.
@@ -42,14 +42,14 @@ export const DEFAULTS = {
       SL('Amalan Sunnah Harian', 'Pengingat amalan sunnah untuk dibiasakan setiap hari.', 'Lihat Amalan', 'sunnah', 'green', 'banner_sunnah')] },
     buku: PROMO.buku, pasar: PROMO.pasar,
     akses: { title: 'Akses Cepat', items: [['qa-quran', 'Al-Qur’an', 'open-quran'], ['qa-jadwal', 'Jadwal Salat', 'open-jadwal'], ['qa-nearby', 'Masjid Terdekat', 'open-nearby'], ['qa-doa', 'Doa Harian', 'open-doa'], ['qa-zakat', 'Zakat', 'open-zakat'], ['qa-agenda', 'Agenda', 'open-agenda'], ['qa-market', 'Pasar Umat', 'open-market'], ['qa-more', 'Lainnya', 'open-more']] },
-    kelola: { title: 'Kelola Masjid' }, jadwal: { title: 'Jadwal Salat Hari Ini' }, anggota: { title: 'Keanggotaan Anda' }, artikel: { title: 'Artikel Terbaru' }
+    tasbih: { title: 'Tasbih Digital' }, kelola: { title: 'Kelola Masjid' }, jadwal: { title: 'Jadwal Salat Hari Ini' }, anggota: { title: 'Keanggotaan Anda' }, artikel: { title: 'Artikel Terbaru' }
   },
   admin: {
     banner: { slides: [SL('(Nama masjid) Bersama BAITUNA', 'Kelola masjid lebih mudah dan profesional.', 'Kelola Masjid', '', 'green', 'banner_masjid'),
       SL('Catat Kas dengan Rapi', 'Buku kas tidak bisa diubah diam-diam; koreksi tercatat sebagai baris baru.', 'Buka Kas', '', 'gold', 'banner_kas')] },
     buku: PROMO.buku, pasar: PROMO.pasar,
     akses: { title: 'Akses Cepat', items: [['qa-pengurus', 'Pengurus', 'open-pengurus'], ['open-kas', 'Keuangan', 'open-keuangan'], ['open-posts', 'Agenda', 'open-agenda'], ['open-info', 'Pengumuman', 'open-pengumuman'], ['open-edit', 'Profil Masjid', 'open-profilmasjid'], ['open-audit', 'Jejak Audit', 'open-audit'], ['qa-market', 'Pasar Umat', 'open-market'], ['qa-more', 'Lainnya', 'open-more']] },
-    jadwal: { title: 'Jadwal Salat Hari Ini' }, ops: { title: 'Ringkasan Operasional Masjid' }, fin: { title: 'Ringkasan Keuangan Masjid' },
+    tasbih: { title: 'Tasbih Digital' }, jadwal: { title: 'Jadwal Salat Hari Ini' }, ops: { title: 'Ringkasan Operasional' }, fin: { title: 'Ringkasan Keuangan Masjid' },
     agenda: { title: 'Agenda Terdekat' }, info: { title: 'Pengumuman' }, aktivitas: { title: 'Aktivitas Terbaru' }, daftar: { title: 'Daftarkan Masjid Baru' }, tim: { title: 'Pengurus Masjid' }
   },
   super: {
@@ -57,8 +57,8 @@ export const DEFAULTS = {
       SL('Verifikasi Masjid', '(Jumlah masjid menunggu verifikasi)', 'Buka Daftar Masjid', '', 'gold', 'banner_kas')] },
     buku: { ...PROMO.buku, text: 'Kelola koleksi buku Islami umat.', cta: 'Kelola Buku' },
     pasar: { ...PROMO.pasar, text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi' },
-    jadwal: { title: 'Jadwal Salat Hari Ini' },
-    mgmt: { title: 'Manajemen Platform', items: [['qa-masjid', 'Data Masjid', 'open-datamasjid'], ['qa-konten', 'Editor', 'open-konten'], ['adm-market', 'Verifikasi Pasar', 'open-market'], ['adm-audit', 'Jejak Audit', 'open-audit'], ['adm-tampilan', 'Tampilan', 'open-tampilan'], ['adm-notif', 'Notifikasi', 'open-notif'], ['qa-more', 'Lainnya', 'open-more']] },
+    tasbih: { title: 'Tasbih Digital' }, jadwal: { title: 'Jadwal Salat Hari Ini' },
+    mgmt: { title: 'Manajemen Platform', items: [['qa-masjid', 'Data Masjid', 'open-datamasjid'], ['qa-konten', 'Editor Konten', 'open-konten'], ['adm-market', 'Verifikasi Pasar', 'open-market'], ['adm-audit', 'Jejak Audit', 'open-audit'], ['adm-tampilan', 'Pengaturan Tampilan', 'open-tampilan'], ['adm-notif', 'Notifikasi', 'open-notif'], ['qa-more', 'Lainnya', 'open-more']] },
     stats: { title: 'Statistik Platform' }
   }
 };
@@ -136,8 +136,10 @@ export function cleanBlocks(role, raw) {
       out.push({ t: 'text', style: ['h1', 'h2', 'p'].includes(b.style) ? b.style : 'p', align: ['left', 'center', 'right'].includes(b.align) ? b.align : 'left', text: str(b.text, LIMITS.para) });
     }
   }
+  // Tasbih Digital (bagian baru): susunan lama yang belum memuatnya disisipkan tepat setelah Pasar Umat
+  if (out.length && known.has('tasbih') && !seen.has('tasbih')) { seen.add('tasbih'); const i = out.findIndex(b => b.t === 'b' && b.id === 'pasar'); out.splice(i >= 0 ? i + 1 : out.length, 0, { t: 'b', id: 'tasbih' }); }
   // bagian wajib selalu ada, agar menu penting tidak hilang
-  for (const id of REQUIRED[role] || []) if (!seen.has(id)) out.push({ t: 'b', id });
+  for (const id of REQUIRED[role] || []) if (id !== 'tasbih' && !seen.has(id)) out.push({ t: 'b', id });
   return out.length ? out : null;
 }
 

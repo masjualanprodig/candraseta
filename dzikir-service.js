@@ -39,6 +39,8 @@ export const bump = (cur, target) => { const c = Math.max(0, Math.floor(Number(c
 export const undo = cur => Math.max(0, Math.floor(Number(cur) || 0) - 1);
 export const clampCount = (v, target) => { const n = Math.max(0, Math.floor(Number(v) || 0)); return target > 0 ? Math.min(n, target) : n; };
 
+// Penanda satu kali: "Buka Penuh" di beranda membuka halaman Dzikir langsung di tab Tasbih.
+export const intent = { tasbih: false };
 const PKEY = 'baituna.dzikir.v1', TKEY = 'baituna.tasbih.v1', SKEY = 'baituna.sound.v1';
 // Hitungan dzikir pagi/petang disimpan di perangkat dan otomatis kosong saat ganti hari (jam perangkat).
 export function loadProgress(now = new Date()) {

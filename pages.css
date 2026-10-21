@@ -346,3 +346,34 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .bn-slide.bn-link{cursor:pointer}.bn-slide.bn-link:focus-visible{outline:3px solid var(--gold,#c9a227);outline-offset:-3px}
 .bn-slide.bn-link{cursor:pointer}
 .bn-slide.bn-link:focus-visible{outline:3px solid var(--gold,#c9a227);outline-offset:-3px}
+
+/* ===== v108: Tasbih Digital di beranda, kartu masjid di header, ringkasan 4 kolom ===== */
+.tb{border-radius:var(--r-banner);background:linear-gradient(135deg,#FBFAF3 0%,#F3F6EC 100%);border:1px solid var(--border);box-shadow:var(--shadow-md);padding:14px 14px 12px}
+.tb .sh{margin-bottom:8px;align-items:flex-start}.tb .sh h2{font-size:1.05rem}.tb .sh-all{font-size:.76rem;white-space:nowrap}
+.tb-sub{margin:2px 0 0;font-size:.78rem;color:var(--text-2)}
+.tb-main{display:grid;grid-template-columns:40px minmax(104px,116px) 1fr;gap:8px;align-items:center}
+.tb-art{display:block;width:40px}.tb-art svg{width:100%;height:auto;display:block}
+.tb-big{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#0b7a63,var(--green-deep) 70%);color:#fff;box-shadow:0 8px 20px rgba(6,75,61,.3);font:inherit;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.tb-big:active{transform:scale(.97)}.tb-big.hit{background:radial-gradient(circle at 35% 30%,#e8b54a,var(--gold) 60%,#a9740f)}
+.tb-n{font-size:2.3rem;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}.tb-l{margin-top:2px;font-size:.84rem;opacity:.88}
+.tb-side{display:grid;gap:6px;min-width:0}.tb-tg{font-size:.9rem;color:var(--green-deep)}.tb-pg{font-size:1.12rem;color:var(--green-deep);font-variant-numeric:tabular-nums}
+.tb-bar{height:8px;border-radius:99px;background:#DCE9E1;overflow:hidden}.tb-bar i{display:block;height:100%;width:0;background:var(--emerald);border-radius:99px;transition:width .2s}
+.tb-ctl{display:flex;gap:5px}
+.tb-btn{min-width:44px;min-height:44px;padding:0 9px;border-radius:999px;border:1.5px solid var(--green-deep);background:#fff;color:var(--green-deep);font:inherit;font-weight:700;font-size:.82rem;cursor:pointer;display:inline-grid;place-items:center}
+.tb-btn:disabled{opacity:.45;cursor:default}.tb-gear{padding:0;width:44px}.tb-gear .ic{width:18px;height:18px;stroke:var(--green-deep)}
+.tb-pre{display:grid;grid-template-columns:1fr 1fr 1fr 1.6fr;gap:8px;margin-top:10px}
+.tb-chip{min-height:44px;border-radius:999px;border:0;background:#fff;color:var(--green-deep);font:inherit;font-weight:700;font-size:.86rem;cursor:pointer;box-shadow:inset 0 0 0 1px var(--border)}
+.tb-chip[aria-pressed="true"]{background:var(--green-deep);color:#fff;box-shadow:none}
+.tb-opts{margin-top:8px;display:grid;gap:4px}
+@media (max-width:340px){.tb-main{grid-template-columns:minmax(104px,116px) 1fr}.tb-art{display:none}}
+/* header: kartu masjid (Admin Masjid) */
+.hh.has-place{padding-bottom:150px}
+.hh-place{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:8px 12px;border:0;border-radius:16px;background:rgba(255,255,255,.95);color:var(--text);font:inherit;text-align:left;cursor:pointer;text-shadow:none;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+.hh-pi{flex:none;display:grid;place-items:center;width:34px;height:34px}.hh-pi .ic{width:28px;height:28px;stroke:var(--green-deep)}
+.hh-pl{flex:1;min-width:0;display:grid;line-height:1.25}.hh-pl b{font-size:.9rem;color:var(--green-deep);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hh-pl small{font-size:.76rem;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hh-place>.ic{flex:none;width:18px;height:18px;stroke:var(--text-2)}
+/* ringkasan: 4 kolom + tombol aksi */
+.sm-row.c4{grid-template-columns:repeat(4,1fr)}.sm-row.c4 .sm-i small{font-size:.66rem}
+.sm-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.sm-act{display:flex;align-items:center;justify-content:center;gap:4px;min-height:44px;padding:0 10px;border:0;border-radius:999px;background:#DDEEE6;color:var(--green-deep);font:inherit;font-weight:700;font-size:.86rem;cursor:pointer}
+.sm-act.gold{background:linear-gradient(180deg,#F3D27A,#E3B24A);color:#3d2a05}.sm-act .ic{width:16px;height:16px;stroke:currentColor}

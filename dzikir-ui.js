@@ -4,7 +4,7 @@
 // Hitungan hanya disimpan di perangkat pengguna (tidak dikirim ke server).
 import { h, toast, hint, ask } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
-import { SESSIONS, KINDS, listDhikr, createDhikr, updateDhikr, deleteDhikr, bump, undo, clampCount, loadProgress, saveProgress, loadTasbih, saveTasbih, loadSound, saveSound } from './dzikir-service.js';
+import { intent, SESSIONS, KINDS, listDhikr, createDhikr, updateDhikr, deleteDhikr, bump, undo, clampCount, loadProgress, saveProgress, loadTasbih, saveTasbih, loadSound, saveSound } from './dzikir-service.js';
 import { canSound, tick, chime } from './dzikir-sound.js';
 import { listSurahs, loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
@@ -16,7 +16,8 @@ const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.sta
 export function dzikirPage() {
   const wrap = h('div', { class: 'dzikir' });
   applyReadingPrefs(wrap);
-  let tab = new Date().getHours() < 12 ? 'pagi' : 'petang';
+  let tab = intent.tasbih ? 'tasbih' : new Date().getHours() < 12 ? 'pagi' : 'petang';
+  intent.tasbih = false;
   let items = null, surahs = null, loadErr = null;
   let prog = loadProgress();
   let sound = loadSound();

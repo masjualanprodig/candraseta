@@ -1,7 +1,7 @@
 // BAITUNA - home-ui.js (v72)
 // Komponen bersama beranda tiap peran (Design System v1.2): header sapaan, banner, kartu jadwal salat,
 // Akses Cepat, daftar artikel, kartu statistik, dan daftar aktivitas. Semua data berasal dari fitur yang sudah ada.
-import { h } from './ui.js';
+import { h, ask } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
 import { openDirectory } from './directory.js';
 import { loadLoc, offsetFor, clock } from './jadwal-ui.js';
@@ -10,6 +10,8 @@ import { publicPhotoUrl, ARTICLE_BUCKET, getSession, request } from './supabase.
 import { initials, getMyProfile, cleanName, avatarUrl } from './profile-service.js';
 import { CATALOG } from './quick-catalog.js';
 import { refreshIcons } from './branding-service.js';
+import { intent, undo, loadTasbih, saveTasbih, loadSound, saveSound } from './dzikir-service.js';
+import { canSound, tick, chime } from './dzikir-sound.js';
 
 let backFn = () => {};
 export const setHomeBack = fn => { backFn = fn; };
@@ -21,17 +23,19 @@ export const sectionHead = (title, onAll, id, ic, allLabel = 'Lihat Semua') => h
 
 /* ===== Header sapaan ===== */
 // avatar: undefined = inisial nama, false = tanpa avatar, string = alamat foto (mis. foto masjid)
-export function greetingHeader({ title, sub, chip, name, email, avatar }) {
+// place: {name, sub, onclick} = kartu masjid di dalam header (Admin Masjid).
+export function greetingHeader({ title, sub, chip, name, email, avatar, place }) {
   const av = avatar === false ? '' : h('button', { class: 'hh-av' + (avatar ? ' has-img' : ''), type: 'button', id: 'hh-av', 'aria-label': 'Akun saya', onclick: () => go('profil') },
     avatar ? h('img', { src: avatar, alt: '' }) : initials(name, email));
-  return h('header', { class: 'hh' + (av ? '' : ' no-av'), id: 'hh' },
+  return h('header', { class: 'hh' + (av ? '' : ' no-av') + (place ? ' has-place' : ''), id: 'hh' },
     h('div', { class: 'hh-row' }, av,
       h('div', { class: 'hh-txt' },
         h('span', { class: 'hh-hi' }, 'Assalamu’alaikum'),
         h('h1', { class: 'hh-title', id: 'hh-title' }, title),
         sub ? h('p', { class: 'hh-sub' }, sub) : '',
         chip ? h('span', { class: 'hh-chip', id: 'hh-chip' }, chip) : ''),
-      h('button', { class: 'hh-bell', type: 'button', id: 'hh-bell', 'aria-label': 'Notifikasi', onclick: () => go('notif') }, icon(ICONS.bell))));
+      h('button', { class: 'hh-bell', type: 'button', id: 'hh-bell', 'aria-label': 'Notifikasi', onclick: () => go('notif') }, icon(ICONS.bell))),
+    place ? h('button', { class: 'hh-place', type: 'button', id: 'hh-place', onclick: place.onclick }, h('span', { class: 'hh-pi' }, icon(ICONS.mosque)), h('span', { class: 'hh-pl' }, h('b', {}, place.name), place.sub ? h('small', {}, place.sub) : ''), icon(ICONS.chev)) : '');
 }
 
 /* ===== Banner utama (geser ke samping; titik penanda) ===== */
@@ -75,6 +79,53 @@ export function bannerCarousel(slides, { id = 'banner', speed = 0 } = {}) {
 }
 export const promoBanner = ({ title, text, cta, onclick, id, art }) =>
   h('section', { class: 'pb', id, 'data-art': art || '' }, h('div', { class: 'pb-txt' }, h('h2', {}, title), h('p', {}, text), h('button', { class: 'bn-cta gold', type: 'button', onclick }, cta, icon(ICONS.chev))));
+
+/* ===== Tasbih Digital (hitungan hanya di perangkat; sama dengan tab Tasbih di Dzikir) ===== */
+const BEADS = '<svg viewBox="0 0 64 120" aria-hidden="true" focusable="false"><path d="M32 6c-22 8-26 44-6 66 8 9 14 16 12 30" fill="none" stroke="#7A4A22" stroke-width="2"/>' +
+  [[28,10],[16,20],[10,34],[10,48],[16,62],[26,73],[33,84],[34,96]].map(([x, y]) => '<circle cx="' + x + '" cy="' + y + '" r="7.5" fill="#A8622E" stroke="#6B3A18" stroke-width="1.2"/><circle cx="' + (x - 2.5) + '" cy="' + (y - 2.5) + '" r="2" fill="#E0A875" opacity=".7"/>').join('') +
+  '<path d="M34 104l-4 14M34 104l2 14M34 104l8 12" stroke="#C99A2E" stroke-width="2.4" stroke-linecap="round"/></svg>';
+export function tasbihCard() {
+  let st = loadTasbih(), snd = loadSound();
+  const num = h('b', { class: 'tb-n', id: 'tb-n' }), big = h('button', { class: 'tb-big', type: 'button', id: 'tb-big' }, num, h('span', { class: 'tb-l' }, 'ketuk'));
+  const tgt = h('strong', { class: 'tb-tg', id: 'tb-tg' }), prog = h('b', { class: 'tb-pg', id: 'tb-pg' }), bar = h('div', { class: 'tb-bar' }, h('i'));
+  const undoB = h('button', { class: 'tb-btn', type: 'button', id: 'tb-undo', 'aria-label': 'Kurangi satu hitungan' }, '−1');
+  const resetB = h('button', { class: 'tb-btn', type: 'button', id: 'tb-reset' }, 'Ulang');
+  const gear = h('button', { class: 'tb-btn tb-gear', type: 'button', id: 'tb-gear', 'aria-label': 'Pengaturan bunyi', 'aria-expanded': 'false' }, icon(ICONS.gear));
+  const pre = h('div', { class: 'tb-pre', id: 'tb-pre', role: 'group', 'aria-label': 'Target hitungan' });
+  const opts = h('div', { class: 'tb-opts', id: 'tb-opts', hidden: true });
+  const paint = () => {
+    num.textContent = String(st.count);
+    big.setAttribute('aria-label', 'Ketuk untuk menambah. Hitungan sekarang ' + st.count);
+    if (st.target > 0) { tgt.textContent = 'Target ' + st.target; prog.textContent = st.count + ' / ' + st.target; bar.hidden = false; bar.firstChild.style.width = Math.min(100, Math.round(st.count / st.target * 100)) + '%'; }
+    else { tgt.textContent = 'Tanpa target'; prog.textContent = st.count + ' ketukan'; bar.hidden = true; }
+    big.classList.toggle('hit', st.target > 0 && st.count >= st.target);
+    undoB.disabled = st.count === 0; resetB.disabled = st.count === 0;
+    pre.replaceChildren(...[[33, '33'], [99, '99'], [100, '100'], [0, 'Tanpa target']].map(([v, l]) =>
+      h('button', { class: 'tb-chip', type: 'button', 'aria-pressed': String(st.target === v), onclick: () => { st = { ...st, target: v }; saveTasbih(st); paint(); } }, l)));
+  };
+  big.addEventListener('click', () => {
+    st = { ...st, count: st.count + 1 }; saveTasbih(st);
+    if (st.target > 0 && st.count === st.target) { if (snd.done) chime(); } else if (snd.tap) tick();
+    paint();
+  });
+  undoB.addEventListener('click', () => { st = { ...st, count: undo(st.count) }; saveTasbih(st); paint(); });
+  resetB.addEventListener('click', async () => {
+    if (!(await ask({ title: 'Ulang hitungan dari nol?', text: 'Hitungan tasbih sekarang (' + st.count + ') akan dikosongkan.', reason: false }))) return;
+    st = { ...st, count: 0 }; saveTasbih(st); paint();
+  });
+  const opt = (label, checked, onchange) => { const cb = h('input', { type: 'checkbox' }); cb.checked = checked; cb.addEventListener('change', () => onchange(cb.checked)); return h('label', { class: 'dopt' }, cb, h('span', {}, label)); };
+  opts.append(...(canSound() ? [opt('Bunyi lonceng saat target tercapai', snd.done, v => { snd = { ...snd, done: v }; saveSound(snd); if (v) chime(); }),
+    opt('Bunyi detak tiap ketukan (pelan)', snd.tap, v => { snd = { ...snd, tap: v }; saveSound(snd); if (v) tick(); })] : [h('p', { class: 'hint' }, 'Perangkat ini tidak mendukung bunyi.')]));
+  gear.addEventListener('click', () => { opts.hidden = !opts.hidden; gear.setAttribute('aria-expanded', String(!opts.hidden)); });
+  const art = h('span', { class: 'tb-art', 'aria-hidden': 'true' }); art.innerHTML = BEADS;   // gambar statis dari kode ini
+  paint();
+  return h('section', { class: 'tb', id: 'tb' },
+    h('div', { class: 'sh' }, h('div', {}, h('h2', {}, 'Tasbih Digital'), h('p', { class: 'tb-sub' }, 'Hitung dzikir dengan mudah.')),
+      h('button', { class: 'sh-all', type: 'button', id: 'tb-all', onclick: () => { intent.tasbih = true; go('dzikir'); } }, 'Buka Penuh', icon(ICONS.chev))),
+    h('div', { class: 'tb-main' }, art, big,
+      h('div', { class: 'tb-side' }, tgt, prog, bar, h('div', { class: 'tb-ctl' }, undoB, resetB, gear))),
+    pre, opts);
+}
 
 /* ===== Jadwal salat hari ini (dihitung di perangkat) ===== */
 import { PRAYER_IC as PC_IC } from './prayer-icons.js';
@@ -177,12 +228,13 @@ export async function whoAmI() {
 }
 
 /* ===== Kartu ringkasan (Admin Masjid): 3 angka berderet dengan garis pemisah ===== */
-export const summaryCard = ({ id, title, sub, onAll, allLabel, items, hint, hintLabel, onHint }) => h('section', { class: 'sm', id },
+export const summaryCard = ({ id, title, sub, onAll, allLabel, items, hint, hintLabel, onHint, actions }) => h('section', { class: 'sm', id },
   sectionHead(title, onAll, id + '-all', null, allLabel),
   sub ? h('p', { class: 'sm-sub' }, sub) : '',
-  h('div', { class: 'sm-row' }, ...items.map(it => h('div', { class: 'sm-i' + (it.tone ? ' ' + it.tone : '') },
+  h('div', { class: 'sm-row' + (items.length === 4 ? ' c4' : '') }, ...items.map(it => h('div', { class: 'sm-i' + (it.tone ? ' ' + it.tone : '') },
     h('span', { class: 'sm-ic' }, icon(it.ic)), h('b', {}, String(it.value)), h('small', {}, it.label)))),
-  hint ? h('div', { class: 'sm-hint' }, h('p', {}, hint), onHint ? h('button', { class: 'sm-hint-btn', type: 'button', onclick: onHint }, hintLabel || 'Mulai') : '') : '');
+  hint ? h('div', { class: 'sm-hint' }, h('p', {}, hint), onHint ? h('button', { class: 'sm-hint-btn', type: 'button', onclick: onHint }, hintLabel || 'Mulai') : '') : '',
+  actions ? h('div', { class: 'sm-acts' }, ...actions.map(a => h('button', { class: 'sm-act' + (a.gold ? ' gold' : ''), type: 'button', id: a.id, onclick: a.onclick }, a.label, icon(ICONS.chev)))) : '');
 
 /* ===== Agenda terdekat: blok tanggal + judul + jam + tempat ===== */
 export const agendaCard = ({ post, parts, times, onAll }) => h('section', { class: 'ag', id: 'ag' },
