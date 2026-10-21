@@ -138,6 +138,6 @@ export async function renderAdmin(box, view = 'home') {
         [ICONS.clock, count('pending'), 'Menunggu verifikasi'], [ICONS.user, count('rejected') + count('suspended'), 'Ditolak / nonaktif']])) };
   const body = await homeBody('super', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-super' },
-    greetingHeader({ title: 'Super Admin', sub: 'BAITUNA', name: who.name, email: who.email }),
+    greetingHeader({ title: who.name || 'Super Admin', sub: 'Super Admin', name: who.name, email: who.email, avatar: who.avatar || undefined }),
     h('div', { class: 'home-body' }, ...body)));
 }

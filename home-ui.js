@@ -7,7 +7,7 @@ import { openDirectory } from './directory.js';
 import { loadLoc, offsetFor, clock } from './jadwal-ui.js';
 import { nextPrayer, PRAYERS, offsetOf, isValidTimes } from './prayer-times.js';
 import { publicPhotoUrl, ARTICLE_BUCKET, getSession, request } from './supabase.js';
-import { initials, getMyProfile, cleanName } from './profile-service.js';
+import { initials, getMyProfile, cleanName, avatarUrl } from './profile-service.js';
 import { CATALOG } from './quick-catalog.js';
 import { refreshIcons } from './branding-service.js';
 
@@ -169,9 +169,11 @@ export const scrollToEl = el => { if (el && el.scrollIntoView) el.scrollIntoView
 // Nama untuk sapaan/avatar (gagal memuat profil tidak menghalangi beranda).
 export async function whoAmI() {
   const u = (getSession() && getSession().user) || {};
-  let name = '';
-  try { if (u.id) name = cleanName((await getMyProfile(u.id)).full_name); } catch (e) { if (e && e.status === 401) throw e; }
-  return { name, email: u.email || '' };
+  let name = '', avatar = '';
+  try {
+    if (u.id) { const p = await getMyProfile(u.id); name = cleanName(p.full_name); if (p.avatar_path) avatar = (await avatarUrl(p.avatar_path).catch(() => '')) || ''; }
+  } catch (e) { if (e && e.status === 401) throw e; }
+  return { name, email: u.email || '', avatar };
 }
 
 /* ===== Kartu ringkasan (Admin Masjid): 3 angka berderet dengan garis pemisah ===== */

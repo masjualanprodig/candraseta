@@ -236,7 +236,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     tim: teamTop };
   const body = await homeBody('admin', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
-    greetingHeader({ title: who.name || mosque.name, sub: who.name ? 'Admin ' + mosque.name : 'Admin Masjid', name: who.name, email: who.email, avatar: url || undefined }),
+    greetingHeader({ title: who.name || mosque.name, sub: who.name ? 'Admin ' + mosque.name : 'Admin Masjid', name: who.name, email: who.email, avatar: who.avatar || url || undefined }),
     h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
 }
