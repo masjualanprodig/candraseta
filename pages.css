@@ -392,3 +392,9 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .us-row .row-btns,.us-pick .row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .us-pick{display:grid;gap:6px;margin-top:6px}
 #us-q{margin:8px 0}
+/* v114: Pengguna (daftar masjid milik admin) & Masjid Saya */
+.us-mosques{display:grid;gap:6px;margin-top:4px}
+.us-mrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:12px;background:#F3F6EF}
+.us-mn{display:grid;min-width:0;line-height:1.25}.us-mn b{font-size:.88rem;color:var(--green-deep);overflow-wrap:anywhere}.us-mn small{font-size:.74rem;color:var(--text-2)}
+.rg-terms{margin:10px 0 6px;padding:10px 12px;border-radius:12px;background:#F3F6EF;font-size:.82rem;color:var(--text)}
+.rg-terms ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}

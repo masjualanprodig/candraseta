@@ -10,6 +10,12 @@ export async function fetchIsSuperAdmin(userId) {
   return Array.isArray(rows) && rows.length > 0;
 }
 
+// Status Admin Masjid yang melekat di akun (admin_akun.sql). Bila fiturnya belum dipasang di server: dianggap tidak ada.
+export async function fetchIsMasjidAdmin(userId) {
+  try { const rows = await db('admin_accounts', { query: 'select=user_id&status=eq.active&user_id=eq.' + enc(userId) }); return Array.isArray(rows) && rows.length > 0; }
+  catch (e) { if (e && e.status === 401) throw e; return false; }
+}
+
 export async function fetchMemberships(userId) {
   const rows = await db('mosque_members', { query: 'select=role,mosques(id,name,status)&status=eq.active&user_id=eq.' + enc(userId) });
   return rows || [];

@@ -21,39 +21,86 @@ import { isUpcoming, dateParts, fmtTimes, fmtWhen } from './post-time.js';
 const ROLES_FOR_ADMIN_MASJID = ['ketua_takmir', 'bendahara', 'pengurus_bagian', 'pengelola_usaha'];
 
 
-/* ===== Daftarkan masjid baru (Admin Masjid). Masjid berstatus "menunggu" sampai Super Admin memverifikasi. ===== */
-async function renderRegister(box, onBack) {
+/* ===== Masjid Saya: daftar masjid yang dikelola + daftarkan masjid baru (Admin Masjid). Masjid baru berstatus "menunggu" sampai Super Admin memverifikasi. ===== */
+const CHOSEN = 'baituna.mosque.v1';
+const loc = m => [m.city, m.province].filter(Boolean).join(', ');
+// Masjid yang sedang dikelola di dashboard: pilihan terakhir bila masih termasuk masjid aktif, kalau tidak yang pertama.
+export function chosenMosque(ids) {
+  let c = ''; try { c = localStorage.getItem(CHOSEN) || ''; } catch (e) { /* abaikan */ }
+  return ids.includes(c) ? c : ids[0];
+}
+const rememberMosque = id => { try { localStorage.setItem(CHOSEN, id); } catch (e) { /* abaikan */ } };
+export const TERMS = [
+  'Isi data yang benar dan sesuai keadaan masjid.',
+  'Masjid baru berstatus menunggu sampai diverifikasi Super Admin. Super Admin dapat menolak atau menonaktifkan masjid.',
+  'Maksimal 3 masjid menunggu verifikasi sekaligus. Nama dan kota yang sama tidak boleh didaftarkan dua kali.',
+  'Anda otomatis menjadi Admin Masjid untuk masjid yang Anda daftarkan.'];
+
+async function renderRegister(box, onBack, { currentId = null, onPick = null } = {}) {
   const me = getSession() && getSession().user;
   let mine = [];
   try { mine = me ? await myAdminMosques(me.id) : []; } catch (e) { if (e && e.status === 401) return; mine = []; }
   const field = (ph, max, id) => h('input', { class: 'in', id, placeholder: ph, maxlength: String(max), autocomplete: 'off', 'aria-label': ph });
   const name = field('Nama masjid *', 150, 'rg-name'), city = field('Kota/Kabupaten', 80, 'rg-city'), prov = field('Provinsi', 80, 'rg-prov'), phone = field('Telepon resmi', 30, 'rg-phone');
   const addr = h('textarea', { class: 'in mt', id: 'rg-addr', placeholder: 'Alamat', maxlength: '300', 'aria-label': 'Alamat' });
+  const agree = h('input', { type: 'checkbox', id: 'rg-agree' });
   const err = h('p', { class: 'mk-err', id: 'rg-err', role: 'alert' }, '');
   const btn = h('button', { class: 'btn-sm', type: 'submit', id: 'rg-submit' }, 'Daftarkan masjid');
   const form = h('form', { class: 'panel', novalidate: 'novalidate', id: 'rg-form', onsubmit: async ev => {
     ev.preventDefault(); err.textContent = '';
     const n = name.value.trim();
     if (n.length < 3) { err.textContent = 'Nama masjid minimal 3 huruf.'; return; }
+    if (!agree.checked) { err.textContent = 'Centang persetujuan ketentuan dulu.'; return; }
     btn.disabled = true;
     try {
       await registerMosque({ name: n, city: city.value.trim(), province: prov.value.trim(), phone: phone.value.trim(), address: addr.value.trim() });
       toast('Masjid terkirim. Menunggu verifikasi Super Admin.');
-      await renderRegister(box, onBack); return;
+      await renderRegister(box, onBack, { currentId, onPick }); return;
     } catch (e) {
       if (e && e.status === 401) return;
-      err.textContent = e && e.code === '22023' && e.message ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : e && e.status === 0 ? 'Tidak ada koneksi internet.' : 'Belum terkirim. ' + hint(e);
+      err.textContent = e && e.code === '22023' && e.message ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : e && e.status === 0 ? 'Tidak ada koneksi internet.' : e && (e.status === 403 || e.code === '42501') ? 'Hanya Admin Masjid yang boleh mendaftarkan masjid.' : 'Belum terkirim. ' + hint(e);
     }
     btn.disabled = false;
-  } }, h('h3', {}, 'Data masjid'), h('div', { class: 'grid2' }, name, city, prov, phone), addr, err, h('div', { class: 'mt' }, btn));
-  const rows = mine.map(m => h('div', { class: 'mrow' },
-    h('div', { class: 'minfo' }, h('strong', {}, m.name), h('div', { class: 'muted' }, [m.city, m.province].filter(Boolean).join(', ') || 'Lokasi belum diisi'), m.status_reason ? h('div', { class: 'muted' }, 'Alasan: ' + m.status_reason) : ''),
-    h('div', { class: 'macts' }, h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status))));
+  } }, h('h3', {}, 'Daftarkan masjid baru'), h('div', { class: 'grid2' }, name, city, prov, phone), addr,
+    h('div', { class: 'rg-terms', id: 'rg-terms' }, h('b', {}, 'Ketentuan pendaftaran'), h('ul', {}, ...TERMS.map(t => h('li', {}, t)))),
+    h('label', { class: 'dopt' }, agree, h('span', {}, 'Saya sudah membaca dan menyetujui ketentuan di atas.')),
+    err, h('div', { class: 'mt' }, btn));
+  const rows = mine.map(m => h('div', { class: 'mrow', 'data-mosque': m.id },
+    h('div', { class: 'minfo' }, h('strong', {}, m.name), h('div', { class: 'muted' }, loc(m) || 'Lokasi belum diisi'), m.status_reason ? h('div', { class: 'muted' }, 'Alasan: ' + m.status_reason) : ''),
+    h('div', { class: 'macts' }, h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status),
+      m.status === 'active' && onPick && m.id !== currentId ? h('button', { class: 'btn-sm ghost', type: 'button', 'data-act': 'pick', onclick: () => onPick(m.id) }, 'Kelola masjid ini') : '',
+      m.id === currentId ? h('span', { class: 'muted' }, 'Sedang dikelola') : '')));
   box.replaceChildren(h('div', { class: 'home', id: 'register-page' }, h('div', { class: 'home-body mp-body' },
-    h('div', { class: 'mp-head' }, h('button', { class: 'btn-sm ghost', id: 'rg-back', type: 'button', onclick: onBack }, '← Kembali'), h('h2', {}, 'Daftarkan Masjid')),
-    h('p', { class: 'muted' }, 'Isi data masjid. Setelah dikirim, masjid berstatus menunggu dan baru tampil di direktori setelah diverifikasi Super Admin. Anda otomatis menjadi Admin Masjid-nya. Maksimal 3 masjid menunggu verifikasi sekaligus.'),
-    form,
-    h('div', { class: 'panel' }, h('h3', {}, 'Masjid yang Anda kelola (' + mine.length + ')'), rows.length ? rows : h('p', { class: 'muted' }, 'Belum ada.')))));
+    h('div', { class: 'mp-head' }, h('button', { class: 'btn-sm ghost', id: 'rg-back', type: 'button', onclick: onBack }, '← Kembali'), h('h2', {}, 'Masjid Saya')),
+    h('div', { class: 'panel' }, h('h3', {}, 'Masjid yang Anda kelola (' + mine.length + ')'), rows.length ? rows : h('p', { class: 'muted' }, 'Belum ada. Daftarkan masjid Anda di bawah; Super Admin akan memverifikasinya.')),
+    form)));
+  window.scrollTo(0, 0);
+}
+
+// Admin Masjid yang belum punya masjid terverifikasi: beranda sederhana + daftar masjidnya (menunggu/ditolak) + pendaftaran.
+export async function renderAdminHome(box) {
+  const me = getSession() && getSession().user;
+  let mine = [];
+  try { mine = me ? await myAdminMosques(me.id) : []; } catch (e) { if (e && e.status === 401) return; mine = []; }
+  const who = await whoAmI();
+  const home = () => renderAdminHome(box);
+  const openReg = () => renderRegister(box, home, { onPick: id => renderMosque(box, id, 'home') });
+  const need = () => toast('Fitur ini aktif setelah masjid Anda diverifikasi Super Admin.', true);
+  registerActs({ kas: need, posts: need, team: need });
+  const waiting = mine.filter(m => m.status === 'pending' || m.status === 'draft').length;
+  const B = {
+    banner: bannerCarousel([{ art: 'banner_masjid', title: mine.length ? 'Masjid Anda sedang diperiksa' : 'Daftarkan Masjid Anda', text: mine.length ? (waiting ? waiting + ' masjid menunggu verifikasi Super Admin.' : 'Periksa status masjid Anda.') : 'Anda sudah menjadi Admin Masjid. Daftarkan masjid Anda untuk mulai mengelola.', cta: mine.length ? 'Lihat Masjid Saya' : 'Daftarkan Masjid', onclick: openReg }]),
+    buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
+    pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
+    tasbih: tasbihCard(), jadwal: prayerCard(),
+    daftar: h('section', { class: 'panel', id: 'reg-card' }, h('h3', {}, 'Masjid Saya'),
+      mine.length ? h('div', {}, ...mine.map(m => h('div', { class: 'mrow' }, h('div', { class: 'minfo' }, h('strong', {}, m.name), h('div', { class: 'muted' }, loc(m) || 'Lokasi belum diisi')), h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status))))
+        : h('p', { class: 'muted' }, 'Belum ada masjid. Daftarkan masjid Anda; Super Admin akan memverifikasinya.'),
+      h('button', { class: 'btn-sm mt', id: 'open-register', type: 'button', onclick: openReg }, 'Daftarkan Masjid')) };
+  const body = await homeBody('admin', B);
+  box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
+    greetingHeader({ title: who.name || 'Admin Masjid', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', place: { name: 'Admin Masjid', sub: mine.length ? (waiting ? 'Masjid menunggu verifikasi' : 'Belum ada masjid aktif') : 'Belum ada masjid terdaftar', onclick: openReg }, name: who.name, email: who.email, avatar: who.avatar || undefined }),
+    h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
 }
 
@@ -61,13 +108,14 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const [mosque, team, allInvites] = await Promise.all([getMosque(mosqueId), fetchTeam(mosqueId), listInvitations()]);
   if (!mosque) { box.replaceChildren(h('p', { class: 'muted' }, 'Masjid tidak ditemukan.')); return; }
   const me = getSession() && getSession().user;
+  rememberMosque(mosqueId);
   const refresh = () => renderMosque(box, mosqueId, view);
   const goHome = () => renderMosque(box, mosqueId, 'home');
   const goEdit = () => renderMosque(box, mosqueId, 'edit');
   if (view === 'audit') { await renderAuditLog(box, { onBack: goHome, mosque: { id: mosque.id, name: mosque.name } }); return; }
   if (view === 'kas') { await renderKasManager(box, mosque, { onBack: goHome, roles: { setup: true, approve: true } }); return; }
   if (view === 'posts') { await renderPostsManager(box, mosque, goHome); return; }
-  if (view === 'register') { await renderRegister(box, goHome); return; }
+  if (view === 'register') { await renderRegister(box, goHome, { currentId: mosqueId, onPick: id => renderMosque(box, id, 'home') }); return; }
 
   const field = (ph, val, max) => h('input', { class: 'in', placeholder: ph, maxlength: String(max), autocomplete: 'off', value: val == null ? '' : String(val) });
   const name = field('Nama masjid *', mosque.name, 150), city = field('Kota/Kabupaten', mosque.city, 80),
@@ -233,12 +281,12 @@ export async function renderMosque(box, mosqueId, view = 'home') {
         { key: 'open-more', id: 'qa-more', onclick: () => go('more') }], { ic: BOLT }),
     aktivitas: acts === null ? '' : activityList(acts, actionLabel, () => renderMosque(box, mosqueId, 'audit')),
     daftar: h('section', { class: 'panel', id: 'reg-card' }, h('h3', {}, 'Daftarkan Masjid Baru'),
-        h('p', { class: 'muted' }, 'Mengurus masjid lain? Daftarkan di sini. Masjid tampil di direktori setelah diverifikasi Super Admin.'),
+        h('p', { class: 'muted' }, 'Mengurus masjid lain? Lihat masjid Anda atau daftarkan yang baru di sini. Masjid tampil di direktori setelah diverifikasi Super Admin.'),
         h('button', { class: 'btn-sm', id: 'open-register', type: 'button', onclick: () => renderMosque(box, mosqueId, 'register') }, 'Daftarkan Masjid')),
     tim: teamTop };
   const body = await homeBody('admin', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-admin' },
-    greetingHeader({ title: who.name || mosque.name, sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', place: { name: 'Admin ' + mosque.name, sub: [mosque.city, mosque.province].filter(Boolean).join(', ') || 'Lokasi belum diisi', onclick: goEdit }, name: who.name, email: who.email, avatar: who.avatar || url || undefined }),
+    greetingHeader({ title: who.name || mosque.name, sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', place: { name: mosque.name, sub: loc(mosque) || 'Lokasi belum diisi', onclick: () => renderMosque(box, mosqueId, 'register') }, name: who.name, email: who.email, avatar: who.avatar || url || undefined }),
     h('div', { class: 'home-body' }, ...body)));
   window.scrollTo(0, 0);
 }

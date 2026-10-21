@@ -54,10 +54,10 @@ async function enterApp() {
     if (accepted > 0) toast('Undangan diterima. Anda kini terdaftar sebagai pengurus.');
     const access = await loadAccess(me);
     if (access.isAdmin) { const role = $('app-role'); role.textContent = 'Super Admin'; role.hidden = false; }
-    const isMosqueAdmin = !access.isAdmin && access.memberships.some(m => m.role === 'admin_masjid' && m.mosques && m.mosques.status === 'active');
+    const isMosqueAdmin = !access.isAdmin && (access.isMasjidAdmin || access.memberships.some(m => m.role === 'admin_masjid' && m.mosques && m.mosques.status === 'active'));
     setNav(access.isAdmin ? 'super' : isMosqueAdmin ? 'admin' : 'jamaah');
     if (access.isAdmin) await renderAdmin(box);
-    else await renderMember(box, access.memberships);
+    else await renderMember(box, access.memberships, access);
     refreshIcons(); flushAct();
   } catch (e) {
     if (e.status === 401) return;

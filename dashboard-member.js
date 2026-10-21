@@ -3,7 +3,7 @@
 // Admin Masjid dari masjid aktif memakai dashboard pengelolaan (dashboard-mosque.js).
 import { h, STATUS_LABEL } from './ui.js';
 import { ROLE_LABEL } from './permissions.js';
-import { renderMosque } from './dashboard-mosque.js';
+import { renderMosque, renderAdminHome, chosenMosque } from './dashboard-mosque.js';
 import { getMosque } from './mosque-service.js';
 import { renderPostsManager } from './posts-ui.js';
 import { renderKasManager } from './kas-ui.js';
@@ -11,11 +11,12 @@ import { ICONS } from './feed-ui.js';
 import { homeBody } from './home-builder.js';
 import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, articleSection, whoAmI, go, registerActs } from './home-ui.js';
 
-export async function renderMember(box, memberships) {
+export async function renderMember(box, memberships, access = {}) {
   registerActs({});
   const rows = memberships.filter(m => m.mosques);
-  const mine = rows.find(m => m.role === 'admin_masjid' && m.mosques.status === 'active');
-  if (mine) { await renderMosque(box, mine.mosques.id); return; }
+  const mineIds = rows.filter(m => m.role === 'admin_masjid' && m.mosques.status === 'active').map(m => m.mosques.id);
+  if (mineIds.length) { await renderMosque(box, chosenMosque(mineIds)); return; }
+  if (access.isMasjidAdmin) { await renderAdminHome(box); return; }
 
   const who = await whoAmI();
   const act = rows.filter(m => (m.role === 'ketua_takmir' || m.role === 'bendahara') && m.mosques.status === 'active');
