@@ -367,11 +367,11 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .tb-opts{margin-top:8px;display:grid;gap:4px}
 @media (max-width:340px){.tb-main{grid-template-columns:minmax(104px,116px) 1fr}.tb-art{display:none}}
 /* header: kartu masjid (Admin Masjid) */
-.hh.has-place{padding-bottom:150px}
-.hh-place{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:8px 12px;border:0;border-radius:16px;background:rgba(255,255,255,.95);color:var(--text);font:inherit;text-align:left;cursor:pointer;text-shadow:none;box-shadow:0 4px 14px rgba(0,0,0,.14)}
-.hh-pi{flex:none;display:grid;place-items:center;width:34px;height:34px}.hh-pi .ic{width:28px;height:28px;stroke:var(--green-deep)}
-.hh-pl{flex:1;min-width:0;display:grid;line-height:1.25}.hh-pl b{font-size:.9rem;color:var(--green-deep);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hh-pl small{font-size:.76rem;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hh-place>.ic{flex:none;width:18px;height:18px;stroke:var(--text-2)}
+.hh.has-place{padding-bottom:72px;min-height:0}
+.hh-place{display:inline-flex;align-items:center;gap:8px;width:fit-content;max-width:100%;margin-top:10px;padding:6px 16px 6px 8px;border:0;border-radius:999px;background:rgba(255,255,255,.95);color:var(--text);font:inherit;text-align:left;cursor:pointer;text-shadow:none;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+.hh-pi{flex:none;display:grid;place-items:center;width:28px;height:28px}.hh-pi .ic{width:24px;height:24px;stroke:var(--green-deep)}
+.hh-pl{flex:0 1 auto;min-width:0;display:grid;line-height:1.25}.hh-pl b{font-size:.9rem;color:var(--green-deep);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hh-pl small{font-size:.76rem;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hh-place>.ic{flex:none;width:16px;height:16px;margin-left:-4px;stroke:var(--text-2)}
 /* ringkasan: 4 kolom + tombol aksi */
 .sm-row.c4{grid-template-columns:repeat(4,1fr)}.sm-row.c4 .sm-i small{font-size:.66rem}
 .sm-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
