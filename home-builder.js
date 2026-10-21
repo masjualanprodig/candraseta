@@ -56,16 +56,7 @@ export function applyOverride(role, id, node, o, { preview = false } = {}) {
       if (r.cta) { const b = el.querySelector('.bn-cta'); if (b) { [...b.childNodes].filter(n => n.nodeType === 3).forEach(n => n.remove()); b.prepend(r.cta); } }
       if (r.link) rebind(el.querySelector('.bn-cta'), r.link, preview);
       if (r.tone) { el.classList.remove('green', 'gold'); el.classList.add(r.tone); }
-      if (r.img || r._url) {
-        // Gambar unggahan menggantikan seluruh tampilan slide (gambar saja, seperti banner baru); ketukan tetap memakai tujuan tombolnya.
-        const url = r._url || urlFor(r.img);
-        if (url) {
-          const btn = el.querySelector('.bn-cta');
-          el.className = 'bn-slide bn-img' + (btn ? ' bn-link' : ''); el.removeAttribute('data-art'); el.removeAttribute('style');
-          el.replaceChildren(h('img', { src: url, alt: 'Banner ' + (k + 1), decoding: 'async', draggable: 'false' }));
-          if (btn) { el.setAttribute('role', 'link'); el.setAttribute('tabindex', '0'); el.addEventListener('click', () => btn.click()); el.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); btn.click(); } }); }
-        }
-      }
+      if (r.img || r._url) setImg(el, r._url || urlFor(r.img));
     });
     const left = node.querySelectorAll('.bn-slide');
     if (!left.length) return null;

@@ -121,8 +121,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
         return h('div', { class: 'hbe-slide' }, h('b', {}, 'Slide ' + (k + 1)),
           field('Judul', dInput(s, 'title', ds.title, LIMITS.title)), field('Teks', dInput(s, 'text', ds.text, LIMITS.text)),
           field('Teks tombol', dInput(s, 'cta', ds.cta, LIMITS.cta)), field('Tombol menuju', dSelect(s, 'link', '', ds.link ? [['', '(bawaan: ' + LINKS[ds.link][0] + ')'], ...linkOpts.slice(1)] : linkOpts)),
-          field('Warna', dSelect(s, 'tone', ds.tone, [['green', 'Hijau'], ['gold', 'Emas']])), ...pickImg(s), (s.img || s._file) ? h('small', { class: 'muted' }, 'Dengan gambar unggahan, slide tampil sebagai gambar penuh (judul, teks, dan tombol tidak ditampilkan). Ketukan tetap menuju tujuan tombol.') : '',
-          h('label', { class: 'hbe-chk-one' }, (() => { const c = h('input', { type: 'checkbox' }); c.checked = !!s.hide; c.addEventListener('change', () => { if (c.checked) s.hide = true; else delete s.hide; bump(); refreshBar(); }); return c; })(), ' Sembunyikan slide ini')); });
+          field('Warna', dSelect(s, 'tone', ds.tone, [['green', 'Hijau'], ['gold', 'Emas']])), ...pickImg(s), h('label', { class: 'hbe-chk-one' }, (() => { const c = h('input', { type: 'checkbox' }); c.checked = !!s.hide; c.addEventListener('change', () => { if (c.checked) s.hide = true; else delete s.hide; bump(); refreshBar(); }); return c; })(), ' Sembunyikan slide ini')); });
       const spd = field('Kecepatan geser otomatis', select(SPEEDS.map(([v, l]) => [String(v), l]), String(o.speed || 0), v => { if (Number(v) > 0) o.speed = Number(v); else delete o.speed; }));
       return h('div', { class: 'hbe-edit' }, hint, ...list, spd, h('small', { class: 'muted' }, 'Ingin slide tambahan? Tambahkan blok "Banner slide" baru.'), reset);
     }
