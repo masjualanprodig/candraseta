@@ -545,3 +545,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Kartu fitur "Agenda & Info" sekarang menampilkan agenda mendatang yang nyata dari masjid-masjid: foto dengan lencana tanggal, judul, jam, tempat, nama masjid, dan panah. Tampilan bisa Geser (carousel dengan titik), Daftar, atau Grid, dengan 1-6 agenda. Berlaku untuk beranda Jamaah, Admin Masjid, dan Super Admin (layout yang sudah tersimpan ikut berubah otomatis).
 - Halaman Agenda & Pengumuman: kartu tanggal (Masehi + Hijriah perkiraan), tab Semua / Kajian / Kegiatan / Pengumuman, daftar "Agenda mendatang" (kotak tanggal, jam, tempat, nama masjid, foto, panah), dan "Pengumuman Terbaru" dengan Lihat Semua. Tab Kajian = agenda berjenis "Kajian / pengajian"; Kegiatan = agenda berjenis lain.
 - Kartu "Agenda Kegiatan" di beranda Admin Masjid bergaya sama. Editor Kartu fitur: isian tidak lagi melewati tepi kanan, pratinjau gambar lebih kecil, dan fitur Agenda punya pilihan Tampilan serta Jumlah agenda. Tanpa SQL baru.
+
+## Tambahan v140
+- Reset kas: pop-up konfirmasi dihilangkan; tombol "Reset kas (mulai dari awal)" langsung mereset.

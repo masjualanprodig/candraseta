@@ -138,10 +138,7 @@ export async function renderKasManager(box, mosque, { onBack, roles = {}, tab: s
         try { await K.reopenMonth(mosque.id, st.month, why); toast('Bulan dibuka kembali.'); await reload('ringkasan'); } catch (e) { toast(K.errorText(e), true); } } }, 'Buka kembali') : '');
     const canReset = (R.setup && R.approve) || R.admin;
     const resetBtn = canReset ? h('div', { class: 'kas-navwrap kas-noprint' }, h('button', { class: 'btn-sm alt kas-reset', type: 'button', id: 'kas-reset', onclick: async () => {
-      const word = await ask({ title: 'Reset kas, mulai dari awal?', text: 'SEMUA catatan kas, penutupan bulan, dan transaksi favorit masjid ini akan DIHAPUS dan saldo awal semua akun menjadi 0. Tidak bisa dibatalkan. Akun, kategori, dan pengaturan tetap. Pengurus lain tidak diberi tahu; tindakan ini tercatat di Jejak Audit. Ketik RESET di kolom di bawah untuk melanjutkan.', reason: true });
-      if (!word) return;
-      if (word !== 'RESET') { toast('Kata konfirmasi harus persis: RESET. Tidak ada yang dihapus.', true); return; }
-      try { const r = await K.resetKas(mosque.id, word); st.month = nowKey; toast('Kas direset. ' + (r && r.entries != null ? r.entries + ' catatan dihapus.' : '')); await reload('ringkasan'); } catch (e) { toast(K.errorText(e), true); } } }, 'Reset kas (mulai dari awal)')) : '';
+      try { const r = await K.resetKas(mosque.id, 'RESET'); st.month = nowKey; toast('Kas direset. ' + (r && r.entries != null ? r.entries + ' catatan dihapus.' : '')); await reload('ringkasan'); } catch (e) { toast(K.errorText(e), true); } } }, 'Reset kas (mulai dari awal)')) : '';
     frame(monthNav(st.month, m => { st.month = m; showSummary(); }, nowKey), resetBtn,
       h('div', { class: 'kas-print', id: 'kas-report' }, h('h3', { class: 'kas-pt' }, 'Laporan kas ' + mosque.name), h('p', { class: 'muted' }, 'Periode: ' + K.monthLabel(st.month)), reportView(rep, {}),
         h('p', { class: 'hint kas-pfoot' }, DISCLAIMER)),
