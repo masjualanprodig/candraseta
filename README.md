@@ -503,3 +503,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Fitur lain: kartu dengan judul, gambar, deskripsi, dan tombol buka.
 - Berlaku untuk beranda Jamaah/Admin/Super sesuai tab peran yang diedit.
 - Jalankan sql/beranda_kartu.sql (setelah beranda_banner.sql). Cache SW baituna-static-v103.
+
+## Tambahan v130 (Keuangan Masjid: panel "Akun kas" dan "Kategori" dihapus dari Pengaturan)
+- Pengaturan kini hanya berisi Transparansi laporan ke jamaah dan Pengaturan pencatatan. Kategori dan akun bawaan tetap dipakai apa adanya.
+- Tidak ada perubahan SQL. Cache SW baituna-static-v104.

@@ -371,48 +371,7 @@ export async function renderKasManager(box, mosque, { onBack, roles = {}, tab: s
           radioCard('kas-mode-cepat', mode === 'cepat', 'Input cepat (tanpa detail)', 'Pilih kategori dan isi nominal saja. Nama barang dan keterangan bersifat opsional.', () => pickMode('cepat'))),
         book().hasNew ? '' : h('p', { class: 'mk-err' }, 'Mode input belum aktif di server. Jalankan kas_baru.sql.')));
     }
-    if (R.setup) kids.push(accountPanel(), categoryPanel());
-    else kids.push(h('p', { class: 'muted' }, 'Akun dan kategori kas dikelola Bendahara atau Admin Masjid.'));
     frame(...kids);
-  }
-  function accountPanel() {
-    let editing = null;
-    const name = h('input', { class: 'in', id: 'kas-a-name', maxlength: String(K.LIMIT.nameMax), placeholder: 'Contoh: Kas Kegiatan Ramadan', autocomplete: 'off' });
-    const kind = h('select', { class: 'in', id: 'kas-a-kind' }, ...K.KINDS.map(([k, l]) => h('option', { value: k }, l)));
-    const open = h('input', { class: 'in', id: 'kas-a-open', inputmode: 'numeric', placeholder: 'Saldo awal (Rp), kosongkan bila nol', autocomplete: 'off' });
-    const od = h('input', { class: 'in', id: 'kas-a-date', type: 'date', max: today }); od.value = today;
-    const err = h('p', { class: 'mk-err', id: 'kas-a-err', role: 'alert' }, '');
-    const save = h('button', { class: 'btn-sm', type: 'button', id: 'kas-a-save' }, 'Tambah akun');
-    const cancel = h('button', { class: 'btn-sm ghost', type: 'button', id: 'kas-a-cancel', hidden: 'hidden', onclick: () => { editing = null; name.value = ''; open.value = ''; od.value = today; save.textContent = 'Tambah akun'; cancel.hidden = true; } }, 'Batal ubah');
-    save.addEventListener('click', async () => {
-      const v = K.validateAccount({ name: name.value, kind: kind.value, opening: open.value, date: od.value });
-      if (v.error) { err.textContent = v.error; ({ name, kind, opening: open, date: od })[v.field].focus(); return; }
-      err.textContent = ''; save.disabled = true;
-      try { await K.saveAccount(mosque.id, editing && editing.id, v.ok, editing ? editing.active : true); toast(editing ? 'Akun diperbarui.' : 'Akun ditambahkan.'); await reload('pengaturan'); return; }
-      catch (e) { err.textContent = K.errorText(e); }
-      save.disabled = false;
-    });
-    const row = a => h('div', { class: 'kas-arow', 'data-id': a.id },
-      h('span', {}, h('b', {}, a.name), h('span', { class: 'muted' }, ' · ' + K.kindLabel(a.kind) + (a.active ? '' : ' · nonaktif') + ' · saldo awal ' + K.money(a.opening_balance))),
-      h('span', { class: 'qa-acts' },
-        h('button', { class: 'btn-sm ghost kas-a-edit', type: 'button', onclick: () => { editing = a; name.value = a.name; kind.value = a.kind; open.value = a.opening_balance ? String(a.opening_balance) : ''; od.value = a.opening_date; save.textContent = 'Simpan akun'; cancel.hidden = false; name.focus(); } }, 'Ubah'),
-        h('button', { class: 'btn-sm ghost kas-a-toggle', type: 'button', onclick: async () => { try { await K.saveAccount(mosque.id, a.id, { name: a.name, kind: a.kind, opening: a.opening_balance, date: a.opening_date }, !a.active); toast(a.active ? 'Akun dinonaktifkan.' : 'Akun diaktifkan.'); await reload('pengaturan'); } catch (e) { toast(K.errorText(e), true); } } }, a.active ? 'Nonaktifkan' : 'Aktifkan')));
-    return h('div', { class: 'panel rform', id: 'kas-accounts' }, h('h3', {}, 'Akun kas'),
-      h('p', { class: 'muted' }, 'Pisahkan dana sesuai peruntukannya (mis. kas umum, infak, zakat, kegiatan). Dana zakat punya ketentuan penyaluran; konsultasikan dengan ustaz atau amil. Saldo awal dan jenis tidak bisa diubah setelah akun punya catatan; akun hanya bisa dinonaktifkan bila saldonya nol.'),
-      ...book().accounts.map(row), name, kind, open, od, err, h('div', { class: 'qa-acts' }, save, cancel));
-  }
-  function categoryPanel() {
-    const dirSel = h('select', { class: 'in', id: 'kas-c-dir', 'aria-label': 'Arah kategori' }, h('option', { value: 'masuk' }, 'Kas masuk'), h('option', { value: 'keluar' }, 'Kas keluar'));
-    const name = h('input', { class: 'in', id: 'kas-c-name', maxlength: String(K.LIMIT.nameMax), placeholder: 'Nama kategori baru', autocomplete: 'off' });
-    const err = h('p', { class: 'mk-err', id: 'kas-c-err', role: 'alert' }, '');
-    const add = h('button', { class: 'btn-sm', type: 'button', id: 'kas-c-add', onclick: async () => {
-      const n = name.value.trim(); if (n.length < 2) { err.textContent = 'Nama kategori minimal 2 huruf.'; return; }
-      err.textContent = ''; add.disabled = true;
-      try { await K.saveCategory(mosque.id, null, dirSel.value, n, true); toast('Kategori ditambahkan.'); await reload('pengaturan'); return; } catch (e) { err.textContent = K.errorText(e); }
-      add.disabled = false; } }, 'Tambah kategori');
-    const group = (d, label) => [h('h4', {}, label), ...book().categories.filter(c => c.direction === d).map(c => h('div', { class: 'kas-arow', 'data-id': c.id }, h('span', {}, c.name, c.active ? '' : h('span', { class: 'muted' }, ' · nonaktif')),
-      h('button', { class: 'btn-sm ghost kas-c-toggle', type: 'button', onclick: async () => { try { await K.saveCategory(mosque.id, c.id, c.direction, c.name, !c.active); await reload('pengaturan'); } catch (e) { toast(K.errorText(e), true); } } }, c.active ? 'Nonaktifkan' : 'Aktifkan')))];
-    return h('div', { class: 'panel rform', id: 'kas-categories' }, h('h3', {}, 'Kategori'), ...group('masuk', 'Kas masuk'), ...group('keluar', 'Kas keluar'), dirSel, name, err, add);
   }
 
   show(st.tab);
