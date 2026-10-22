@@ -137,8 +137,6 @@ export async function renderWorldManager(box, onBack) {
       save.disabled = false;
     }
   }, formTitle, name, h('div', { class: 'grid2' }, country, city), desc,
-    h('p', { class: 'hint' }, 'Koordinat (opsional): buka Google Maps, tekan lama pada lokasi, lalu salin lintang dan bujurnya.'),
-    h('div', { class: 'grid2' }, lat, lng),
     h('label', { class: 'hint' }, 'Foto'), pick, status,
     h('div', { class: 'mt row-btns' }, save, cancel));
 

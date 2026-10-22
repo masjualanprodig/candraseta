@@ -441,3 +441,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Form "Daftarkan masjid baru" (Admin Masjid): urutan Nama masjid, Provinsi, Kota/Kabupaten, Kecamatan, Telepon, Alamat. Ketiganya berupa daftar pilihan bertingkat.
 - Daftar wilayah diambil dari API publik api-wilayah-indonesia (emsifa) lalu disimpan di HP. Bila gagal dimuat, otomatis jadi isian teks.
 - SQL `wilayah.sql` (jalankan dulu): kolom `mosques.district`, `mosque_register` menerima `p_district`.
+
+## Tambahan v117 (Galeri masjid dunia tanpa kolom lintang/bujur)
+- Kolom Lintang, Bujur, dan petunjuk koordinat dihapus dari formulir Super Admin. Saat mengubah masjid lama, koordinat yang sudah tersimpan tetap dipertahankan. Tanpa SQL.
