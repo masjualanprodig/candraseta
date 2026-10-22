@@ -8,6 +8,7 @@ import { storageUpload, storageRemove, publicPhotoUrl } from './supabase.js';
 import { teamPanel } from './team-panel.js';
 import { renderPostsManager } from './posts-ui.js';
 import { listManagedPosts } from './post-service.js';
+import { listProvinces, listRegencies, listDistricts } from './wilayah-service.js';
 import { icon, ICONS } from './feed-ui.js';
 import { getSession } from './supabase.js';
 import { renderKasManager } from './kas-ui.js';
@@ -33,7 +34,7 @@ const rememberMosque = id => { try { localStorage.setItem(CHOSEN, id); } catch (
 export const TERMS = [
   'Isi data yang benar dan sesuai keadaan masjid.',
   'Masjid baru berstatus menunggu sampai diverifikasi Super Admin. Super Admin dapat menolak atau menonaktifkan masjid.',
-  'Maksimal 3 masjid menunggu verifikasi sekaligus. Nama dan kota yang sama tidak boleh didaftarkan dua kali.',
+  'Maksimal 3 masjid menunggu verifikasi sekaligus. Nama, kota, dan kecamatan yang sama tidak boleh didaftarkan dua kali.',
   'Anda otomatis menjadi Admin Masjid untuk masjid yang Anda daftarkan.'];
 
 async function renderRegister(box, onBack, { currentId = null, onPick = null } = {}) {
@@ -41,7 +42,37 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
   let mine = [];
   try { mine = me ? await myAdminMosques(me.id) : []; } catch (e) { if (e && e.status === 401) return; mine = []; }
   const field = (ph, max, id) => h('input', { class: 'in', id, placeholder: ph, maxlength: String(max), autocomplete: 'off', 'aria-label': ph });
-  const name = field('Nama masjid *', 150, 'rg-name'), city = field('Kota/Kabupaten', 80, 'rg-city'), prov = field('Provinsi', 80, 'rg-prov'), phone = field('Telepon resmi', 30, 'rg-phone');
+  const name = field('Nama masjid *', 150, 'rg-name'), phone = field('Telepon resmi', 30, 'rg-phone');
+  // Provinsi -> Kota/Kabupaten -> Kecamatan: pilihan bertingkat. Bila daftar wilayah gagal dimuat, berubah jadi isian teks.
+  const sel = (id, label) => h('select', { class: 'in', id, 'aria-label': label, disabled: 'disabled' }, h('option', { value: '' }, label));
+  const prov = sel('rg-prov', 'Pilih provinsi'), city = sel('rg-city', 'Pilih kota/kabupaten'), dist = sel('rg-dist', 'Pilih kecamatan');
+  const wnote = h('p', { class: 'muted', id: 'rg-wnote', style: 'margin:4px 0 0' }, '');
+  const fill = (el, label, rows) => { el.replaceChildren(h('option', { value: '' }, label), ...rows.map(x => h('option', { value: x.id }, x.name))); el.disabled = !rows.length; };
+  const reset = (el, label) => { el.replaceChildren(h('option', { value: '' }, label)); el.disabled = true; };
+  let prov2 = prov, city2 = city, dist2 = dist;
+  const textMode = () => {
+    for (const [el, ph, id] of [[prov, 'Provinsi', 'rg-prov'], [city, 'Kota/Kabupaten', 'rg-city'], [dist, 'Kecamatan', 'rg-dist']]) {
+      const t = field(ph, 80, id); el.replaceWith(t);
+      if (el === prov) prov2 = t; else if (el === city) city2 = t; else dist2 = t;
+    }
+    wnote.textContent = 'Daftar wilayah belum bisa dimuat. Isi manual saja.';
+  };
+  const chosen = el => el.tagName === 'SELECT' ? (el.selectedIndex > 0 ? el.options[el.selectedIndex].textContent : '') : el.value.trim();
+  prov.onchange = async () => {
+    reset(city, 'Pilih kota/kabupaten'); reset(dist, 'Pilih kecamatan'); wnote.textContent = '';
+    if (!prov.value) return;
+    const pid = prov.value; city.options[0].textContent = 'Memuat…';
+    try { const rows = await listRegencies(pid); if (prov.value === pid) { fill(city, 'Pilih kota/kabupaten', rows); } }
+    catch (e) { wnote.textContent = 'Kota/kabupaten belum bisa dimuat. Periksa internet lalu pilih provinsi lagi.'; reset(city, 'Pilih kota/kabupaten'); }
+  };
+  city.onchange = async () => {
+    reset(dist, 'Pilih kecamatan'); wnote.textContent = '';
+    if (!city.value) return;
+    const cid = city.value; dist.options[0].textContent = 'Memuat…';
+    try { const rows = await listDistricts(cid); if (city.value === cid) { fill(dist, 'Pilih kecamatan', rows); } }
+    catch (e) { wnote.textContent = 'Kecamatan belum bisa dimuat. Periksa internet lalu pilih kota/kabupaten lagi.'; reset(dist, 'Pilih kecamatan'); }
+  };
+  listProvinces().then(rows => fill(prov, 'Pilih provinsi', rows)).catch(() => textMode());
   const addr = h('textarea', { class: 'in mt', id: 'rg-addr', placeholder: 'Alamat', maxlength: '300', 'aria-label': 'Alamat' });
   const agree = h('input', { type: 'checkbox', id: 'rg-agree' });
   const err = h('p', { class: 'mk-err', id: 'rg-err', role: 'alert' }, '');
@@ -53,7 +84,7 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
     if (!agree.checked) { err.textContent = 'Centang persetujuan ketentuan dulu.'; return; }
     btn.disabled = true;
     try {
-      await registerMosque({ name: n, city: city.value.trim(), province: prov.value.trim(), phone: phone.value.trim(), address: addr.value.trim() });
+      await registerMosque({ name: n, province: chosen(prov2), city: chosen(city2), district: chosen(dist2), phone: phone.value.trim(), address: addr.value.trim() });
       toast('Masjid terkirim. Menunggu verifikasi Super Admin.');
       await renderRegister(box, onBack, { currentId, onPick }); return;
     } catch (e) {
@@ -61,7 +92,7 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
       err.textContent = e && e.code === '22023' && e.message ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : e && e.status === 0 ? 'Tidak ada koneksi internet.' : e && (e.status === 403 || e.code === '42501') ? 'Hanya Admin Masjid yang boleh mendaftarkan masjid.' : 'Belum terkirim. ' + hint(e);
     }
     btn.disabled = false;
-  } }, h('h3', {}, 'Daftarkan masjid baru'), h('div', { class: 'grid2' }, name, city, prov, phone), addr,
+  } }, h('h3', {}, 'Daftarkan masjid baru'), h('div', { class: 'grid2' }, name, prov, city, dist, phone), wnote, addr,
     h('div', { class: 'rg-terms', id: 'rg-terms' }, h('b', {}, 'Ketentuan pendaftaran'), h('ul', {}, ...TERMS.map(t => h('li', {}, t)))),
     h('label', { class: 'dopt' }, agree, h('span', {}, 'Saya sudah membaca dan menyetujui ketentuan di atas.')),
     err, h('div', { class: 'mt' }, btn));

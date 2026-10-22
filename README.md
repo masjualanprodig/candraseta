@@ -436,3 +436,8 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Bagian "Artikel Terbaru" di dashboard Admin Masjid, Super Admin, dan ketua/bendahara kini bagian bawaan `artikel` (kartu artikel asli), bukan lagi tombol ikon "Berita & Artikel".
 - Tata letak lama yang tersimpan (blok "Artikel Terbaru" berisi tombol berita) otomatis diubah ke bagian bawaan.
 - Kartu hanya muncul bila sudah ada artikel yang diterbitkan. Tanpa SQL.
+
+## Tambahan v116 (Daftar masjid: Provinsi → Kota/Kabupaten → Kecamatan)
+- Form "Daftarkan masjid baru" (Admin Masjid): urutan Nama masjid, Provinsi, Kota/Kabupaten, Kecamatan, Telepon, Alamat. Ketiganya berupa daftar pilihan bertingkat.
+- Daftar wilayah diambil dari API publik api-wilayah-indonesia (emsifa) lalu disimpan di HP. Bila gagal dimuat, otomatis jadi isian teks.
+- SQL `wilayah.sql` (jalankan dulu): kolom `mosques.district`, `mosque_register` menerima `p_district`.

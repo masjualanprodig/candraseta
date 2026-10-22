@@ -28,7 +28,7 @@ export async function listMosques() {
 
 // Admin Masjid mendaftarkan masjid baru (status menunggu verifikasi Super Admin). Dijaga fungsi database mosque_register.
 export async function registerMosque(f) {
-  return db('rpc/mosque_register', { method: 'POST', body: { p_name: f.name, p_city: f.city || null, p_province: f.province || null, p_phone: f.phone || null, p_address: f.address || null } });
+  return db('rpc/mosque_register', { method: 'POST', body: { p_name: f.name, p_city: f.city || null, p_province: f.province || null, p_district: f.district || null, p_phone: f.phone || null, p_address: f.address || null } });
 }
 // Masjid yang saya kelola (semua status), termasuk yang masih menunggu verifikasi.
 export async function myAdminMosques(userId) {
