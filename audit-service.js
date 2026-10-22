@@ -6,7 +6,7 @@ import { rp } from './market-service.js';
 export const PAGE = 30;
 export const GROUPS = [['', 'Semua'], ['kas', 'Kas'], ['invitation', 'Undangan'], ['member', 'Pengurus'], ['mosque', 'Masjid'], ['jamaah', 'Jamaah'], ['book', 'Buku'], ['qa', 'Tanya Jawab'], ['tampilan', 'Tampilan']];
 export const LABEL = {
-  mosque_created: 'Masjid didaftarkan', mosque_status_changed: 'Status masjid diubah',
+  mosque_created: 'Masjid didaftarkan', mosque_status_changed: 'Status masjid diubah', mosque_deleted: 'Masjid dihapus',
   invitation_created: 'Undangan dibuat', invitation_accepted: 'Undangan diterima', invitation_revoked: 'Undangan dibatalkan', member_revoked: 'Pengurus dicabut', member_admin_assigned: 'Dijadikan Admin Masjid', member_admin_removed: 'Admin Masjid dikembalikan jadi pengguna umum',
   kas_entry_added: 'Catatan kas ditambah', kas_entry_reversed: 'Catatan kas dikoreksi', kas_month_closed: 'Buku bulan ditutup', kas_month_reopened: 'Buku bulan dibuka kembali',
   kas_public_summary: 'Ringkasan kas publik diubah', kas_account_created: 'Akun kas dibuat', kas_account_updated: 'Akun kas diubah', kas_category_created: 'Kategori kas dibuat', kas_category_updated: 'Kategori kas diubah',

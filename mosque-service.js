@@ -30,6 +30,10 @@ export async function listMosques() {
 export async function registerMosque(f) {
   return db('rpc/mosque_register', { method: 'POST', body: { p_name: f.name, p_city: f.city || null, p_province: f.province || null, p_district: f.district || null, p_phone: f.phone || null, p_address: f.address || null } });
 }
+// Super Admin menghapus permanen masjid yang nonaktif/ditolak (fungsi database admin_mosque_delete). Mengembalikan path foto lama (bila ada).
+export async function deleteMosque(id) {
+  return db('rpc/admin_mosque_delete', { method: 'POST', body: { p_id: id } });
+}
 // Masjid yang saya kelola (semua status), termasuk yang masih menunggu verifikasi.
 export async function myAdminMosques(userId) {
   const rows = await db('mosque_members', { query: 'select=role,mosques(id,name,city,province,status,status_reason,created_at)&status=eq.active&role=eq.admin_masjid&user_id=eq.' + enc(userId) });

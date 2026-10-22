@@ -444,3 +444,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v117 (Galeri masjid dunia tanpa kolom lintang/bujur)
 - Kolom Lintang, Bujur, dan petunjuk koordinat dihapus dari formulir Super Admin. Saat mengubah masjid lama, koordinat yang sudah tersimpan tetap dipertahankan. Tanpa SQL.
+
+## Tambahan v118 (Super Admin: Hapus masjid nonaktif)
+- Daftar masjid Super Admin: masjid berstatus Nonaktif atau Ditolak punya tombol "Hapus" (dengan konfirmasi). Masjid aktif/menunggu tidak bisa dihapus.
+- Penghapusan permanen: pengurus, undangan, agenda, postingan ikut terhapus; foto masjid dibersihkan; tercatat di Audit ("Masjid dihapus").
+- Masjid yang sudah punya catatan keuangan TIDAK bisa dihapus (catatan keuangan permanen); aplikasi menampilkan pesannya.
+- SQL `masjid_hapus.sql` (jalankan dulu).

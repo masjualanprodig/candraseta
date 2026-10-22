@@ -2,10 +2,10 @@
 // Dashboard Super Admin: ringkasan, tambah masjid, dan verifikasi/penonaktifan masjid.
 // Keamanan sebenarnya dijaga RLS; tombol di sini hanya kenyamanan tampilan.
 import { h, toast, ask, hint, STATUS_LABEL } from './ui.js';
-import { listMosques, updateMosqueStatus, listInvitations, fetchTeam } from './mosque-service.js';
+import { listMosques, updateMosqueStatus, deleteMosque, listInvitations, fetchTeam } from './mosque-service.js';
 import { INVITE_ROLES } from './permissions.js';
 import { teamPanel } from './team-panel.js';
-import { getSession } from './supabase.js';
+import { getSession, storageRemove } from './supabase.js';
 import { renderWorldManager } from './world-ui.js';
 import { renderHistoryManager } from './history-ui.js';
 import { renderRukunManager } from './rukun-ui.js';
@@ -30,14 +30,15 @@ const ACTIONS = {
   reject: { title: 'Tolak pendaftaran?', text: 'Tulis alasan penolakan. Alasan ini tercatat.', reason: true, to: 'rejected', done: 'Pendaftaran ditolak.' },
   suspend: { title: 'Nonaktifkan masjid?', text: 'Akses operasional dihentikan. Data tetap tersimpan. Tulis alasannya.', reason: true, to: 'suspended', done: 'Masjid dinonaktifkan.' },
   reopen: { title: 'Aktifkan kembali?', text: 'Masjid akan aktif kembali.', reason: false, to: 'active', done: 'Masjid diaktifkan kembali.' },
+  del: { title: 'Hapus masjid permanen?', text: 'Masjid beserta pengurus, agenda, undangan, dan postingannya akan dihapus selamanya dan tidak bisa dikembalikan. Masjid yang sudah punya catatan keuangan tidak bisa dihapus. Lanjutkan?', reason: false, del: true, done: 'Masjid dihapus.' },
   retry: { title: 'Kembalikan ke verifikasi?', text: 'Pendaftaran kembali berstatus menunggu verifikasi.', reason: false, to: 'pending', done: 'Dikembalikan ke menunggu verifikasi.' }
 };
 const BUTTONS = {
   draft: [['Setujui', 'approve'], ['Tolak', 'reject', 1]],
   pending: [['Setujui', 'approve'], ['Tolak', 'reject', 1]],
   active: [['Nonaktifkan', 'suspend', 1]],
-  suspended: [['Aktifkan kembali', 'reopen']],
-  rejected: [['Kembalikan ke verifikasi', 'retry']]
+  suspended: [['Aktifkan kembali', 'reopen'], ['Hapus', 'del', 1]],
+  rejected: [['Kembalikan ke verifikasi', 'retry'], ['Hapus', 'del', 1]]
 };
 
 const openPanels = new Set(); // masjid yang panel pengurusnya sedang dibuka
@@ -46,12 +47,15 @@ async function changeStatus(m, cfg, box) {
   const answer = await ask(cfg);
   if (!answer) return;
   try {
-    await updateMosqueStatus(m.id, cfg.to, cfg.reason ? answer : null);
+    if (cfg.del) {
+      const photo = await deleteMosque(m.id);
+      if (photo) storageRemove(photo).catch(() => {});
+    } else await updateMosqueStatus(m.id, cfg.to, cfg.reason ? answer : null);
     toast(cfg.done);
     await renderAdmin(box, 'masjid');
   } catch (e) {
     if (e.status === 401) return;
-    toast('Perubahan gagal disimpan. ' + hint(e), true);
+    toast(e && e.code === '22023' && e.message ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : 'Perubahan gagal disimpan. ' + hint(e), true);
   }
 }
 
