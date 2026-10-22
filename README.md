@@ -465,3 +465,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v121 (Peta Google Maps tersemat)
 - Di bawah baris "Lokasi" (pratinjau Masjid Saya dan profil publik masjid) tampil peta Google Maps sungguhan (tersemat) bila koordinat masjid ada. Tanpa kunci API, tanpa SQL.
 - Tautan pendek (maps.app.goo.gl) tidak punya koordinat terbaca, jadi hanya tombol "Buka di Google Maps" yang tampil.
+
+## Tambahan v122 (Peta perkiraan bila koordinat tidak ada)
+- Bila masjid punya tautan Google Maps tetapi koordinatnya tidak terbaca (mis. tautan pendek), peta tersemat tetap tampil sebagai peta perkiraan dari nama + alamat masjid, dengan keterangan. Tanpa SQL.
