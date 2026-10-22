@@ -21,6 +21,7 @@ import { renderKasManager } from './kas-ui.js';
 import { renderAuditLog } from './audit-ui.js';
 import { renderBrandingEditor } from './branding-ui.js';
 import { renderUserManager } from './pengguna-ui.js';
+import { renderMosqueReview } from './mosque-review-ui.js';
 import { homeBody } from './home-builder.js';
 import { renderHomeBuilder } from './home-builder-ui.js';
 import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, summaryCard, articleSection, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
@@ -70,6 +71,11 @@ export async function renderAdmin(box, view = 'home') {
   const me = getSession() && getSession().user;
   const count = s => list.filter(m => m.status === s).length;
 
+  const openReview = id => renderMosqueReview(box, id, {
+    list, onBack: () => renderAdmin(box, 'masjid'),
+    buttons: (() => { const m0 = list.find(x => x.id === id); return m0 ? BUTTONS[m0.status] || [] : []; })(),
+    onAction: (m, key) => changeStatus(m, ACTIONS[key], box)
+  });
   const rows = list.map(m => h('div', { class: 'mrow' },
     h('div', { class: 'minfo' },
       h('strong', {}, m.name),
@@ -77,6 +83,7 @@ export async function renderAdmin(box, view = 'home') {
       m.status_reason ? h('div', { class: 'muted' }, 'Alasan: ' + m.status_reason) : ''),
     h('div', { class: 'macts' },
       h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status),
+      h('button', { class: 'btn-sm ghost', type: 'button', 'data-act': 'check', 'aria-label': 'Periksa data ' + m.name, onclick: () => openReview(m.id) }, 'Cek'),
       (BUTTONS[m.status] || []).map(([label, key, alt]) =>
         h('button', { class: 'btn-sm' + (alt ? ' alt' : ''), onclick: () => changeStatus(m, ACTIONS[key], box) }, label)),
       m.status === 'active' ? h('button', { class: 'btn-sm ghost adm-kas', type: 'button', onclick: () => renderKasManager(box, m, { onBack: () => renderAdmin(box, 'masjid'), roles: { admin: true, approve: true } }) }, 'Kas') : '',

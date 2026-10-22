@@ -419,3 +419,10 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 
 /* v121: peta Google Maps tersemat */
 .map-embed{display:block;width:100%;height:240px;border:1px solid var(--line,#e4ddcf);border-radius:20px;margin-top:10px;background:var(--ivory,#f6f1e6)}
+
+/* v125: halaman periksa pendaftaran masjid (Super Admin) */
+.rv-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:10px}
+.rv-list li{padding:10px 12px;border-radius:14px;border:1px solid var(--line,#e4ddcf);background:#fff}
+.rv-ok b{color:var(--teal,#0f6b57)}
+.rv-warn{background:#fff8e6;border-color:#f0d9a0}
+.rv-warn b{color:#8a5a00}

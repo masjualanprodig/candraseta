@@ -30,6 +30,16 @@ export async function listMosques() {
 export async function registerMosque(f) {
   return db('rpc/mosque_register', { method: 'POST', body: { p_name: f.name, p_city: f.city || null, p_province: f.province || null, p_district: f.district || null, p_phone: f.phone || null, p_address: f.address || null, p_maps_url: f.mapsUrl || null, p_lat: f.lat == null ? null : f.lat, p_lng: f.lng == null ? null : f.lng } });
 }
+// Super Admin: data lengkap satu masjid untuk pemeriksaan pendaftaran (termasuk pendaftar & tanggal).
+export async function getMosqueReview(id) {
+  const cols = 'id,name,address,city,province,district,contact_phone,status,status_reason,latitude,longitude,photo_path,photos,maps_url,created_at,created_by';
+  const rows = await db('mosques', { query: 'select=' + cols + '&id=eq.' + enc(id) });
+  return Array.isArray(rows) && rows[0] ? rows[0] : null;
+}
+export async function getRegistrant(userId) {
+  const rows = await db('profiles', { query: 'select=id,full_name,phone&id=eq.' + enc(userId) });
+  return Array.isArray(rows) && rows[0] ? rows[0] : null;
+}
 // Super Admin menghapus permanen masjid yang nonaktif/ditolak (fungsi database admin_mosque_delete). Mengembalikan path foto lama (bila ada).
 export async function deleteMosque(id) {
   return db('rpc/admin_mosque_delete', { method: 'POST', body: { p_id: id } });

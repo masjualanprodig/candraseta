@@ -474,3 +474,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v124 (Artikel Terbaru berupa daftar, 5 artikel)
 - "Artikel Terbaru" di semua dashboard kini daftar satu kolom (bukan dua kartu berdampingan) dan menampilkan 5 artikel terbaru. Tanpa SQL.
+
+## Tambahan v125 (Super Admin: halaman Periksa pendaftaran)
+- Daftar masjid Super Admin: tiap baris punya tombol "Cek" menuju halaman khusus pemeriksaan: semua data yang diinput (nama, provinsi, kota, kecamatan, alamat, telepon, tautan & koordinat Google Maps, foto, pendaftar, tanggal), peta, pemeriksaan otomatis (kelengkapan data, foto, koordinat, nama ganda), lalu tombol keputusan (Setujui / Tolak / Nonaktifkan / dll.). Tanpa SQL.
