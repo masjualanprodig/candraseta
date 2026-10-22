@@ -398,3 +398,13 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .us-mn{display:grid;min-width:0;line-height:1.25}.us-mn b{font-size:.88rem;color:var(--green-deep);overflow-wrap:anywhere}.us-mn small{font-size:.74rem;color:var(--text-2)}
 .rg-terms{margin:10px 0 6px;padding:10px 12px;border-radius:12px;background:#F3F6EF;font-size:.82rem;color:var(--text)}
 .rg-terms ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
+
+/* v119: foto & tautan peta pada pendaftaran masjid */
+.rg-shots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.rg-shots:empty{display:none}
+.rg-shot{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--bg-soft,#f2f4ef)}
+.rg-shot img{width:100%;height:100%;object-fit:cover;display:block}
+.rg-shot-x{position:absolute;top:4px;right:4px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:20px;line-height:1;cursor:pointer}
+.rg-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.rg-gallery a{display:block;aspect-ratio:1;border-radius:12px;overflow:hidden}
+.rg-gallery img{width:100%;height:100%;object-fit:cover;display:block}

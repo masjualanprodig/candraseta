@@ -1,7 +1,7 @@
 // BAITUNA - nearby-ui.js
 // Halaman "Masjid terdekat": peta + daftar urut jarak. Peta memakai Leaflet (ikut di aplikasi) dan ubin OpenStreetMap.
 import { h } from './ui.js';
-import { publicPhotoUrl } from './supabase.js';
+import { publicPhotoUrl, mosqueCover } from './supabase.js';
 import { fetchMosquesWithCoords, sortByDistance, fmtDistance, getPosition, directionsUrl } from './nearby-service.js';
 
 const PAGE = 20;
@@ -62,7 +62,7 @@ export function nearbyView({ onOpen }) {
     const sorted = sortByDistance(mosques, pos);
     const cards = new Map();
     const card = ({ m, km }) => {
-      const u = publicPhotoUrl(m.photo_path);
+      const u = mosqueCover(m);
       const el = h('div', { class: 'ncard', 'data-id': m.id },
         u ? h('img', { class: 'thumb', src: u, alt: 'Foto ' + m.name, loading: 'lazy' }) : h('div', { class: 'thumb thumb-empty', 'aria-hidden': 'true' }),
         h('div', { class: 'minfo' },

@@ -3,7 +3,7 @@
 // masjid aktif yang punya titik lokasi, lalu jarak dihitung di perangkat.
 import { request } from './supabase.js';
 
-const COLS = 'id,name,address,city,province,contact_phone,description,facilities,latitude,longitude,timezone,photo_path';
+const COLS = 'id,name,address,city,province,contact_phone,description,facilities,latitude,longitude,timezone,photo_path,photos,maps_url';
 
 export async function fetchMosquesWithCoords() {
   const r = await request('/rest/v1/mosques?select=' + COLS + '&status=eq.active&latitude=not.is.null&longitude=not.is.null&order=name.asc&limit=500');

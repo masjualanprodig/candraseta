@@ -92,6 +92,9 @@ const encPath = p => String(p).split('/').map(encodeURIComponent).join('/');
 // Alamat publik foto (bucket publik). Dikembalikan null jika belum ada foto.
 export const publicPhotoUrl = (p, bucket = PHOTO_BUCKET) => p ? API + '/storage/v1/object/public/' + bucket + '/' + encPath(p) : null;
 export const WORLD_BUCKET = 'world-mosque-photos';
+export const GALLERY_BUCKET = 'mosque-gallery';
+// Foto sampul masjid: foto profil lama bila ada, kalau tidak foto pertama dari galeri.
+export const mosqueCover = m => !m ? null : m.photo_path ? publicPhotoUrl(m.photo_path) : (Array.isArray(m.photos) && m.photos[0]) ? publicPhotoUrl(m.photos[0], GALLERY_BUCKET) : null;
 export const ARTICLE_BUCKET = 'article-covers';
 export const AVATAR_BUCKET = 'avatars';
 export const ASMA_BUCKET = 'asma-audio';

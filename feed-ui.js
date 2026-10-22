@@ -4,7 +4,7 @@ import { h } from './ui.js';
 import { fetchFeed } from './public-service.js';
 import { fetchMosquesWithCoords, sortByDistance, fmtDistance } from './nearby-service.js';
 import { fmtWhen, isUpcoming, dateParts, dayDiff, fmtTimes } from './post-time.js';
-import { publicPhotoUrl } from './supabase.js';
+import { publicPhotoUrl, mosqueCover } from './supabase.js';
 import * as cal from './islamic-calendar.js';
 
 const tzOf = p => (p.mosques && p.mosques.timezone) || 'Asia/Jakarta';
@@ -80,7 +80,7 @@ export function feedPanel(opts = {}) {
   const agendaItem = p => {
     const tz = tzOf(p), dp = dateParts(p.starts_at, tz), diff = dayDiff(p.starts_at, tz, now);
     const soon = diff <= 0 ? 'Hari ini' : diff === 1 ? 'Besok' : '';
-    const img = publicPhotoUrl(p.mosques && p.mosques.photo_path);
+    const img = mosqueCover(p.mosques);
     return wrap(p, 'ag', [
       h('div', { class: 'datebox' + (soon ? ' now' : ''), 'aria-hidden': 'true' }, h('span', { class: 'dw' }, dp.dow), h('b', { class: 'dd' }, String(dp.d)), h('span', { class: 'dm' }, dp.mon)),
       h('div', { class: 'fi-main' },

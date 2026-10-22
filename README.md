@@ -450,3 +450,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Penghapusan permanen: pengurus, undangan, agenda, postingan ikut terhapus; foto masjid dibersihkan; tercatat di Audit ("Masjid dihapus").
 - Masjid yang sudah punya catatan keuangan TIDAK bisa dihapus (catatan keuangan permanen); aplikasi menampilkan pesannya.
 - SQL `masjid_hapus.sql` (jalankan dulu).
+
+## Tambahan v119 (Daftar masjid: foto, tautan Google Maps, label telepon)
+- Kolom telepon berlabel "No.HP/Telepon" (form daftar dan profil masjid).
+- Sampai 10 foto per masjid, tiap foto otomatis diperkecil sampai maksimal 100 KB. Foto pertama jadi sampul; foto lain tampil sebagai galeri di profil publik masjid.
+- Kolom tautan lokasi Google Maps: koordinat dibaca otomatis dari tautan panjang; tautan pendek (maps.app.goo.gl) disimpan apa adanya. Tombol "Buka di Google Maps" di profil publik memakai tautan itu.
+- SQL `masjid_foto_peta.sql` (jalankan dulu, setelah wilayah.sql).

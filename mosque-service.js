@@ -1,7 +1,7 @@
 // BAITUNA - mosque-service.js
 // Komunikasi data dengan backend untuk masjid dan keanggotaan.
 // (Nanti dipindah ke js/services/ saat struktur folder dipulihkan.)
-import { db } from './supabase.js';
+import { db, storageUpload, GALLERY_BUCKET } from './supabase.js';
 
 const enc = encodeURIComponent;
 
@@ -28,11 +28,23 @@ export async function listMosques() {
 
 // Admin Masjid mendaftarkan masjid baru (status menunggu verifikasi Super Admin). Dijaga fungsi database mosque_register.
 export async function registerMosque(f) {
-  return db('rpc/mosque_register', { method: 'POST', body: { p_name: f.name, p_city: f.city || null, p_province: f.province || null, p_district: f.district || null, p_phone: f.phone || null, p_address: f.address || null } });
+  return db('rpc/mosque_register', { method: 'POST', body: { p_name: f.name, p_city: f.city || null, p_province: f.province || null, p_district: f.district || null, p_phone: f.phone || null, p_address: f.address || null, p_maps_url: f.mapsUrl || null, p_lat: f.lat == null ? null : f.lat, p_lng: f.lng == null ? null : f.lng } });
 }
 // Super Admin menghapus permanen masjid yang nonaktif/ditolak (fungsi database admin_mosque_delete). Mengembalikan path foto lama (bila ada).
 export async function deleteMosque(id) {
   return db('rpc/admin_mosque_delete', { method: 'POST', body: { p_id: id } });
+}
+// Foto galeri masjid (maks 10, tiap foto <= 100 KB): diunggah ke bucket "mosque-gallery" lalu daftarnya disimpan lewat mosque_set_photos.
+export const MAX_GALLERY = 10;
+export async function saveGallery(mosqueId, blobs) {
+  const paths = [], stamp = Date.now();
+  let failed = 0;
+  for (let i = 0; i < blobs.length; i++) {
+    const path = mosqueId + '/' + (stamp + i) + '.jpg';
+    try { await storageUpload(path, blobs[i], GALLERY_BUCKET); paths.push(path); } catch (e) { failed++; }
+  }
+  if (paths.length) await db('rpc/mosque_set_photos', { method: 'POST', body: { p_id: mosqueId, p_photos: paths } });
+  return { saved: paths.length, failed };
 }
 // Masjid yang saya kelola (semua status), termasuk yang masih menunggu verifikasi.
 export async function myAdminMosques(userId) {

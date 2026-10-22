@@ -2,8 +2,9 @@
 // Dashboard Admin Masjid: profil masjid, tim pengurus, dan undangan.
 import { getPosition } from './nearby-service.js';
 import { h, toast, hint, ask, STATUS_LABEL } from './ui.js';
-import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, setMosquePhoto, registerMosque, myAdminMosques } from './mosque-service.js';
-import { prepareImage, newPhotoPath, PHOTO_ERRORS, MAX_BYTES } from './photo.js';
+import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, setMosquePhoto, registerMosque, myAdminMosques, saveGallery, MAX_GALLERY } from './mosque-service.js';
+import { prepareImage, newPhotoPath, PHOTO_ERRORS, MAX_BYTES, prepareProductPhoto, PRODUCT_ERRORS } from './photo.js';
+import { parseMapsUrl } from './maps-link.js';
 import { storageUpload, storageRemove, publicPhotoUrl } from './supabase.js';
 import { teamPanel } from './team-panel.js';
 import { renderPostsManager } from './posts-ui.js';
@@ -42,7 +43,7 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
   let mine = [];
   try { mine = me ? await myAdminMosques(me.id) : []; } catch (e) { if (e && e.status === 401) return; mine = []; }
   const field = (ph, max, id) => h('input', { class: 'in', id, placeholder: ph, maxlength: String(max), autocomplete: 'off', 'aria-label': ph });
-  const name = field('Nama masjid *', 150, 'rg-name'), phone = field('Telepon resmi', 30, 'rg-phone');
+  const name = field('Nama masjid *', 150, 'rg-name'), phone = field('No.HP/Telepon', 30, 'rg-phone');
   // Provinsi -> Kota/Kabupaten -> Kecamatan: pilihan bertingkat. Bila daftar wilayah gagal dimuat, berubah jadi isian teks.
   const sel = (id, label) => h('select', { class: 'in', id, 'aria-label': label, disabled: 'disabled' }, h('option', { value: '' }, label));
   const prov = sel('rg-prov', 'Pilih provinsi'), city = sel('rg-city', 'Pilih kota/kabupaten'), dist = sel('rg-dist', 'Pilih kecamatan');
@@ -73,6 +74,43 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
     catch (e) { wnote.textContent = 'Kecamatan belum bisa dimuat. Periksa internet lalu pilih kota/kabupaten lagi.'; reset(dist, 'Pilih kecamatan'); }
   };
   listProvinces().then(rows => fill(prov, 'Pilih provinsi', rows)).catch(() => textMode());
+  // Tautan lokasi Google Maps (opsional): koordinat dibaca otomatis dari tautan panjang.
+  const mapsIn = h('input', { class: 'in', id: 'rg-maps', type: 'url', inputmode: 'url', placeholder: 'Tautan lokasi Google Maps (opsional)', maxlength: '500', autocomplete: 'off', 'aria-label': 'Tautan lokasi Google Maps' });
+  const mapsMsg = h('p', { class: 'hint', id: 'rg-maps-msg' }, 'Buka Google Maps, cari masjid Anda, tekan Bagikan, Salin link, lalu tempel di sini.');
+  let maps = { ok: false, empty: true };
+  mapsIn.addEventListener('input', () => {
+    maps = parseMapsUrl(mapsIn.value);
+    mapsMsg.className = 'hint' + (maps.ok || maps.empty ? '' : ' mk-err');
+    mapsMsg.textContent = maps.empty ? 'Buka Google Maps, cari masjid Anda, tekan Bagikan, Salin link, lalu tempel di sini.'
+      : !maps.ok ? 'Tautan ini bukan tautan Google Maps.'
+      : maps.lat != null ? 'Tautan diterima. Koordinat terbaca: ' + maps.lat + ', ' + maps.lng + '.'
+      : 'Tautan diterima. Koordinat tidak terbaca dari tautan ini, tetapi tombol "Buka di Google Maps" tetap memakai tautan Anda.';
+  });
+  // Foto masjid: sampai 10, tiap foto otomatis diperkecil sampai maksimal 100 KB.
+  const shots = []; // { blob, url }
+  const pick = h('input', { class: 'in', id: 'rg-photos', type: 'file', multiple: 'multiple', accept: 'image/jpeg,image/png,image/webp', 'aria-label': 'Pilih foto masjid' });
+  const pickMsg = h('p', { class: 'hint', id: 'rg-photos-msg' }, '');
+  const strip = h('div', { class: 'rg-shots', id: 'rg-shots' });
+  const drawShots = () => {
+    strip.replaceChildren(...shots.map((s, i) => h('div', { class: 'rg-shot' }, h('img', { src: s.url, alt: 'Foto ' + (i + 1) }),
+      h('button', { type: 'button', class: 'rg-shot-x', 'aria-label': 'Hapus foto ' + (i + 1), onclick: () => { URL.revokeObjectURL(s.url); shots.splice(i, 1); drawShots(); } }, '×'))));
+    pickMsg.className = 'hint';
+    pickMsg.textContent = shots.length + ' dari ' + MAX_GALLERY + ' foto. Tiap foto otomatis diperkecil sampai maksimal 100 KB.';
+    pick.disabled = shots.length >= MAX_GALLERY;
+  };
+  pick.addEventListener('change', async () => {
+    const files = [...(pick.files || [])]; pick.value = '';
+    if (!files.length) return;
+    const room = MAX_GALLERY - shots.length; let bad = 0;
+    pick.disabled = true; pickMsg.className = 'hint'; pickMsg.textContent = 'Memproses foto…';
+    for (const f of files.slice(0, room)) {
+      try { const r = await prepareProductPhoto(f); shots.push({ blob: r.blob, url: URL.createObjectURL(r.blob) }); } catch (e) { bad++; }
+    }
+    drawShots();
+    const extra = files.length > room ? ' Hanya ' + MAX_GALLERY + ' foto yang diterima.' : '';
+    if (bad || extra) { pickMsg.className = 'hint mk-err'; pickMsg.textContent = (bad ? bad + ' foto dilewati (format harus JPEG/PNG/WebP atau tidak bisa dibaca).' : '') + extra; }
+  });
+  drawShots();
   const addr = h('textarea', { class: 'in mt', id: 'rg-addr', placeholder: 'Alamat', maxlength: '300', 'aria-label': 'Alamat' });
   const agree = h('input', { type: 'checkbox', id: 'rg-agree' });
   const err = h('p', { class: 'mk-err', id: 'rg-err', role: 'alert' }, '');
@@ -82,17 +120,26 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
     const n = name.value.trim();
     if (n.length < 3) { err.textContent = 'Nama masjid minimal 3 huruf.'; return; }
     if (!agree.checked) { err.textContent = 'Centang persetujuan ketentuan dulu.'; return; }
+    if (!maps.empty && !maps.ok) { err.textContent = 'Tautan lokasi harus dari Google Maps, atau kosongkan.'; return; }
     btn.disabled = true;
     try {
-      await registerMosque({ name: n, province: chosen(prov2), city: chosen(city2), district: chosen(dist2), phone: phone.value.trim(), address: addr.value.trim() });
-      toast('Masjid terkirim. Menunggu verifikasi Super Admin.');
+      const newId = await registerMosque({ name: n, province: chosen(prov2), city: chosen(city2), district: chosen(dist2), phone: phone.value.trim(), address: addr.value.trim(),
+        mapsUrl: maps.ok ? maps.url : null, lat: maps.ok ? maps.lat : null, lng: maps.ok ? maps.lng : null });
+      let note = '';
+      if (shots.length && typeof newId === 'string') {
+        try { const g = await saveGallery(newId, shots.map(s => s.blob)); if (g.failed) note = ' ' + g.failed + ' foto gagal diunggah.'; }
+        catch (e) { note = ' Foto belum tersimpan.'; }
+      }
+      shots.forEach(s => URL.revokeObjectURL(s.url));
+      toast('Masjid terkirim. Menunggu verifikasi Super Admin.' + note, !!note);
       await renderRegister(box, onBack, { currentId, onPick }); return;
     } catch (e) {
       if (e && e.status === 401) return;
       err.textContent = e && e.code === '22023' && e.message ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : e && e.status === 0 ? 'Tidak ada koneksi internet.' : e && (e.status === 403 || e.code === '42501') ? 'Hanya Admin Masjid yang boleh mendaftarkan masjid.' : 'Belum terkirim. ' + hint(e);
     }
     btn.disabled = false;
-  } }, h('h3', {}, 'Daftarkan masjid baru'), h('div', { class: 'grid2' }, name, prov, city, dist, phone), wnote, addr,
+  } }, h('h3', {}, 'Daftarkan masjid baru'), h('div', { class: 'grid2' }, name, prov, city, dist, phone), wnote, addr, mapsIn, mapsMsg,
+    h('label', { class: 'hint', for: 'rg-photos' }, 'Foto masjid (maksimal ' + MAX_GALLERY + ' foto)'), pick, pickMsg, strip,
     h('div', { class: 'rg-terms', id: 'rg-terms' }, h('b', {}, 'Ketentuan pendaftaran'), h('ul', {}, ...TERMS.map(t => h('li', {}, t)))),
     h('label', { class: 'dopt' }, agree, h('span', {}, 'Saya sudah membaca dan menyetujui ketentuan di atas.')),
     err, h('div', { class: 'mt' }, btn));
@@ -150,7 +197,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
 
   const field = (ph, val, max) => h('input', { class: 'in', placeholder: ph, maxlength: String(max), autocomplete: 'off', value: val == null ? '' : String(val) });
   const name = field('Nama masjid *', mosque.name, 150), city = field('Kota/Kabupaten', mosque.city, 80),
-        prov = field('Provinsi', mosque.province, 80), phone = field('Telepon resmi', mosque.contact_phone, 30);
+        prov = field('Provinsi', mosque.province, 80), phone = field('No.HP/Telepon', mosque.contact_phone, 30);
   const addr = h('textarea', { class: 'in mt', placeholder: 'Alamat', maxlength: '300' }, mosque.address || '');
   const desc = h('textarea', { class: 'in mt', placeholder: 'Tentang masjid (sejarah, kegiatan, dll.)', maxlength: '1000' }, mosque.description || '');
   const fac = field('Fasilitas, pisahkan dengan koma (mis. Parkir, Toilet, Ruang wudhu)', mosque.facilities, 300);

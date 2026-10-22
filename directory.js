@@ -35,7 +35,8 @@ import { adzanPage } from './adzan-ui.js';
 import { qaPage } from './qa-ui.js';
 import { booksPage } from './books-ui.js';
 import { kasPublicPanel } from './kas-ui.js';
-import { publicPhotoUrl } from './supabase.js';
+import { publicPhotoUrl, mosqueCover, GALLERY_BUCKET } from './supabase.js';
+import { MAPS_RE } from './maps-link.js';
 
 let onBack = () => {};
 let state = { tab: 'dir', view: 'list', q: '', province: '', items: [], more: false, loaded: false, provinces: null, error: false };
@@ -314,7 +315,7 @@ async function loadMore() {
 
 // Hanya angka/tanda telepon yang boleh masuk ke tautan tel:.
 function thumb(m) {
-  const u = publicPhotoUrl(m.photo_path);
+  const u = mosqueCover(m);
   return u ? h('img', { class: 'thumb', src: u, alt: 'Foto ' + m.name, loading: 'lazy' }) : h('div', { class: 'thumb thumb-empty', 'aria-hidden': 'true' });
 }
 
@@ -325,17 +326,20 @@ function renderDetail(m, back = renderList, backLabel = '← Daftar masjid') {
   const lat = Number(m.latitude), lng = Number(m.longitude);
   const hasMap = m.latitude !== null && m.longitude !== null && isFinite(lat) && isFinite(lng);
   const tel = telHref(m.contact_phone);
+  const gallery = (Array.isArray(m.photos) ? m.photos : []).map(p => publicPhotoUrl(p, GALLERY_BUCKET)).filter(Boolean);
+  const mapsHref = m.maps_url && MAPS_RE.test(m.maps_url) ? m.maps_url : (hasMap ? 'https://www.google.com/maps?q=' + lat + ',' + lng : null);
   const row = (label, content) => h('div', { class: 'drow' }, h('div', { class: 'muted' }, label), h('div', {}, content));
   $('public-content').replaceChildren(
     h('button', { class: 'btn-sm ghost', onclick: back }, backLabel),
-    publicPhotoUrl(m.photo_path) ? h('img', { class: 'hero', src: publicPhotoUrl(m.photo_path), alt: 'Foto ' + m.name }) : '',
+    mosqueCover(m) ? h('img', { class: 'hero', src: mosqueCover(m), alt: 'Foto ' + m.name }) : '',
+    gallery.length > 1 ? h('div', { class: 'rg-gallery', id: 'dir-gallery' }, gallery.slice(1).map((u, i) => h('a', { href: u, target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Foto ' + (i + 2) }, h('img', { src: u, alt: 'Foto ' + (i + 2) + ' ' + m.name, loading: 'lazy' })))) : '',
     h('h2', { class: 'mt' }, m.name),
     h('span', { class: 'badge b-active' }, 'Terverifikasi'),
     h('div', { class: 'panel' },
       row('Alamat', m.address || 'Belum diisi'),
       row('Wilayah', [m.city, m.province].filter(Boolean).join(', ') || 'Belum diisi'),
       row('Kontak resmi', m.contact_phone ? (tel ? h('a', { class: 'link', href: tel }, m.contact_phone) : m.contact_phone) : 'Belum diisi'),
-      hasMap ? row('Lokasi', h('a', { class: 'link', href: 'https://www.google.com/maps?q=' + lat + ',' + lng, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps')) : ''),
+      mapsHref ? row('Lokasi', h('a', { class: 'link', href: mapsHref, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps')) : ''),
     prayerPanel(m),
     postsPublic(m),
     kasPublicPanel(m),
