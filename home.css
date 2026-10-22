@@ -292,3 +292,16 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,
 .ag-body{width:100%;box-sizing:border-box;border:0;background:rgba(255,255,255,.7);border-radius:16px;padding:8px;font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:64px}
 .ag-body .ag-txt{flex:1}
 .ag-body .fi-chip{align-self:flex-start;margin-top:.15rem}
+/* v141 - kartu Agenda lebih besar */
+.agk{gap:14px;padding:10px;border-radius:20px}
+.agk-img,.ag-img{width:112px;height:112px;border-radius:16px}
+.agk-date{left:8px;top:8px;min-width:44px;padding:4px 7px;border-radius:12px}
+.agk-date i{font-size:.72rem}.agk-date b{font-size:1.35rem}
+.agk-main{gap:4px}
+.agk-title{font-size:1.1rem}
+.agk .fi-meta{font-size:.9rem}.agk .fi-meta .ic{width:17px;height:17px}
+.agk .fi-chip{font-size:.82rem;padding:.2rem .7rem}
+.agk .fi-chev{width:22px;height:22px}
+.kt-ag-grid .agk-img{height:130px}
+.agc-dots{margin-top:12px}
+.ag-body{gap:14px}

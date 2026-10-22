@@ -548,3 +548,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v140
 - Reset kas: pop-up konfirmasi dihilangkan; tombol "Reset kas (mulai dari awal)" langsung mereset.
+
+## Tambahan v141
+- Kartu Agenda di beranda dibuat lebih besar (foto, judul, jam, tempat, label masjid).
