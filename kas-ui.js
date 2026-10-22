@@ -44,7 +44,7 @@ const fld = (name, el) => h('div', { class: 'kas-field' }, h('span', { class: 'k
 function reportView(rep, { title, detail = true } = {}) {
   const stat = (id, label, v, cls) => h('div', { class: 'kas-stat ' + (cls || ''), id }, h('span', { class: 'muted' }, label), h('b', {}, K.money(v)));
   const kids = [title ? h('h3', { class: 'kas-rt' }, title) : '',
-    h('div', { class: 'kas-stats' }, stat('kas-r-awal', 'Saldo awal', rep.saldo_awal), stat('kas-r-masuk', 'Kas masuk', rep.masuk, 'in'), stat('kas-r-keluar', 'Kas keluar', rep.keluar, 'out'), stat('kas-r-akhir', 'Saldo akhir', rep.saldo_akhir, 'end'))];
+    h('div', { class: 'kas-stats' }, stat('kas-r-awal', 'Saldo awal', rep.saldo_awal), stat('kas-r-masuk', 'Kas masuk', rep.masuk, 'pos'), stat('kas-r-keluar', 'Kas keluar', rep.keluar, 'neg'), stat('kas-r-akhir', 'Saldo akhir', rep.saldo_akhir, 'end'))];
   if (rep.opening_added > 0) kids.push(h('p', { class: 'hint', id: 'kas-r-open' }, 'Termasuk saldo awal akun baru bulan ini: ' + K.money(rep.opening_added) + ' (tidak dihitung sebagai kas masuk).'));
   if (rep.closed) kids.push(h('p', { class: 'kas-closed', id: 'kas-r-closed' }, '✓ Bulan ini sudah ditutup' + (rep.closing_note ? ': ' + rep.closing_note : '') + '.'));
   const cats = d => (rep.categories || []).filter(c => c.direction === d);
@@ -56,10 +56,13 @@ function reportView(rep, { title, detail = true } = {}) {
   return h('div', { class: 'kas-rep' }, ...kids);
 }
 function monthNav(month, set, nowKey) {
-  return h('div', { class: 'kas-nav' },
+  const nav = h('div', { class: 'kas-nav' },
     h('button', { class: 'btn-sm ghost', type: 'button', id: 'kas-prev', 'aria-label': 'Bulan sebelumnya', onclick: () => set(K.addMonths(month, -1)) }, '‹'),
     h('b', { id: 'kas-month' }, K.monthLabel(month)),
     h('button', { class: 'btn-sm ghost', type: 'button', id: 'kas-next', 'aria-label': 'Bulan berikutnya', ...(month >= nowKey ? { disabled: 'disabled' } : {}), onclick: () => set(K.addMonths(month, 1)) }, '›'));
+  const now = month >= nowKey;
+  return h('div', { class: 'kas-navwrap' }, nav,
+    h('button', { class: 'btn-sm ghost kas-reset', type: 'button', id: 'kas-reset', ...(now ? { disabled: 'disabled' } : {}), onclick: () => set(nowKey) }, 'Reset ke bulan ini'));
 }
 
 /* ===== Ringkasan untuk jamaah (profil masjid): hanya total, tanpa rincian ===== */

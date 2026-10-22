@@ -533,3 +533,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v136 (Perbaikan: Import Doa gagal saat berkas berisi hadis dan ayat bersamaan)
 - Penyebab: impor massal ke server mensyaratkan semua baris memiliki kolom yang sama; baris hadis dan baris ayat sebelumnya berbeda sehingga seluruh kelompok ditolak. Kini semua baris dikirim dengan kolom seragam (nilai kosong = null). Diuji dengan berkas asli (47 doa valid, termasuk 9 ayat) terhadap batasan tabel duas. Tanpa perubahan SQL. Cache SW baituna-static-v110.
+
+## Tambahan v137 (Keuangan: kartu Kas masuk/keluar rapi + tombol "Reset ke bulan ini")
+- Kartu Kas masuk dan Kas keluar di Ringkasan sempat mepet karena kelas "in" bentrok dengan gaya kolom isian; diganti pos/neg. Tombol "Reset ke bulan ini" di Ringkasan (dan Transaksi) mengembalikan ke bulan sekarang; nonaktif bila sudah di bulan ini. Tidak ada data dihapus. Cache SW baituna-static-v111.
