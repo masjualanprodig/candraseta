@@ -2,6 +2,7 @@
 // Kumpulan Doa Shahih: (1) tampilan jamaah (kategori, pencarian, favorit, salin), (2) pengelolaan oleh Super Admin.
 // Teks doa ditulis Super Admin lengkap dengan sumber & derajat; ayat diambil otomatis. Favorit hanya disimpan di perangkat.
 import { h, toast, hint, ask } from './ui.js';
+import { renderDuaImport, downloadTemplate, svg, P } from './doa-import-ui.js';
 import { CATS, GRADES, KINDS, listDuas, createDua, updateDua, deleteDua, matches, copyText, loadFavs, saveFavs, toggleFav } from './doa-service.js';
 import { listSurahs, loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
@@ -158,7 +159,7 @@ export async function renderDuaManager(box, onBack) {
   const formTitle = h('h3', {}, 'Tambah doa');
   const status = h('p', { class: 'hint' }, '');
   const save = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan');
-  const cancel = h('button', { class: 'btn-sm ghost', type: 'button', hidden: true, onclick: reload }, 'Batal ubah');
+  const cancel = h('button', { class: 'btn-sm ghost', type: 'button', hidden: true, onclick: () => showList() }, 'Batal');
 
   const form = h('form', {
     class: 'panel rform', novalidate: 'novalidate',
@@ -193,32 +194,82 @@ export async function renderDuaManager(box, onBack) {
     status, h('div', { class: 'mt row-btns' }, save, cancel));
   place();
 
-  function edit(e) {
+  function fillForm(e) {
     editing = e; formTitle.textContent = 'Ubah doa';
     kind.value = e.kind; kind.disabled = true; place();
     category.value = e.category; title.value = e.title || ''; source.value = e.source || ''; note.value = e.note || ''; order.value = String(e.sort_order);
     if (e.kind === 'ayat') { surahSel.value = String(e.surah); from.value = e.ayah_from; to.value = e.ayah_to === e.ayah_from ? '' : e.ayah_to; }
     else { arabic.value = e.arabic || ''; latin.value = e.latin || ''; body.value = e.body || ''; grade.value = e.grade || ''; grading.value = e.grading || ''; }
-    cancel.hidden = false; form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    cancel.hidden = false;
+  }
+  function showForm(e) {
+    if (e) fillForm(e);
+    box.replaceChildren(h('button', { class: 'btn-sm ghost', type: 'button', id: 'dm-formback', onclick: () => showList() }, '← Kembali ke daftar'),
+      h('h2', { class: 'mt' }, e ? 'Ubah Doa' : 'Tambah Doa Manual'), form);
+    window.scrollTo(0, 0);
+  }
+  function showImport() {
+    renderDuaImport(box, { onBack: () => showList(), onDone: reload });
   }
 
+  /* ----- Halaman daftar ----- */
+  const CATIC = { harian: '☀️', tidur: '🌙', makan: '🍽️', masjid: '🕌', bersuci: '💧', pakaian: '🏠', perjalanan: '🧭', sakit: '🩺', ampunan: '🤲', keluarga: '👪', lainnya: '📿' };
   const label = it => it.title || (it.kind === 'ayat' ? refLabel(surahs, it) : (it.source || 'Doa'));
-  const item = it => h('div', { class: 'post' }, h('div', { class: 'fi-main' },
-    it.grade ? h('span', { class: 'hperiod' }, GRADES[it.grade]) : '', ' ', h('b', {}, label(it)),
-    h('div', { class: 'muted' }, it.kind === 'ayat' ? 'Ayat · teks diambil otomatis' : (it.body || '').slice(0, 90) + ((it.body || '').length > 90 ? '…' : '')),
-    h('div', { class: 'row-btns mt' },
-      h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => edit(it) }, 'Ubah'),
-      h('button', { class: 'btn-sm alt', type: 'button', onclick: async () => {
-        if (!(await ask({ title: 'Hapus doa ini?', text: label(it) + ' akan dihapus dan tidak bisa dikembalikan.', reason: false }))) return;
-        try { await deleteDua(it.id); toast('Dihapus.'); await reload(); } catch (er) { if (er.status !== 401) toast('Gagal menghapus. ' + hint(er), true); }
-      } }, 'Hapus'))));
-
-  const group = k => { const list = rows.filter(r => r.category === k); return list.length ? h('div', { class: 'panel' }, h('h3', {}, CATS[k] + ' (' + list.length + ')'), list.map(item)) : ''; };
-  box.replaceChildren(...[
-    onBack ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: onBack }, '← Kembali ke dashboard') : '',
-    h('h2', { class: 'mt' }, 'Kelola Doa Shahih'),
-    h('p', { class: 'muted' }, 'Hanya Super Admin yang bisa mengubah. Setiap doa dari hadits wajib memuat teks Arab, terjemahan, sumber (perawi dan nomor), derajat (shahih atau hasan), dan keterangan siapa yang menilai derajatnya. Hadits yang lemah tidak bisa disimpan. Sebaiknya diperiksa ustaz sebelum diumumkan.'),
-    form, ...Object.keys(CATS).map(group), rows.length ? '' : h('div', { class: 'panel' }, h('p', { class: 'muted' }, 'Belum ada doa.'))
-  ].flat());
-  window.scrollTo(0, 0);
+  const st = { q: '', cat: '', grade: '', kind: '', filt: false, open: new Set(), menu: null };
+  function showList() {
+    editing = null;
+    const list = h('div', { id: 'dm-list' }), chips = h('div', { class: 'dm-chips', id: 'dm-chips' }), filt = h('div', { class: 'dm-filt', id: 'dm-filt', hidden: true });
+    const search = h('input', { class: 'in', id: 'dm-q', type: 'search', placeholder: 'Cari judul atau kategori…', value: st.q, 'aria-label': 'Cari doa', autocomplete: 'off' });
+    const gSel = h('select', { class: 'in', id: 'dm-fg', 'aria-label': 'Derajat' }, h('option', { value: '' }, 'Semua derajat'), ...Object.keys(GRADES).map(k => h('option', { value: k }, GRADES[k])));
+    const kSel = h('select', { class: 'in', id: 'dm-fk', 'aria-label': 'Jenis' }, h('option', { value: '' }, 'Semua jenis'), ...Object.keys(KINDS).map(k => h('option', { value: k }, KINDS[k])));
+    gSel.value = st.grade; kSel.value = st.kind; filt.hidden = !st.filt; filt.append(gSel, kSel);
+    const pass = it => (!st.cat || it.category === st.cat) && (!st.grade || it.grade === st.grade) && (!st.kind || it.kind === st.kind) && matchQ(it, st.q);
+    const matchQ = (it, q) => { if (!q.trim()) return true; return matches(it, q) || matches({ title: CATS[it.category] }, q) || (it.kind === 'ayat' && matches({ title: refLabel(surahs, it) }, q)); };
+    function draw() {
+      chips.replaceChildren(h('button', { class: 'dm-chip' + (!st.cat ? ' on' : ''), type: 'button', 'data-cat': '', onclick: () => { st.cat = ''; draw(); } }, 'Semua (' + rows.length + ')'),
+        ...Object.keys(CATS).map(k => { const n = rows.filter(r => r.category === k).length; return n ? h('button', { class: 'dm-chip' + (st.cat === k ? ' on' : ''), type: 'button', 'data-cat': k, onclick: () => { st.cat = k; draw(); } }, CATS[k] + ' (' + n + ')') : ''; }));
+      const shown = rows.filter(pass);
+      list.replaceChildren(...(shown.length ? shown.map(card) : [h('div', { class: 'panel center', id: 'dm-empty' }, h('p', { class: 'muted' }, rows.length ? 'Tidak ada doa yang cocok dengan pencarian atau filter.' : 'Belum ada doa. Impor dari Excel atau tambah satu doa secara manual.'),
+        rows.length ? '' : h('button', { class: 'btn-sm', type: 'button', onclick: showImport }, 'Import dari Excel'))]));
+    }
+    function card(it) {
+      const open = st.open.has(it.id), menuOn = st.menu === it.id;
+      const grd = it.grade ? h('span', { class: 'dm-badge ' + it.grade }, GRADES[it.grade]) : h('span', { class: 'dm-badge ayat' }, 'Ayat');
+      const kids = [h('div', { class: 'dm-ic' }, CATIC[it.category] || '📿'),
+        h('div', { class: 'dm-main' },
+          h('div', { class: 'dm-top' }, h('b', { class: 'dm-t' }, label(it)),
+            h('button', { class: 'dm-dots', type: 'button', 'aria-label': 'Menu tindakan', 'aria-expanded': String(menuOn), onclick: () => { st.menu = menuOn ? null : it.id; draw(); } }, svg(P.dots || '<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>'))),
+          it.kind === 'ayat' ? '' : h('p', { class: 'dm-ar', lang: 'ar', dir: 'rtl' }, it.arabic || ''),
+          h('p', { class: 'dm-tr' }, it.kind === 'ayat' ? 'Ayat Al-Qur’an · teks diambil otomatis' : (it.body || '')),
+          h('div', { class: 'dm-meta' }, h('span', { class: 'muted' }, CATS[it.category]), it.source ? h('span', { class: 'muted' }, ' · ' + it.source) : '', ' ', grd))];
+      const extra = [];
+      if (menuOn) extra.push(h('div', { class: 'dm-menu' },
+        h('button', { class: 'btn-sm ghost dm-m-detail', type: 'button', onclick: () => { st.menu = null; open ? st.open.delete(it.id) : st.open.add(it.id); draw(); } }, open ? 'Tutup detail' : 'Lihat detail'),
+        h('button', { class: 'btn-sm ghost dm-m-edit', type: 'button', onclick: () => showForm(it) }, 'Ubah'),
+        h('button', { class: 'btn-sm alt dm-m-del', type: 'button', onclick: async () => {
+          if (!(await ask({ title: 'Hapus doa ini?', text: label(it) + ' akan dihapus dan tidak bisa dikembalikan.', reason: false }))) return;
+          try { await deleteDua(it.id); toast('Dihapus.'); await reload(); } catch (er) { if (er.status !== 401) toast('Gagal menghapus. ' + hint(er), true); }
+        } }, 'Hapus')));
+      if (open) extra.push(h('dl', { class: 'dm-detail' },
+        ...(it.kind === 'ayat' ? [h('dt', {}, 'Rujukan'), h('dd', {}, refLabel(surahs, it))] : [h('dt', {}, 'Teks Arab'), h('dd', { class: 'dm-ar', lang: 'ar', dir: 'rtl' }, it.arabic || ''), it.latin ? h('dt', {}, 'Latin') : '', it.latin ? h('dd', {}, it.latin) : '',
+          h('dt', {}, 'Terjemahan'), h('dd', {}, it.body || ''), h('dt', {}, 'Sumber'), h('dd', {}, it.source || ''), h('dt', {}, 'Derajat'), h('dd', {}, (GRADES[it.grade] || '') + (it.grading ? ' · ' + it.grading : ''))]),
+        it.note ? h('dt', {}, 'Keterangan') : '', it.note ? h('dd', {}, it.note) : ''));
+      return h('div', { class: 'dm-card', 'data-id': it.id }, h('div', { class: 'dm-row' }, ...kids), ...extra);
+    }
+    search.addEventListener('input', () => { st.q = search.value; draw(); });
+    gSel.addEventListener('change', () => { st.grade = gSel.value; draw(); });
+    kSel.addEventListener('change', () => { st.kind = kSel.value; draw(); });
+    const filBtn = h('button', { class: 'dm-fbtn', type: 'button', id: 'dm-fbtn', 'aria-expanded': String(st.filt), onclick: () => { st.filt = !st.filt; filt.hidden = !st.filt; filBtn.setAttribute('aria-expanded', String(st.filt)); } }, svg('<path d="M4 7h16M7 12h10M10 17h4"/>'), 'Filter');
+    box.replaceChildren(
+      onBack ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: onBack }, '← Kembali ke dashboard') : '',
+      h('div', { class: 'dm-hero' }, h('div', {}, h('h2', {}, 'Kelola Doa Shahih'), h('p', { class: 'muted' }, 'Kelola kumpulan doa berdasarkan hadis yang shahih untuk fitur Doa Harian di aplikasi BAITUNA. Hanya Super Admin yang bisa mengubah; sebaiknya ditinjau ustaz sebelum diumumkan.')), svg(P.mosque, 'ic dm-heroic')),
+      h('div', { class: 'dm-tiles' },
+        h('button', { class: 'dm-tile main', type: 'button', id: 'dm-import', onclick: showImport }, svg(P.xl, 'ic dm-tic'), h('span', {}, h('b', {}, 'Import dari Excel/Spreadsheet'), h('small', {}, 'Tambah banyak doa sekaligus'))),
+        h('button', { class: 'dm-tile', type: 'button', id: 'dm-tpl', onclick: downloadTemplate }, svg(P.file, 'ic dm-tic'), h('span', {}, h('b', {}, 'Download Template Excel'), h('small', {}, 'Gunakan template untuk import')))),
+      h('div', { class: 'dm-tools' }, h('div', { class: 'dm-search' }, svg('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>'), search), filBtn),
+      filt, chips, list,
+      h('div', { class: 'dm-fab' }, h('button', { class: 'dm-add', type: 'button', id: 'dm-add', onclick: () => showForm(null) }, svg('<path d="M12 5v14M5 12h14"/>'), 'Tambah Doa Manual')));
+    draw(); window.scrollTo(0, 0);
+  }
+  showList();
 }

@@ -514,3 +514,10 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v132 (Super Admin: kolom "Urutan" dihapus dari formulir Doa dan Dzikir)
 - Teks baru otomatis berurutan bawaan (100); teks lama tetap memakai urutannya. Tidak ada perubahan SQL. Cache SW baituna-static-v106.
+
+## Tambahan v133 (Super Admin: perombakan Kelola Doa Shahih + Import dari Excel)
+- Kelola Doa Shahih: tombol Import dari Excel/Spreadsheet, Download Template Excel, Tambah Doa Manual, pencarian, filter (derajat, jenis), chip kategori dengan jumlah, kartu doa (judul, Arab, terjemahan, sumber, derajat) dengan menu Lihat detail / Ubah / Hapus.
+- Import Doa dari Excel: unduh template (.xlsx: lembar Doa, Contoh, Petunjuk; pilihan kategori/derajat/jenis), unggah, pratinjau (total, valid, bermasalah, duplikat, daftar kesalahan per baris dan kolom), konfirmasi, simpan per 100 baris, ringkasan hasil, laporan CSV.
+- Aturan: derajat hanya Shahih/Hasan; sumber, terjemahan, penilai wajib untuk doa hadis; ayat hanya rujukan; nilai tak dikenali ditolak (tidak diubah diam-diam); duplikat (teks Arab tanpa harakat, judul, atau rujukan ayat) dilewati, tidak menimpa.
+- Keamanan: hak akses tetap dijaga RLS di server (hanya Super Admin); berkas dibaca berdasarkan isi zip/xlsx; rumus tidak pernah dihitung; batas 2 MB, 1000 baris. Tanpa pustaka luar (pembaca xlsx sendiri, DecompressionStream bawaan peramban). Hanya .xlsx.
+- Daftar doa dibaca per halaman 1000 baris (maks. 5000). Tidak ada perubahan SQL. Cache SW baituna-static-v107.

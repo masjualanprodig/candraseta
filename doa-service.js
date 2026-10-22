@@ -12,9 +12,16 @@ const COLS = 'id,category,kind,title,arabic,latin,body,source,grade,grading,note
 const enc = encodeURIComponent;
 
 export async function listDuas() {
-  const r = await request('/rest/v1/duas?select=' + COLS + '&order=sort_order.asc,created_at.asc&limit=1000');
-  if (!r.ok) throw Object.assign(new Error('gagal memuat'), { status: r.status, code: r.data && r.data.code });
-  return Array.isArray(r.data) ? r.data : [];
+  // Dibaca per halaman 1000 baris (batas server) sampai habis; maksimal 5000.
+  let all = [];
+  for (let off = 0; off < 5000; off += 1000) {
+    const r = await request('/rest/v1/duas?select=' + COLS + '&order=sort_order.asc,created_at.asc&limit=1000&offset=' + off);
+    if (!r.ok) throw Object.assign(new Error('gagal memuat'), { status: r.status, code: r.data && r.data.code });
+    const page = Array.isArray(r.data) ? r.data : [];
+    all = all.concat(page);
+    if (page.length < 1000) break;
+  }
+  return all;
 }
 const one = out => { if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 }); return out[0]; };
 const fieldsOf = (kind, f) => {
@@ -54,3 +61,19 @@ export function loadFavs() {
 }
 export function saveFavs(ids) { try { localStorage.setItem(FKEY, JSON.stringify(ids.slice(0, 2000))); } catch (e) {} }
 export const toggleFav = (ids, id) => ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id];
+
+// Impor banyak doa. Setiap kelompok (maks. 100 baris) disimpan sekaligus: berhasil semua atau gagal semua.
+// Berhasil dihitung dari baris yang DIKEMBALIKAN database, bukan dari yang dikirim. Hak akses dijaga RLS (hanya Super Admin).
+export async function importDuas(payloads, onProgress) {
+  const res = { saved: 0, failedFrom: null, error: null };
+  for (let i = 0; i < payloads.length; i += 100) {
+    const part = payloads.slice(i, i + 100);
+    try {
+      const out = await db('duas', { method: 'POST', query: 'select=id', prefer: 'return=representation', body: part });
+      if (!Array.isArray(out) || out.length !== part.length) throw Object.assign(new Error('jumlah tidak sesuai'), { status: 500 });
+      res.saved += part.length;
+    } catch (e) { res.failedFrom = i; res.error = e; break; }
+    if (onProgress) onProgress(res.saved, payloads.length);
+  }
+  return res;
+}
