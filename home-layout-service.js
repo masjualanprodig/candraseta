@@ -23,8 +23,8 @@ export const LINKS = {
 // Bagian bawaan tiap peran, urutan = tampilan bawaan. required = tak boleh dihapus (agar tidak kehilangan akses menu).
 export const BUILTINS = {
   jamaah: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['tasbih', 'Tasbih Digital'], ['kelola', 'Kelola Masjid (hanya pengurus)'], ['jadwal', 'Jadwal Salat'], ['akses', 'Akses Cepat'], ['anggota', 'Keanggotaan (hanya anggota)'], ['artikel', 'Artikel Terbaru']],
-  admin: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['tasbih', 'Tasbih Digital'], ['ops', 'Ringkasan Operasional'], ['fin', 'Ringkasan Keuangan'], ['jadwal', 'Jadwal Salat'], ['agenda', 'Agenda Terdekat'], ['info', 'Pengumuman'], ['akses', 'Akses Cepat'], ['aktivitas', 'Aktivitas Terbaru'], ['daftar', 'Daftarkan Masjid Baru'], ['tim', 'Pengurus Masjid']],
-  super: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['tasbih', 'Tasbih Digital'], ['mgmt', 'Manajemen Platform'], ['stats', 'Statistik Platform'], ['jadwal', 'Jadwal Salat']]
+  admin: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['tasbih', 'Tasbih Digital'], ['ops', 'Ringkasan Operasional'], ['fin', 'Ringkasan Keuangan'], ['jadwal', 'Jadwal Salat'], ['agenda', 'Agenda Terdekat'], ['info', 'Pengumuman'], ['artikel', 'Artikel Terbaru'], ['akses', 'Akses Cepat'], ['aktivitas', 'Aktivitas Terbaru'], ['daftar', 'Daftarkan Masjid Baru'], ['tim', 'Pengurus Masjid']],
+  super: [['banner', 'Banner bawaan'], ['buku', 'Pustaka Buku'], ['pasar', 'Pasar Umat'], ['tasbih', 'Tasbih Digital'], ['mgmt', 'Manajemen Platform'], ['stats', 'Statistik Platform'], ['jadwal', 'Jadwal Salat'], ['artikel', 'Artikel Terbaru']]
 };
 export const REQUIRED = { jamaah: ['tasbih'], admin: ['akses', 'tasbih'], super: ['mgmt', 'tasbih'] };
 export const REQUIRED_ITEMS = { 'super:mgmt': ['qa-konten'] };   // menu yang tak boleh disembunyikan
@@ -50,7 +50,7 @@ export const DEFAULTS = {
     buku: PROMO.buku, pasar: PROMO.pasar,
     akses: { title: 'Akses Cepat', items: [['qa-pengurus', 'Pengurus', 'open-pengurus'], ['open-kas', 'Keuangan', 'open-keuangan'], ['open-posts', 'Agenda', 'open-agenda'], ['open-info', 'Pengumuman', 'open-pengumuman'], ['open-edit', 'Profil Masjid', 'open-profilmasjid'], ['open-audit', 'Jejak Audit', 'open-audit'], ['qa-market', 'Pasar Umat', 'open-market'], ['qa-more', 'Lainnya', 'open-more']] },
     tasbih: { title: 'Tasbih Digital' }, jadwal: { title: 'Jadwal Salat Hari Ini' }, ops: { title: 'Ringkasan Operasional' }, fin: { title: 'Ringkasan Keuangan Masjid' },
-    agenda: { title: 'Agenda Terdekat' }, info: { title: 'Pengumuman' }, aktivitas: { title: 'Aktivitas Terbaru' }, daftar: { title: 'Daftarkan Masjid Baru' }, tim: { title: 'Pengurus Masjid' }
+    agenda: { title: 'Agenda Terdekat' }, info: { title: 'Pengumuman' }, artikel: { title: 'Artikel Terbaru' }, aktivitas: { title: 'Aktivitas Terbaru' }, daftar: { title: 'Daftarkan Masjid Baru' }, tim: { title: 'Pengurus Masjid' }
   },
   super: {
     banner: { slides: [SL('Satu Platform, Banyak Masjid', 'Kelola dan pantau masjid bersama BAITUNA.', 'Kelola Masjid', '', 'green', 'banner_masjid'),
@@ -59,7 +59,7 @@ export const DEFAULTS = {
     pasar: { ...PROMO.pasar, text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi' },
     tasbih: { title: 'Tasbih Digital' }, jadwal: { title: 'Jadwal Salat Hari Ini' },
     mgmt: { title: 'Manajemen Platform', items: [['qa-masjid', 'Data Masjid', 'open-datamasjid'], ['qa-konten', 'Editor Konten', 'open-konten'], ['adm-market', 'Verifikasi Pasar', 'open-market'], ['adm-audit', 'Jejak Audit', 'open-audit'], ['adm-tampilan', 'Pengaturan Tampilan', 'open-tampilan'], ['adm-notif', 'Notifikasi', 'open-notif'], ['adm-pengguna', 'Pengguna', 'open-pengguna'], ['qa-more', 'Lainnya', 'open-more']] },
-    stats: { title: 'Statistik Platform' }
+    stats: { title: 'Statistik Platform' }, artikel: { title: 'Artikel Terbaru' }
   }
 };
 // Menu tambahan (di luar bawaan) memakai id 'x-<tujuan>', mis. 'x-quran'.
@@ -119,6 +119,10 @@ export function cleanBlocks(role, raw) {
   for (const b of raw.slice(0, LIMITS.blocks)) {
     if (!b || typeof b !== 'object') continue;
     if (b.t === 'b') { if (known.has(b.id) && !seen.has(b.id)) { seen.add(b.id); const o = cleanOverride(role, b.id, b.o); out.push(o ? { t: 'b', id: b.id, o } : { t: 'b', id: b.id }); } }
+    else if (b.t === 'fitur' && known.has('artikel') && !seen.has('artikel') && /^\s*artikel terbaru\s*$/i.test(str(b.title, LIMITS.ftitle)) && Array.isArray(b.items) && b.items.every(k => k === 'berita')) {
+      // Dulu "Artikel Terbaru" dibuat sebagai kotak menu bergambar ikon; sekarang ada bagian bawaan yang menampilkan artikelnya.
+      seen.add('artikel'); out.push({ t: 'b', id: 'artikel' });
+    }
     else if (b.t === 'banner' && Array.isArray(b.slides)) {
       // Slide baru = gambar saja. Slide lama yang berjudul tetap dipakai apa adanya.
       const slides = b.slides.slice(0, LIMITS.slides).filter(s => s && typeof s === 'object' && ((typeof s.img === 'string' && urlFor(s.img)) || str(s.title, 80).trim())).map(s => {

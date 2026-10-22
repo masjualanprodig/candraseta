@@ -23,7 +23,7 @@ import { renderBrandingEditor } from './branding-ui.js';
 import { renderUserManager } from './pengguna-ui.js';
 import { homeBody } from './home-builder.js';
 import { renderHomeBuilder } from './home-builder-ui.js';
-import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, summaryCard, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
+import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, summaryCard, articleSection, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
 
 const ACTIONS = {
   approve: { title: 'Aktifkan masjid?', text: 'Masjid akan tampil sebagai masjid terverifikasi. Pastikan identitasnya sudah diperiksa.', reason: false, to: 'active', done: 'Masjid diaktifkan.' },
@@ -137,6 +137,7 @@ export async function renderAdmin(box, view = 'home') {
     pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi', onclick: openMarket }),
     tasbih: tasbihCard(),
     jadwal: prayerCard(),
+    artikel: await articleSection(2) || '',
     mgmt: grid,
     stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', items: [
         { ic: ICONS.mosque, value: list.length, label: 'Masjid Terdaftar' }, { ic: ICONS.shield, value: count('active'), label: 'Masjid Aktif' },

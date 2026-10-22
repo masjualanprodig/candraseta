@@ -391,3 +391,48 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Ikon Akses Cepat memakai kunci `open-xxx` (`quick-catalog.js`), jadi bisa diganti dari editor Tampilan aplikasi.
 - Semua angka dan daftar berasal dari data nyata (tanpa contoh palsu). Bagian tanpa data (artikel, aktivitas) disembunyikan.
 - Tidak ada SQL baru di v72.
+- Ketua Takmir/Bendahara: subjudul ajakan "Mari perkuat iman…" di bawah nama; "Ketua Takmir · <masjid>" jadi chip. Jamaah biasa tetap seperti semula.
+- Super Admin: judul = nama akun, subjudul ajakan, chip "Super Admin". Tanpa SQL.
+
+## Tambahan v108 (perombakan dashboard: Tasbih Digital + susunan sesuai desain baru)
+- **Tasbih Digital** (bagian baru, setelah Pasar Umat) di dashboard Jamaah, Admin Masjid, dan Super Admin: lingkaran ketuk, target 33/99/100/tanpa target, −1, Ulang (dengan konfirmasi), pengaturan bunyi, dan "Buka Penuh" yang membuka halaman Dzikir langsung di tab Tasbih. Hitungan hanya di perangkat dan sama dengan tab Tasbih di Dzikir. Bagian ini wajib (tidak bisa dihapus di Builder); susunan Builder lama yang belum memuatnya disisipi otomatis setelah Pasar Umat. Tanpa SQL.
+- **Header:** Super Admin = nama akun + "Super Admin BAITUNA". Admin Masjid = nama akun + "Admin <masjid>" + kartu masjid (nama, kota) yang membuka Profil Masjid. Ketua/Bendahara = "Ketua Takmir/Bendahara <masjid>". Jamaah tetap dengan kalimat "Mari perkuat iman…".
+- **Admin Masjid:** Ringkasan Operasional 4 kolom (Pengurus Aktif, Agenda Mendatang, Pengumuman Aktif, Undangan Pending); Ringkasan Keuangan dengan tombol Catat Kas dan Lihat Laporan; Jadwal Salat dipindah setelah keuangan.
+- **Super Admin:** menu "Editor Konten" dan "Pengaturan Tampilan"; Statistik Platform jadi satu kartu 4 kolom dengan "Lihat Detail"; Jadwal Salat dipindah ke bawah statistik.
+- Menu bawah tiap peran sudah sama dengan desain, tidak diubah.
+- Belum ada: menu "Pengguna" di Manajemen Platform (butuh halaman daftar pengguna; tahap tersendiri).
+- Belum ada: menu "Pengguna" di Manajemen Platform (butuh halaman daftar pengguna; tahap tersendiri).
+
+## Tambahan v109 (header: subjudul + kotak putih peran)
+- Super Admin, Admin Masjid, Ketua Takmir/Bendahara: di bawah nama tampil kalimat "Mari perkuat iman…", lalu kotak putih membulat berisi peran ("Super Admin BAITUNA", "Admin <masjid>", "Ketua Takmir <masjid>"). Admin dan Ketua/Bendahara menampilkan kota di kotak; kotak Admin membuka Profil Masjid. Tanpa SQL.
+## Tambahan v111
+- Kotak peran di header disejajarkan dengan teks sapaan (bukan dengan foto profil). `pages.css`, `profil-ui.js`. Tanpa SQL.
+
+## Tambahan v112 (tombol Kembali mundur satu langkah, Beranda ingat posisi gulir)
+- Kembali bawaan HP (dan tombol "Kembali") dari halaman fitur: kembali ke halaman yang baru dilihat (mis. Lainnya → Doa → Kembali = daftar Lainnya, di posisi gulir yang sama), baru ke Beranda bila sudah di halaman pertama. Berlaku untuk semua akun.
+- Di dalam halaman (detail, layar pengelolaan, Editor → Builder, Kas, Agenda, Audit): Kembali HP naik satu tingkat lewat tombol "←" halaman itu.
+- Beranda mengingat posisi gulir: kembali dari fitur/pengelolaan, Beranda terbuka di tempat semula. Tombol "Beranda" di menu bawah dan logo tetap ke paling atas.
+- Tanpa SQL.
+- Di dalam halaman (detail, layar pengelolaan, Editor → Builder, Kas, Agenda, Audit): Kembali HP naik satu tingkat lewat tombol "←" halaman itu.
+- Beranda mengingat posisi gulir: kembali dari fitur/pengelolaan, Beranda terbuka di tempat semula. Tombol "Beranda" di menu bawah dan logo tetap ke paling atas.
+- Tanpa SQL.
+
+## Tambahan v113 (Super Admin: Pengguna)
+- **SQL BARU (jalankan dulu): `pengguna.sql`** (setelah daftar_audit.sql). 3 fungsi khusus Super Admin: `admin_users_list` (daftar akun + cari + saring), `admin_set_masjid_admin`, `admin_unset_masjid_admin`. Hanya peran Admin Masjid yang dapat diberikan/dicabut; peran pengurus lain tidak disentuh; akun Super Admin tidak bisa diubah; masjid harus aktif; tercatat di jejak audit. 27 tes SQL (`pengguna_tests.sql`).
+- Menu **Pengguna** di Manajemen Platform (8 menu) membuka daftar akun; menu yang sama ada di Editor (urutan ke-2).
+- Daftar: nama, email, status (Pengguna umum / Admin Masjid + nama masjid / Super Admin), pencarian nama/email, saringan, tombol "Jadikan Admin Masjid" (pilih masjid aktif) dan "Jadikan pengguna umum" (dengan konfirmasi).
+- Statistik Platform: ikon "Ditolak / Nonaktif" kini masjid bercoret (bukan orang).
+- Daftar: nama, email, status (Pengguna umum / Admin Masjid + nama masjid / Super Admin), pencarian nama/email, saringan, tombol "Jadikan Admin Masjid" (pilih masjid aktif) dan "Jadikan pengguna umum" (dengan konfirmasi).
+- Statistik Platform: ikon "Ditolak / Nonaktif" kini masjid bercoret (bukan orang).
+
+## Tambahan v114 (Admin Masjid melekat di akun; mendaftarkan masjid sendiri)
+- **SQL BARU: `admin_akun.sql`** (jalankan SETELAH pengguna.sql dan mosque_register.sql). Tabel `admin_accounts` (status Admin Masjid per akun), `is_masjid_admin()`, `mosque_register` kini cukup berstatus Admin Masjid (tak perlu masjid aktif; batas 3 menunggu + nama/kota unik tetap), `admin_set_masjid_admin(user)` (langsung aktif, tanpa masjid), `admin_unset_masjid_admin(user)` (matikan status + cabut peran admin_masjid; masjid yang sudah didaftarkan tetap ada), `admin_users_list` memuat semua masjid milik akun beserta statusnya. 37 tes SQL (`admin_akun_tests.sql`).
+- **Pengguna:** "Jadikan Admin Masjid" langsung aktif. Akun admin menampilkan nama, status, dan daftar masjid yang didaftarkan (Menunggu verifikasi / Aktif / Ditolak / Nonaktif + lokasi).
+- **Admin Masjid tanpa masjid aktif:** dashboard admin sendiri (bukan jamaah) dengan kotak "Admin Masjid · status", daftar masjid miliknya, dan pendaftaran masjid. Fitur pengurus/kas/agenda aktif setelah ada masjid terverifikasi.
+- **Masjid Saya** (kotak masjid di header / kartu "Daftarkan Masjid"): daftar masjid yang dikelola + status, tombol "Kelola masjid ini" untuk berpindah masjid, ketentuan pendaftaran + wajib centang persetujuan.
+- **Header Admin Masjid:** kotak putih menampilkan nama masjid + lokasi singkat (kota, provinsi) seperti desain.
+
+## Tambahan v115 (Artikel Terbaru tampil sebagai kartu artikel)
+- Bagian "Artikel Terbaru" di dashboard Admin Masjid, Super Admin, dan ketua/bendahara kini bagian bawaan `artikel` (kartu artikel asli), bukan lagi tombol ikon "Berita & Artikel".
+- Tata letak lama yang tersimpan (blok "Artikel Terbaru" berisi tombol berita) otomatis diubah ke bagian bawaan.
+- Kartu hanya muncul bila sudah ada artikel yang diterbitkan. Tanpa SQL.
