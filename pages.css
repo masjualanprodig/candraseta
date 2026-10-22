@@ -428,3 +428,11 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .rv-warn b{color:#8a5a00}
 
 .pv-acts{display:flex;gap:.6rem;flex-wrap:wrap}.pv-acts .btn-primary{flex:1}
+
+/* v139 - editor Kartu fitur: isian tidak melewati tepi kanan */
+.hbe-item,.hbe-edit,.hbe-edit>*{box-sizing:border-box;min-width:0;max-width:100%}
+.hbe-edit label{min-width:0}
+.hbe-edit .in,.hbe-edit select,.hbe-edit textarea,.hbe-edit input:not([type=checkbox]):not([type=radio]){width:100%;max-width:100%;box-sizing:border-box;min-width:0}
+.hbe-edit input[type=file]{font-size:.85rem;overflow:hidden;text-overflow:ellipsis}
+.hbe-thumb{max-width:200px;aspect-ratio:16/10}
+.hbe-edit small.muted{overflow-wrap:anywhere}

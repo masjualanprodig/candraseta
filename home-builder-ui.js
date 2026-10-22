@@ -5,7 +5,7 @@ import { h, toast, ask } from './ui.js';
 import { prepareImage } from './photo.js';
 import { errorText } from './branding-service.js';
 import { urlFor } from './branding-service.js';
-import { ROLES, SPEEDS, DEFAULT_SPEED, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, KMODES, kartuKind, newKartu, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
+import { ROLES, SPEEDS, DEFAULT_SPEED, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, KMODES, AMODES, kartuKind, newKartu, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
 import { layoutNodes } from './home-builder.js';
 
 const TYPE_NAME = { banner: 'Banner slide', fitur: 'Kotak fitur', kartu: 'Kartu fitur', text: 'Teks' };
@@ -34,7 +34,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
   function summary(b) {
     if (b.t === 'b') { const ch = b.o && pruneBlocks(role, [b])[0].o; return ['Bawaan: ' + builtinLabel(role, b.id), ch ? 'Sudah Anda ubah' : 'Bagian aplikasi yang sudah ada']; }
     if (b.t === 'banner') return [TYPE_NAME.banner, b.slides.length + ' slide · gambar saja · ' + (b.speed > 0 ? 'geser tiap ' + b.speed + ' dtk' : 'tidak otomatis')];
-    if (b.t === 'kartu') { const k = kartuKind(b.feature); return [TYPE_NAME.kartu, (b.title || LINKS[b.feature][0]) + ' · ' + (k === 'data' ? KMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + (b.mode !== 'kartu' ? ' ' + b.count + ' item' : '') : k === 'embed' ? (b.size === 'penuh' ? 'Penuh' : 'Ringkas') : 'Kartu')]; }
+    if (b.t === 'kartu') { const k = kartuKind(b.feature); return [TYPE_NAME.kartu, (b.title || LINKS[b.feature][0]) + ' · ' + (k === 'agenda' ? AMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + ' ' + b.count + ' agenda' : k === 'data' ? KMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + (b.mode !== 'kartu' ? ' ' + b.count + ' item' : '') : k === 'embed' ? (b.size === 'penuh' ? 'Penuh' : 'Ringkas') : 'Kartu')]; }
     if (b.t === 'fitur') return [TYPE_NAME.fitur, (b.title || 'Akses Cepat') + ' · ' + b.items.length + ' menu'];
     return [TYPE_NAME.text + ' (' + ({ h1: 'Judul', h2: 'Subjudul', p: 'Paragraf' })[b.style] + ')', (b.text || '').slice(0, 60) || '(kosong)'];
   }
@@ -105,11 +105,15 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
       kids.push(field('Tampilan', select(KMODES, b.mode, v => { b.mode = v; draw(); })));
       if (b.mode !== 'kartu') kids.push(field('Jumlah isi yang tampil', select([1, 2, 3, 4, 5, 6].map(n => [String(n), n + ' item']), String(b.count), v => { b.count = Number(v); })));
       kids.push(h('small', { class: 'muted' }, b.mode === 'kartu' ? 'Satu kartu dengan judul, gambar, deskripsi, dan tombol menuju ' + L[0] + '.' : 'Menampilkan ' + b.count + ' isi terbaru dari ' + L[0] + ' secara langsung (judul, gambar, keterangan).'));
+    } else if (kind === 'agenda') {
+      kids.push(field('Tampilan', select(AMODES, b.mode, v => { b.mode = v; draw(); })));
+      kids.push(field('Jumlah agenda yang tampil', select([1, 2, 3, 4, 5, 6].map(n => [String(n), n + ' agenda']), String(b.count), v => { b.count = Number(v); })));
+      kids.push(h('small', { class: 'muted' }, 'Menampilkan agenda mendatang dari masjid-masjid secara langsung: foto dengan tanggal, judul, jam, tempat, dan nama masjid.'));
     } else if (kind === 'embed') {
       kids.push(field('Ukuran', select([['ringkas', 'Ringkas (kartu + tombol)'], ['penuh', 'Penuh (fitur tampil langsung di beranda)']], b.size, v => { b.size = v; draw(); })));
       kids.push(h('small', { class: 'muted' }, b.size === 'penuh' ? L[0] + ' ditampilkan utuh di beranda, bisa dipakai tanpa membuka halaman lain.' : 'Kartu dengan tombol menuju ' + L[0] + '.'));
     } else kids.push(h('small', { class: 'muted' }, L[0] + ' tampil sebagai kartu dengan judul, gambar, deskripsi, dan tombol menuju fitur.'));
-    if (!(kind === 'data' && b.mode !== 'kartu') && !(kind === 'embed' && b.size === 'penuh')) kids.push(field('Teks tombol (kosong = “Buka ' + L[0] + '”)', input(b.cta, LIMITS.cta, v => { b.cta = v; }, 'Buka ' + L[0])));
+    if (!(kind === 'data' && b.mode !== 'kartu') && kind !== 'agenda' && !(kind === 'embed' && b.size === 'penuh')) kids.push(field('Teks tombol (kosong = “Buka ' + L[0] + '”)', input(b.cta, LIMITS.cta, v => { b.cta = v; }, 'Buka ' + L[0])));
     return h('div', { class: 'hbe-edit hb-kartu' }, ...kids);
   }
   function editText(b) {

@@ -31,7 +31,7 @@ export async function fetchFeed(nowMs = Date.now(), opts = {}) {
   const since = new Date(nowMs - 36 * 3600e3).toISOString(); // agenda yang baru lewat masih dicek lagi di perangkat (isUpcoming)
   const ids = Array.isArray(opts.mosqueIds) ? opts.mosqueIds.filter(x => /^[0-9a-f-]{36}$/i.test(x)) : [];
   const topic = opts.topic && /^[a-z]{3,20}$/.test(opts.topic) ? opts.topic : null; // jenis kabar (mis. 'ramadan'); disaring di server
-  const base = '/rest/v1/mosque_posts?select=' + PCOLS + (topic ? ',topic' : '') + ',' + EMBED + '&status=eq.published' + (topic ? '&topic=eq.' + topic : '') + (ids.length ? '&mosque_id=in.(' + ids.join(',') + ')' : '');
+  const base = '/rest/v1/mosque_posts?select=' + PCOLS + ',topic,' + EMBED + '&status=eq.published' + (topic ? '&topic=eq.' + topic : '') + (ids.length ? '&mosque_id=in.(' + ids.join(',') + ')' : '');
   const [a, i] = await Promise.all([
     request(base + '&kind=eq.agenda&starts_at=gte.' + encodeURIComponent(since) + '&order=starts_at.asc&limit=40'),
     request(base + '&kind=eq.pengumuman&order=published_at.desc&limit=15')

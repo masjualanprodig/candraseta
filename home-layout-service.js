@@ -24,9 +24,10 @@ export const LINKS = {
 //  data  = bisa menampilkan daftar isi nyata (Kartu / Grid / Daftar, 1-6 item)
 //  embed = bisa menampilkan fitur sebenarnya di beranda (Ringkas = kartu, Penuh = fitur langsung di beranda)
 //  lainnya = kartu berisi judul, gambar, deskripsi, dan tombol menuju fitur.
-export const KARTU = { berita: { data: true }, buku: { data: true }, sejarah: { data: true }, zakat: { embed: true }, jadwal: { embed: true }, quran: { embed: true } };
+export const KARTU = { berita: { data: true }, buku: { data: true }, sejarah: { data: true }, zakat: { embed: true }, jadwal: { embed: true }, quran: { embed: true }, info: { agenda: true } };
 export const KMODES = [['kartu', 'Kartu (gambar + deskripsi)'], ['grid', 'Grid (2 kolom)'], ['list', 'Daftar (baris)']];
-export const kartuKind = f => (KARTU[f] && KARTU[f].data ? 'data' : KARTU[f] && KARTU[f].embed ? 'embed' : 'link');
+export const AMODES = [['kartu', 'Geser (carousel dengan titik)'], ['list', 'Daftar (baris)'], ['grid', 'Grid (2 kolom)']];
+export const kartuKind = f => (KARTU[f] && KARTU[f].agenda ? 'agenda' : KARTU[f] && KARTU[f].data ? 'data' : KARTU[f] && KARTU[f].embed ? 'embed' : 'link');
 export const newKartu = f => ({ t: 'kartu', feature: f || 'berita', title: '', text: '', cta: '', mode: 'kartu', count: 3, size: 'ringkas' });
 
 // Bagian bawaan tiap peran, urutan = tampilan bawaan. required = tak boleh dihapus (agar tidak kehilangan akses menu).

@@ -250,13 +250,17 @@ export const summaryCard = ({ id, title, sub, onAll, allLabel, items, hint, hint
   actions ? h('div', { class: 'sm-acts' }, ...actions.map(a => h('button', { class: 'sm-act' + (a.gold ? ' gold' : ''), type: 'button', id: a.id, onclick: a.onclick }, a.label, icon(ICONS.chev)))) : '');
 
 /* ===== Agenda terdekat: blok tanggal + judul + jam + tempat ===== */
-export const agendaCard = ({ post, parts, times, onAll }) => h('section', { class: 'ag', id: 'ag' },
+export const agendaCard = ({ post, parts, times, onAll, img, chip }) => h('section', { class: 'ag', id: 'ag' },
   sectionHead('Agenda Kegiatan', onAll, 'ag-all', ICONS.agenda),
-  post ? h('div', { class: 'ag-body' },
-    h('div', { class: 'ag-date' }, h('span', {}, parts.dow), h('b', {}, String(parts.d)), h('span', {}, parts.mon)),
+  post ? h('button', { class: 'ag-body', type: 'button', id: 'ag-open', onclick: onAll },
+    h('span', { class: 'ag-img' },
+      img ? h('img', { src: img, alt: '', loading: 'lazy' }) : h('span', { class: 'agk-ph' }, icon(ICONS.mosque)),
+      h('span', { class: 'agk-date', 'aria-hidden': 'true' }, h('i', {}, parts.dow), h('b', {}, String(parts.d)), h('i', {}, parts.mon))),
     h('div', { class: 'ag-txt' }, h('strong', {}, post.title),
       h('span', { class: 'ag-meta' }, icon(ICONS.clock), times),
-      post.location ? h('span', { class: 'ag-meta' }, icon(ICONS.pin), post.location) : ''))
+      post.location ? h('span', { class: 'ag-meta' }, icon(ICONS.pin), post.location) : '',
+      chip ? h('span', { class: 'fi-chip' }, chip) : ''),
+    icon(ICONS.chev, 'fi-chev'))
   : h('p', { class: 'ag-empty' }, 'Belum ada agenda mendatang.'));
 
 /* ===== Pengumuman terbaru ===== */

@@ -235,7 +235,7 @@ function renderWorld() {
 
 function renderFeed() {
   $('public-content').replaceChildren(tabs(),
-    feedPanel({ hero: true, onOpen: m => renderDetail(m, renderFeed, '← Agenda') }));
+    feedPanel({ hero: true, tabs: true, onOpen: m => renderDetail(m, renderFeed, '← Agenda') }));
 }
 
 function renderCalendar() {

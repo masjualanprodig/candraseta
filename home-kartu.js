@@ -4,7 +4,9 @@
 //  * fitur alat (Zakat, Jadwal Salat, Al-Qur'an): Ringkas (kartu) atau Penuh (fiturnya tampil langsung di beranda)
 //  * fitur lain: kartu dengan tombol menuju fitur
 import { h } from './ui.js';
-import { icon, ICONS } from './feed-ui.js';
+import { icon, ICONS, agendaCardItem } from './feed-ui.js';
+import { fetchFeed } from './public-service.js';
+import { isUpcoming } from './post-time.js';
 import { go, sectionHead, prayerCard } from './home-ui.js';
 import { LINKS, kartuKind } from './home-layout-service.js';
 import { urlFor } from './branding-service.js';
@@ -29,11 +31,11 @@ export function kartuNode(b, { preview = false } = {}) {
   const kind = kartuKind(b.feature), title = b.title || L[0];
   const openF = () => { if (!preview) go(L[2]); };
   const img = b._url || (b.img && urlFor(b.img)) || '';
-  const mode = kind === 'data' ? (b.mode || 'kartu') : 'kartu', count = Number.isInteger(b.count) ? b.count : 3;
+  const mode = kind === 'data' || kind === 'agenda' ? (b.mode || 'kartu') : 'kartu', count = Number.isInteger(b.count) ? b.count : 3;
   const full = kind === 'embed' && b.size === 'penuh';
   const sec = h('section', { class: 'kt kt-' + (full ? 'full' : mode), 'data-feature': b.feature, ...(b.id ? { id: b.id } : {}) });
   if (full && b.feature === 'jadwal') { sec.classList.add('kt-bare'); }
-  else sec.append(sectionHead(title, openF, 'kt-all'));
+  else sec.append(sectionHead(title, openF, 'kt-all', kind === 'agenda' ? ICONS.agenda : null));
   if (img) sec.append(h('img', { class: 'kt-hero', src: img, alt: '', loading: 'lazy' }));
   if (b.text && b.text.trim()) sec.append(h('p', { class: 'kt-text' }, b.text));
 
@@ -52,6 +54,8 @@ export function kartuNode(b, { preview = false } = {}) {
     return sec;
   }
 
+  if (kind === 'agenda') { sec.classList.add('kt-agenda'); agendaBody(sec, b, mode, count, openF, preview); return sec; }
+
   if (kind === 'data' && mode !== 'kartu') {
     const box = h('div', { class: mode === 'grid' ? 'kt-items kt-g' : 'kt-items kt-l' });
     const draw = items => box.replaceChildren(...items.map(it => h('button', { class: 'kt-item', type: 'button', onclick: openF },
@@ -64,4 +68,33 @@ export function kartuNode(b, { preview = false } = {}) {
   }
   sec.append(h('button', { class: 'btn-sm kt-cta', type: 'button', onclick: openF }, b.cta || 'Buka ' + L[0], icon(ICONS.chev)));
   return sec;
+}
+
+// Isi kartu Agenda: agenda mendatang nyata dari masjid-masjid. mode kartu = geser (carousel + titik), list, grid.
+const SAMPLE = [['Kajian Rutin Ba\u2019da Subuh', 'Masjid Contoh'], ['Tabligh Akbar Bulanan', 'Masjid Contoh'], ['Gotong Royong Masjid', 'Masjid Contoh']];
+function sampleAgenda(n) {
+  const now = Date.now();
+  return Array.from({ length: n }, (_, i) => ({ id: 's' + i, title: SAMPLE[i % 3][0], location: 'Masjid Contoh', starts_at: new Date(now + (i + 1) * 86400e3).toISOString(), ends_at: null, mosques: { name: SAMPLE[i % 3][1], city: 'Kota', timezone: 'Asia/Jakarta' } }));
+}
+function agendaBody(sec, b, mode, count, openF, preview) {
+  const body = h('div', { class: 'kt-ag' }, h('p', { class: 'muted kt-empty' }, 'Memuat agenda\u2026'));
+  sec.append(body);
+  const draw = list => {
+    if (!list.length) { body.replaceChildren(h('p', { class: 'muted kt-empty' }, 'Belum ada agenda mendatang.')); return; }
+    const items = list.map(p => agendaCardItem(p, { onOpen: openF }));
+    if (mode !== 'kartu') { body.className = 'kt-ag kt-ag-' + mode; body.replaceChildren(...items); return; }
+    body.className = 'kt-ag kt-ag-car';
+    const track = h('div', { class: 'agc-track', tabindex: '0', 'aria-label': 'Agenda mendatang, geser untuk melihat lainnya' }, ...items.map((it, i) => h('div', { class: 'agc-slide', role: 'group', 'aria-label': 'Agenda ' + (i + 1) + ' dari ' + items.length }, it)));
+    const dots = items.length > 1 ? h('div', { class: 'agc-dots', 'aria-hidden': 'true' }, ...items.map((_, i) => h('i', { class: i === 0 ? 'on' : '' }))) : '';
+    track.addEventListener('scroll', () => {
+      if (!dots) return;
+      const i = Math.max(0, Math.min(items.length - 1, Math.round(track.scrollLeft / Math.max(1, track.clientWidth))));
+      [...dots.children].forEach((d, j) => d.classList.toggle('on', j === i));
+    }, { passive: true });
+    body.replaceChildren(track, dots);
+  };
+  if (preview) { draw(sampleAgenda(count)); return; }
+  const now = Date.now();
+  fetchFeed(now).then(r => draw(r.agenda.filter(p => p.starts_at && p.mosques && isUpcoming(p, now, (p.mosques && p.mosques.timezone) || 'Asia/Jakarta')).slice(0, count)))
+    .catch(e => { console.error('agenda', e); body.replaceChildren(h('p', { class: 'muted kt-empty' }, 'Agenda belum bisa dimuat.')); });
 }

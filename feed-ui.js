@@ -69,7 +69,47 @@ export function todayHero(now = new Date()) {
     hij ? h('div', { class: 'today-hij' }, h('b', {}, cal.hijriText(hij)), h('span', {}, 'perkiraan, perlu dikonfirmasi')) : '');
 }
 
-// opts: { limit, only ('agenda'|'pengumuman'), onOpen(mosque), more (elemen penutup), hero (tampilkan tanggal hari ini) }
+// Satu baris agenda gaya "Agenda & Pengumuman": kotak tanggal, judul, jam, tempat, label masjid, foto, panah.
+const thumb = (src, cls) => { const i = h('img', { class: cls, src, alt: '', loading: 'lazy' }); i.addEventListener('error', () => i.remove()); return i; };
+const meta = (ic, text, cls) => text ? h('div', { class: 'fi-meta ' + (cls || '') }, icon(ic), h('span', {}, text)) : '';
+export function agendaRow(p, { now = Date.now(), onOpen, km } = {}) {
+  const tz = tzOf(p), dp = dateParts(p.starts_at, tz), diff = dayDiff(p.starts_at, tz, now);
+  const soon = diff <= 0 ? 'Hari ini' : diff === 1 ? 'Besok' : '';
+  const img = mosqueCover(p.mosques), m = p.mosques || {};
+  const place = p.location || [m.city].filter(Boolean).join('') || '';
+  const kids = [
+    h('div', { class: 'datebox' + (soon ? ' now' : ''), 'aria-hidden': 'true' }, h('span', { class: 'dw' }, dp.dow), h('b', { class: 'dd' }, String(dp.d)), h('span', { class: 'dm' }, dp.mon)),
+    h('div', { class: 'fi-main' },
+      soon ? h('span', { class: 'fi-soon' }, soon) : '',
+      h('b', { class: 'fi-title' }, p.title),
+      h('div', { class: 'fi-meta fi-time' }, icon(ICONS.clock), h('span', { class: 'sr-only' }, dp.dow + ' ' + dp.d + ' ' + dp.mon + ', '), h('span', {}, fmtTimes(p.starts_at, p.ends_at, tz))),
+      meta(ICONS.pin, place, 'fi-place'),
+      m.name ? h('span', { class: 'fi-chip feed-where' }, Number.isFinite(km) ? where({ ...p, km }) : m.name) : ''),
+    img ? thumb(img, 'fi-thumb') : '',
+    onOpen ? icon(ICONS.chev, 'fi-chev') : ''
+  ];
+  return onOpen ? h('button', { class: 'feed-item agi', type: 'button', onclick: onOpen }, kids) : h('div', { class: 'feed-item agi' }, kids);
+}
+
+// Kartu agenda untuk beranda: foto dengan lencana tanggal, judul, jam, tempat, label masjid, panah.
+export function agendaCardItem(p, { now = Date.now(), onOpen } = {}) {
+  const tz = tzOf(p), dp = dateParts(p.starts_at, tz), m = p.mosques || {}, img = mosqueCover(m);
+  const place = p.location || m.city || '';
+  return h('button', { class: 'agk', type: 'button', onclick: onOpen },
+    h('span', { class: 'agk-img' },
+      img ? thumb(img, '') : h('span', { class: 'agk-ph' }, icon(ICONS.mosque)),
+      h('span', { class: 'agk-date', 'aria-hidden': 'true' }, h('i', {}, dp.dow), h('b', {}, String(dp.d)), h('i', {}, dp.mon))),
+    h('span', { class: 'agk-main' },
+      h('b', { class: 'agk-title' }, p.title),
+      h('span', { class: 'fi-meta' }, icon(ICONS.clock), h('span', { class: 'sr-only' }, dp.dow + ' ' + dp.d + ' ' + dp.mon + ', '), h('span', {}, fmtTimes(p.starts_at, p.ends_at, tz))),
+      place ? h('span', { class: 'fi-meta' }, icon(ICONS.pin), h('span', {}, place)) : '',
+      m.name ? h('span', { class: 'fi-chip' }, m.name) : ''),
+    icon(ICONS.chev, 'fi-chev'));
+}
+
+const TABS = [['semua', 'Semua'], ['kajian', 'Kajian'], ['kegiatan', 'Kegiatan'], ['pengumuman', 'Pengumuman']];
+
+// opts: { limit, only ('agenda'|'pengumuman'), onOpen(mosque), more (elemen penutup), hero (tampilkan tanggal hari ini), tabs (tab Semua/Kajian/Kegiatan/Pengumuman) }
 export function feedPanel(opts = {}) {
   const limit = opts.limit || 20, now = Date.now();
   const box = h('div', { class: 'feed' }, h('p', { class: 'muted center' }, 'Memuat agenda…'));
@@ -77,27 +117,14 @@ export function feedPanel(opts = {}) {
     const open = opts.onOpen && p.mosques ? () => opts.onOpen(p.mosques) : null;
     return open ? h('button', { class: 'feed-item ' + cls, type: 'button', onclick: open }, kids) : h('div', { class: 'feed-item ' + cls }, kids);
   };
-  const agendaItem = p => {
-    const tz = tzOf(p), dp = dateParts(p.starts_at, tz), diff = dayDiff(p.starts_at, tz, now);
-    const soon = diff <= 0 ? 'Hari ini' : diff === 1 ? 'Besok' : '';
-    const img = mosqueCover(p.mosques);
-    return wrap(p, 'ag', [
-      h('div', { class: 'datebox' + (soon ? ' now' : ''), 'aria-hidden': 'true' }, h('span', { class: 'dw' }, dp.dow), h('b', { class: 'dd' }, String(dp.d)), h('span', { class: 'dm' }, dp.mon)),
-      h('div', { class: 'fi-main' },
-        soon ? h('span', { class: 'fi-soon' }, soon) : '',
-        h('b', { class: 'fi-title' }, p.title),
-        h('div', { class: 'fi-time' }, h('span', { class: 'sr-only' }, dp.dow + ' ' + dp.d + ' ' + dp.mon + ', '), fmtTimes(p.starts_at, p.ends_at, tz)),
-        h('div', { class: 'feed-where' }, where(p)),
-        p.location ? h('div', { class: 'fi-place' }, p.location) : ''),
-      img ? h('img', { class: 'fi-thumb', src: img, alt: '', loading: 'lazy' }) : ''
-    ]);
-  };
+  const agendaItem = p => agendaRow(p, { now, km: p.km, onOpen: opts.onOpen && p.mosques ? () => opts.onOpen(p.mosques) : null });
   const infoItem = p => wrap(p, 'inf', [
     h('div', { class: 'infoic', 'aria-hidden': 'true' }, icon(ICONS.horn)),
     h('div', { class: 'fi-main' },
       h('b', { class: 'fi-title' }, p.title),
       p.body ? h('p', { class: 'fi-body' }, p.body) : '',
-      h('div', { class: 'feed-where' }, where(p) + ' · ' + fmtWhen(p.published_at || p.created_at, tzOf(p)).split(' · ')[0]))
+      h('div', { class: 'feed-where' }, where(p) + ' · ' + fmtWhen(p.published_at || p.created_at, tzOf(p)).split(' · ')[0])),
+    opts.onOpen && p.mosques ? icon(ICONS.chev, 'fi-chev') : ''
   ]);
   // opts.near = { lat, lng, radius }: hanya masjid dalam radius (jarak dihitung di perangkat). Bila tidak ada, tampil semua masjid dengan keterangan.
   const scope = h('p', { class: 'hint feed-scope', role: 'status' }, opts.near ? '' : (opts.noLocNote || ''));
@@ -107,19 +134,34 @@ export function feedPanel(opts = {}) {
     if (near.length) { near.forEach(x => { kmBy[x.m.id] = x.km; }); scope.textContent = 'Menurut lokasi Anda: masjid dalam radius ' + opts.near.radius + ' km (bisa diubah di Notifikasi, Pengaturan).'; return near.map(x => x.m.id); }
     scope.textContent = 'Belum ada masjid terdaftar dalam radius ' + opts.near.radius + ' km dari lokasi Anda, jadi ditampilkan dari semua masjid.'; return null;
   }).catch(() => { scope.textContent = 'Jarak belum bisa dihitung, jadi ditampilkan dari semua masjid.'; return null; }) : Promise.resolve(null);
-  prep.then(ids => fetchFeed(now, { topic: opts.topic, mosqueIds: ids || undefined })).then(r => { r.agenda.forEach(p => { if (kmBy[p.mosque_id] !== undefined) p.km = kmBy[p.mosque_id]; }); r.info.forEach(p => { if (kmBy[p.mosque_id] !== undefined) p.km = kmBy[p.mosque_id]; }); return r; }).then(({ agenda, info }) => {
-    const byTopic = p => !opts.topic || p.topic === opts.topic;
-    const ag = agenda.filter(p => byTopic(p) && p.starts_at && p.mosques && isUpcoming(p, now, tzOf(p))).slice(0, limit);
-    const inf = info.filter(p => byTopic(p) && p.mosques).slice(0, limit);
+  let tab = 'semua', allInfo = false, data = null;
+  const draw = () => {
+    const { ag: agAll, inf: infAll } = data;
+    const ag = (tab === 'pengumuman' ? [] : tab === 'kajian' ? agAll.filter(p => p.topic === 'kajian') : tab === 'kegiatan' ? agAll.filter(p => p.topic !== 'kajian') : agAll);
+    const showAg = opts.only !== 'pengumuman' && tab !== 'pengumuman', showInf = opts.only !== 'agenda' && (tab === 'semua' || tab === 'pengumuman');
+    const infShown = tab === 'pengumuman' || allInfo || !opts.tabs ? infAll : infAll.slice(0, 3);
+    const tabsEl = opts.tabs ? h('div', { class: 'ftabs', role: 'tablist', 'aria-label': 'Jenis agenda' }, TABS.map(([k, l]) =>
+      h('button', { class: 'ftab' + (k === tab ? ' on' : ''), type: 'button', role: 'tab', 'aria-selected': k === tab ? 'true' : 'false', 'data-tab': k, onclick: () => { tab = k; allInfo = false; draw(); } }, l))) : '';
+    const emptyAg = tab === 'kajian' ? 'Belum ada kajian mendatang.' : tab === 'kegiatan' ? 'Belum ada kegiatan mendatang.' : (opts.emptyAgenda || 'Belum ada agenda mendatang. Agenda yang diterbitkan masjid akan muncul di sini.');
     box.replaceChildren(...[
       opts.hero ? todayHero() : '',
+      tabsEl,
       scope.textContent ? scope : '',
-      opts.only === 'pengumuman' ? '' : h('section', { class: 'fsec' }, h('h3', {}, 'Agenda mendatang'),
-        ag.length ? ag.map(agendaItem) : emptyState(opts.emptyAgenda || 'Belum ada agenda mendatang. Agenda yang diterbitkan masjid akan muncul di sini.')),
-      opts.only === 'agenda' ? '' : h('section', { class: 'fsec' }, h('h3', {}, 'Pengumuman terbaru'),
-        inf.length ? inf.map(infoItem) : emptyState('Belum ada pengumuman.')),
+      showAg ? h('section', { class: 'fsec' }, h('h3', {}, 'Agenda mendatang'), ag.length ? ag.map(agendaItem) : emptyState(emptyAg)) : '',
+      showInf ? h('section', { class: 'fsec' },
+        h('div', { class: 'fsec-head' }, h('h3', {}, opts.tabs ? 'Pengumuman Terbaru' : 'Pengumuman terbaru'),
+          opts.tabs && tab === 'semua' && infAll.length > 3 ? h('button', { class: 'sh-all', type: 'button', id: 'feed-all-info', onclick: () => { allInfo = !allInfo; draw(); } }, allInfo ? 'Ringkas' : 'Lihat Semua', icon(ICONS.chev)) : ''),
+        infShown.length ? infShown.map(infoItem) : emptyState('Belum ada pengumuman.')) : '',
       opts.more || ''
     ].flat());
+  };
+  prep.then(ids => fetchFeed(now, { topic: opts.topic, mosqueIds: ids || undefined })).then(r => { r.agenda.forEach(p => { if (kmBy[p.mosque_id] !== undefined) p.km = kmBy[p.mosque_id]; }); r.info.forEach(p => { if (kmBy[p.mosque_id] !== undefined) p.km = kmBy[p.mosque_id]; }); return r; }).then(({ agenda, info }) => {
+    const byTopic = p => !opts.topic || p.topic === opts.topic;
+    data = {
+      ag: agenda.filter(p => byTopic(p) && p.starts_at && p.mosques && isUpcoming(p, now, tzOf(p))).slice(0, limit),
+      inf: info.filter(p => byTopic(p) && p.mosques).slice(0, limit)
+    };
+    draw();
   }).catch(() => box.replaceChildren(h('div', { class: 'empty' }, h('p', { class: 'muted' }, 'Agenda belum bisa dimuat. Periksa koneksi, lalu coba lagi.'))));
   return box;
 }
