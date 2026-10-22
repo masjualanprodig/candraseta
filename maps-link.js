@@ -31,3 +31,19 @@ export function parseMapsUrl(input) {
   for (const re of pats) { const m = dec.match(re); if (m) { const p = pair(m[1], m[2]); if (p) return { ok: true, url, short: false, ...p }; } }
   return { ok: true, url, short: false, lat: null, lng: null };
 }
+
+// Peta Google Maps tersemat (iframe) untuk koordinat masjid. Tanpa kunci API: memakai tautan sematan publik Google Maps.
+// Hanya angka koordinat yang masuk ke alamat iframe. Bila koordinat belum ada (mis. tautan pendek), hasilnya null.
+export function mapEmbed(m) {
+  if (!m || m.latitude == null || m.longitude == null) return null;
+  const lat = Number(m.latitude), lng = Number(m.longitude);
+  if (!okLat(lat) || !okLng(lng)) return null;
+  const f = document.createElement('iframe');
+  f.className = 'map-embed'; f.id = 'map-embed';
+  f.src = 'https://www.google.com/maps?q=' + lat + ',' + lng + '&z=16&output=embed';
+  f.title = 'Peta lokasi ' + (m.name || 'masjid');
+  f.loading = 'lazy'; f.referrerPolicy = 'no-referrer-when-downgrade';
+  f.setAttribute('allowfullscreen', '');
+  f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox');
+  return f;
+}

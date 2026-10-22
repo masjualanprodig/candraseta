@@ -36,7 +36,7 @@ import { qaPage } from './qa-ui.js';
 import { booksPage } from './books-ui.js';
 import { kasPublicPanel } from './kas-ui.js';
 import { publicPhotoUrl, mosqueCover, GALLERY_BUCKET } from './supabase.js';
-import { MAPS_RE } from './maps-link.js';
+import { MAPS_RE, mapEmbed } from './maps-link.js';
 
 let onBack = () => {};
 let state = { tab: 'dir', view: 'list', q: '', province: '', items: [], more: false, loaded: false, provinces: null, error: false };
@@ -339,7 +339,8 @@ function renderDetail(m, back = renderList, backLabel = '← Daftar masjid') {
       row('Alamat', m.address || 'Belum diisi'),
       row('Wilayah', [m.city, m.province].filter(Boolean).join(', ') || 'Belum diisi'),
       row('Kontak resmi', m.contact_phone ? (tel ? h('a', { class: 'link', href: tel }, m.contact_phone) : m.contact_phone) : 'Belum diisi'),
-      mapsHref ? row('Lokasi', h('a', { class: 'link', href: mapsHref, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps')) : ''),
+      mapsHref ? row('Lokasi', h('a', { class: 'link', href: mapsHref, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps')) : '',
+      mapEmbed(m) || ''),
     prayerPanel(m),
     postsPublic(m),
     kasPublicPanel(m),

@@ -416,3 +416,6 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .mrow-open{background:none;border:0;padding:0;margin:0;text-align:left;font:inherit;color:inherit;cursor:pointer;flex:1;min-height:44px;display:block}
 .rg-see{display:inline-block;margin-top:2px;color:var(--teal,#0f6b57);font-weight:700;font-size:.85rem}
 .photo-empty[hidden]{display:none}
+
+/* v121: peta Google Maps tersemat */
+.map-embed{display:block;width:100%;height:240px;border:1px solid var(--line,#e4ddcf);border-radius:20px;margin-top:10px;background:var(--ivory,#f6f1e6)}

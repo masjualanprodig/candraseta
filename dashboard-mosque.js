@@ -3,7 +3,7 @@
 import { h, toast, hint, ask, STATUS_LABEL } from './ui.js';
 import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, registerMosque, myAdminMosques, saveGallery, MAX_GALLERY } from './mosque-service.js';
 import { prepareProductPhoto } from './photo.js';
-import { parseMapsUrl, mapsText, MAPS_HELP, MAPS_RE } from './maps-link.js';
+import { parseMapsUrl, mapsText, MAPS_HELP, MAPS_RE, mapEmbed } from './maps-link.js';
 import { publicPhotoUrl, mosqueCover, GALLERY_BUCKET } from './supabase.js';
 import { teamPanel } from './team-panel.js';
 import { renderPostsManager } from './posts-ui.js';
@@ -59,7 +59,8 @@ async function renderMosquePreview(box, id, onBack) {
       row('Alamat', m.address || 'Belum diisi'),
       row('Wilayah', wilayah || 'Belum diisi'),
       row('No.HP/Telepon', m.contact_phone || 'Belum diisi'),
-      row('Lokasi', mapsHref ? h('a', { class: 'link', id: 'pv-maps', href: mapsHref, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps') : 'Belum ada tautan Google Maps')),
+      row('Lokasi', mapsHref ? h('a', { class: 'link', id: 'pv-maps', href: mapsHref, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps') : 'Belum ada tautan Google Maps'),
+      mapEmbed(m) || ''),
     m.description ? h('div', { class: 'panel' }, h('h3', {}, 'Tentang masjid'), h('p', { class: 'prewrap' }, m.description)) : '')));
   window.scrollTo(0, 0);
 }

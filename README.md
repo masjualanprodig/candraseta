@@ -461,3 +461,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Masjid Saya: tiap masjid yang didaftarkan bisa diklik ("Lihat detail") untuk pratinjau: foto/galeri, status, wilayah, alamat, telepon, tombol Buka di Google Maps. Berlaku juga untuk masjid yang masih menunggu verifikasi.
 - Edit profil masjid: kolom lintang/bujur dan tombol lokasi perangkat dihapus (diganti kolom tautan Google Maps); kotak unggah foto lama dihapus (foto diunggah saat mendaftar).
 - Kotak foto pada form pendaftaran bergaya "Foto masjid" (kotak putus-putus "Belum ada foto"). Tanpa SQL baru.
+
+## Tambahan v121 (Peta Google Maps tersemat)
+- Di bawah baris "Lokasi" (pratinjau Masjid Saya dan profil publik masjid) tampil peta Google Maps sungguhan (tersemat) bila koordinat masjid ada. Tanpa kunci API, tanpa SQL.
+- Tautan pendek (maps.app.goo.gl) tidak punya koordinat terbaca, jadi hanya tombol "Buka di Google Maps" yang tampil.
