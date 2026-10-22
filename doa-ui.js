@@ -6,11 +6,56 @@ import { renderDuaImport, downloadTemplate, svg, P } from './doa-import-ui.js';
 import { CATS, GRADES, KINDS, listDuas, createDua, updateDua, deleteDua, matches, copyText, loadFavs, saveFavs, toggleFav } from './doa-service.js';
 import { listSurahs, loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
-import { ayatBlock, refLabel } from './rukun-ui.js';
+import { refLabel } from './rukun-ui.js';
 import { icon, ICONS } from './feed-ui.js';
 
 const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.status === 404);
 const PAGE = 30;
+
+// Validasi ketat untuk mencegah ayat kosong/parsial tampil seolah-olah berhasil dimuat.
+function assertAyatResponse(rows, from, to) {
+  const expected = to - from + 1;
+  if (!Array.isArray(rows) || rows.length !== expected) throw new Error('Jumlah ayat yang diterima tidak sesuai rujukan.');
+  for (let i = 0; i < rows.length; i++) {
+    const a = rows[i];
+    if (!a || typeof a.ar !== 'string' || !a.ar.trim() || typeof a.id !== 'string' || !a.id.trim()) {
+      throw new Error('Teks Arab atau terjemahan ayat ' + (from + i) + ' belum lengkap.');
+    }
+  }
+  return rows;
+}
+
+const ayatLoads = new Map();
+function ayatContent(it, surahs, autoLoad = true) {
+  const box = h('div', { class: 'dalil ayat-dalil', 'aria-live': 'polite' });
+  const load = async () => {
+    box.replaceChildren(h('p', { class: 'muted center' }, 'Memuat teks Arab dan terjemahan ayat…'));
+    const key = [it.surah, it.ayah_from, it.ayah_to].join(':');
+    try {
+      let pending = ayatLoads.get(key);
+      if (!pending) {
+        pending = loadAyat(it.surah, it.ayah_from, it.ayah_to).then(rows => assertAyatResponse(rows, it.ayah_from, it.ayah_to));
+        ayatLoads.set(key, pending);
+      }
+      let rows;
+      try { rows = await pending; } catch (e) { ayatLoads.delete(key); throw e; }
+      box.replaceChildren(
+        h('p', { class: 'dref' }, refLabel(surahs, it)),
+        ...rows.map(a => h('div', { class: 'ayat-line' },
+          h('p', { class: 'arab', lang: 'ar', dir: 'rtl' }, a.ar),
+          h('p', { class: 'atrans prewrap' }, a.n + '. ' + a.id)))
+      );
+    } catch (e) {
+      box.replaceChildren(
+        h('p', { class: 'muted', role: 'alert' }, 'Teks ayat belum bisa ditampilkan lengkap. Periksa koneksi lalu coba lagi. ' + (e && e.message && /Jumlah ayat|belum lengkap/.test(e.message) ? e.message : '')),
+        h('button', { class: 'btn-sm ghost', type: 'button', onclick: load }, 'Coba muat ulang ayat')
+      );
+    }
+  };
+  box.loadAyat = load;
+  if (autoLoad) load();
+  return box;
+}
 
 // Bagikan: lembar bagikan perangkat bila ada; jika tidak, buka WhatsApp dengan teks yang sama seperti Salin.
 async function share(text) {
@@ -40,12 +85,12 @@ export function doaPage(opts = {}) {
     const fav = favs.includes(it.id);
     const favB = h('button', { class: 'btn-sm ghost dfav', type: 'button', 'aria-pressed': String(fav) }, fav ? '★ Favorit' : '☆ Favorit');
     favB.addEventListener('click', () => { favs = toggleFav(loadFavs(), it.id); saveFavs(favs); drawChips(); if (cat === 'favorit') drawList(); else { const on = favs.includes(it.id); favB.textContent = on ? '★ Favorit' : '☆ Favorit'; favB.setAttribute('aria-pressed', String(on)); } });
-    const body = it.kind === 'ayat' ? ayatBlock(it, surahs) : h('div', { class: 'dalil' },
+    const body = it.kind === 'ayat' ? ayatContent(it, surahs, false) : h('div', { class: 'dalil' },
       h('p', { class: 'arab', lang: 'ar', dir: 'rtl' }, it.arabic),
       it.latin ? h('p', { class: 'dlatin' }, it.latin) : '',
       h('p', { class: 'atrans prewrap' }, it.body));
     // Desain v79: baris ringkas (ikon, judul, kategori); diketuk untuk membuka isi doa lengkap.
-    return h('details', { class: 'dcard dua' },
+    const details = h('details', { class: 'dcard dua' },
       h('summary', { class: 'dua-sum' }, h('span', { class: 'dua-ic' }, icon(it.kind === 'ayat' ? ICONS.quran : ICONS.doa)),
         h('span', { class: 'dhead' }, h('b', { class: 'dtitle' }, it.title || (it.kind === 'ayat' ? refLabel(surahs, it) : 'Doa')),
           h('span', { class: 'dcat muted' }, CATS[it.category] || CATS.lainnya)),
@@ -59,6 +104,8 @@ export function doaPage(opts = {}) {
       h('div', { class: 'row-btns dctl' },
         it.kind === 'teks' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => copy(copyText(it)) }, 'Salin') : '',
         it.kind === 'teks' ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => share(copyText(it)) }, 'Bagikan') : '', favB)));
+    details.addEventListener('toggle', () => { if (details.open && it.kind === 'ayat' && body.loadAyat) body.loadAyat(); });
+    return details;
   }
 
   function drawChips() {
@@ -151,7 +198,7 @@ export async function renderDuaManager(box, onBack) {
     const f = readAyat(); if (!f) return;
     preview.hidden = false; preview.replaceChildren(h('p', { class: 'muted' }, 'Memuat…'));
     try {
-      const r = await loadAyat(f.surah, f.ayah_from, f.ayah_to);
+      const r = assertAyatResponse(await loadAyat(f.surah, f.ayah_from, f.ayah_to), f.ayah_from, f.ayah_to);
       preview.replaceChildren(h('p', { class: 'dref' }, refLabel(surahs, f)), ...r.map(a => h('div', {}, h('p', { class: 'arab', lang: 'ar', dir: 'rtl' }, a.ar), h('p', { class: 'atrans' }, a.n + '. ' + a.id))));
     } catch { preview.replaceChildren(h('p', { class: 'muted' }, 'Ayat tidak ditemukan atau belum bisa dimuat. Periksa nomor ayat dan koneksi.')); }
   });
@@ -169,7 +216,13 @@ export async function renderDuaManager(box, onBack) {
       const so = Number(order.value);
       if (!Number.isInteger(so) || so < 0 || so > 9999) { toast('Urutan harus bilangan bulat 0 sampai 9999.', true); return; }
       let f = { category: category.value, title: title.value.trim(), note: note.value.trim(), sort_order: so, source: source.value.trim() };
-      if (k === 'ayat') { const a = readAyat(); if (!a) return; f = { ...f, ...a }; }
+      if (k === 'ayat') {
+        const a = readAyat(); if (!a) return; f = { ...f, ...a };
+        save.disabled = true;
+        try { assertAyatResponse(await loadAyat(f.surah, f.ayah_from, f.ayah_to), f.ayah_from, f.ayah_to); }
+        catch (e) { save.disabled = false; toast('Rujukan ayat belum bisa diverifikasi atau teksnya tidak lengkap. Periksa nomor ayat dan koneksi, lalu coba lagi.', true); return; }
+        finally { save.disabled = false; }
+      }
       else {
         f = { ...f, arabic: arabic.value.trim(), latin: latin.value.trim(), body: body.value.trim(), grade: grade.value, grading: grading.value.trim() };
         if (f.arabic.length < 3) { toast('Teks Arab wajib diisi.', true); return; }
@@ -250,10 +303,13 @@ export async function renderDuaManager(box, onBack) {
           if (!(await ask({ title: 'Hapus doa ini?', text: label(it) + ' akan dihapus dan tidak bisa dikembalikan.', reason: false }))) return;
           try { await deleteDua(it.id); toast('Dihapus.'); await reload(); } catch (er) { if (er.status !== 401) toast('Gagal menghapus. ' + hint(er), true); }
         } }, 'Hapus')));
-      if (open) extra.push(h('dl', { class: 'dm-detail' },
-        ...(it.kind === 'ayat' ? [h('dt', {}, 'Rujukan'), h('dd', {}, refLabel(surahs, it))] : [h('dt', {}, 'Teks Arab'), h('dd', { class: 'dm-ar', lang: 'ar', dir: 'rtl' }, it.arabic || ''), it.latin ? h('dt', {}, 'Latin') : '', it.latin ? h('dd', {}, it.latin) : '',
-          h('dt', {}, 'Terjemahan'), h('dd', {}, it.body || ''), h('dt', {}, 'Sumber'), h('dd', {}, it.source || ''), h('dt', {}, 'Derajat'), h('dd', {}, (GRADES[it.grade] || '') + (it.grading ? ' · ' + it.grading : ''))]),
-        it.note ? h('dt', {}, 'Keterangan') : '', it.note ? h('dd', {}, it.note) : ''));
+      if (open) {
+        extra.push(h('dl', { class: 'dm-detail' },
+          ...(it.kind === 'ayat' ? [h('dt', {}, 'Rujukan'), h('dd', {}, refLabel(surahs, it))] : [h('dt', {}, 'Teks Arab'), h('dd', { class: 'dm-ar', lang: 'ar', dir: 'rtl' }, it.arabic || ''), it.latin ? h('dt', {}, 'Latin') : '', it.latin ? h('dd', {}, it.latin) : '',
+            h('dt', {}, 'Terjemahan'), h('dd', {}, it.body || ''), h('dt', {}, 'Sumber'), h('dd', {}, it.source || ''), h('dt', {}, 'Derajat'), h('dd', {}, (GRADES[it.grade] || '') + (it.grading ? ' · ' + it.grading : ''))]),
+          it.note ? h('dt', {}, 'Keterangan') : '', it.note ? h('dd', {}, it.note) : ''));
+        if (it.kind === 'ayat') extra.push(ayatContent(it, surahs));
+      }
       return h('div', { class: 'dm-card', 'data-id': it.id }, h('div', { class: 'dm-row' }, ...kids), ...extra);
     }
     search.addEventListener('input', () => { st.q = search.value; draw(); });
