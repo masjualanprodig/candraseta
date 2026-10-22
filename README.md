@@ -527,3 +527,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Formulir dan daftar undangan dihilangkan dari tampilan Admin Masjid. Bila email diisi, izin akses dicatat di balik layar memakai mekanisme yang sudah ada (peran: Ketua Takmir, Bendahara, atau Pengurus Bagian) dan akun yang sudah ada tetap tampil di "Akun yang punya akses" dengan tombol Cabut.
 - Super Admin tetap memakai panel undangan lama (untuk mengangkat Admin Masjid).
 - Jalankan sql/pengurus_daftar.sql (setelah tahap3.sql). Tabel baru mosque_officers; tulis hanya lewat fungsi officer_add/officer_remove. Cache SW baituna-static-v108.
+
+## Tambahan v135 (Pengurus: pilih masjid lewat dropdown)
+- Halaman Pengurus Masjid (Admin Masjid) kini punya dropdown "Pilih masjid": berisi semua masjid aktif milik admin itu (bertambah saat admin mendaftarkan masjid baru). Memilih masjid memuat daftar pengurusnya; pengurus baru ditambahkan ke masjid yang dipilih. Judul bagian di beranda menyebut nama masjid. Tanpa perubahan SQL. Cache SW baituna-static-v109.

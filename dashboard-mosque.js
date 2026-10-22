@@ -335,9 +335,18 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   }));
 
   if (view === 'team') {
+    // Pilihan masjid: semua masjid aktif milik Admin Masjid ini (bertambah saat mendaftarkan masjid baru).
+    let mine = [];
+    try { mine = me ? await myAdminMosques(me.id) : []; } catch (e) { if (e && e.status === 401) return; mine = []; }
+    mine = mine.filter(m => m.status === 'active');
+    if (!mine.some(m => m.id === mosqueId)) mine.unshift({ id: mosqueId, name: mosque.name, city: mosque.city });
+    const pick = h('select', { class: 'in', id: 'team-mosque', 'aria-label': 'Pilih masjid' }, ...mine.map(m => h('option', { value: m.id }, m.name + (m.city ? ' · ' + m.city : ''))));
+    pick.value = mosqueId;
+    pick.addEventListener('change', () => renderMosque(box, pick.value, 'team'));
     box.replaceChildren(
       h('button', { class: 'btn-sm ghost', type: 'button', id: 'team-back', onclick: goHome }, '← Kembali ke dashboard'),
-      h('div', { id: 'team-anchor', class: 'tm mt' }, h('h2', { class: 'tm-h' }, 'Pengurus Masjid'), teamBox));
+      h('div', { id: 'team-anchor', class: 'tm mt' }, h('h2', { class: 'tm-h' }, 'Pengurus Masjid'),
+        h('label', { class: 'hint', for: 'team-mosque' }, 'Pilih masjid yang pengurusnya ingin dikelola'), pick, teamBox));
     window.scrollTo(0, 0);
     return;
   }
@@ -366,7 +375,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const who = await whoAmI();
   let acts = [];
   try { acts = (await listAudit({ mosque: mosque.id, limit: 3 })) || []; } catch (e) { if (e && e.status === 401) return; acts = null; }
-  const teamTop = h('div', { id: 'team-anchor', class: 'tm' }, h('h2', { class: 'tm-h' }, 'Pengurus Masjid'), teamBox);
+  const teamTop = h('div', { id: 'team-anchor', class: 'tm' }, h('h2', { class: 'tm-h' }, 'Pengurus ' + mosque.name), teamBox);
   const toTeam = () => renderMosque(box, mosqueId, 'team');
   const toKas = () => renderMosque(box, mosqueId, 'kas'), toPosts = () => renderMosque(box, mosqueId, 'posts');
   registerActs({ kas: toKas, posts: toPosts, team: toTeam });
