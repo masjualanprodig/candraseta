@@ -190,7 +190,6 @@ export async function renderDuaManager(box, onBack) {
       save.disabled = false;
     }
   }, formTitle, h('div', { class: 'grid2' }, category, kind), title, fTeks, fAyat, note,
-    h('label', { class: 'hint' }, 'Urutan (angka kecil tampil lebih dulu)'), order,
     status, h('div', { class: 'mt row-btns' }, save, cancel));
   place();
 

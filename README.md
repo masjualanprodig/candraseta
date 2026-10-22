@@ -511,3 +511,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v131 (Admin Masjid: menu Pengurus kini membuka halaman sendiri)
 - Menu Pengurus (Akses Cepat dan bilah bawah) membuka halaman "Pengurus Masjid" tersendiri, tidak lagi menggulir ke bagian di beranda (yang hilang bila susunan beranda tidak memuatnya). Undang pengurus/bendahara dari sini.
 - Tidak ada perubahan SQL. Cache SW baituna-static-v105.
+
+## Tambahan v132 (Super Admin: kolom "Urutan" dihapus dari formulir Doa dan Dzikir)
+- Teks baru otomatis berurutan bawaan (100); teks lama tetap memakai urutannya. Tidak ada perubahan SQL. Cache SW baituna-static-v106.

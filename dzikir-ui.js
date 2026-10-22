@@ -280,7 +280,6 @@ export async function renderDhikrManager(box, onBack) {
     }
   }, formTitle, h('div', { class: 'grid2' }, session, kind), title, fTeks, fAyat, source, note,
     h('label', { class: 'hint' }, 'Jumlah bacaan (sesuai riwayat yang dirujuk)'), target,
-    h('label', { class: 'hint' }, 'Urutan (angka kecil tampil lebih dulu)'), order,
     status, h('div', { class: 'mt row-btns' }, save, cancel));
   place();
 
