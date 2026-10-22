@@ -5,10 +5,10 @@ import { h, toast, ask } from './ui.js';
 import { prepareImage } from './photo.js';
 import { errorText } from './branding-service.js';
 import { urlFor } from './branding-service.js';
-import { ROLES, SPEEDS, DEFAULT_SPEED, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
+import { ROLES, SPEEDS, DEFAULT_SPEED, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, KMODES, kartuKind, newKartu, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
 import { layoutNodes } from './home-builder.js';
 
-const TYPE_NAME = { banner: 'Banner slide', fitur: 'Kotak fitur', text: 'Teks' };
+const TYPE_NAME = { banner: 'Banner slide', fitur: 'Kotak fitur', kartu: 'Kartu fitur', text: 'Teks' };
 const clone = o => JSON.parse(JSON.stringify(o, (k, v) => k.startsWith('_') ? undefined : v));
 const msgOf = e => (e && e.code === '22023' && e.message) ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : errorText(e);
 
@@ -34,6 +34,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
   function summary(b) {
     if (b.t === 'b') { const ch = b.o && pruneBlocks(role, [b])[0].o; return ['Bawaan: ' + builtinLabel(role, b.id), ch ? 'Sudah Anda ubah' : 'Bagian aplikasi yang sudah ada']; }
     if (b.t === 'banner') return [TYPE_NAME.banner, b.slides.length + ' slide · gambar saja · ' + (b.speed > 0 ? 'geser tiap ' + b.speed + ' dtk' : 'tidak otomatis')];
+    if (b.t === 'kartu') { const k = kartuKind(b.feature); return [TYPE_NAME.kartu, (b.title || LINKS[b.feature][0]) + ' · ' + (k === 'data' ? KMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + (b.mode !== 'kartu' ? ' ' + b.count + ' item' : '') : k === 'embed' ? (b.size === 'penuh' ? 'Penuh' : 'Ringkas') : 'Kartu')]; }
     if (b.t === 'fitur') return [TYPE_NAME.fitur, (b.title || 'Akses Cepat') + ' · ' + b.items.length + ' menu'];
     return [TYPE_NAME.text + ' (' + ({ h1: 'Judul', h2: 'Subjudul', p: 'Paragraf' })[b.style] + ')', (b.text || '').slice(0, 60) || '(kosong)'];
   }
@@ -81,6 +82,35 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
       return h('label', {}, c, v[0]);
     });
     return h('div', { class: 'hbe-edit' }, field('Judul bagian', input(b.title, LIMITS.ftitle, v => { b.title = v; }, 'Akses Cepat')), h('div', { class: 'hbe-chk' }, ...boxes));
+  }
+  function editKartu(b) {
+    const kind = kartuKind(b.feature), L = LINKS[b.feature];
+    const ta = h('textarea', { class: 'in', maxlength: String(LIMITS.text), rows: '3', 'aria-label': 'Deskripsi singkat', placeholder: 'Deskripsi singkat (opsional)' }); ta.value = b.text || '';
+    ta.addEventListener('input', () => { b.text = ta.value; bump(); refreshBar(); });
+    const fileIn = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'hb-file', 'aria-label': 'Gambar kartu' });
+    fileIn.addEventListener('change', async () => {
+      const f = fileIn.files && fileIn.files[0]; if (!f) return;
+      try { const p = await prepareImage(f); b._file = p; b._url = URL.createObjectURL(p.blob); bump(); draw(); }
+      catch (e) { toast(errorText(e), true); fileIn.value = ''; }
+    });
+    const u = b._url || (b.img && urlFor(b.img)) || '';
+    const kids = [
+      field('Fitur yang ditampilkan', select(Object.entries(LINKS).map(([k, v]) => [k, v[0]]), b.feature, v => { b.feature = v; draw(); })),
+      field('Judul (kosong = nama fitur)', input(b.title, LIMITS.ftitle, v => { b.title = v; }, L[0])),
+      field('Deskripsi singkat', ta),
+      u ? h('img', { class: 'hbe-thumb', src: u, alt: 'Gambar kartu' }) : h('div', { class: 'hbe-thumb hbe-thumb-empty' }, 'Belum ada gambar'),
+      field(u ? 'Ganti gambar (JPEG/PNG/WebP)' : 'Gambar / thumbnail (JPEG/PNG/WebP, opsional)', fileIn),
+      u ? h('button', { class: 'btn-sm ghost hb-k-noimg', type: 'button', onclick: () => { delete b.img; delete b._file; delete b._url; bump(); draw(); } }, 'Hapus gambar') : ''];
+    if (kind === 'data') {
+      kids.push(field('Tampilan', select(KMODES, b.mode, v => { b.mode = v; draw(); })));
+      if (b.mode !== 'kartu') kids.push(field('Jumlah isi yang tampil', select([1, 2, 3, 4, 5, 6].map(n => [String(n), n + ' item']), String(b.count), v => { b.count = Number(v); })));
+      kids.push(h('small', { class: 'muted' }, b.mode === 'kartu' ? 'Satu kartu dengan judul, gambar, deskripsi, dan tombol menuju ' + L[0] + '.' : 'Menampilkan ' + b.count + ' isi terbaru dari ' + L[0] + ' secara langsung (judul, gambar, keterangan).'));
+    } else if (kind === 'embed') {
+      kids.push(field('Ukuran', select([['ringkas', 'Ringkas (kartu + tombol)'], ['penuh', 'Penuh (fitur tampil langsung di beranda)']], b.size, v => { b.size = v; draw(); })));
+      kids.push(h('small', { class: 'muted' }, b.size === 'penuh' ? L[0] + ' ditampilkan utuh di beranda, bisa dipakai tanpa membuka halaman lain.' : 'Kartu dengan tombol menuju ' + L[0] + '.'));
+    } else kids.push(h('small', { class: 'muted' }, L[0] + ' tampil sebagai kartu dengan judul, gambar, deskripsi, dan tombol menuju fitur.'));
+    if (!(kind === 'data' && b.mode !== 'kartu') && !(kind === 'embed' && b.size === 'penuh')) kids.push(field('Teks tombol (kosong = “Buka ' + L[0] + '”)', input(b.cta, LIMITS.cta, v => { b.cta = v; }, 'Buka ' + L[0])));
+    return h('div', { class: 'hbe-edit hb-kartu' }, ...kids);
   }
   function editText(b) {
     const ta = h('textarea', { class: 'in', maxlength: String(LIMITS.para), rows: '4', 'aria-label': 'Isi teks' }); ta.value = b.text || '';
@@ -165,7 +195,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
           h('button', { class: 'btn-sm ghost hb-edit', type: 'button', 'aria-expanded': String(isOpen), onclick: () => { isOpen ? open.delete(b) : open.add(b); draw(); } }, isOpen ? 'Tutup' : 'Ubah'),
           req ? h('button', { class: 'btn-sm ghost hb-del', type: 'button', disabled: 'disabled', title: 'Bagian ini wajib agar menu tidak hilang' }, 'Wajib')
               : h('button', { class: 'btn-sm alt hb-del', type: 'button', onclick: () => remove(i) }, 'Hapus'))),
-      isOpen ? (b.t === 'b' ? editBuiltin(b) : b.t === 'banner' ? editBanner(b) : b.t === 'fitur' ? editFitur(b) : editText(b)) : '');
+      isOpen ? (b.t === 'b' ? editBuiltin(b) : b.t === 'banner' ? editBanner(b) : b.t === 'fitur' ? editFitur(b) : b.t === 'kartu' ? editKartu(b) : editText(b)) : '');
   }
 
   // Cek isian sebelum dikirim; mengembalikan teks galat atau ''.
@@ -215,7 +245,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
     const hidden = hiddenBuiltins();
     const sel = hidden.length ? h('select', { class: 'in', id: 'hb-b-sel', 'aria-label': 'Bagian bawaan yang sudah dihapus' }, ...hidden.map(([id, l]) => h('option', { value: id }, l))) : null;
     const add = t => { if (blocks.length >= LIMITS.blocks) { toast('Maksimal ' + LIMITS.blocks + ' blok.', true); return; }
-      const nb = t === 'banner' ? { t, speed: DEFAULT_SPEED, slides: [{}] } : t === 'fitur' ? { t, title: '', items: [] } : { t, style: 'p', align: 'left', text: '' };
+      const nb = t === 'banner' ? { t, speed: DEFAULT_SPEED, slides: [{}] } : t === 'fitur' ? { t, title: '', items: [] } : t === 'kartu' ? newKartu() : { t, style: 'p', align: 'left', text: '' };
       blocks.push(nb); open.add(nb); bump(); draw(); };
     saveBtn = h('button', { class: 'btn-sm', id: 'hb-save', type: 'button', onclick: doSave }, 'Simpan');
     bar = h('div', { class: 'hbe-bar' }, saveBtn, h('button', { class: 'btn-sm ghost', id: 'hb-prev-btn', type: 'button', onclick: () => { showPrev = !showPrev; draw(); } }, showPrev ? 'Tutup pratinjau' : 'Pratinjau'),
@@ -229,6 +259,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
       h('div', { class: 'hbe-add' },
         h('button', { class: 'btn-sm ghost', id: 'hb-add-banner', type: 'button', onclick: () => add('banner') }, '+ Banner slide'),
         h('button', { class: 'btn-sm ghost', id: 'hb-add-fitur', type: 'button', onclick: () => add('fitur') }, '+ Kotak fitur'),
+        h('button', { class: 'btn-sm ghost', id: 'hb-add-kartu', type: 'button', onclick: () => add('kartu') }, '+ Kartu fitur'),
         h('button', { class: 'btn-sm ghost', id: 'hb-add-text', type: 'button', onclick: () => add('text') }, '+ Teks')),
       sel ? h('div', { class: 'hbe-add' }, sel, h('button', { class: 'btn-sm ghost', id: 'hb-add-b', type: 'button', onclick: () => { if (blocks.length >= LIMITS.blocks) { toast('Maksimal ' + LIMITS.blocks + ' blok.', true); return; } blocks.push({ t: 'b', id: sel.value }); bump(); draw(); } }, '+ Tambahkan bagian bawaan')) : '',
       showPrev ? h('div', { class: 'hbe-prev', id: 'hb-prev', 'aria-label': 'Pratinjau susunan' }, ...layoutNodes(role, blocks, {}, { preview: true })) : '',

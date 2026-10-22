@@ -495,3 +495,11 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v128 (Admin Masjid: "Kelola Masjid" dan "Profil Masjid" membuka daftar masjid)
 - Banner "Kelola Masjid" dan tombol "Profil Masjid" kini membuka halaman "Masjid Saya": daftar semua masjid yang didaftarkan admin itu (semua status). Ketuk satu masjid untuk profil lengkapnya (foto, alamat, wilayah, telepon, peta). Dari profil masjid yang sedang dikelola ada tombol "Edit profil masjid"; untuk masjid aktif lain ada "Kelola masjid ini". Ada juga "+ Daftarkan masjid baru". Tanpa SQL.
+
+## Tambahan v129 (Beranda: "Kartu fitur" — kartu yang bisa diatur isinya)
+- Super Admin: di Tampilan Beranda ada tombol "+ Kartu fitur". Pilih fitur, lalu atur judul, deskripsi singkat, gambar (thumbnail), teks tombol.
+- Fitur berisi daftar (Berita/Artikel, Pustaka Buku, Sejarah Islam): pilih tampilan Kartu / Grid / Daftar dan jumlah isi (1-6). Isi diambil otomatis dari data asli.
+- Fitur yang bisa disematkan (Kalkulator Zakat, Jadwal Salat, Al-Qur'an): pilih ukuran Ringkas (kartu + tombol) atau Penuh (tampil langsung di beranda).
+- Fitur lain: kartu dengan judul, gambar, deskripsi, dan tombol buka.
+- Berlaku untuk beranda Jamaah/Admin/Super sesuai tab peran yang diedit.
+- Jalankan sql/beranda_kartu.sql (setelah beranda_banner.sql). Cache SW baituna-static-v103.

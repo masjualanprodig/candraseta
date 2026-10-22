@@ -8,7 +8,7 @@ export const ROLES = [['jamaah', 'Jamaah'], ['admin', 'Admin Masjid'], ['super',
 export const SPEEDS = [[0, 'Tidak otomatis'], [2, '2 detik'], [3, '3 detik'], [4, '4 detik'], [5, '5 detik'], [6, '6 detik'], [8, '8 detik'], [10, '10 detik'], [15, '15 detik']];
 export const DEFAULT_SPEED = 5;
 const speedOf = (v, def) => (Number.isInteger(v) && v >= 0 && v <= 30) ? v : def;
-export const LIMITS = { gridItems: 20, blocks: 30, slides: 6, items: 12, title: 80, text: 200, cta: 30, ftitle: 60, para: 600 };
+export const LIMITS = { kcount: 6, gridItems: 20, blocks: 30, slides: 6, items: 12, title: 80, text: 200, cta: 30, ftitle: 60, para: 600 };
 
 // Tujuan tautan yang boleh dipilih (kunci -> [nama, kunci ikon di quick-catalog, tab halaman fitur]).
 export const LINKS = {
@@ -19,6 +19,15 @@ export const LINKS = {
   dzikir: ['Dzikir Pagi & Petang', 'open-more', 'dzikir'], kiblat: ['Arah Kiblat', 'open-more', 'kiblat'], tanya: ['Tanya Jawab', 'open-more', 'tanya'],
   notif: ['Notifikasi', 'open-notif', 'notif'], more: ['Lainnya', 'open-more', 'more']
 };
+
+// Blok "Kartu fitur": tiap fitur punya kemampuan tampilan sendiri.
+//  data  = bisa menampilkan daftar isi nyata (Kartu / Grid / Daftar, 1-6 item)
+//  embed = bisa menampilkan fitur sebenarnya di beranda (Ringkas = kartu, Penuh = fitur langsung di beranda)
+//  lainnya = kartu berisi judul, gambar, deskripsi, dan tombol menuju fitur.
+export const KARTU = { berita: { data: true }, buku: { data: true }, sejarah: { data: true }, zakat: { embed: true }, jadwal: { embed: true }, quran: { embed: true } };
+export const KMODES = [['kartu', 'Kartu (gambar + deskripsi)'], ['grid', 'Grid (2 kolom)'], ['list', 'Daftar (baris)']];
+export const kartuKind = f => (KARTU[f] && KARTU[f].data ? 'data' : KARTU[f] && KARTU[f].embed ? 'embed' : 'link');
+export const newKartu = f => ({ t: 'kartu', feature: f || 'berita', title: '', text: '', cta: '', mode: 'kartu', count: 3, size: 'ringkas' });
 
 // Bagian bawaan tiap peran, urutan = tampilan bawaan. required = tak boleh dihapus (agar tidak kehilangan akses menu).
 export const BUILTINS = {
@@ -123,6 +132,12 @@ export function cleanBlocks(role, raw) {
       // Dulu "Artikel Terbaru" dibuat sebagai kotak menu bergambar ikon; sekarang ada bagian bawaan yang menampilkan artikelnya.
       seen.add('artikel'); out.push({ t: 'b', id: 'artikel' });
     }
+    else if (b.t === 'kartu' && LINKS[b.feature]) {
+      const k = { t: 'kartu', feature: b.feature, title: str(b.title, LIMITS.ftitle), text: str(b.text, LIMITS.text), cta: str(b.cta, LIMITS.cta),
+        mode: ['kartu', 'grid', 'list'].includes(b.mode) ? b.mode : 'kartu', count: Number.isInteger(b.count) && b.count >= 1 && b.count <= LIMITS.kcount ? b.count : 3, size: b.size === 'penuh' ? 'penuh' : 'ringkas' };
+      if (typeof b.img === 'string' && urlFor(b.img)) k.img = b.img;
+      out.push(k);
+    }
     else if (b.t === 'banner' && Array.isArray(b.slides)) {
       // Slide baru = gambar saja. Slide lama yang berjudul tetap dipakai apa adanya.
       const slides = b.slides.slice(0, LIMITS.slides).filter(s => s && typeof s === 'object' && ((typeof s.img === 'string' && urlFor(s.img)) || str(s.title, 80).trim())).map(s => {
@@ -159,12 +174,13 @@ export async function fetchLayout(role) {
 
 const rpc = (fn, body) => db('rpc/' + fn, { method: 'POST', body });
 // Penyimpan gambar pada sebuah blok: objek yang memuat {img, _file}.
-export const holders = b => b.t === 'banner' ? b.slides : b.t === 'b' && b.o ? [...(b.o.slides || []).filter(Boolean), ...(b.o.img !== undefined || b.o._file ? [b.o] : [])] : [];
+export const holders = b => b.t === 'kartu' ? ((b.img !== undefined || b._file) ? [b] : []) : b.t === 'banner' ? b.slides : b.t === 'b' && b.o ? [...(b.o.slides || []).filter(Boolean), ...(b.o.img !== undefined || b.o._file ? [b.o] : [])] : [];
 export const imagePaths = blocks => (blocks || []).flatMap(b => holders(b).map(x => x.img).filter(Boolean));
 // Buang ubahan kosong supaya yang tersimpan hanya yang berbeda dari bawaan. File gambar baru (_file) ikut dibawa.
 const NEW = 'lay-new.jpg';
 export function pruneBlocks(role, blocks) {
   return blocks.map(b => {
+    if (b.t === 'kartu') return b._file ? { ...b, img: NEW } : b;
     if (b.t !== 'b' || !b.o) return b;
     const o = JSON.parse(JSON.stringify(b.o, (k, v) => (k === '_file' || k === '_url') ? undefined : v));
     if (b.o._file) o.img = NEW;

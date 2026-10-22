@@ -6,6 +6,7 @@ import { CATALOG } from './quick-catalog.js';
 import { LINKS, defaultBlocks, cleanBlocks, fetchLayout, builtinLabel, defaultsOf, kindOf, cleanOverride } from './home-layout-service.js';
 import { promoBanner } from './home-ui.js';
 import { urlFor } from './branding-service.js';
+import { kartuNode } from './home-kartu.js';
 
 let seq = 0;
 
@@ -108,6 +109,7 @@ export function layoutNodes(role, saved, builtins, { preview = false } = {}) {
       if (sl.length) out.push(bannerCarousel(sl.map(x => slideNode(x, preview)), { id: 'cb' + (++seq), speed: Number.isInteger(b.speed) ? b.speed : 5 }));
     }
     else if (b.t === 'fitur') { if (b.items.length) out.push(quickGrid(b.title || 'Akses Cepat', b.items.map(k => ({ key: LINKS[k][1], label: LINKS[k][0], id: 'cf-' + k + '-' + seq, onclick: () => { if (!preview) go(LINKS[k][2]); } })), { id: 'cq' + (++seq) })); }
+    else if (b.t === 'kartu') { const n = kartuNode(b, { preview }); if (n) out.push(n); }
     else if (b.t === 'text') { if (b.text && b.text.trim()) out.push(h(b.style === 'p' ? 'p' : b.style === 'h1' ? 'h2' : 'h3', { class: 'hb-text hb-' + b.style, style: 'text-align:' + b.align }, b.text)); }
   }
   return out;
