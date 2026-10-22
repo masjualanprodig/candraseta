@@ -426,3 +426,5 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .rv-ok b{color:var(--teal,#0f6b57)}
 .rv-warn{background:#fff8e6;border-color:#f0d9a0}
 .rv-warn b{color:#8a5a00}
+
+.pv-acts{display:flex;gap:.6rem;flex-wrap:wrap}.pv-acts .btn-primary{flex:1}

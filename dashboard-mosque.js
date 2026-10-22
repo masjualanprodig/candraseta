@@ -38,7 +38,7 @@ export const TERMS = [
   'Anda otomatis menjadi Admin Masjid untuk masjid yang Anda daftarkan.'];
 
 // Pratinjau masjid yang didaftarkan: data persis seperti yang akan dilihat pengunjung (juga selagi masih menunggu verifikasi).
-async function renderMosquePreview(box, id, onBack) {
+async function renderMosquePreview(box, id, onBack, actions = []) {
   let m;
   try { m = await getMosque(id); } catch (e) { if (e && e.status === 401) return; toast('Detail masjid belum bisa dimuat. ' + hint(e), true); return; }
   if (!m) { toast('Masjid tidak ditemukan.', true); return; }
@@ -61,9 +61,32 @@ async function renderMosquePreview(box, id, onBack) {
       row('No.HP/Telepon', m.contact_phone || 'Belum diisi'),
       row('Lokasi', mapsHref ? h('a', { class: 'link', id: 'pv-maps', href: mapsHref, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps') : 'Belum ada tautan Google Maps'),
       mapEmbed(m) || ''),
-    m.description ? h('div', { class: 'panel' }, h('h3', {}, 'Tentang masjid'), h('p', { class: 'prewrap' }, m.description)) : '')));
+    m.description ? h('div', { class: 'panel' }, h('h3', {}, 'Tentang masjid'), h('p', { class: 'prewrap' }, m.description)) : '',
+    actions.length ? h('div', { class: 'pv-acts mt' }, ...actions) : '')));
   window.scrollTo(0, 0);
 }
+
+// Daftar masjid milik Admin Masjid ini (semua status). Ketuk satu baris untuk melihat profil lengkapnya.
+export async function renderMyMosques(box, { currentId, onBack, onEdit, onPick, onRegister }) {
+  const me = getSession() && getSession().user;
+  box.replaceChildren(h('p', { class: 'muted' }, 'Memuat…'));
+  let mine = [];
+  try { mine = me ? await myAdminMosques(me.id) : []; } catch (e) { if (e && e.status === 401) return; toast('Daftar masjid belum bisa dimuat. ' + hint(e), true); }
+  const back = () => renderMyMosques(box, { currentId, onBack, onEdit, onPick, onRegister });
+  const open = m => renderMosquePreview(box, m.id, back, [
+    m.id === currentId ? h('button', { class: 'btn-primary', type: 'button', id: 'pv-edit', onclick: onEdit }, 'Edit profil masjid') : '',
+    m.status === 'active' && m.id !== currentId ? h('button', { class: 'btn-primary', type: 'button', id: 'pv-pick', onclick: () => onPick(m.id) }, 'Kelola masjid ini') : '']);
+  const rows = mine.map(m => h('div', { class: 'mrow', 'data-mosque': m.id },
+    h('button', { class: 'minfo mrow-open', type: 'button', 'data-open': m.id, 'aria-label': 'Lihat profil ' + m.name, onclick: () => open(m) },
+      h('strong', {}, m.name), h('div', { class: 'muted' }, loc(m) || 'Lokasi belum diisi'), m.status_reason ? h('div', { class: 'muted' }, 'Alasan: ' + m.status_reason) : '', h('span', { class: 'rg-see' }, 'Lihat profil lengkap ›')),
+    h('div', { class: 'macts' }, h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status), m.id === currentId ? h('span', { class: 'muted' }, 'Sedang dikelola') : '')));
+  box.replaceChildren(h('div', { class: 'home', id: 'my-mosques' }, h('div', { class: 'home-body mp-body' },
+    h('div', { class: 'mp-head' }, h('button', { class: 'btn-sm ghost', id: 'mm-back', type: 'button', onclick: onBack }, '← Kembali ke dashboard'), h('h2', {}, 'Masjid Saya')),
+    h('div', { class: 'panel' }, h('h3', {}, 'Masjid yang Anda daftarkan (' + mine.length + ')'), rows.length ? rows : h('p', { class: 'muted' }, 'Belum ada masjid terdaftar.')),
+    h('div', { class: 'mt' }, h('button', { class: 'btn-sm ghost', id: 'mm-register', type: 'button', onclick: onRegister }, '+ Daftarkan masjid baru')))));
+  window.scrollTo(0, 0);
+}
+
 
 async function renderRegister(box, onBack, { currentId = null, onPick = null } = {}) {
   const me = getSession() && getSession().user;
@@ -218,6 +241,8 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const refresh = () => renderMosque(box, mosqueId, view);
   const goHome = () => renderMosque(box, mosqueId, 'home');
   const goEdit = () => renderMosque(box, mosqueId, 'edit');
+  const goList = () => renderMosque(box, mosqueId, 'list');
+  if (view === 'list') { await renderMyMosques(box, { currentId: mosqueId, onBack: goHome, onEdit: goEdit, onPick: id => renderMosque(box, id, 'home'), onRegister: () => renderMosque(box, mosqueId, 'register') }); return; }
   if (view === 'audit') { await renderAuditLog(box, { onBack: goHome, mosque: { id: mosque.id, name: mosque.name } }); return; }
   if (view === 'kas') { await renderKasManager(box, mosque, { onBack: goHome, roles: { write: true, setup: true, approve: true } }); return; }
   if (view === 'posts') { await renderPostsManager(box, mosque, goHome); return; }
@@ -340,7 +365,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const nextAg = upcoming[0] || null, lastInfo = infos[0] || null;
   const B = {
     banner: bannerCarousel([
-      { art: 'banner_masjid', title: mosque.name + ' Bersama BAITUNA', text: 'Kelola masjid lebih mudah dan profesional.', cta: 'Kelola Masjid', onclick: goEdit },
+      { art: 'banner_masjid', title: mosque.name + ' Bersama BAITUNA', text: 'Kelola masjid lebih mudah dan profesional.', cta: 'Kelola Masjid', onclick: goList },
       { art: 'banner_kas', title: 'Catat Kas dengan Rapi', text: 'Buku kas tidak bisa diubah diam-diam; koreksi tercatat sebagai baris baru.', cta: 'Buka Kas', onclick: toKas, tone: 'gold' }]),
     buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
     pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
@@ -363,7 +388,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
         { key: 'open-keuangan', id: 'open-kas', onclick: toKas },
         { key: 'open-agenda', id: 'open-posts', label: 'Agenda', onclick: toPosts },
         { key: 'open-pengumuman', id: 'open-info', onclick: toPosts },
-        { key: 'open-profilmasjid', id: 'open-edit', onclick: goEdit },
+        { key: 'open-profilmasjid', id: 'open-edit', onclick: goList },
         { key: 'open-audit', id: 'open-audit', onclick: () => renderMosque(box, mosqueId, 'audit') },
         { key: 'open-market', id: 'qa-market', onclick: () => go('market') },
         { key: 'open-more', id: 'qa-more', onclick: () => go('more') }], { ic: BOLT }),

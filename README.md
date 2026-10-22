@@ -492,3 +492,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v127 (Keuangan: tanpa tab Favorit, ikon di kolom isian)
 - Tab Favorit dihapus. Favorit kini tombol kecil di atas formulir Tambah Transaksi (ketuk untuk mengisi; tanda × menghapus).
 - Setiap kolom isian punya ikon di kiri (tanggal, kategori, akun, nama barang, jumlah barang, total/jumlah, keterangan, donatur/penerima, nama favorit). Tanpa SQL baru.
+
+## Tambahan v128 (Admin Masjid: "Kelola Masjid" dan "Profil Masjid" membuka daftar masjid)
+- Banner "Kelola Masjid" dan tombol "Profil Masjid" kini membuka halaman "Masjid Saya": daftar semua masjid yang didaftarkan admin itu (semua status). Ketuk satu masjid untuk profil lengkapnya (foto, alamat, wilayah, telepon, peta). Dari profil masjid yang sedang dikelola ada tombol "Edit profil masjid"; untuk masjid aktif lain ada "Kelola masjid ini". Ada juga "+ Daftarkan masjid baru". Tanpa SQL.
