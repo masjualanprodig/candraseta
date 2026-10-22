@@ -133,6 +133,7 @@ export const addEntry = (mosqueId, v, proofPath) => rpc('kas_catat', { p_mosque:
 export const replaceEntry = (entryId, v, proofPath) => rpc('kas_replace', { p_entry: entryId, ...entryArgs(v, proofPath) });
 export const saveFavorite = (mosqueId, f) => rpc('kas_fav_save', { p_mosque: mosqueId, p_direction: f.direction, p_name: f.name, p_category: f.categoryId, p_item: f.itemName || null, p_amount: f.amount || null, p_note: f.note || null });
 export const deleteFavorite = id => rpc('kas_fav_delete', { p_id: id });
+export const resetKas = (mosqueId, confirm) => rpc('kas_reset', { p_mosque: mosqueId, p_confirm: confirm });
 export const setMode = (mosqueId, mode) => rpc('kas_set_mode', { p_mosque: mosqueId, p_mode: mode });
 export const reverseEntry = (id, reason) => rpc('kas_reverse', { p_entry: id, p_reason: reason });
 export const closeMonth = (mosqueId, month, note) => rpc('kas_close_month', { p_mosque: mosqueId, p_month: month, p_note: note || null });

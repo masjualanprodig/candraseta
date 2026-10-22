@@ -1216,4 +1216,4 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 @media (min-width:720px){.dm-tiles{max-width:34rem}.dmi-sum{grid-template-columns:repeat(4,1fr)}}
 .badge.off-ok{background:#e0f2ea;color:#066755}.badge.off-wait{background:#fff3d6;color:#7a5600}
 
-.kas-navwrap{text-align:center}.kas-reset{display:inline-block;margin:.4rem auto .2rem;padding:.4rem .9rem;font-size:.8rem}.kas-reset:disabled{opacity:.45;cursor:default}
+.kas-navwrap{text-align:center}.kas-reset{display:inline-block;margin:.4rem auto .2rem;padding:.4rem .9rem;font-size:.8rem}

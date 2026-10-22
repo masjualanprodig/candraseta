@@ -60,9 +60,7 @@ function monthNav(month, set, nowKey) {
     h('button', { class: 'btn-sm ghost', type: 'button', id: 'kas-prev', 'aria-label': 'Bulan sebelumnya', onclick: () => set(K.addMonths(month, -1)) }, '‹'),
     h('b', { id: 'kas-month' }, K.monthLabel(month)),
     h('button', { class: 'btn-sm ghost', type: 'button', id: 'kas-next', 'aria-label': 'Bulan berikutnya', ...(month >= nowKey ? { disabled: 'disabled' } : {}), onclick: () => set(K.addMonths(month, 1)) }, '›'));
-  const now = month >= nowKey;
-  return h('div', { class: 'kas-navwrap' }, nav,
-    h('button', { class: 'btn-sm ghost kas-reset', type: 'button', id: 'kas-reset', ...(now ? { disabled: 'disabled' } : {}), onclick: () => set(nowKey) }, 'Reset ke bulan ini'));
+  return nav;
 }
 
 /* ===== Ringkasan untuk jamaah (profil masjid): hanya total, tanpa rincian ===== */
@@ -138,7 +136,13 @@ export async function renderKasManager(box, mosque, { onBack, roles = {}, tab: s
         const why = await ask({ title: 'Buka kembali ' + K.monthLabel(st.month) + '?', text: 'Hanya untuk kesalahan tutup buku. Alasan tercatat di audit log.', reason: true });
         if (!why) return;
         try { await K.reopenMonth(mosque.id, st.month, why); toast('Bulan dibuka kembali.'); await reload('ringkasan'); } catch (e) { toast(K.errorText(e), true); } } }, 'Buka kembali') : '');
-    frame(monthNav(st.month, m => { st.month = m; showSummary(); }, nowKey),
+    const canReset = (R.setup && R.approve) || R.admin;
+    const resetBtn = canReset ? h('div', { class: 'kas-navwrap kas-noprint' }, h('button', { class: 'btn-sm alt kas-reset', type: 'button', id: 'kas-reset', onclick: async () => {
+      const word = await ask({ title: 'Reset kas, mulai dari awal?', text: 'SEMUA catatan kas, penutupan bulan, dan transaksi favorit masjid ini akan DIHAPUS dan saldo awal semua akun menjadi 0. Tidak bisa dibatalkan. Akun, kategori, dan pengaturan tetap. Pengurus lain tidak diberi tahu; tindakan ini tercatat di Jejak Audit. Ketik RESET di kolom di bawah untuk melanjutkan.', reason: true });
+      if (!word) return;
+      if (word !== 'RESET') { toast('Kata konfirmasi harus persis: RESET. Tidak ada yang dihapus.', true); return; }
+      try { const r = await K.resetKas(mosque.id, word); st.month = nowKey; toast('Kas direset. ' + (r && r.entries != null ? r.entries + ' catatan dihapus.' : '')); await reload('ringkasan'); } catch (e) { toast(K.errorText(e), true); } } }, 'Reset kas (mulai dari awal)')) : '';
+    frame(monthNav(st.month, m => { st.month = m; showSummary(); }, nowKey), resetBtn,
       h('div', { class: 'kas-print', id: 'kas-report' }, h('h3', { class: 'kas-pt' }, 'Laporan kas ' + mosque.name), h('p', { class: 'muted' }, 'Periode: ' + K.monthLabel(st.month)), reportView(rep, {}),
         h('p', { class: 'hint kas-pfoot' }, DISCLAIMER)),
       h('div', { class: 'kas-sechead' }, h('h3', {}, 'Daftar Pengeluaran'), h('button', { class: 'kas-seeall', type: 'button', id: 'kas-seeall', onclick: () => { st.filter = 'keluar'; show('catatan'); } }, 'Lihat Semua ›')),

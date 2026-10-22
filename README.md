@@ -536,3 +536,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v137 (Keuangan: kartu Kas masuk/keluar rapi + tombol "Reset ke bulan ini")
 - Kartu Kas masuk dan Kas keluar di Ringkasan sempat mepet karena kelas "in" bentrok dengan gaya kolom isian; diganti pos/neg. Tombol "Reset ke bulan ini" di Ringkasan (dan Transaksi) mengembalikan ke bulan sekarang; nonaktif bila sudah di bulan ini. Tidak ada data dihapus. Cache SW baituna-static-v111.
+
+## Tambahan v138 (Keuangan: "Reset kas (mulai dari awal)" untuk Admin Masjid)
+- Tombol di Ringkasan Kas (hanya Admin Masjid/Super Admin; Bendahara dan Ketua tidak melihatnya). Wajib mengetik RESET. Menghapus semua catatan kas, penutupan bulan, dan transaksi favorit masjid itu; saldo awal semua akun menjadi 0. Akun, kategori, dan pengaturan tetap. Tidak bisa dibatalkan. Tercatat di Jejak Audit (jumlah catatan dan total masuk/keluar sebelum dihapus). Foto nota lama tetap di penyimpanan (tidak lagi tertaut).
+- Tombol "Reset ke bulan ini" (v137) diganti. Jalankan sql/kas_reset.sql setelah kas.sql dan kas_baru.sql (jangan menjalankan ulang kas.sql sesudahnya, atau jalankan kas_reset.sql lagi). Ubah/hapus catatan biasa tetap ditolak. Cache SW baituna-static-v112.
