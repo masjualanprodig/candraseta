@@ -137,3 +137,18 @@ export async function setMosquePhoto(id, path) {
   const out = await db('mosques', { method: 'PATCH', query: 'id=eq.' + enc(id), prefer: 'return=representation', body: { photo_path: path } });
   if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 });
 }
+
+/* ===== Daftar pengurus (tanpa undangan; lihat pengurus_daftar.sql) ===== */
+export const POSITION_LABEL = { ketua_takmir: 'Ketua Takmir', sekretaris: 'Sekretaris', bendahara: 'Bendahara', sarana_prasarana: 'Sarana & Prasarana', pendidikan_remaja: 'Pendidikan & Remaja Masjid' };
+export const positionRole = p => p === 'ketua_takmir' ? 'ketua_takmir' : p === 'bendahara' ? 'bendahara' : 'pengurus_bagian';
+// null bila tabel belum ada (pengurus_daftar.sql belum dijalankan).
+export async function listOfficers(mosqueId) {
+  try {
+    const rows = await db('mosque_officers', { query: 'select=id,full_name,position,email,created_at&mosque_id=eq.' + enc(mosqueId) + '&order=created_at.asc' });
+    return Array.isArray(rows) ? rows : [];
+  } catch (e) { if (e && e.status === 401) throw e; return null; }
+}
+export async function addOfficer(mosqueId, name, position, email) {
+  await db('rpc/officer_add', { method: 'POST', body: { p_mosque: mosqueId, p_name: name, p_position: position, p_email: email || null } });
+}
+export async function removeOfficer(id) { await db('rpc/officer_remove', { method: 'POST', body: { p_id: id } }); }

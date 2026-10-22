@@ -1214,3 +1214,4 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .dmi-pc{border:1px solid var(--border);border-radius:var(--r-input);padding:.55rem .7rem;margin-bottom:.45rem;font-size:.86rem}.dmi-pc p{margin:.2rem 0}.dmi-ar{font-family:var(--font-arabic);font-size:1.15rem;line-height:1.8;text-align:right;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .dmi-res{margin-top:.6rem}
 @media (min-width:720px){.dm-tiles{max-width:34rem}.dmi-sum{grid-template-columns:repeat(4,1fr)}}
+.badge.off-ok{background:#e0f2ea;color:#066755}.badge.off-wait{background:#fff3d6;color:#7a5600}

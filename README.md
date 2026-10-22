@@ -521,3 +521,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Aturan: derajat hanya Shahih/Hasan; sumber, terjemahan, penilai wajib untuk doa hadis; ayat hanya rujukan; nilai tak dikenali ditolak (tidak diubah diam-diam); duplikat (teks Arab tanpa harakat, judul, atau rujukan ayat) dilewati, tidak menimpa.
 - Keamanan: hak akses tetap dijaga RLS di server (hanya Super Admin); berkas dibaca berdasarkan isi zip/xlsx; rumus tidak pernah dihitung; batas 2 MB, 1000 baris. Tanpa pustaka luar (pembaca xlsx sendiri, DecompressionStream bawaan peramban). Hanya .xlsx.
 - Daftar doa dibaca per halaman 1000 baris (maks. 5000). Tidak ada perubahan SQL. Cache SW baituna-static-v107.
+
+## Tambahan v134 (Admin Masjid: daftar pengurus tanpa undangan)
+- Admin Masjid menambah pengurus langsung: Nama Lengkap + Jabatan (dropdown: Ketua Takmir, Sekretaris, Bendahara, Sarana & Prasarana, Pendidikan & Remaja Masjid) + email akun (opsional). Hapus dari daftar dengan satu tombol.
+- Formulir dan daftar undangan dihilangkan dari tampilan Admin Masjid. Bila email diisi, izin akses dicatat di balik layar memakai mekanisme yang sudah ada (peran: Ketua Takmir, Bendahara, atau Pengurus Bagian) dan akun yang sudah ada tetap tampil di "Akun yang punya akses" dengan tombol Cabut.
+- Super Admin tetap memakai panel undangan lama (untuk mengangkat Admin Masjid).
+- Jalankan sql/pengurus_daftar.sql (setelah tahap3.sql). Tabel baru mosque_officers; tulis hanya lewat fungsi officer_add/officer_remove. Cache SW baituna-static-v108.

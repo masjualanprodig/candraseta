@@ -1,7 +1,7 @@
 // BAITUNA - dashboard-mosque.js
 // Dashboard Admin Masjid: profil masjid, tim pengurus, dan undangan.
 import { h, toast, hint, ask, STATUS_LABEL } from './ui.js';
-import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, registerMosque, myAdminMosques, saveGallery, setGallery, setMosquePhoto, MAX_GALLERY } from './mosque-service.js';
+import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, listOfficers, registerMosque, myAdminMosques, saveGallery, setGallery, setMosquePhoto, MAX_GALLERY } from './mosque-service.js';
 import { prepareProductPhoto } from './photo.js';
 import { parseMapsUrl, mapsText, MAPS_HELP, MAPS_RE, mapEmbed } from './maps-link.js';
 import { publicPhotoUrl, mosqueCover, GALLERY_BUCKET, storageRemove } from './supabase.js';
@@ -234,7 +234,7 @@ export async function renderAdminHome(box) {
 }
 
 export async function renderMosque(box, mosqueId, view = 'home') {
-  const [mosque, team, allInvites] = await Promise.all([getMosque(mosqueId), fetchTeam(mosqueId), listInvitations()]);
+  const [mosque, team, allInvites, officers] = await Promise.all([getMosque(mosqueId), fetchTeam(mosqueId), listInvitations(), listOfficers(mosqueId)]);
   if (!mosque) { box.replaceChildren(h('p', { class: 'muted' }, 'Masjid tidak ditemukan.')); return; }
   const me = getSession() && getSession().user;
   rememberMosque(mosqueId);
@@ -330,7 +330,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     gGrid, gMsg, h('div', { class: 'mt' }, gPick));
 
   const teamBox = h('div', { class: 'panel' }, teamPanel({
-    mosqueId, team, invites: allInvites.filter(i => i.mosque_id === mosqueId),
+    mosqueId, team, officers, invites: allInvites.filter(i => i.mosque_id === mosqueId),
     roles: ROLES_FOR_ADMIN_MASJID, canRevokeAdmin: false, selfId: me && me.id, onChange: refresh
   }));
 
@@ -381,10 +381,10 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     jadwal: prayerCard(),
     artikel: await articleSection(5) || '',
     ops: posts ? summaryCard({ id: 'ops', title: 'Ringkasan Operasional', onAll: toPosts, allLabel: 'Lihat Detail', items: [
-        { ic: ICONS.user, value: team.length, label: 'Pengurus Aktif' },
+        { ic: ICONS.user, value: officers ? officers.length : team.length, label: 'Pengurus' },
         { ic: ICONS.agenda, value: upcoming.length, label: 'Agenda Mendatang' },
         { ic: ICONS.horn, value: infos.length, label: 'Pengumuman Aktif' },
-        { ic: ICONS.news, value: allInvites.filter(i => i.mosque_id === mosqueId && i.status === 'pending').length, label: 'Undangan Pending' }] }) : '',
+        { ic: ICONS.news, value: allInvites.filter(i => i.mosque_id === mosqueId && i.status === 'pending').length, label: 'Akses Menunggu' }] }) : '',
     fin: rep ? summaryCard({ id: 'fin', title: 'Ringkasan Keuangan Masjid', sub: K.monthLabel(rep.month || K.monthKey()), onAll: toKas, allLabel: 'Lihat Laporan', hint: (!Number(rep.masuk) && !Number(rep.keluar) && !Number(rep.saldo_akhir)) ? 'Belum ada catatan kas bulan ini.' : '', actions: [{ id: 'fin-catat', label: 'Catat Kas', gold: true, onclick: toKas }, { id: 'fin-lapor', label: 'Lihat Laporan', onclick: toKas }], items: [
         { ic: ICONS.zakat, value: K.money(rep.masuk), label: 'Kas Masuk', tone: 'tin' },
         { ic: ICONS.zakat, value: K.money(rep.keluar), label: 'Kas Keluar', tone: 'tout' },
