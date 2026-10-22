@@ -9,6 +9,15 @@ const okLat = n => Number.isFinite(n) && n >= -90 && n <= 90;
 const okLng = n => Number.isFinite(n) && n >= -180 && n <= 180;
 function pair(a, b) { const lat = Number(a), lng = Number(b); return okLat(lat) && okLng(lng) ? { lat, lng } : null; }
 
+export const MAPS_HELP = 'Buka Google Maps, cari masjid Anda, tekan Bagikan, Salin link, lalu tempel di sini.';
+// Kalimat status di bawah kolom tautan.
+export function mapsText(p) {
+  if (p.empty) return MAPS_HELP;
+  if (!p.ok) return 'Tautan ini bukan tautan Google Maps.';
+  if (p.lat != null) return 'Tautan diterima. Koordinat terbaca: ' + p.lat + ', ' + p.lng + '.';
+  return 'Tautan diterima. Koordinat tidak terbaca dari tautan ini, tetapi tombol "Buka di Google Maps" tetap memakai tautan Anda.';
+}
+
 // Hasil: { ok:false } | { ok:true, url, short:boolean, lat, lng } (lat/lng null bila tidak terbaca)
 export function parseMapsUrl(input) {
   const url = String(input || '').trim();

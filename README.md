@@ -456,3 +456,8 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Sampai 10 foto per masjid, tiap foto otomatis diperkecil sampai maksimal 100 KB. Foto pertama jadi sampul; foto lain tampil sebagai galeri di profil publik masjid.
 - Kolom tautan lokasi Google Maps: koordinat dibaca otomatis dari tautan panjang; tautan pendek (maps.app.goo.gl) disimpan apa adanya. Tombol "Buka di Google Maps" di profil publik memakai tautan itu.
 - SQL `masjid_foto_peta.sql` (jalankan dulu, setelah wilayah.sql).
+
+## Tambahan v120 (Pratinjau masjid, edit profil dirapikan, kotak foto pendaftaran)
+- Masjid Saya: tiap masjid yang didaftarkan bisa diklik ("Lihat detail") untuk pratinjau: foto/galeri, status, wilayah, alamat, telepon, tombol Buka di Google Maps. Berlaku juga untuk masjid yang masih menunggu verifikasi.
+- Edit profil masjid: kolom lintang/bujur dan tombol lokasi perangkat dihapus (diganti kolom tautan Google Maps); kotak unggah foto lama dihapus (foto diunggah saat mendaftar).
+- Kotak foto pada form pendaftaran bergaya "Foto masjid" (kotak putus-putus "Belum ada foto"). Tanpa SQL baru.
