@@ -141,7 +141,7 @@ export async function renderAdmin(box, view = 'home') {
     pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Periksa produk dan jasa sebelum tampil.', cta: 'Verifikasi', onclick: openMarket }),
     tasbih: tasbihCard(),
     jadwal: prayerCard(),
-    artikel: await articleSection(2) || '',
+    artikel: await articleSection(5) || '',
     mgmt: grid,
     stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', items: [
         { ic: ICONS.mosque, value: list.length, label: 'Masjid Terdaftar' }, { ic: ICONS.shield, value: count('active'), label: 'Masjid Aktif' },

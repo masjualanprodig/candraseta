@@ -471,3 +471,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v123 (Edit profil masjid: kelola foto lagi)
 - Edit profil masjid (Admin Masjid) kembali punya panel "Foto masjid": lihat foto yang ada, tambah foto (total maksimal 10, tiap foto otomatis <= 100 KB), dan hapus foto satu per satu. Foto lama (1 foto versi awal) tampil sebagai "foto lama" dan bisa dihapus. Tanpa SQL baru.
+
+## Tambahan v124 (Artikel Terbaru berupa daftar, 5 artikel)
+- "Artikel Terbaru" di semua dashboard kini daftar satu kolom (bukan dua kartu berdampingan) dan menampilkan 5 artikel terbaru. Tanpa SQL.

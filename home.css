@@ -157,11 +157,8 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,
 .qk-ic .ic,.qk-ic svg{width:26px;height:26px}
 .qk-l{font-size:.72rem;padding:0 2px}
 .qk-badge{top:-8px;right:-14px}
-/* artikel: dua kartu berdampingan */
-.ar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ar-item{padding:6px;gap:8px;align-items:center}
-.ar-img{width:52px;height:52px;border-radius:12px}
-.ar-t b{font-size:.78rem;-webkit-line-clamp:3}.ar-t small{font-size:.68rem}
+/* artikel: daftar satu kolom (5 terbaru) */
+.ar-grid{display:grid;grid-template-columns:1fr;gap:10px}
 /* Admin Masjid: ringkasan, agenda, pengumuman */
 .sm,.ag,.an{border-radius:var(--r-banner);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-md);padding:14px 14px 12px}
 .sm .sh,.ag .sh,.an .sh{margin-bottom:6px}

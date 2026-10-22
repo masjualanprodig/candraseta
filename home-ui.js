@@ -190,7 +190,7 @@ export function quickGrid(title, items, { onAll, id = 'qa', ic } = {}) {
 }
 
 /* ===== Artikel terbaru (hanya yang terbit; senyap bila belum ada atau gagal dimuat) ===== */
-export async function articleSection(limit = 2) {
+export async function articleSection(limit = 5) {
   let items = [];
   try {
     const r = await request('/rest/v1/articles?select=id,title,category,source_name,cover_path,published_at,body&status=eq.published&order=published_at.desc&limit=' + Number(limit));

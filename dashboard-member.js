@@ -29,7 +29,7 @@ export async function renderMember(box, memberships, access = {}) {
     if (mosque) manage = { isKetua, isBend };
   }
   const home = () => renderMember(box, memberships);
-  const articles = await articleSection(2);
+  const articles = await articleSection(5);
   const B = {
     banner: bannerCarousel([
       { art: 'banner_sejarah', kicker: 'Sejarah Islam', title: 'Bersama BAITUNA', text: 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', cta: 'Pelajari Sekarang', onclick: () => go('sejarah') },

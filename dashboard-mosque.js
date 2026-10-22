@@ -198,7 +198,7 @@ export async function renderAdminHome(box) {
     banner: bannerCarousel([{ art: 'banner_masjid', title: mine.length ? 'Masjid Anda sedang diperiksa' : 'Daftarkan Masjid Anda', text: mine.length ? (waiting ? waiting + ' masjid menunggu verifikasi Super Admin.' : 'Periksa status masjid Anda.') : 'Anda sudah menjadi Admin Masjid. Daftarkan masjid Anda untuk mulai mengelola.', cta: mine.length ? 'Lihat Masjid Saya' : 'Daftarkan Masjid', onclick: openReg }]),
     buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),
     pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
-    tasbih: tasbihCard(), jadwal: prayerCard(), artikel: await articleSection(2) || '',
+    tasbih: tasbihCard(), jadwal: prayerCard(), artikel: await articleSection(5) || '',
     daftar: h('section', { class: 'panel', id: 'reg-card' }, h('h3', {}, 'Masjid Saya'),
       mine.length ? h('div', {}, ...mine.map(m => h('div', { class: 'mrow' }, h('div', { class: 'minfo' }, h('strong', {}, m.name), h('div', { class: 'muted' }, loc(m) || 'Lokasi belum diisi')), h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status))))
         : h('p', { class: 'muted' }, 'Belum ada masjid. Daftarkan masjid Anda; Super Admin akan memverifikasinya.'),
@@ -346,7 +346,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     pasar: promoBanner({ id: 'pb', art: 'promo_pasar', title: 'Pasar Umat', text: 'Produk dan jasa umat yang sudah diperiksa.', cta: 'Lihat Produk', onclick: () => go('market') }),
     tasbih: tasbihCard(),
     jadwal: prayerCard(),
-    artikel: await articleSection(2) || '',
+    artikel: await articleSection(5) || '',
     ops: posts ? summaryCard({ id: 'ops', title: 'Ringkasan Operasional', onAll: toPosts, allLabel: 'Lihat Detail', items: [
         { ic: ICONS.user, value: team.length, label: 'Pengurus Aktif' },
         { ic: ICONS.agenda, value: upcoming.length, label: 'Agenda Mendatang' },
