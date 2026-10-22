@@ -468,3 +468,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v122 (Peta perkiraan bila koordinat tidak ada)
 - Bila masjid punya tautan Google Maps tetapi koordinatnya tidak terbaca (mis. tautan pendek), peta tersemat tetap tampil sebagai peta perkiraan dari nama + alamat masjid, dengan keterangan. Tanpa SQL.
+
+## Tambahan v123 (Edit profil masjid: kelola foto lagi)
+- Edit profil masjid (Admin Masjid) kembali punya panel "Foto masjid": lihat foto yang ada, tambah foto (total maksimal 10, tiap foto otomatis <= 100 KB), dan hapus foto satu per satu. Foto lama (1 foto versi awal) tampil sebagai "foto lama" dan bisa dihapus. Tanpa SQL baru.

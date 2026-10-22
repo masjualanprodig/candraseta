@@ -1,10 +1,10 @@
 // BAITUNA - dashboard-mosque.js
 // Dashboard Admin Masjid: profil masjid, tim pengurus, dan undangan.
 import { h, toast, hint, ask, STATUS_LABEL } from './ui.js';
-import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, registerMosque, myAdminMosques, saveGallery, MAX_GALLERY } from './mosque-service.js';
+import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, registerMosque, myAdminMosques, saveGallery, setGallery, setMosquePhoto, MAX_GALLERY } from './mosque-service.js';
 import { prepareProductPhoto } from './photo.js';
 import { parseMapsUrl, mapsText, MAPS_HELP, MAPS_RE, mapEmbed } from './maps-link.js';
-import { publicPhotoUrl, mosqueCover, GALLERY_BUCKET } from './supabase.js';
+import { publicPhotoUrl, mosqueCover, GALLERY_BUCKET, storageRemove } from './supabase.js';
 import { teamPanel } from './team-panel.js';
 import { renderPostsManager } from './posts-ui.js';
 import { listManagedPosts } from './post-service.js';
@@ -265,6 +265,45 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     mapsIn, mapsMsg,
     h('p', { class: 'hint' }, 'Zona waktu dipakai untuk menghitung jadwal salat masjid ini.'), tz, h('div', { class: 'mt' }, btn));
 
+  // ----- Foto masjid (galeri: maksimal 10 foto, tiap foto otomatis <= 100 KB) -----
+  const gal = Array.isArray(mosque.photos) ? mosque.photos.slice() : [];
+  const gMsg = h('p', { class: 'hint', id: 'gal-msg' }, gal.length + ' dari ' + MAX_GALLERY + ' foto. Tiap foto otomatis diperkecil sampai maksimal 100 KB (JPEG, PNG, atau WebP).');
+  const gPick = h('input', { class: 'in', id: 'gal-pick', type: 'file', multiple: 'multiple', accept: 'image/jpeg,image/png,image/webp', 'aria-label': 'Tambah foto masjid' });
+  const gGrid = h('div', { class: 'rg-shots', id: 'gal-grid' });
+  const lockG = on => { gPick.disabled = on || gal.length >= MAX_GALLERY; gGrid.querySelectorAll('button').forEach(b => { b.disabled = on; }); };
+  const tile = (src, label, onDel) => h('div', { class: 'rg-shot' }, h('img', { src, alt: label, loading: 'lazy' }),
+    h('button', { type: 'button', class: 'rg-shot-x', 'aria-label': 'Hapus ' + label, onclick: onDel }, '×'));
+  const delPhoto = (label, run) => async () => {
+    if (!(await ask({ title: 'Hapus foto?', text: 'Foto tidak akan tampil lagi di profil masjid.', reason: false }))) return;
+    lockG(true);
+    try { await run(); toast('Foto dihapus.'); await refresh(); return; }
+    catch (e) { if (e && e.status === 401) return; toast('Foto belum terhapus. ' + hint(e), true); }
+    lockG(false);
+  };
+  if (mosque.photo_path) gGrid.append(tile(publicPhotoUrl(mosque.photo_path), 'foto lama', delPhoto('foto lama', async () => { await setMosquePhoto(mosqueId, null); storageRemove(mosque.photo_path).catch(() => {}); })));
+  gal.forEach((p, i) => gGrid.append(tile(publicPhotoUrl(p, GALLERY_BUCKET), 'foto ' + (i + 1), delPhoto('foto ' + (i + 1), async () => { await setGallery(mosqueId, gal.filter(x => x !== p)); storageRemove(p, GALLERY_BUCKET).catch(() => {}); }))));
+  gPick.disabled = gal.length >= MAX_GALLERY;
+  if (gal.length >= MAX_GALLERY) gMsg.textContent = 'Sudah ' + MAX_GALLERY + ' foto (batas maksimal). Hapus satu foto untuk menambah yang baru.';
+  gPick.addEventListener('change', async () => {
+    const files = [...(gPick.files || [])]; gPick.value = '';
+    if (!files.length) return;
+    const room = MAX_GALLERY - gal.length; let bad = 0; const blobs = [];
+    lockG(true); gMsg.className = 'hint'; gMsg.textContent = 'Memproses foto…';
+    for (const f of files.slice(0, room)) { try { blobs.push((await prepareProductPhoto(f)).blob); } catch (e) { bad++; } }
+    if (!blobs.length) { gMsg.className = 'hint mk-err'; gMsg.textContent = 'Tidak ada foto yang bisa dipakai (harus JPEG, PNG, atau WebP).'; lockG(false); return; }
+    try {
+      gMsg.textContent = 'Mengunggah…';
+      const g = await saveGallery(mosqueId, blobs, gal);
+      const notes = (g.failed ? ' ' + g.failed + ' foto gagal diunggah.' : '') + (bad ? ' ' + bad + ' foto dilewati.' : '') + (files.length > room ? ' Hanya ' + room + ' foto yang muat.' : '');
+      toast(g.saved ? g.saved + ' foto ditambahkan.' + notes : 'Foto belum tersimpan.' + notes, !g.saved || !!g.failed);
+      await refresh(); return;
+    } catch (e) { if (e && e.status === 401) return; toast('Foto belum tersimpan. ' + hint(e), true); }
+    lockG(false);
+  });
+  const photoPanel = h('div', { class: 'panel', id: 'gal-panel' }, h('h3', {}, 'Foto masjid'),
+    gGrid.children.length ? '' : h('div', { class: 'photo-empty' }, 'Belum ada foto'),
+    gGrid, gMsg, h('div', { class: 'mt' }, gPick));
+
   const teamBox = h('div', { class: 'panel' }, teamPanel({
     mosqueId, team, invites: allInvites.filter(i => i.mosque_id === mosqueId),
     roles: ROLES_FOR_ADMIN_MASJID, canRevokeAdmin: false, selfId: me && me.id, onChange: refresh
@@ -275,6 +314,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
       h('button', { class: 'btn-sm ghost', type: 'button', onclick: goHome }, '← Kembali ke dashboard'),
       h('h2', { class: 'mt' }, 'Edit profil masjid'),
       h('p', { class: 'muted' }, mosque.name),
+      photoPanel,
       form);
     window.scrollTo(0, 0);
     return;

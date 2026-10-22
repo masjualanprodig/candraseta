@@ -1,7 +1,7 @@
 // BAITUNA - mosque-service.js
 // Komunikasi data dengan backend untuk masjid dan keanggotaan.
 // (Nanti dipindah ke js/services/ saat struktur folder dipulihkan.)
-import { db, storageUpload, GALLERY_BUCKET } from './supabase.js';
+import { db, storageUpload, storageRemove, GALLERY_BUCKET } from './supabase.js';
 
 const enc = encodeURIComponent;
 
@@ -36,14 +36,21 @@ export async function deleteMosque(id) {
 }
 // Foto galeri masjid (maks 10, tiap foto <= 100 KB): diunggah ke bucket "mosque-gallery" lalu daftarnya disimpan lewat mosque_set_photos.
 export const MAX_GALLERY = 10;
-export async function saveGallery(mosqueId, blobs) {
+export async function setGallery(mosqueId, paths) {
+  return db('rpc/mosque_set_photos', { method: 'POST', body: { p_id: mosqueId, p_photos: paths } });
+}
+// existing = foto yang sudah ada (dipertahankan); blobs = foto baru yang ditambahkan.
+export async function saveGallery(mosqueId, blobs, existing = []) {
   const paths = [], stamp = Date.now();
   let failed = 0;
   for (let i = 0; i < blobs.length; i++) {
     const path = mosqueId + '/' + (stamp + i) + '.jpg';
     try { await storageUpload(path, blobs[i], GALLERY_BUCKET); paths.push(path); } catch (e) { failed++; }
   }
-  if (paths.length) await db('rpc/mosque_set_photos', { method: 'POST', body: { p_id: mosqueId, p_photos: paths } });
+  if (paths.length) {
+    try { await setGallery(mosqueId, existing.concat(paths)); }
+    catch (e) { for (const p of paths) storageRemove(p, GALLERY_BUCKET).catch(() => {}); throw e; } // unggahan yatim dibersihkan
+  }
   return { saved: paths.length, failed };
 }
 // Masjid yang saya kelola (semua status), termasuk yang masih menunggu verifikasi.
