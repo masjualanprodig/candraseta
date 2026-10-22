@@ -530,3 +530,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v135 (Pengurus: pilih masjid lewat dropdown)
 - Halaman Pengurus Masjid (Admin Masjid) kini punya dropdown "Pilih masjid": berisi semua masjid aktif milik admin itu (bertambah saat admin mendaftarkan masjid baru). Memilih masjid memuat daftar pengurusnya; pengurus baru ditambahkan ke masjid yang dipilih. Judul bagian di beranda menyebut nama masjid. Tanpa perubahan SQL. Cache SW baituna-static-v109.
+
+## Tambahan v136 (Perbaikan: Import Doa gagal saat berkas berisi hadis dan ayat bersamaan)
+- Penyebab: impor massal ke server mensyaratkan semua baris memiliki kolom yang sama; baris hadis dan baris ayat sebelumnya berbeda sehingga seluruh kelompok ditolak. Kini semua baris dikirim dengan kolom seragam (nilai kosong = null). Diuji dengan berkas asli (47 doa valid, termasuk 9 ayat) terhadap batasan tabel duas. Tanpa perubahan SQL. Cache SW baituna-static-v110.

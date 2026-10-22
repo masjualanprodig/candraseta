@@ -251,9 +251,11 @@ export function analyze(rows, existing = []) {
 }
 // Bidang yang dikirim ke database (tanpa kolom tambahan).
 export function toPayload(f) {
-  const base = { kind: f.kind, category: f.category, title: f.title || null, note: f.note || null, sort_order: f.sort_order, source: f.source || null };
-  return f.kind === 'ayat' ? { ...base, surah: f.surah, ayah_from: f.ayah_from, ayah_to: f.ayah_to }
-    : { ...base, arabic: f.arabic, latin: f.latin || null, body: f.body, grade: f.grade, grading: f.grading };
+  // Semua baris HARUS punya kunci yang sama: PostgREST menolak impor massal bila kunci antar-baris berbeda (PGRST102).
+  const ayat = f.kind === 'ayat';
+  return { kind: f.kind, category: f.category, title: f.title || null, note: f.note || null, sort_order: f.sort_order, source: f.source || null,
+    arabic: ayat ? null : f.arabic, latin: ayat ? null : (f.latin || null), body: ayat ? null : f.body, grade: ayat ? null : f.grade, grading: ayat ? null : f.grading,
+    surah: ayat ? f.surah : null, ayah_from: ayat ? f.ayah_from : null, ayah_to: ayat ? f.ayah_to : null };
 }
 // Laporan CSV (aman dari injeksi rumus saat dibuka di Excel).
 const csvCell = s => { let v = String(s == null ? '' : s); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
