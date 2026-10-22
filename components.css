@@ -1085,3 +1085,72 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .au-time{font-size:.78rem;white-space:nowrap}
 .au-r2{font-size:.82rem;overflow-wrap:anywhere}
 .au-d{font-size:.84rem;color:var(--teal-d);overflow-wrap:anywhere}
+
+/* ===== v126: Keuangan Masjid (ringkasan, formulir, favorit, rincian) ===== */
+.kas-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:.2rem 0 .4rem}
+.kas-head .mt{margin:0}
+.kas-hero{width:84px;height:auto;flex:none;opacity:.95}
+.kas-sechead{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:1rem 0 .3rem}
+.kas-sechead h3{margin:0;color:var(--teal-d)}
+.kas-seeall{background:none;border:0;color:var(--teal);font-weight:700;font-size:.9rem;padding:.3rem .2rem;cursor:pointer}
+.kas-list{display:flex;flex-direction:column;gap:.45rem}
+.kas-item{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:.6rem .7rem;font:inherit;color:inherit;cursor:pointer}
+.kas-item.done{opacity:.6}
+.kas-ico{flex:none;width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.kas-ico.pos{background:#e6f4ee;color:#0b7a4b}
+.kas-ico.neg{background:#fdecea;color:#b3261e}
+.kas-ico.big{width:52px;height:52px}
+.kas-imain{flex:1;min-width:0;display:flex;flex-direction:column;gap:.1rem}
+.kas-go{flex:none;color:var(--muted,#7a8a84);display:inline-flex}
+.kas-empty{padding:.6rem 0;text-align:center}
+.kas-add{width:100%;margin:.9rem 0 .4rem}
+.kas-flt{margin:.2rem 0 .6rem}
+.kas-dirseg{margin:.4rem 0 .6rem}
+.kas-dirseg .segb[disabled]{opacity:.5}
+.kas-fsub{margin:0 0 .4rem}
+.kas-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.4rem 0 .6rem}
+.kas-tile{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.7rem .3rem;background:#fff;border:2px solid var(--line);border-radius:14px;font:inherit;font-size:.82rem;text-align:center;cursor:pointer;color:inherit;min-width:0}
+.kas-tile span:last-child{overflow-wrap:anywhere}
+.kas-tile.on{border-color:var(--teal);background:#f1f8f5}
+.kas-tico{width:34px;height:34px;border-radius:50%;background:#e6f4ee;color:var(--teal-d);display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+.kas-favbox{margin:.6rem 0;display:flex;flex-direction:column;gap:.4rem}
+.kas-chk{display:flex;align-items:center;gap:.5rem;font-size:.92rem}
+.kas-chk input{width:18px;height:18px}
+.kas-photo{margin:.5rem 0}
+.kas-dz{border:2px dashed var(--line);border-radius:14px;padding:1rem .8rem;display:flex;flex-direction:column;align-items:center;gap:.4rem;text-align:center;background:#fafcfb}
+.kas-dz p{margin:0}
+.kas-dzico{color:var(--teal)}
+.kas-file-in{display:none}
+.kas-files{display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem}
+.kas-frow{display:flex;align-items:center;gap:.6rem;border:1px solid var(--line);border-radius:12px;padding:.45rem .6rem;background:#fff}
+.kas-fthumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:#eef3f1;display:inline-flex;align-items:center;justify-content:center;color:var(--teal)}
+.kas-fname{flex:1;min-width:0;display:flex;flex-direction:column;font-size:.85rem}
+.kas-fname b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kas-trash{flex:none;background:none;border:0;color:#b3261e;padding:.4rem;cursor:pointer;display:inline-flex}
+.kas-detail{display:flex;flex-direction:column;gap:.1rem}
+.kas-dtop{display:flex;align-items:center;gap:.8rem;margin-bottom:.5rem}
+.kas-dtop>div{display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.kas-dtitle{font-size:1.05rem;overflow-wrap:anywhere}
+.kas-damt{font-size:1.15rem}
+.kas-damt.pos,.kas-amt.pos{color:#0b7a4b}.kas-damt.neg,.kas-amt.neg{color:#b3261e}
+.kas-drow{display:flex;justify-content:space-between;gap:.8rem;padding:.5rem 0;border-top:1px solid var(--line)}
+.kas-drow b{text-align:right;overflow-wrap:anywhere;font-weight:600}
+.kas-dproof{display:flex;flex-direction:column;gap:.4rem;padding:.5rem 0;border-top:1px solid var(--line)}
+.kas-pthumb{display:flex;align-items:center;gap:.7rem}
+.kas-proofimg.thumb{width:72px;height:72px;object-fit:cover;max-width:none}
+.kas-proofimg.thumb.big{width:100%;height:auto;max-width:100%}
+.kas-pthumb:has(.big){flex-direction:column;align-items:stretch}
+.kas-dacts{display:flex;gap:.6rem;margin-top:.8rem}
+.kas-dacts .btn-primary{flex:1}
+.kas-fav{display:flex;align-items:center;gap:.6rem;margin:.4rem 0}
+.kas-favacts{flex:none;display:flex;align-items:center;gap:.2rem}
+.kas-radios{display:flex;flex-direction:column;gap:.5rem;margin:.4rem 0}
+.kas-radio{display:flex;align-items:flex-start;gap:.7rem;text-align:left;width:100%;background:#fff;border:2px solid var(--line);border-radius:14px;padding:.75rem .8rem;font:inherit;color:inherit;cursor:pointer}
+.kas-radio.on{border-color:var(--teal);background:#f1f8f5}
+.kas-dot{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);margin-top:.15rem;position:relative}
+.kas-radio.on .kas-dot{border-color:var(--teal)}
+.kas-radio.on .kas-dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--teal)}
+.kas-rtxt{display:flex;flex-direction:column;gap:.15rem;font-size:.88rem;min-width:0}
+.kas-rtxt b{font-size:.98rem;color:var(--teal-d)}
+.kas-form [hidden],.kas-seeall[hidden]{display:none!important}
+@media (max-width:360px){.kas-tiles{grid-template-columns:repeat(2,1fr)}.kas-hero{width:64px}}

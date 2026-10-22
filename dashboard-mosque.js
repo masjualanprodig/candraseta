@@ -219,7 +219,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const goHome = () => renderMosque(box, mosqueId, 'home');
   const goEdit = () => renderMosque(box, mosqueId, 'edit');
   if (view === 'audit') { await renderAuditLog(box, { onBack: goHome, mosque: { id: mosque.id, name: mosque.name } }); return; }
-  if (view === 'kas') { await renderKasManager(box, mosque, { onBack: goHome, roles: { setup: true, approve: true } }); return; }
+  if (view === 'kas') { await renderKasManager(box, mosque, { onBack: goHome, roles: { write: true, setup: true, approve: true } }); return; }
   if (view === 'posts') { await renderPostsManager(box, mosque, goHome); return; }
   if (view === 'register') { await renderRegister(box, goHome, { currentId: mosqueId, onPick: id => renderMosque(box, id, 'home') }); return; }
 
