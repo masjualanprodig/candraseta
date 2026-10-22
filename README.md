@@ -507,3 +507,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v130 (Keuangan Masjid: panel "Akun kas" dan "Kategori" dihapus dari Pengaturan)
 - Pengaturan kini hanya berisi Transparansi laporan ke jamaah dan Pengaturan pencatatan. Kategori dan akun bawaan tetap dipakai apa adanya.
 - Tidak ada perubahan SQL. Cache SW baituna-static-v104.
+
+## Tambahan v131 (Admin Masjid: menu Pengurus kini membuka halaman sendiri)
+- Menu Pengurus (Akses Cepat dan bilah bawah) membuka halaman "Pengurus Masjid" tersendiri, tidak lagi menggulir ke bagian di beranda (yang hilang bila susunan beranda tidak memuatnya). Undang pengurus/bendahara dari sini.
+- Tidak ada perubahan SQL. Cache SW baituna-static-v105.

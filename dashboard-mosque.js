@@ -334,6 +334,14 @@ export async function renderMosque(box, mosqueId, view = 'home') {
     roles: ROLES_FOR_ADMIN_MASJID, canRevokeAdmin: false, selfId: me && me.id, onChange: refresh
   }));
 
+  if (view === 'team') {
+    box.replaceChildren(
+      h('button', { class: 'btn-sm ghost', type: 'button', id: 'team-back', onclick: goHome }, '← Kembali ke dashboard'),
+      h('div', { id: 'team-anchor', class: 'tm mt' }, h('h2', { class: 'tm-h' }, 'Pengurus Masjid'), teamBox));
+    window.scrollTo(0, 0);
+    return;
+  }
+
   if (view === 'edit') {
     box.replaceChildren(
       h('button', { class: 'btn-sm ghost', type: 'button', onclick: goHome }, '← Kembali ke dashboard'),
@@ -359,7 +367,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   let acts = [];
   try { acts = (await listAudit({ mosque: mosque.id, limit: 3 })) || []; } catch (e) { if (e && e.status === 401) return; acts = null; }
   const teamTop = h('div', { id: 'team-anchor', class: 'tm' }, h('h2', { class: 'tm-h' }, 'Pengurus Masjid'), teamBox);
-  const toTeam = () => scrollToEl(teamTop);
+  const toTeam = () => renderMosque(box, mosqueId, 'team');
   const toKas = () => renderMosque(box, mosqueId, 'kas'), toPosts = () => renderMosque(box, mosqueId, 'posts');
   registerActs({ kas: toKas, posts: toPosts, team: toTeam });
   const nextAg = upcoming[0] || null, lastInfo = infos[0] || null;
