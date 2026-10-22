@@ -8,7 +8,7 @@ import { PRODUCT_ERRORS } from './photo.js';
 import * as K from './kas-service.js';
 
 export const DISCLAIMER = 'BAITUNA hanya mencatat. Aplikasi tidak memegang atau memindahkan uang, dan laporan ini dibuat pengurus masjid, bukan audit independen.';
-const TABS = [['ringkasan', 'Ringkasan'], ['catatan', 'Transaksi'], ['favorit', 'Favorit'], ['pengaturan', 'Pengaturan']];
+const TABS = [['ringkasan', 'Ringkasan'], ['catatan', 'Transaksi'], ['pengaturan', 'Pengaturan']];
 
 /* ===== Ikon kecil (SVG sendiri agar tidak bergantung pada daftar ikon lain) ===== */
 const NS = 'http://www.w3.org/2000/svg';
@@ -23,11 +23,22 @@ const ICON = {
   camera: ['M4 8h3l1.5-2h7L17 8h3v11H4z', 'M12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z'],
   trash: ['M4 7h16', 'M9 7V4h6v3', 'M6 7l1 13h10l1-13', 'M10 11v6M14 11v6'],
   chev: ['M9 6l6 6-6 6'],
+  cal: ['M5 6h14v14H5z', 'M5 10h14', 'M9 4v4M15 4v4'],
+  tag: ['M4 4h7l9 9-7 7-9-9z', 'M8 8h.01'],
+  box: ['M4 8l8-4 8 4v8l-8 4-8-4z', 'M4 8l8 4 8-4', 'M12 12v8'],
+  hash: ['M5 9h14M5 15h14', 'M10 4L8 20M16 4l-2 16'],
+  coin: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 7v10', 'M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.5-2.5 1.8S9.5 12.5 9.5 14c0 1 1 1.7 2.5 1.7s2.5-.7 2.5-1.7'],
+  note: ['M6 3h9l4 4v14H6z', 'M15 3v4h4', 'M9 12h7M9 16h7'],
+  user: ['M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M4 21c0-4 3.5-6 8-6s8 2 8 6'],
+  wallet: ['M4 7h15v12H4z', 'M4 7l12-3v3', 'M15 13h4'],
+  star: ['M12 4l2.5 5 5.5.8-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5-4-3.9 5.5-.8z'],
   plus: ['M12 5v14M5 12h14'],
   out: ['M7 17L17 7', 'M9 7h8v8'],
   inn: ['M17 7L7 17', 'M15 17H7V9']
 };
 const ic = (n, s) => svg(ICON[n], s);
+// Kolom isian dengan ikon di kiri dalam kolom.
+const fld = (name, el) => h('div', { class: 'kas-field' }, h('span', { class: 'kas-fico' }, ic(name, 20)), el);
 
 /* ===== Laporan bulanan: empat kartu (dipakai pengurus dan ringkasan jamaah) ===== */
 function reportView(rep, { title, detail = true } = {}) {
@@ -85,13 +96,13 @@ export async function renderKasManager(box, mosque, { onBack, roles = {}, tab: s
     const [rows, rev] = await Promise.all([K.listEntries(mosque.id, month), K.listReversed(mosque.id)]);
     return (st.cache['d' + month] = { rows, reversed: new Set(rev) });
   };
-  const tabList = () => TABS.filter(([k]) => k !== 'favorit' || R.write).filter(([k]) => k !== 'pengaturan' || R.setup || R.approve);
+  const tabList = () => TABS.filter(([k]) => k !== 'pengaturan' || R.setup || R.approve);
   const tabsEl = () => h('div', { class: 'seg kas-seg', id: 'kas-tabs', role: 'tablist', 'aria-label': 'Bagian kas' }, ...tabList().map(([k, l]) =>
     h('button', { class: 'segb', type: 'button', role: 'tab', 'data-tab': k, 'aria-selected': String(st.tab === k), onclick: () => { if (st.tab !== k) { if (k === 'catatan') st.filter = 'semua'; show(k); } } }, l)));
   const frame = (...body) => { box.replaceChildren(back, head(), tabsEl(), ...body, h('p', { class: 'hint' }, DISCLAIMER)); };
   // Layar tanpa tab (formulir, rincian): tombol kembali ke layar asal.
   const sub = (title, from, ...body) => { box.replaceChildren(h('button', { class: 'btn-sm ghost', type: 'button', id: 'kas-back2', onclick: () => show(from || st.tab) }, '← Kembali'), h('h2', { class: 'mt', id: 'kas-subtitle' }, title), ...body, h('p', { class: 'hint' }, DISCLAIMER)); window.scrollTo(0, 0); };
-  function show(tab) { st.tab = tab; ({ ringkasan: showSummary, catatan: showEntries, favorit: showFavorites, pengaturan: showSettings }[tab] || showSummary)(); window.scrollTo(0, 0); }
+  function show(tab) { st.tab = tab; ({ ringkasan: showSummary, catatan: showEntries, pengaturan: showSettings }[tab] || showSummary)(); window.scrollTo(0, 0); }
 
   /* --- Baris transaksi (dipakai ringkasan dan daftar) --- */
   function itemRow(e, reversed, from) {
@@ -230,7 +241,7 @@ export async function renderKasManager(box, mosque, { onBack, roles = {}, tab: s
         const tiles = h('div', { class: 'kas-tiles', id: 'kas-tiles', role: 'radiogroup', 'aria-label': 'Kategori' }, ...catsFor(f.dir).map(c =>
           h('button', { class: 'kas-tile' + (f.cat === c.id ? ' on' : ''), type: 'button', role: 'radio', 'aria-checked': String(f.cat === c.id), 'data-id': c.id, onclick: () => { f.cat = c.id; tiles.querySelectorAll('.kas-tile').forEach(t => { const on = t.dataset.id === c.id; t.classList.toggle('on', on); t.setAttribute('aria-checked', String(on)); }); } },
             h('span', { class: 'kas-tico' }, (c.name || '?').trim().charAt(0).toUpperCase()), h('span', {}, c.name))));
-        kids.push(h('p', { class: 'muted' }, 'Pilih kategori dan isi nominal saja.'), tiles, amountLab, amount,
+        kids.push(h('p', { class: 'muted' }, 'Pilih kategori dan isi nominal saja.'), tiles, amountLab, fld('coin', amount),
           h('button', { class: 'linkbtn', type: 'button', id: 'kas-more', onclick: () => { mode = 'standar'; paint(); } }, 'Isi detail lengkap (nama barang, keterangan, nota)'));
       } else {
         cat = h('select', { class: 'in', id: 'kas-f-category' }, h('option', { value: '' }, 'Pilih kategori…'), ...catsFor(f.dir).map(c => h('option', { value: c.id }, c.name)));
@@ -242,17 +253,18 @@ export async function renderKasManager(box, mosque, { onBack, roles = {}, tab: s
         party = bind(h('input', { class: 'in', id: 'kas-f-party', maxlength: String(K.LIMIT.partyMax), placeholder: f.dir === 'masuk' ? 'Nama atau "Hamba Allah"' : 'Nama toko atau penerima', autocomplete: 'off', value: f.party }), 'party');
         const accList = book().accounts.filter(a => a.active);
         if (accList.length > 1) { acc = h('select', { class: 'in', id: 'kas-f-account' }, ...accList.map(a => h('option', { value: a.id }, a.name + ' (' + K.kindLabel(a.kind) + ')'))); acc.value = f.account; acc.addEventListener('change', () => { f.account = acc.value; }); }
-        kids.push(lab('Tanggal transaksi', 'kas-f-date'), date, lab(f.dir === 'masuk' ? 'Kategori pemasukan' : 'Kategori pengeluaran', 'kas-f-category'), cat);
-        if (acc) kids.push(lab('Akun kas', 'kas-f-account'), acc);
-        if (f.dir === 'keluar') kids.push(lab('Nama barang atau keperluan (opsional)', 'kas-f-item'), item, lab('Jumlah barang (opsional)', 'kas-f-qty'), qty);
-        kids.push(amountLab, amount, lab('Keterangan (opsional)', 'kas-f-desc'), desc, lab((f.dir === 'masuk' ? 'Donatur' : 'Penerima') + ' (opsional)', 'kas-f-party'), party, photoBox());
+        kids.push(lab('Tanggal transaksi', 'kas-f-date'), fld('cal', date), lab(f.dir === 'masuk' ? 'Kategori pemasukan' : 'Kategori pengeluaran', 'kas-f-category'), fld('tag', cat));
+        if (acc) kids.push(lab('Akun kas', 'kas-f-account'), fld('wallet', acc));
+        if (f.dir === 'keluar') kids.push(lab('Nama barang atau keperluan (opsional)', 'kas-f-item'), fld('box', item), lab('Jumlah barang (opsional)', 'kas-f-qty'), fld('hash', qty));
+        kids.push(amountLab, fld('coin', amount), lab('Keterangan (opsional)', 'kas-f-desc'), fld('note', desc), lab((f.dir === 'masuk' ? 'Donatur' : 'Penerima') + ' (opsional)', 'kas-f-party'), fld('user', party), photoBox());
       }
       const save = h('button', { class: 'btn-primary', type: 'submit', id: 'kas-f-save' }, 'Simpan Transaksi');
-      const favBox = h('div', { class: 'kas-favbox' }, h('label', { class: 'kas-chk' }, h('input', { type: 'checkbox', id: 'kas-f-fav', ...(f.fav ? { checked: 'checked' } : {}), onchange: ev => { f.fav = ev.target.checked; favName.hidden = !f.fav; } }), h('span', {}, 'Simpan sebagai transaksi favorit')));
-      const favName = bind(h('input', { class: 'in', id: 'kas-f-favname', maxlength: '60', placeholder: 'Nama favorit, mis. Listrik masjid', autocomplete: 'off', value: f.favName, ...(f.fav ? {} : { hidden: 'hidden' }) }), 'favName');
-      favBox.append(favName);
+      const favBox = h('div', { class: 'kas-favbox' }, h('label', { class: 'kas-chk' }, h('input', { type: 'checkbox', id: 'kas-f-fav', ...(f.fav ? { checked: 'checked' } : {}), onchange: ev => { f.fav = ev.target.checked; favWrap.hidden = !f.fav; } }), h('span', {}, 'Simpan sebagai transaksi favorit')));
+      const favName = bind(h('input', { class: 'in', id: 'kas-f-favname', maxlength: '60', placeholder: 'Nama favorit, mis. Listrik masjid', autocomplete: 'off', value: f.favName, }), 'favName');
+      const favWrap = fld('star', favName); favWrap.hidden = !f.fav;
+      favBox.append(favWrap);
       const form = h('form', { class: 'panel rform kas-form', id: 'kas-form', novalidate: 'novalidate' },
-        h('p', { class: 'muted kas-fsub' }, subtitle), seg, ...kids, favBox, err, save,
+        h('p', { class: 'muted kas-fsub' }, subtitle), seg, favChips(), ...kids, favBox, err, save,
         h('p', { class: 'hint' }, 'Catatan yang sudah disimpan tidak bisa ditimpa. Jika salah, gunakan “Ubah” atau “Hapus” di rincian transaksi: keduanya membuat catatan koreksi.'));
       form.addEventListener('submit', async ev => {
         ev.preventDefault(); if (busy) return;
@@ -286,6 +298,16 @@ export async function renderKasManager(box, mosque, { onBack, roles = {}, tab: s
       });
       sub(title(), from, form);
     }
+    // Favorit dipakai lewat tombol cepat di atas formulir (tanpa tab sendiri).
+    function favChips() {
+      const list = (book().favorites || []).filter(x => x.direction === f.dir);
+      if (e0 || !list.length) return '';
+      return h('div', { class: 'kas-favchips', id: 'kas-favchips' }, h('span', { class: 'hint' }, 'Favorit:'), ...list.map(x => h('span', { class: 'kas-favchip', 'data-id': x.id },
+        h('button', { class: 'kas-use', type: 'button', onclick: () => { f.cat = x.category_id; f.item = x.item_name || ''; f.desc = x.note || ''; f.amount = x.amount ? String(x.amount) : ''; f.qty = ''; mode = 'standar'; paint(); } }, x.name),
+        h('button', { class: 'kas-fav-del', type: 'button', 'aria-label': 'Hapus favorit ' + x.name, onclick: async () => {
+          if (!(await ask({ title: 'Hapus favorit?', text: '“' + x.name + '” dihapus dari daftar favorit. Transaksi yang sudah tercatat tidak terpengaruh.' }))) return;
+          try { await K.deleteFavorite(x.id); book().favorites = book().favorites.filter(y => y.id !== x.id); toast('Favorit dihapus.'); paint(); } catch (er) { toast(K.errorText(er), true); } } }, '×'))));
+    }
     let statusEl = null;
     const setStatus = t => { if (statusEl) statusEl.textContent = t || 'Format JPG atau PNG. Foto otomatis diperkecil (maks 100 KB).'; };
 
@@ -315,23 +337,6 @@ export async function renderKasManager(box, mosque, { onBack, roles = {}, tab: s
       return wrap;
     }
     paint();
-  }
-
-  /* --- Transaksi favorit (layar 6) --- */
-  function showFavorites() {
-    if (!R.write) { show('ringkasan'); return; }
-    const favs = book().favorites || [];
-    const row = f => h('div', { class: 'panel kas-fav', 'data-id': f.id },
-      h('span', { class: 'kas-ico ' + (f.direction === 'masuk' ? 'pos' : 'neg') }, ic(f.direction === 'masuk' ? 'inn' : 'out', 20)),
-      h('span', { class: 'kas-imain' }, h('b', { class: 'kas-desc' }, f.name), h('span', { class: 'muted kas-r2' }, (f.note || f.item_name || catName(f.category_id)) + (f.amount ? ' · ' + K.money(f.amount) : ''))),
-      h('span', { class: 'kas-favacts' },
-        h('button', { class: 'btn-sm kas-use', type: 'button', onclick: () => openForm({ fav: f, from: 'favorit' }) }, 'Pakai'),
-        h('button', { class: 'kas-trash kas-fav-del', type: 'button', 'aria-label': 'Hapus favorit ' + f.name, onclick: async () => {
-          if (!(await ask({ title: 'Hapus favorit?', text: '“' + f.name + '” dihapus dari daftar favorit. Transaksi yang sudah tercatat tidak terpengaruh.' }))) return;
-          try { await K.deleteFavorite(f.id); toast('Favorit dihapus.'); await reload('favorit'); } catch (e) { toast(K.errorText(e), true); } } }, ic('trash', 18))));
-    frame(h('h3', {}, 'Transaksi Favorit'), h('p', { class: 'muted' }, 'Simpan transaksi rutin agar mencatatnya cukup satu ketukan.'),
-      favs.length ? h('div', { class: 'kas-favs', id: 'kas-favs' }, ...favs.map(row)) : h('div', { class: 'empty', id: 'kas-favs-empty' }, h('p', { class: 'muted' }, book().hasNew ? 'Belum ada favorit. Saat mencatat, centang “Simpan sebagai transaksi favorit”.' : 'Fitur favorit belum aktif di server. Jalankan kas_baru.sql.')),
-      h('button', { class: 'btn-primary kas-add', type: 'button', id: 'kas-add', onclick: () => openForm({ from: 'favorit' }) }, '+ Tambah Transaksi'));
   }
 
   /* --- Pengaturan (layar 4) --- */

@@ -1154,3 +1154,11 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .kas-rtxt b{font-size:.98rem;color:var(--teal-d)}
 .kas-form [hidden],.kas-seeall[hidden]{display:none!important}
 @media (max-width:360px){.kas-tiles{grid-template-columns:repeat(2,1fr)}.kas-hero{width:64px}}
+
+.kas-field{position:relative}
+.kas-field>.in{padding-left:2.7rem;width:100%;box-sizing:border-box}
+.kas-fico{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--teal);display:inline-flex;pointer-events:none;z-index:1}
+.kas-favchips{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.2rem 0 .6rem}
+.kas-favchip{display:inline-flex;border:1px solid var(--teal);border-radius:999px;overflow:hidden;background:#f1f8f5}
+.kas-favchip .kas-use{background:none;border:0;padding:.4rem .7rem;font:inherit;font-weight:700;font-size:.85rem;color:var(--teal-d);cursor:pointer}
+.kas-favchip .kas-fav-del{background:none;border:0;border-left:1px solid var(--line);padding:0 .6rem;color:#b3261e;font-size:1.1rem;cursor:pointer}

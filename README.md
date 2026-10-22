@@ -479,12 +479,16 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Daftar masjid Super Admin: tiap baris punya tombol "Cek" menuju halaman khusus pemeriksaan: semua data yang diinput (nama, provinsi, kota, kecamatan, alamat, telepon, tautan & koordinat Google Maps, foto, pendaftar, tanggal), peta, pemeriksaan otomatis (kelengkapan data, foto, koordinat, nama ganda), lalu tombol keputusan (Setujui / Tolak / Nonaktifkan / dll.). Tanpa SQL.
 
 ## Tambahan v126 (Perombakan Keuangan Masjid) — JALANKAN `kas_baru.sql` DULU
-- Layar Ringkasan baru: gambar masjid, navigasi bulan, empat kartu (Saldo awal, Kas masuk, Kas keluar, Saldo akhir), "Daftar Pengeluaran" (5 terbaru, "Lihat Semua"), tombol "+ Tambah Transaksi". Tab: Ringkasan, Transaksi, Favorit, Pengaturan.
+- Layar Ringkasan baru: gambar masjid, navigasi bulan, empat kartu (Saldo awal, Kas masuk, Kas keluar, Saldo akhir), "Daftar Pengeluaran" (5 terbaru, "Lihat Semua"), tombol "+ Tambah Transaksi". Tab: Ringkasan, Transaksi, Pengaturan.
 - Tambah Transaksi: tab Kas Masuk | Kas Keluar. Nama barang, jumlah barang, keterangan, donatur/penerima, dan foto nota semuanya OPSIONAL. Keterangan kosong diisi server dari nama barang atau nama kategori.
 - Input cepat (Pengaturan): pilih kategori + isi nominal saja; ada tautan ke formulir lengkap. Mode tersimpan per masjid.
-- Transaksi favorit: centang "Simpan sebagai transaksi favorit" saat mencatat; tab Favorit dengan tombol "Pakai" (mengisi formulir) dan hapus.
+- Transaksi favorit: centang "Simpan sebagai transaksi favorit" saat mencatat; favorit tampil sebagai tombol di atas formulir (ketuk untuk mengisi, × untuk hapus).
 - Upload nota: kotak putus-putus, pratinjau, nama, ukuran, tombol hapus; foto otomatis <= 100 KB, bucket privat cash-proofs.
 - Rincian Transaksi: kategori, nama barang, jumlah barang, keterangan, foto nota (Lihat Foto), tombol Ubah dan Hapus. Catatan keuangan TETAP tidak bisa ditimpa: "Hapus" membuat catatan koreksi (pembatalan), "Ubah" membatalkan yang lama dan mencatat yang baru dalam satu langkah (kas_replace).
 - Transparansi ke jamaah (Pengaturan): "Tampilkan ringkasan keuangan" / "Sembunyikan laporan keuangan". Jamaah dan tamu hanya melihat empat total; server tidak lagi mengirim rincian kategori/akun kepada mereka.
 - Hak mencatat: Bendahara DAN Admin Masjid (Ketua Takmir dan Super Admin tetap hanya melihat/menyetujui).
 - SQL: kas_baru.sql (kolom item_name, item_qty, input_mode; tabel cash_favorites; fungsi kas_catat, kas_replace, kas_fav_save, kas_fav_delete, kas_set_mode; can_cash_write; kas_report). Aman dijalankan ulang; jalankan SETELAH kas.sql. Uji: kas_baru_tests.sql.
+
+## Tambahan v127 (Keuangan: tanpa tab Favorit, ikon di kolom isian)
+- Tab Favorit dihapus. Favorit kini tombol kecil di atas formulir Tambah Transaksi (ketuk untuk mengisi; tanda × menghapus).
+- Setiap kolom isian punya ikon di kiri (tanggal, kategori, akun, nama barang, jumlah barang, total/jumlah, keterangan, donatur/penerima, nama favorit). Tanpa SQL baru.
