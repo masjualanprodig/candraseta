@@ -67,11 +67,22 @@ async function enterApp() {
 }
 
 /* ===== Login ===== */
-$('toggle-pw').addEventListener('click', () => {
-  const p = $('password'), hide = p.type === 'password';
-  p.type = hide ? 'text' : 'password';
-  $('toggle-pw').setAttribute('aria-label', hide ? 'Sembunyikan password' : 'Tampilkan password');
-});
+const EYE = '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>';
+const EYE_OFF = '<path d="M3 3l18 18"/><path d="M10.6 6.2A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.4 7.6C3.8 9.4 2 12 2 12s3.5 6 10 6c1.6 0 3-.4 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>';
+// Ikon mata: tampilkan / sembunyikan password. Dipasang pada kolom password yang belum punya tombol.
+function eyeToggle(input, btn) {
+  if (!btn) {
+    btn = document.createElement('button'); btn.type = 'button'; btn.className = 'icon-btn';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"></svg>';
+    input.insertAdjacentElement('afterend', btn);
+  }
+  const svg = btn.querySelector('svg');
+  const sync = () => { const shown = input.type === 'text'; svg.innerHTML = shown ? EYE_OFF : EYE; btn.setAttribute('aria-label', shown ? 'Sembunyikan password' : 'Tampilkan password'); btn.setAttribute('aria-pressed', shown ? 'true' : 'false'); };
+  btn.addEventListener('click', () => { input.type = input.type === 'password' ? 'text' : 'password'; sync(); input.focus(); });
+  sync();
+}
+eyeToggle($('password'), $('toggle-pw'));
+['su-pw', 'su-pw2', 'new-pw', 'new-pw2'].forEach(id => { const el = $(id); if (el) eyeToggle(el); });
 
 $('login-form').addEventListener('submit', async e => {
   e.preventDefault(); say('');

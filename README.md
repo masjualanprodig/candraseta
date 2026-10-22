@@ -551,3 +551,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v141
 - Kartu Agenda di beranda dibuat lebih besar (foto, judul, jam, tempat, label masjid).
+
+## Tambahan v142
+- Ikon mata (tampilkan/sembunyikan) di kolom Password dan Ulangi password pada Daftar akun, reset password, dan Ganti Password di Profil.

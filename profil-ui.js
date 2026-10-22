@@ -19,7 +19,7 @@ import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran
 import { listSurahs } from './quran-service.js';
 import { legalView } from './page-ui.js';
 
-export const APP_VERSION = 'v141';
+export const APP_VERSION = 'v142';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
 const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1', 'baituna.notif.v1', 'baituna.notifseen.v1', 'baituna.ramadan.v1', 'baituna.ramadancache.v1', 'baituna.adzanlib.v1', 'baituna.push.v1', 'baituna.qa.v1', 'baituna.qa.vote.v1', 'baituna.books.v1', 'baituna.brand.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
@@ -120,6 +120,17 @@ export function profilPage({ onSignIn, onLogout } = {}) {
     return sub('Ubah Profil', form, h('div', { class: 'panel plist' }, row(ICONS.lock, 'Ganti password', go('password'))));
   }
 
+  // Kolom password dengan ikon mata (tampilkan / sembunyikan)
+  const EYE = '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>';
+  const EYE_OFF = '<path d="M3 3l18 18"/><path d="M10.6 6.2A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.4 7.6C3.8 9.4 2 12 2 12s3.5 6 10 6c1.6 0 3-.4 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>';
+  function pwBox(input) {
+    const btn = h('button', { class: 'pw-eye', type: 'button' });
+    const sync = () => { const on = input.type === 'text'; btn.replaceChildren(icon(on ? EYE_OFF : EYE)); btn.setAttribute('aria-label', on ? 'Sembunyikan password' : 'Tampilkan password'); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); };
+    btn.addEventListener('click', () => { input.type = input.type === 'password' ? 'text' : 'password'; sync(); input.focus(); });
+    sync();
+    return h('div', { class: 'pw-box' }, input, btn);
+  }
+
   function passwordView() {
     const cur = h('input', { class: 'in', type: 'password', autocomplete: 'current-password', placeholder: 'Password saat ini', 'aria-label': 'Password saat ini' });
     const n1 = h('input', { class: 'in', type: 'password', autocomplete: 'new-password', placeholder: 'Password baru (minimal 8 karakter)', 'aria-label': 'Password baru' });
@@ -133,7 +144,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
       const r = await changePassword(cur.value, n1.value);
       if (r.ok) { toast('Password berhasil diganti.'); cur.value = n1.value = n2.value = ''; view = 'main'; draw(); window.scrollTo(0, 0); return; }
       status.textContent = r.error; save.disabled = false;
-    } }, cur, n1, n2, status, h('div', { class: 'mt row-btns' }, save));
+    } }, pwBox(cur), pwBox(n1), pwBox(n2), status, h('div', { class: 'mt row-btns' }, save));
     return sub('Ganti Password', h('p', { class: 'muted' }, 'Untuk keamanan, masukkan password saat ini lebih dulu.'), form);
   }
 

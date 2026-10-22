@@ -1234,3 +1234,9 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .fsec-head h3{margin:0}
 .fsec-head .sh-all{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 4px 0 10px;border:0;background:transparent;color:var(--teal);font:inherit;font-weight:700;font-size:.82rem;cursor:pointer}
 .fsec-head .sh-all .ic{width:15px;height:15px;stroke:var(--teal)}
+
+/* v142 - ikon mata password */
+.pw-box{position:relative}
+.pw-box .in{padding-right:52px;width:100%;box-sizing:border-box}
+.pw-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:inherit}
+.pw-eye .ic{width:22px;height:22px;stroke:var(--sage);fill:none}
