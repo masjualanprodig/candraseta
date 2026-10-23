@@ -881,8 +881,8 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .nt-dot{width:.55rem;height:.55rem;border-radius:50%;background:var(--gold);flex:none;display:inline-block}
 .nt-tx{margin:.25rem 0 .1rem;white-space:pre-line;color:var(--sage);font-size:.92rem}
 .nt-bar{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin:.5rem 0}
-.nt-sw{display:flex;align-items:flex-start;gap:.6rem;padding:.45rem 0;font-size:.98rem}
-.nt-sw input{width:1.3rem;height:1.3rem;flex:none;margin-top:.1rem;accent-color:var(--teal)}
+.nt-sw{display:flex;align-items:center;gap:.6rem;padding:.3rem 0;font-size:.95rem;line-height:1.3}
+.nt-sw input{width:1.3rem;height:1.3rem;flex:none;margin:0;accent-color:var(--teal)}
 .linkbtn{background:none;border:0;padding:0;font:inherit;color:var(--teal);text-decoration:underline;cursor:pointer}
 
 /* Amalan sunnah lain & hitung mundur Ramadan (v53) */
@@ -1241,3 +1241,30 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .pw-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:inherit}
 .pw-eye .ic{width:22px;height:22px;stroke:var(--sage);fill:none}
 .in[aria-invalid="true"]{border-color:var(--danger,#b3261e)!important;box-shadow:0 0 0 3px rgba(179,38,30,.15)}
+
+.notif .panel{margin:.55rem 0}
+.nt-cats h3{margin:0 0 .1rem}.nt-cats .muted{margin:0 0 .3rem}
+.nt-rad{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.5rem;padding-top:.6rem;border-top:1px solid var(--line);font-size:.9rem}
+.nt-rad select{width:auto;min-width:6rem}
+.nt-fold{padding:0}
+.nt-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.5rem;padding:.8rem 1rem;min-height:44px}
+.nt-fold>summary::-webkit-details-marker{display:none}
+.nt-fold>summary b{flex:1;color:#066755;font-size:1rem}
+.nt-fold>summary::after{content:"";width:.55rem;height:.55rem;border-right:2px solid #5F7A74;border-bottom:2px solid #5F7A74;transform:rotate(45deg);margin:0 .2rem .2rem 0;transition:transform .15s;flex:none}
+.nt-fold[open]>summary::after{transform:rotate(-135deg);margin:.2rem .2rem 0 0}
+.nt-sub{font-size:.78rem;font-weight:700;color:#5F7A74;background:#eef2f0;border-radius:999px;padding:.15rem .6rem}
+.nt-fb{padding:0 1rem 1rem}
+.nt-fb>.muted{margin:0 0 .4rem;font-size:.85rem}
+.nt-fb h4{margin:.8rem 0 .2rem;font-size:.9rem;color:#044a3d}
+.nt-fb select{margin:.15rem 0 .4rem}
+.nt-more{margin-top:.4rem}.nt-more>summary{cursor:pointer;font-size:.82rem;color:#066755;font-weight:700}
+.nt-cust{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.55rem .7rem;margin:.35rem 0;border:1px solid var(--line);border-radius:12px;background:#fbfdfc;font-size:.88rem}
+.nt-form{display:flex;flex-direction:column;gap:.45rem;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line)}
+.nt-form .in{margin:0}
+.nt-fr{display:flex;align-items:center;gap:.6rem}.nt-fr .in{width:auto;flex:1}
+.nt-days{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem}
+.nt-day{position:relative;display:flex;align-items:center;justify-content:center;min-height:42px;border:1.5px solid #cfdcd8;border-radius:12px;background:#fff;color:#066755;font-weight:700;font-size:.8rem;cursor:pointer}
+.nt-day input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.nt-day:has(input:checked){background:#066755;border-color:#066755;color:#fff}
+.nt-day:has(input:focus-visible){outline:2px solid #D4981F;outline-offset:2px}
+.nt-form>.btn-sm{align-self:flex-start}

@@ -28,6 +28,15 @@ export function notifPage({ go } = {}) {
     const s = h('select', { class: 'in', id, 'aria-label': label }, ...options.map(([v, t]) => h('option', { value: String(v) }, t)));
     s.value = String(value); s.addEventListener('change', () => onchange(s.value)); return s;
   };
+  const openF = new Set();
+  const fold = (key, title, sub, ...kids) => {
+    const d = h('details', { class: 'panel nt-fold', id: key },
+      h('summary', {}, h('b', {}, title), sub ? h('span', { class: 'nt-sub' }, sub) : ''),
+      h('div', { class: 'nt-fb' }, ...kids));
+    if (openF.has(key)) d.open = true;
+    d.addEventListener('toggle', () => { if (d.open) openF.add(key); else openF.delete(key); });
+    return d;
+  };
   const commit = () => { N.save(S); S = N.load(); N.armReminders(); };
 
   function localItems() {
@@ -127,10 +136,10 @@ export function notifPage({ go } = {}) {
     } }, 'Tambah pengingat');
     const list = S.custom.map(c => h('div', { class: 'nt-cust', 'data-id': c.id }, h('span', {}, h('b', {}, c.label), ' · ' + c.time + ' · ' + (c.days.length === 7 ? 'tiap hari' : c.days.map(d => DN[d]).join(', '))),
       h('button', { class: 'btn-sm alt', type: 'button', 'aria-label': 'Hapus pengingat ' + c.label, onclick: () => { S.custom = S.custom.filter(x => x.id !== c.id); commit(); localItems(); render(); } }, 'Hapus')));
-    return h('div', { class: 'panel', id: 'ns-custom' }, h('h3', {}, 'Pengingat pribadi saya'),
-      h('p', { class: 'muted' }, 'Buat pengingat sesuai kebiasaan Anda sendiri (mis. dzikir, tilawah, atau puasa pilihan). Hanya tersimpan di perangkat ini dan berbunyi saat BAITUNA terbuka.'),
+    return fold('ns-custom', 'Pengingat pribadi saya', S.custom.length ? S.custom.length + ' pengingat' : 'Belum ada',
+      h('p', { class: 'muted' }, 'Mis. dzikir atau tilawah. Tersimpan di perangkat ini; berbunyi saat BAITUNA terbuka.'),
       N.trackerReminders().length ? h('p', { class: 'muted', id: 'ns-tr-note' }, N.trackerReminders().length + ' pengingat dari Tracker Ibadah Harian ikut tampil di Kabar dan berbunyi di sini. ', go ? h('button', { class: 'linkbtn', type: 'button', onclick: () => go('tracker') }, 'Kelola di Tracker') : '') : '',
-      ...list, label, time, h('div', { class: 'nt-days' }, ...dayBoxes.map(x => x[1])), add);
+      ...list, h('div', { class: 'nt-form' }, label, h('div', { class: 'nt-fr' }, h('span', { class: 'hint' }, 'Jam'), time), h('span', { class: 'hint' }, 'Ulangi pada hari'), h('div', { class: 'nt-days' }, ...dayBoxes.map(x => x[1])), add));
   }
 
   function settingsView() {
@@ -141,8 +150,7 @@ export function notifPage({ go } = {}) {
     const devOk = N.deviceSupported(), perm = devOk ? Notification.permission : 'unsupported';
 
     const pushPanel = () => {
-      const kids = [h('h3', {}, 'Notifikasi saat aplikasi tertutup (push)'),
-        h('p', { class: 'muted' }, 'Server BAITUNA mengirim notifikasi tepat waktu walau BAITUNA ditutup: ' + P.COVERS + '. Belum mencakup puasa sunnah, amalan harian, pengingat pribadi, dan kabar masjid.')];
+      const kids = [h('p', { class: 'muted' }, 'Notifikasi tetap tampil walau BAITUNA ditutup: ' + P.COVERS + '. Belum mencakup puasa sunnah, amalan harian, pengingat pribadi, dan kabar masjid.')];
       if (!P.supported()) kids.push(h('p', { class: 'muted', id: 'ns-push-unsup' }, 'Peramban ini belum mendukung push. Di iPhone, pasang BAITUNA ke Layar Utama lebih dulu (iOS 16.4 ke atas), lalu buka dari ikonnya.'));
       else {
         const st = P.state(), on = st.on && perm === 'granted';
@@ -160,12 +168,13 @@ export function notifPage({ go } = {}) {
         } }, 'Kirim push uji'));
         if (!N.readLoc()) kids.push(h('p', { class: 'hint', id: 'ns-push-noloc' }, 'Lokasi belum dipilih; pilih di Jadwal Salat agar server tahu waktu salat di tempat Anda.'));
       }
-      kids.push(h('p', { class: 'hint' }, 'Yang dikirim ke server: alamat notifikasi HP ini, lokasi dibulatkan sekitar 1 km, zona waktu, dan pilihan salat, adzan, serta Ramadan di bawah. Tanpa nama, email, atau akun. Dihapus saat push dimatikan atau "Hapus data di perangkat ini".'),
-        h('p', { class: 'hint' }, 'Batas: nada notifikasi memakai nada bawaan HP (suara adzan penuh hanya terputar saat BAITUNA terbuka; ketuk notifikasi untuk membuka dan memutarnya). HP hemat baterai bisa menunda atau menahan notifikasi, jadi jangan jadikan satu-satunya alarm ibadah.'));
-      return h('div', { class: 'panel', id: 'ns-push' }, ...kids);
+      kids.push(h('details', { class: 'nt-more' }, h('summary', {}, 'Data & batasan'),
+        h('p', { class: 'hint' }, 'Dikirim ke server: alamat notifikasi HP, lokasi dibulatkan ±1 km, zona waktu, dan pilihan salat, adzan, Ramadan. Tanpa nama atau email; dihapus saat push dimatikan.'),
+        h('p', { class: 'hint' }, 'Nada memakai bawaan HP, dan HP hemat baterai bisa menunda notifikasi. Jangan jadikan satu-satunya alarm ibadah.')));
+      return fold('ns-push', 'Notifikasi saat aplikasi tertutup', perm === 'granted' && P.supported() && P.state().on ? 'Aktif' : 'Mati', ...kids);
     };
-    const devBox = h('div', { class: 'panel' }, h('h3', {}, 'Pengingat di HP'),
-      h('p', { class: 'muted' }, 'Aplikasi web tidak dapat membunyikan notifikasi saat BAITUNA ditutup. Pengingat di bawah hanya berbunyi selama BAITUNA masih terbuka di peramban (boleh di latar belakang, tetapi HP bisa menghentikannya). Untuk azan yang pasti berbunyi, gunakan aplikasi azan atau alarm bawaan HP. Agar notifikasi tetap tampil saat BAITUNA ditutup, aktifkan push di panel di atas.'),
+    const devBox = fold('ns-devbox', 'Pengingat di HP', S.device && perm === 'granted' ? 'Aktif' : 'Mati',
+      h('p', { class: 'muted' }, 'Hanya berbunyi selama BAITUNA masih terbuka. Agar tampil saat ditutup, aktifkan push. Untuk azan yang pasti berbunyi, pakai aplikasi azan atau alarm bawaan HP.'),
       devOk ? [
         sw('Tampilkan pengingat sebagai notifikasi HP (saat aplikasi terbuka)', S.device && perm === 'granted', async v => {
           if (!v) { S.device = false; commit(); render(); return; }
@@ -174,7 +183,7 @@ export function notifPage({ go } = {}) {
           if (p !== 'granted') { S.device = false; commit(); toast('Izin notifikasi tidak diberikan. Aktifkan lewat pengaturan peramban jika ingin memakai pengingat.', true); render(); return; }
           S.device = true; commit(); toast('Pengingat aktif selama BAITUNA terbuka.'); render();
         }, 'ns-device'),
-        h('label', { class: 'hint' }, 'Ingatkan salat dan amalan harian (termasuk Dhuha dan Tahajud yang dipilih; hitung mundur Ramadan pukul 08.00)'), sel('ns-lead', N.LEADS.map(m => [m, m ? m + ' menit sebelum waktu' : 'tepat saat waktu masuk']), S.lead, v => { S.lead = Number(v); commit(); }, 'Pengingat salat'),
+        h('label', { class: 'hint' }, 'Ingatkan salat dan amalan harian'), sel('ns-lead', N.LEADS.map(m => [m, m ? m + ' menit sebelum waktu' : 'tepat saat waktu masuk']), S.lead, v => { S.lead = Number(v); commit(); }, 'Pengingat salat'),
         h('label', { class: 'hint' }, 'Pengingat puasa (malam sebelumnya)'), sel('ns-fh', N.FAST_HOURS.map(x => [x, 'pukul ' + x + '.00']), S.fastHour, v => { S.fastHour = Number(v); commit(); }, 'Jam pengingat puasa'),
         h('button', { class: 'btn-sm ghost', type: 'button', id: 'ns-test', onclick: async () => {
           if (perm !== 'granted') { toast('Aktifkan pengingat HP lebih dulu.', true); return; }
@@ -184,28 +193,27 @@ export function notifPage({ go } = {}) {
         perm === 'denied' ? h('p', { class: 'mk-err' }, 'Izin notifikasi diblokir di peramban. Ubah lewat pengaturan situs di peramban.') : ''
       ] : h('p', { class: 'muted' }, 'Peramban ini tidak mendukung notifikasi. Pusat Notifikasi di halaman ini tetap berfungsi.'));
     return [
-      h('div', { class: 'panel' }, h('h3', {}, 'Jenis notifikasi'), h('p', { class: 'muted' }, 'Matikan yang tidak Anda perlukan agar tidak terganggu.'), ...catRows),
+      h('div', { class: 'panel nt-cats' }, h('h3', {}, 'Jenis notifikasi'), h('p', { class: 'muted' }, 'Matikan yang tidak Anda perlukan.'), ...catRows,
+        (S.cats.kajian || S.cats.sosial || S.cats.info) ? h('div', { class: 'nt-rad' }, h('label', { for: 'ns-radius' }, 'Kabar masjid dalam jarak'), sel('ns-radius', N.RADII.map(r => [r, r + ' km']), S.radius, v => { S.radius = Number(v); commit(); needRemote = true; render(); loadRemote(); needRemote = false; }, 'Jarak masjid')) : ''),
       pushPanel(),
-      S.cats.salat ? h('div', { class: 'panel' }, h('h3', {}, 'Waktu salat'), h('p', { class: 'muted' }, 'Waktu salat otomatis mengikuti Jadwal Salat (lokasi dan hitungan yang sama). Pilihan di sini juga tampil di halaman Jadwal Salat.'), go ? h('button', { class: 'linkbtn', type: 'button', onclick: () => go('jadwal') }, 'Buka Jadwal Salat') : '', ...[...PRAYERS, ['dhuha', 'Salat Dhuha (sunnah)'], ['tahajud', 'Salat Tahajud (sunnah)']].map(([k, n]) => sw(n, S.prayers[k], upd(v => { S.prayers[k] = v; }), 'ns-p-' + k)),
-        h('h4', {}, 'Kebiasaan saya'), h('p', { class: 'muted' }, 'Setiap orang berbeda; atur sesuai kebiasaan Anda. Pilihan ini hanya tersimpan di perangkat ini.'),
+      S.cats.salat ? fold('ns-salat', 'Waktu salat', null, h('p', { class: 'muted' }, 'Mengikuti Jadwal Salat (lokasi dan hitungan yang sama).'), go ? h('button', { class: 'linkbtn', type: 'button', onclick: () => go('jadwal') }, 'Buka Jadwal Salat') : '', ...[...PRAYERS, ['dhuha', 'Salat Dhuha (sunnah)'], ['tahajud', 'Salat Tahajud (sunnah)']].map(([k, n]) => sw(n, S.prayers[k], upd(v => { S.prayers[k] = v; }), 'ns-p-' + k)),
+        h('h4', {}, 'Kebiasaan saya'),
         h('label', { class: 'hint' }, 'Awal waktu Dhuha bagi saya'), sel('ns-dhuha-min', N.DHUHA_OPTIONS.map(m => [m, m + ' menit setelah terbit' + (m === 20 ? ' (bawaan)' : '')]), S.mine.dhuhaMin, upd(v => { S.mine.dhuhaMin = Number(v); }), 'Awal Dhuha'),
         h('label', { class: 'hint' }, 'Waktu Tahajud bagi saya'), sel('ns-tj-mode', [['third', 'Sepertiga malam terakhir (bawaan, dihitung otomatis)'], ['custom', 'Jam pilihan saya']], S.mine.tahajudMode, upd(v => { S.mine.tahajudMode = v; }), 'Cara menentukan Tahajud'),
         S.mine.tahajudMode === 'custom' ? timeIn('ns-tj-time', S.mine.tahajudTime, upd(v => { S.mine.tahajudTime = v; }), 'Jam Tahajud') : '') : '',
-      S.cats.harian ? h('div', { class: 'panel' }, h('h3', {}, 'Amalan sunnah harian'), h('p', { class: 'muted' }, 'Isi amalan diambil dari menu Amalan Sunnah Harian; waktu mulainya mengikuti Jadwal Salat (hanya penanda awal, bukan batas ibadah).'), ...Object.keys(S.slots).map(k => sw('Amalan ' + SLOT_LABEL[k].toLowerCase(), S.slots[k], upd(v => { S.slots[k] = v; }), 'ns-s-' + k))) : '',
-      S.cats.puasa ? h('div', { class: 'panel' }, h('h3', {}, 'Puasa'), ...Object.entries(FAST_GROUPS).map(([k, n]) => sw(n, S.fasts[k], upd(v => { S.fasts[k] = v; }), 'ns-f-' + k)),
-        h('h4', {}, 'Puasa yang saya kerjakan'), h('p', { class: 'muted' }, 'Matikan puasa yang tidak Anda kerjakan agar tidak diingatkan.'),
+      S.cats.harian ? fold('ns-harian', 'Amalan sunnah harian', null, h('p', { class: 'muted' }, 'Isi dari menu Amalan Sunnah Harian; waktu mengikuti Jadwal Salat.'), ...Object.keys(S.slots).map(k => sw('Amalan ' + SLOT_LABEL[k].toLowerCase(), S.slots[k], upd(v => { S.slots[k] = v; }), 'ns-s-' + k))) : '',
+      S.cats.puasa ? fold('ns-puasa', 'Puasa', null, ...Object.entries(FAST_GROUPS).map(([k, n]) => sw(n, S.fasts[k], upd(v => { S.fasts[k] = v; }), 'ns-f-' + k)),
+        h('h4', {}, 'Puasa yang saya kerjakan'),
         ...Object.entries(N.FAST_KEYS).map(([k, n]) => sw('Puasa ' + n, S.fastKeys[k], upd(v => { S.fastKeys[k] = v; }), 'ns-fk-' + k))) : '',
-      S.cats.salat ? h('div', { class: 'panel', id: 'ns-adzan' }, h('h3', {}, 'Adzan'), h('p', { class: 'muted' }, 'Adzan ' + (S.adzan.on ? 'aktif' : 'belum aktif') + '. Audio dan waktu adzan diatur di halaman Adzan (terhubung dengan Jadwal Salat). Hanya berbunyi saat BAITUNA terbuka.'),
+      S.cats.salat ? fold('ns-adzan', 'Adzan', S.adzan.on ? 'Aktif' : 'Mati', h('p', { class: 'muted' }, 'Audio dan waktu diatur di halaman Adzan. Berbunyi saat BAITUNA terbuka.'),
         go ? h('button', { class: 'btn-sm', type: 'button', id: 'ns-adzan-go', onclick: () => go('adzan') }, 'Atur adzan & audio') : '') : '',
-      S.cats.ramadan ? h('div', { class: 'panel', id: 'ns-ram' }, h('h3', {}, 'Ramadan: sahur dan berbuka'),
-        h('p', { class: 'muted' }, 'Pengingat harian selama Ramadan, mengikuti Jadwal Salat dan tanggal Ramadan di Ramadan Center. Berbunyi hanya saat BAITUNA terbuka dan "Pengingat HP" aktif; jangan jadikan satu-satunya alarm sahur.'),
+      S.cats.ramadan ? fold('ns-ram', 'Ramadan: sahur & berbuka', null,
+        h('p', { class: 'muted' }, 'Berbunyi hanya saat BAITUNA terbuka dan "Pengingat di HP" aktif. Jangan jadikan satu-satunya alarm sahur.'),
         sw('Ingatkan sahur', S.ram.sahur, upd(v => { S.ram.sahur = v; }), 'ns-r-sahur'),
         ...(S.ram.sahur ? [h('label', { class: 'hint' }, 'Waktu pengingat sahur'), sel('ns-r-sahurmin', N.SAHUR_OPTIONS.map(m => [m, m + ' menit sebelum Imsak']), S.ram.sahurMin, upd(v => { S.ram.sahurMin = Number(v); }), 'Pengingat sahur')] : []),
-        sw('Ingatkan berbuka (mengikuti pilihan "menit sebelum waktu" di bawah)', S.ram.berbuka, upd(v => { S.ram.berbuka = v; }), 'ns-r-berbuka'),
+        sw('Ingatkan berbuka', S.ram.berbuka, upd(v => { S.ram.berbuka = v; }), 'ns-r-berbuka'),
         go ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'ns-r-go', onclick: () => go('ramadan') }, 'Buka Ramadan Center') : '') : '',
       S.cats.pribadi ? customPanel(upd) : '',
-      (S.cats.kajian || S.cats.sosial || S.cats.info) ? h('div', { class: 'panel' }, h('h3', {}, 'Masjid terdekat'), h('label', { class: 'hint' }, 'Jarak maksimal'), sel('ns-radius', N.RADII.map(r => [r, r + ' km']), S.radius, v => { S.radius = Number(v); commit(); needRemote = true; render(); loadRemote(); needRemote = false; }, 'Jarak masjid'),
-        h('p', { class: 'muted' }, 'Jarak dihitung di perangkat dari lokasi yang Anda pilih di Jadwal Salat.')) : '',
       devBox
     ];
   }
@@ -214,7 +222,7 @@ export function notifPage({ go } = {}) {
     const tabs = h('div', { class: 'zk-tabs', role: 'tablist' }, ...[['kabar', 'Kabar'], ['atur', 'Pengaturan']].map(([k, l]) =>
       h('button', { class: 'zk-tab' + (tab === k ? ' on' : ''), type: 'button', role: 'tab', 'data-t': k, 'aria-selected': String(tab === k), onclick: () => { tab = k; render(); } }, l)));
     root.replaceChildren(h('h2', {}, 'Notifikasi'),
-      h('p', { class: 'muted' }, 'Kabar yang sesuai pilihan Anda. Daftar dihitung saat halaman ini dibuka; BAITUNA tidak mengirim notifikasi saat aplikasi tertutup.'),
+      h('p', { class: 'muted' }, tab === 'kabar' ? 'Kabar sesuai pilihan Anda, dihitung saat halaman dibuka. Tanpa push, BAITUNA tidak mengirim notifikasi saat aplikasi tertutup.' : 'Pilihan tersimpan di perangkat ini.'),
       tabs, ...(tab === 'kabar' ? kabarView() : settingsView()));
   }
 

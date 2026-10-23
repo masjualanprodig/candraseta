@@ -584,3 +584,8 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v152
 - Keterangan di halaman Adzan diringkas menjadi 3 poin ("Perlu diketahui").
+
+## Tambahan v153
+- Notifikasi → Pengaturan dirapikan: panel (push, Waktu salat, Amalan harian, Puasa, Adzan, Ramadan, Pengingat pribadi, Pengingat di HP) kini bisa dilipat dan tertutup bawaan, teks dipersingkat (rincian data push di "Data & batasan"). Halaman jadi sekitar sepertiga panjang semula.
+- "Pengingat pribadi saya": pilihan hari kini tombol kecil (Min–Sab) yang rapi; formulir ditata ulang.
+- "Masjid terdekat" dipindah menjadi baris "Kabar masjid dalam jarak" di kartu Jenis notifikasi (muncul hanya bila kajian/sosial/pengumuman aktif).
