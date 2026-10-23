@@ -117,7 +117,9 @@ export async function updateMosqueProfile(id, f) {
       name: f.name, address: f.address, city: f.city, province: f.province, contact_phone: f.contact_phone,
       description: f.description, facilities: f.facilities, timezone: f.timezone,
       // Lokasi hanya dikirim bila tautan Google Maps diubah (koordinat ikut dari tautan).
-      ...(f.maps_url !== undefined ? { maps_url: f.maps_url, latitude: f.latitude, longitude: f.longitude } : {})
+      ...(f.maps_url !== undefined ? { maps_url: f.maps_url, latitude: f.latitude, longitude: f.longitude } : {}),
+      // Koordinat yang diketik/diambil dari lokasi perangkat (menggantikan koordinat dari tautan).
+      ...(f.coords ? { latitude: f.coords.latitude, longitude: f.coords.longitude } : {})
     }
   });
   if (!Array.isArray(out) || out.length !== 1) throw Object.assign(new Error('tidak berubah'), { status: 403 });

@@ -627,3 +627,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v165
 - Tracker: "Hasil target" kini langsung tampil sebagai grafik batang 7 hari (ketuk batang untuk rincian hari itu); "Ringkasan pribadi" dilipat.
+
+## Tambahan v166
+- Profil masjid (publik): daftar Pengurus masjid (nama + jabatan, tanpa email) tampil; butuh pengurus_publik.sql.
+- Edit profil masjid: kolom Koordinat (lintang, bujur) + tombol "Isi dari lokasi HP ini". Tautan Google Maps pendek tidak memuat koordinat, jadi jadwal salat butuh koordinat ini. Mengganti tautan tidak lagi menghapus koordinat.

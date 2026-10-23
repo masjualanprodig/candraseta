@@ -39,3 +39,12 @@ export async function fetchFeed(nowMs = Date.now(), opts = {}) {
   if (!a.ok || !i.ok) throw Object.assign(new Error('gagal memuat'), { status: (a.ok ? i : a).status });
   return { agenda: Array.isArray(a.data) ? a.data : [], info: Array.isArray(i.data) ? i.data : [] };
 }
+
+// Pengurus yang tampil di profil masjid (nama + jabatan saja; pengurus_publik.sql). null = SQL belum dijalankan / gagal.
+export async function fetchOfficersPublic(mosqueId) {
+  try {
+    const r = await request('/rest/v1/rpc/mosque_officers_public', { method: 'POST', body: { p_mosque: mosqueId } });
+    if (!r.ok || !Array.isArray(r.data)) return null;
+    return r.data.filter(o => o && typeof o.full_name === 'string' && o.full_name.trim()).slice(0, 30).map(o => ({ full_name: o.full_name.trim().slice(0, 80), position: String(o.position || '') }));
+  } catch (e) { return null; }
+}

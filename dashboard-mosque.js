@@ -3,7 +3,7 @@
 import { h, toast, hint, ask, STATUS_LABEL } from './ui.js';
 import { getMosque, updateMosqueProfile, fetchTeam, listInvitations, listOfficers, registerMosque, myAdminMosques, saveGallery, setGallery, setMosquePhoto, MAX_GALLERY } from './mosque-service.js';
 import { prepareProductPhoto } from './photo.js';
-import { parseMapsUrl, mapsText, MAPS_HELP, MAPS_RE, mapEmbed } from './maps-link.js';
+import { parseMapsUrl, mapsText, MAPS_HELP, MAPS_RE, mapEmbed, parseCoords } from './maps-link.js';
 import { publicPhotoUrl, mosqueCover, GALLERY_BUCKET, storageRemove } from './supabase.js';
 import { teamPanel } from './team-panel.js';
 import { renderPostsManager } from './posts-ui.js';
@@ -261,6 +261,18 @@ export async function renderMosque(box, mosqueId, view = 'home') {
   const mapsIn = field('Tautan lokasi Google Maps (opsional)', mosque.maps_url, 500); mapsIn.type = 'url'; mapsIn.id = 'ed-maps'; mapsIn.setAttribute('inputmode', 'url');
   const mapsMsg = h('p', { class: 'hint', id: 'ed-maps-msg' }, mosque.maps_url ? 'Tautan lokasi tersimpan. Tempel tautan baru untuk menggantinya, atau kosongkan untuk menghapus.' : MAPS_HELP);
   mapsIn.addEventListener('input', () => { const mp = parseMapsUrl(mapsIn.value); mapsMsg.className = 'hint' + (mp.ok || mp.empty ? '' : ' mk-err'); mapsMsg.textContent = mapsText(mp); });
+  // Koordinat: dipakai untuk JADWAL SALAT masjid. Tautan pendek Google Maps (maps.app.goo.gl) tidak memuat koordinat yang bisa dibaca.
+  const hasC = mosque.latitude != null && mosque.longitude != null;
+  const initC = hasC ? mosque.latitude + ', ' + mosque.longitude : '';
+  const coordIn = field('Koordinat masjid untuk jadwal salat (lintang, bujur)', initC, 40); coordIn.id = 'ed-coord'; coordIn.setAttribute('inputmode', 'text'); coordIn.placeholder = 'mis. -7.8123, 110.3456';
+  const coordMsg = h('p', { class: 'hint', id: 'ed-coord-msg' }, hasC ? 'Koordinat tersimpan. Jadwal salat masjid sudah bisa dihitung.' : 'Belum diisi, jadi jadwal salat masjid belum tampil. Isi dengan tombol di bawah, atau tempel koordinat dari Google Maps (tekan lama pada titik masjid, lalu salin angkanya).');
+  coordIn.addEventListener('input', () => { const c = parseCoords(coordIn.value); coordMsg.className = 'hint' + (c.ok || c.empty ? '' : ' mk-err'); coordMsg.textContent = c.ok ? 'Koordinat terbaca: ' + c.lat + ', ' + c.lng + '.' : c.empty ? 'Kosong: jadwal salat tidak ditampilkan.' : 'Format belum benar. Contoh: -7.8123, 110.3456'; });
+  const gpsBtn = h('button', { class: 'btn-sm ghost', type: 'button', id: 'ed-gps', onclick: () => {
+    if (!navigator.geolocation) { toast('Perangkat ini tidak mendukung lokasi.', true); return; }
+    gpsBtn.disabled = true; coordMsg.textContent = 'Mengambil lokasi…';
+    navigator.geolocation.getCurrentPosition(p => { gpsBtn.disabled = false; coordIn.value = p.coords.latitude.toFixed(5) + ', ' + p.coords.longitude.toFixed(5); coordIn.dispatchEvent(new Event('input')); toast('Lokasi terisi. Ketuk "Simpan profil".'); },
+      () => { gpsBtn.disabled = false; toast('Lokasi tidak bisa diambil. Izinkan lokasi di peramban, atau ketik koordinatnya.', true); }, { enableHighAccuracy: true, timeout: 15000 });
+  } }, 'Isi dari lokasi HP ini (saat di masjid)');
   const btn = h('button', { class: 'btn-sm', type: 'submit' }, 'Simpan profil');
   const form = h('form', {
     class: 'panel', novalidate: 'novalidate',
@@ -271,10 +283,14 @@ export async function renderMosque(box, mosqueId, view = 'home') {
       const mp = parseMapsUrl(mapsIn.value);
       if (!mp.empty && !mp.ok) { toast('Tautan lokasi harus dari Google Maps, atau kosongkan.', true); return; }
       const newUrl = mp.ok ? mp.url : null;
-      const geo = newUrl !== (mosque.maps_url || null) ? { maps_url: newUrl, latitude: mp.ok && mp.lat != null ? mp.lat : null, longitude: mp.ok && mp.lng != null ? mp.lng : null } : {};
+      const geo = newUrl !== (mosque.maps_url || null) ? { maps_url: newUrl, ...(mp.ok && mp.lat != null ? { latitude: mp.lat, longitude: mp.lng } : {}) } : {};
+      const cd = parseCoords(coordIn.value);
+      if (!cd.empty && !cd.ok) { toast('Format koordinat belum benar. Contoh: -7.8123, 110.3456', true); return; }
+      const coordChanged = coordIn.value.trim() !== initC;
+      const coords = coordChanged ? (cd.ok ? { latitude: cd.lat, longitude: cd.lng } : { latitude: null, longitude: null }) : null;
       btn.disabled = true;
       try {
-        await updateMosqueProfile(mosqueId, {
+        await updateMosqueProfile(mosqueId, { coords,
           name: n, city: city.value.trim() || null, province: prov.value.trim() || null,
           contact_phone: phone.value.trim() || null, address: addr.value.trim() || null,
           description: desc.value.trim() || null, facilities: fac.value.trim() || null, timezone: tz.value, ...geo
@@ -287,7 +303,7 @@ export async function renderMosque(box, mosqueId, view = 'home') {
       btn.disabled = false;
     }
   }, h('h3', {}, 'Profil masjid'), h('div', { class: 'grid2' }, name, city, prov, phone), addr, desc, fac,
-    mapsIn, mapsMsg,
+    mapsIn, mapsMsg, coordIn, coordMsg, h('div', { class: 'mt' }, gpsBtn),
     h('p', { class: 'hint' }, 'Zona waktu dipakai untuk menghitung jadwal salat masjid ini.'), tz, h('div', { class: 'mt' }, btn));
 
   // ----- Foto masjid (galeri: maksimal 10 foto, tiap foto otomatis <= 100 KB) -----

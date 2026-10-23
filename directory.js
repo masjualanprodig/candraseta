@@ -7,7 +7,8 @@ import { restoreScroll } from './ui.js';
 import { $, h } from './ui.js';
 import { show } from './router.js';
 import { getSession } from './supabase.js';
-import { searchMosques, fetchProvinces, PAGE_SIZE } from './public-service.js';
+import { searchMosques, fetchProvinces, PAGE_SIZE, fetchOfficersPublic } from './public-service.js';
+import { POSITION_LABEL } from './mosque-service.js';
 import { prayerPanel } from './schedule-ui.js';
 import { postsPublic } from './posts-ui.js';
 import { feedPanel, icon, ICONS } from './feed-ui.js';
@@ -321,6 +322,17 @@ function thumb(m) {
 
 const telHref = p => /^[0-9+\-\s()]{5,30}$/.test(p || '') ? 'tel:' + p.replace(/[^0-9+]/g, '') : null;
 
+// Daftar pengurus (nama + jabatan). Tersembunyi bila kosong atau SQL belum dijalankan.
+function officersPanel(m) {
+  const box = h('div', { class: 'panel', id: 'dir-officers', hidden: 'hidden' });
+  fetchOfficersPublic(m.id).then(list => {
+    if (!list || !list.length) return;
+    box.replaceChildren(h('h3', {}, 'Pengurus masjid'), h('div', { class: 'ofc-list' }, ...list.map(o => h('div', { class: 'ofc-row' }, h('b', {}, o.full_name), h('span', { class: 'muted' }, POSITION_LABEL[o.position] || '')))));
+    box.hidden = false;
+  });
+  return box;
+}
+
 function renderDetail(m, back = renderList, backLabel = '← Daftar masjid') {
   const chips = String(m.facilities || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 20);
   const lat = Number(m.latitude), lng = Number(m.longitude);
@@ -342,6 +354,7 @@ function renderDetail(m, back = renderList, backLabel = '← Daftar masjid') {
       mapsHref ? row('Lokasi', h('a', { class: 'link', href: mapsHref, target: '_blank', rel: 'noopener noreferrer' }, 'Buka di Google Maps')) : '',
       mapEmbed(m) || ''),
     prayerPanel(m),
+    officersPanel(m),
     postsPublic(m),
     kasPublicPanel(m),
     m.description ? h('div', { class: 'panel' }, h('h3', {}, 'Tentang masjid'), h('p', { class: 'prewrap' }, m.description)) : '',

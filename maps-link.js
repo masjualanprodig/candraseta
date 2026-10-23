@@ -59,3 +59,13 @@ export function mapEmbed(m) {
   }
   return wrap;
 }
+
+// Koordinat yang ditulis langsung, mis. "-7.8123, 110.3456" (hasil tekan lama pada peta Google Maps). Hasil: { empty } | { ok:false } | { ok:true, lat, lng }
+export function parseCoords(input) {
+  const t = String(input || '').trim();
+  if (!t) return { empty: true, ok: false };
+  const m = t.match(/^(-?\d{1,3}(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:[.,]\d+)?)$/);
+  if (!m) return { ok: false };
+  const p = pair(m[1].replace(',', '.'), m[2].replace(',', '.'));
+  return p ? { ok: true, ...p } : { ok: false };
+}
