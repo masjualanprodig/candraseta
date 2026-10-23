@@ -10,7 +10,7 @@ const shortDate = k => parseKey(k).toLocaleDateString('id-ID', { day: 'numeric',
 
 export function trackerPage() {
   const wrap = h('div', { class: 'tracker' });
-  let data = T.load(), view = T.dayKey(), range = 7, hasil = 'hari';
+  let data = T.load(), view = T.dayKey(), range = 7, hasil = 'pekan', openRing = false;
   const today = () => T.dayKey();
   const oldest = () => T.dayKeysBack(T.BACK_DAYS + 1)[0];
   const commit = next => { data = next; if (!T.save(data)) toast('Belum bisa disimpan di perangkat ini.', true); };
@@ -100,14 +100,14 @@ export function trackerPage() {
         g.off ? h('p', { class: 'hint' }, 'Hari ini ditandai libur, jadi salat tidak dihitung.') : '');
     }
     const W = T.weekResult(data, new Date());
-    const bars = h('div', { class: 'tg-week', role: 'img', 'aria-label': 'Hasil target 7 hari terakhir: ' + W.full + ' hari tercapai penuh' }, ...W.days.map(g => h('div', { class: 'tg-col ' + g.state, 'data-k': g.key },
+    const bars = h('div', { class: 'tg-week', role: 'group', 'aria-label': 'Hasil target 7 hari terakhir: ' + W.full + ' hari tercapai penuh' }, ...W.days.map(g => h('button', { class: 'tg-col ' + g.state, type: 'button', 'data-k': g.key, 'aria-label': longDate(g.key) + ': ' + (g.state === 'full' ? 'semua target tercapai' : g.state === 'notarget' ? 'belum ada target' : g.pct + ' persen'), onclick: () => { view = g.key; hasil = 'hari'; draw(); } },
       h('span', { class: 'tg-mark', 'aria-hidden': 'true' }, g.state === 'full' ? '✓' : g.state === 'notarget' ? '' : g.pct + '%'),
       h('span', { class: 'tg-track', 'aria-hidden': 'true' }, h('i', { style: 'height:' + Math.max(g.state === 'none' || g.state === 'notarget' ? 4 : 8, g.pct) + '%' })),
       h('span', { class: 'tg-day' }, DAYS[parseKey(g.key).getDay()]))));
     return section('Hasil target', tabs, bars,
       h('div', { class: 'tg-big' }, h('b', { id: 'tg-wk' }, W.full + ' dari 7'), h('span', { class: 'muted' }, ' hari target tercapai penuh')),
       h('p', { class: 'tg-msg ' + (W.full >= 3 ? 'full' : W.full >= 1 ? 'part' : 'none'), id: 'tg-msg', role: 'status' }, W.message),
-      h('p', { class: 'hint' }, 'Hijau dengan ✓ = semua target hari itu tercapai. Kuning = sebagian. Abu-abu = belum dicentang. Dihitung dari daftar target Anda saat ini.'));
+      h('p', { class: 'hint' }, 'Hijau dengan ✓ = semua target hari itu tercapai. Kuning = sebagian. Abu-abu = belum dicentang. Ketuk satu batang untuk melihat rinciannya. Dihitung dari daftar target Anda saat ini.'));
   }
 
   /* ---- mulai tracker harian (di bagian bawah) ---- */
@@ -149,9 +149,12 @@ export function trackerPage() {
       data.show.quran ? h('li', {}, 'Membaca Al-Qur’an: ', h('b', {}, S.quran + ' halaman'), ' dalam ' + S.quranDays + ' hari', data.quranTarget ? ' · target tercapai ' + S.targetDays + ' hari' : '') : '',
       ...(data.show.amalan ? data.items.map(it => h('li', {}, it.name + ': ', h('b', {}, S.items[it.id] + ' hari'))) : []),
       h('li', {}, 'Hari yang ada catatannya: ', h('b', {}, S.recorded + ' dari ' + S.n))];
-    return section('Ringkasan pribadi', h('div', { class: 'achips', role: 'tablist', 'aria-label': 'Rentang ringkasan' }, chip(7, '7 hari'), chip(30, '30 hari')), grid,
+    const det = h('details', { class: 'tk-fold', id: 'tk-ring' }, h('summary', {}, 'Ringkasan pribadi (catatan 7 atau 30 hari)'));
+    det.open = openRing; det.addEventListener('toggle', () => { openRing = det.open; });
+    det.append(h('div', { class: 'achips', role: 'tablist', 'aria-label': 'Rentang ringkasan' }, chip(7, '7 hari'), chip(30, '30 hari')), grid,
       h('ul', { class: 'tk-lines' }, ...lines),
       h('p', { class: 'hint' }, 'Hanya hitungan untuk Anda sendiri. Tidak ada nilai, peringkat, atau perbandingan. Hari kosong bukan berarti kekurangan: bisa jadi hanya belum dicatat.'));
+    return h('section', { class: 'panel tk-sec' }, det);
   }
 
   function remindSec() {

@@ -624,3 +624,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v164
 - Tracker Ibadah Harian: tombol "Mulai Tracker Harian" di bagian bawah (pilih jam, otomatis membuat pengingat harian; bisa ubah jam, pasang alarm kalender HP, atau hentikan).
 - Bagian "Hasil target": per hari (x dari y + daftar + ucapan) atau 7 hari terakhir (grafik batang, hijau ✓ = penuh) dengan pesan semangat. Tanpa skor/peringkat/streak. Data tetap hanya di perangkat.
+
+## Tambahan v165
+- Tracker: "Hasil target" kini langsung tampil sebagai grafik batang 7 hari (ketuk batang untuk rincian hari itu); "Ringkasan pribadi" dilipat.
