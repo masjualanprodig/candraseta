@@ -21,10 +21,11 @@ import { renderKasManager } from './kas-ui.js';
 import { renderAuditLog } from './audit-ui.js';
 import { renderBrandingEditor } from './branding-ui.js';
 import { renderUserManager } from './pengguna-ui.js';
+import { userStats } from './pengguna-service.js';
 import { renderMosqueReview } from './mosque-review-ui.js';
 import { homeBody } from './home-builder.js';
 import { renderHomeBuilder } from './home-builder-ui.js';
-import { greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, summaryCard, articleSection, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
+import { statGroupHead, userStatsBlock, greetingHeader, bannerCarousel, promoBanner, tasbihCard, prayerCard, quickGrid, summaryCard, articleSection, sectionHead, whoAmI, go, registerActs, scrollToEl } from './home-ui.js';
 
 const ACTIONS = {
   approve: { title: 'Aktifkan masjid?', text: 'Masjid akan tampil sebagai masjid terverifikasi. Pastikan identitasnya sudah diperiksa.', reason: false, to: 'active', done: 'Masjid diaktifkan.' },
@@ -111,12 +112,15 @@ export async function renderAdmin(box, view = 'home') {
       h('button', { class: 'act', type: 'button', onclick: () => renderDuaManager(box, () => openKonten()) }, icon(ICONS.doa), h('span', {}, 'Doa Shahih')),
       h('button', { class: 'act', type: 'button', onclick: () => renderSunnahManager(box, () => openKonten()) }, icon(ICONS.sunnah), h('span', {}, 'Amalan Sunnah Harian')),
       h('button', { class: 'act', type: 'button', onclick: () => renderBelajarManager(box, () => openKonten()) }, icon(ICONS.belajar), h('span', {}, 'Materi Belajar Qur’an')),
-      h('button', { class: 'act', type: 'button', onclick: () => renderAsmaManager(box, () => openKonten()) }, icon(ICONS.asma), h('span', {}, 'Penjelasan & Audio Asmaul Husna')))));
+      h('button', { class: 'act', type: 'button', onclick: () => renderAsmaManager(box, () => openKonten()) }, icon(ICONS.asma), h('span', {}, 'Penjelasan & Audio Asmaul Husna')),
+      h('button', { class: 'act', id: 'act-notif', type: 'button', onclick: () => go('notif') }, icon(ICONS.bell), h('span', {}, 'Notifikasi')),
+      h('button', { class: 'act', id: 'act-adzan', type: 'button', onclick: () => go('adzan') }, icon(ICONS.bell), h('span', {}, 'Audio Adzan (unggah & kelola)')))));
   const listAnchor = h('div', { id: 'mosque-list' });
   const openMasjid = () => renderAdmin(box, 'masjid');
   registerActs({ audit: openAudit, masjid: openMasjid });
   const badge = n => n ? h('em', { class: 'qk-badge', 'aria-label': n + ' menunggu' }, String(n)) : '';
   const waiting = count('pending');
+  const ustats = await userStats().catch(() => null); // null bila SQL pengguna_statistik.sql belum dijalankan
   const grid = quickGrid('Manajemen Platform', [
     { key: 'open-datamasjid', id: 'qa-masjid', onclick: openMasjid },
     { key: 'open-konten', id: 'qa-konten', onclick: openKonten },
@@ -150,7 +154,7 @@ export async function renderAdmin(box, view = 'home') {
     jadwal: prayerCard(),
     artikel: await articleSection(5) || '',
     mgmt: grid,
-    stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', items: [
+    stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', head: ustats ? statGroupHead(ICONS.mosque, 'Data Masjid', 'Statistik masjid yang terdaftar di aplikasi.') : '', after: ustats ? userStatsBlock(ustats) : '', items: [
         { ic: ICONS.mosque, value: list.length, label: 'Masjid Terdaftar' }, { ic: ICONS.shield, value: count('active'), label: 'Masjid Aktif' },
         { ic: ICONS.clock, value: count('pending'), label: 'Menunggu Verifikasi' }, { ic: ICONS.mosqueoff, value: count('rejected') + count('suspended'), label: 'Ditolak / Nonaktif' }] }) };
   const body = await homeBody('super', B);

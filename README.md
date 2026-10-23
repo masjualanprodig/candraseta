@@ -572,3 +572,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v148
 - Layar pembuka Android: latar manifest dan ikon maskable diputihkan agar kotak ikon menyatu dengan latar.
+
+## Tambahan v149
+- Editor (Super Admin): menu Notifikasi dan Audio Adzan (unggah & kelola). Unggah audio adzan: bila Nama atau Sumber/pelantun kosong, kolomnya bertanda merah dengan pesan jelas; daftar yang gagal dimuat menyebut adzan.sql.

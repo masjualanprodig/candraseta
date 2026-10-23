@@ -130,8 +130,14 @@ export function adzanPage({ go } = {}) {
       if (busy) return;
       const f = file.files && file.files[0];
       const v = A.validate({ name: name.value, kind: kind.value, credit: credit.value });
-      if (v.error) { msg.textContent = v.error; msg.className = 'hint jerr'; return; }
-      if (!A.fileOk(f)) { msg.textContent = 'Berkas harus MP3, M4A, OGG, atau WAV, maksimal ' + Math.round(A.MAX_BYTES / 1048576) + ' MB.'; msg.className = 'hint jerr'; return; }
+      if (v.error) {
+        msg.textContent = v.error; msg.className = 'hint jerr';
+        const bad = /sumber|pelantun|lisensi/i.test(v.error) ? credit : /nama/i.test(v.error) ? name : null;
+        [name, credit, file].forEach(x => x.removeAttribute('aria-invalid'));
+        if (bad) { bad.setAttribute('aria-invalid', 'true'); bad.focus(); }
+        toast(v.error, true); return;
+      }
+      if (!A.fileOk(f)) { const t = !f ? 'Pilih berkas audio dulu (MP3, M4A, OGG, atau WAV, maksimal ' + Math.round(A.MAX_BYTES / 1048576) + ' MB).' : 'Berkas harus MP3, M4A, OGG, atau WAV, maksimal ' + Math.round(A.MAX_BYTES / 1048576) + ' MB.'; msg.textContent = t; msg.className = 'hint jerr'; toast(t, true); return; }
       busy = true; add.disabled = true; msg.textContent = 'Mengunggah…'; msg.className = 'hint';
       try { await A.addAudio(f, { name: name.value, kind: kind.value, credit: credit.value }); toast('Audio ditambahkan.'); busy = false; await refresh(); }
       catch (e) { busy = false; add.disabled = false; msg.textContent = e && e.code ? e.message : e && e.status === 403 ? 'Hanya Super Admin yang boleh menambah audio.' : e && e.status === 413 ? 'Berkas terlalu besar.' : 'Belum tersimpan. Pastikan adzan.sql sudah dijalankan di Supabase, lalu coba lagi.'; msg.className = 'hint jerr'; }
@@ -162,7 +168,7 @@ export function adzanPage({ go } = {}) {
       h('p', { class: 'muted' }, 'Unggah rekaman adzan (MP3, M4A, OGG, atau WAV, maksimal ' + Math.round(A.MAX_BYTES / 1048576) + ' MB). Catat sumber atau pelantun dan lisensinya, dan pastikan Anda berhak memakai rekaman itu. Sebaiknya audio ditinjau ustaz sebelum dipakai.'),
       name, kind, credit, file, msg, add,
       h('h4', {}, 'Daftar audio (' + list.length + ' dari maksimal 30)'),
-      adminItems === null ? h('p', { class: 'hint' }, 'Daftar belum bisa dimuat.') : list.length ? h('div', { class: 'azm-list' }, ...rows) : h('p', { class: 'muted' }, 'Belum ada audio.'));
+      adminItems === null ? h('p', { class: 'hint jerr' }, 'Daftar belum bisa dimuat. Jika baru pertama dipakai, jalankan adzan.sql di Supabase SQL Editor, lalu muat ulang halaman ini.') : list.length ? h('div', { class: 'azm-list' }, ...rows) : h('p', { class: 'muted' }, 'Belum ada audio.'));
   }
   const KIND_L = A.KINDS;
 
