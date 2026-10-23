@@ -241,11 +241,13 @@ export async function whoAmI() {
 }
 
 /* ===== Kartu ringkasan (Admin Masjid): 3 angka berderet dengan garis pemisah ===== */
-export const summaryCard = ({ id, title, sub, onAll, allLabel, items, hint, hintLabel, onHint, actions }) => h('section', { class: 'sm', id },
+export const summaryCard = ({ id, title, sub, onAll, allLabel, items, hint, hintLabel, onHint, actions, head, after }) => h('section', { class: 'sm', id },
   sectionHead(title, onAll, id + '-all', null, allLabel),
   sub ? h('p', { class: 'sm-sub' }, sub) : '',
+  head || '',
   h('div', { class: 'sm-row' + (items.length === 4 ? ' c4' : '') }, ...items.map(it => h('div', { class: 'sm-i' + (it.tone ? ' ' + it.tone : '') },
-    h('span', { class: 'sm-ic' }, icon(it.ic)), h('b', {}, String(it.value)), h('small', {}, it.label)))),
+    h('span', { class: 'sm-ic' }, icon(it.ic)), h('b', {}, String(it.value)), h('small', {}, it.label), it.sub ? h('small', { class: 'sm-sub2' }, it.sub) : ''))),
+  after || '',
   hint ? h('div', { class: 'sm-hint' }, h('p', {}, hint), onHint ? h('button', { class: 'sm-hint-btn', type: 'button', onclick: onHint }, hintLabel || 'Mulai') : '') : '',
   actions ? h('div', { class: 'sm-acts' }, ...actions.map(a => h('button', { class: 'sm-act' + (a.gold ? ' gold' : ''), type: 'button', id: a.id, onclick: a.onclick }, a.label, icon(ICONS.chev)))) : '');
 
@@ -271,3 +273,13 @@ export const announceCard = ({ post, when, onAll, onOpen, onCreate }) => h('sect
     h('span', { class: 'an-t' }, h('b', {}, post.title), h('small', {}, icon(ICONS.agenda), when)),
     icon(ICONS.chev))
   : h('div', { class: 'sm-hint' }, h('p', {}, 'Belum ada pengumuman.'), onCreate ? h('button', { class: 'sm-hint-btn', type: 'button', id: 'an-create', onclick: onCreate }, 'Buat Pengumuman') : ''));
+
+/* ===== Kepala kelompok pada kartu statistik (lingkaran ikon + judul + keterangan) ===== */
+export const statGroupHead = (ic, title, sub, tone) => h('div', { class: 'sm-gh' + (tone ? ' ' + tone : '') },
+  h('span', { class: 'sm-gic' }, icon(ic)), h('div', { class: 'sm-gt' }, h('b', {}, title), h('small', {}, sub)));
+/* Data Pengguna (Super Admin): total, Admin Masjid, pengguna umum */
+export const userStatsBlock = s => h('div', { class: 'sm-grp', id: 'sgw-users' },
+  statGroupHead(ICONS.users, 'Data Pengguna', 'Statistik akun pengguna yang terdaftar di aplikasi.', 'blue'),
+  h('div', { class: 'sm-row' },
+    ...[[ICONS.users, s.total, 'Total Pengguna', 'Semua akun terdaftar', 'ub'], [ICONS.user, s.admin, 'Admin Masjid', 'Mengelola masjid', 'ug'], [ICONS.users, s.umum, 'Pengguna Umum', 'Jamaah aplikasi', 'uy']].map(([ic, v, l, sb, tn]) =>
+      h('div', { class: 'sm-i ' + tn }, h('span', { class: 'sm-ic' }, icon(ic)), h('b', {}, String(v)), h('small', {}, l), h('small', { class: 'sm-sub2' }, sb)))));

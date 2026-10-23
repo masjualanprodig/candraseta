@@ -9,6 +9,13 @@ export const ROLE_NAME = { ketua_takmir: 'Ketua Takmir', bendahara: 'Bendahara',
 
 export const listUsers = async ({ q = '', filter = 'semua', offset = 0, limit = PAGE } = {}) =>
   (await db('rpc/admin_users_list', { method: 'POST', body: { p_q: q.trim().slice(0, 60) || null, p_filter: filter, p_limit: limit, p_offset: offset } })) || [];
+// Angka ringkas untuk kartu statistik. null bila fungsi database belum ada (pengguna_statistik.sql belum dijalankan).
+export const userStats = async () => {
+  try {
+    const r = await db('rpc/admin_user_stats', { method: 'POST', body: {} });
+    return r && Number.isFinite(Number(r.total)) ? { total: Number(r.total), admin: Number(r.admin) || 0, umum: Number(r.umum) || 0, baru: Number(r.baru_minggu) || 0 } : null;
+  } catch (e) { if (e && e.status === 401) throw e; return null; }
+};
 export const setMasjidAdmin = userId => db('rpc/admin_set_masjid_admin', { method: 'POST', body: { p_user: userId } });
 export const unsetMasjidAdmin = userId => db('rpc/admin_unset_masjid_admin', { method: 'POST', body: { p_user: userId } });
 

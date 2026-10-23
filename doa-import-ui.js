@@ -3,7 +3,6 @@
 import { h, toast, hint, ask } from './ui.js';
 import { CATS, GRADES, listDuas, importDuas } from './doa-service.js';
 import { HEADERS, LIMIT, fmtSize, buildTemplate, readXlsx, analyze, toPayload, reportCsv } from './doa-import.js';
-import { loadAyat } from './quran-service.js';
 
 export const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const NS = 'http://www.w3.org/2000/svg';
@@ -22,16 +21,6 @@ export function saveBlob(name, bytes, type) {
 export const downloadTemplate = () => { saveBlob('template-doa-baituna.xlsx', buildTemplate(), XLSX_MIME); toast('Template Excel diunduh.'); };
 
 const COLS9 = [['Kategori doa', 0], ['Judul doa', 0], ['Teks Arab', 0], ['Teks Latin (opsional)', 0], ['Terjemahan Indonesia', 0], ['Sumber hadis', 0], ['Derajat hadis', 0], ['Nama penilai derajat', 0], ['Keterangan (opsional)', 0]];
-
-function assertAyatResponse(rows, from, to) {
-  const expected = to - from + 1;
-  if (!Array.isArray(rows) || rows.length !== expected) throw new Error('Jumlah ayat yang diterima tidak sesuai rujukan.');
-  for (let i = 0; i < rows.length; i++) {
-    const a = rows[i];
-    if (!a || Number(a.n) !== from + i || typeof a.ar !== 'string' || !a.ar.trim() || typeof a.id !== 'string' || !a.id.trim()) throw new Error('Teks Arab atau terjemahan ayat ' + (from + i) + ' belum lengkap.');
-  }
-  return rows;
-}
 
 export async function renderDuaImport(box, { onBack, onDone }) {
   let existing = null, result = null, busy = false, file = null;
@@ -103,26 +92,9 @@ export async function renderDuaImport(box, { onBack, onDone }) {
 
   go.addEventListener('click', async () => {
     if (busy || !result || result.valid < 1) return;
-    busy = true; go.disabled = true; go.lastChild.textContent = 'Memeriksa rujukan ayat…';
-    // Pastikan setiap rujukan ayat benar-benar menghasilkan teks Arab dan terjemahan lengkap sebelum ada data disimpan.
-    const ayatItems = result.items.filter(i => i.status === 'valid' && i.f.kind === 'ayat');
-    const checked = new Map();
-    for (let start = 0; start < ayatItems.length; start += 6) {
-      const batch = ayatItems.slice(start, start + 6);
-      await Promise.all(batch.map(async item => {
-        const f = item.f, key = [f.surah, f.ayah_from, f.ayah_to].join(':');
-        if (!checked.has(key)) checked.set(key, loadAyat(f.surah, f.ayah_from, f.ayah_to).then(rows => assertAyatResponse(rows, f.ayah_from, f.ayah_to)));
-        try { await checked.get(key); }
-        catch (e) { item.status = 'error'; item.errors = [['surat', 'Rujukan ayat gagal diverifikasi: teks Arab/terjemahan tidak lengkap atau layanan tidak tersedia. Coba lagi setelah koneksi pulih.']]; result.valid--; result.bad++; result.errors.push({ row: item.row, col: 'surat/ayat', msg: item.errors[0][1] }); }
-      }));
-    }
-    busy = false;
-    if (result.valid < 1) { drawPreview(); return; }
-    // Bila sebagian rujukan gagal, tampilkan baris bermasalah dan minta admin meninjau ulang sebelum impor.
-    if (ayatItems.some(i => i.status === 'error')) { drawPreview(); return; }
     const items = result.items.filter(i => i.status === 'valid');
     const skip = result.bad + result.dup;
-    if (!(await ask({ title: 'Impor ' + items.length + ' doa?', text: items.length + ' doa akan disimpan.' + (skip ? ' ' + skip + ' baris bermasalah atau diduga duplikat dilewati (tidak disimpan, tidak menimpa data lama).' : '') + ' Sumber dan derajat disimpan persis seperti yang Anda isi; aplikasi tidak memeriksa kesahihan hadis.', reason: false }))) { sync(); return; }
+    if (!(await ask({ title: 'Impor ' + items.length + ' doa?', text: items.length + ' doa akan disimpan.' + (skip ? ' ' + skip + ' baris bermasalah atau diduga duplikat dilewati (tidak disimpan, tidak menimpa data lama).' : '') + ' Sumber dan derajat disimpan persis seperti yang Anda isi; aplikasi tidak memeriksa kesahihan hadis.', reason: false }))) return;
     busy = true; go.disabled = true; go.lastChild.textContent = 'Menyimpan…'; fileBox.querySelectorAll('button').forEach(b => { b.disabled = true; });
     const prog = h('p', { class: 'muted', id: 'dmi-prog' }, 'Menyimpan 0 dari ' + items.length + '…'); out.prepend(prog);
     let r2;

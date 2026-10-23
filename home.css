@@ -305,3 +305,13 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,
 .kt-ag-grid .agk-img{height:130px}
 .agc-dots{margin-top:12px}
 .ag-body{gap:14px}
+
+/* v143 - Data Pengguna pada Statistik Platform */
+.sm-gh{display:flex;align-items:center;gap:10px;margin:10px 0 4px;padding:8px 10px;border-radius:14px;background:#E8F3EC}
+.sm-gh.blue{background:#E6F0FB}
+.sm-gic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#fff}
+.sm-gic .ic{width:22px;height:22px;stroke:var(--green-deep)}.sm-gh.blue .sm-gic .ic{stroke:#2A74C6}
+.sm-gt{display:flex;flex-direction:column;min-width:0}.sm-gt b{font-size:.9rem;color:var(--green-deep)}.sm-gt small{font-size:.72rem;color:var(--text-2);line-height:1.3}
+.sm-grp{margin-top:10px;padding-top:6px;border-top:1px solid var(--border)}
+.sm-sub2{opacity:.85}
+.sm-i.ub .sm-ic .ic{stroke:#2A74C6}.sm-i.ug .sm-ic .ic{stroke:#2F8F4E}.sm-i.uy .sm-ic .ic{stroke:#C98A12}

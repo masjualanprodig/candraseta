@@ -2,16 +2,19 @@
 // Super Admin: daftar akun yang sudah mendaftar. Status yang bisa diatur hanya dua: Admin Masjid, atau pengguna umum.
 import { h, toast, ask, STATUS_LABEL } from './ui.js';
 import * as P from './pengguna-service.js';
+import { icon, ICONS } from './feed-ui.js';
 
 export async function renderUserManager(box, { onBack, mosques = [] } = {}) {
   const st = { q: '', filter: 'semua', rows: [], more: false, busy: false, open: null };
-  const back = h('button', { class: 'btn-sm ghost', type: 'button', id: 'us-back', onclick: () => onBack && onBack() }, '← Kembali');
+  const back = h('button', { class: 'btn-sm ghost', type: 'button', id: 'us-back', onclick: () => onBack && onBack() }, '← Kembali ke dashboard');
   const search = h('input', { class: 'in', id: 'us-q', type: 'search', placeholder: 'Cari nama atau email', maxlength: '60', autocomplete: 'off', 'aria-label': 'Cari akun' });
   const chips = h('div', { class: 'achips', id: 'us-filters', role: 'group', 'aria-label': 'Saring status' });
   const status = h('p', { class: 'muted', id: 'us-status', role: 'status' }, '');
   const list = h('div', { id: 'us-list', class: 'us-list' });
   const moreBtn = h('button', { class: 'btn-sm ghost', type: 'button', id: 'us-more', hidden: 'hidden', onclick: () => load(true) }, 'Muat lebih banyak');
-  const paintChips = () => chips.replaceChildren(...P.FILTERS.map(([k, l]) => h('button', { class: 'achip', type: 'button', 'data-f': k, 'aria-pressed': String(st.filter === k), onclick: () => { if (st.filter !== k) { st.filter = k; paintChips(); load(false); } } }, l)));
+  let stats = null;
+  const cnt = k => stats ? ' (' + (k === 'semua' ? stats.total : k === 'admin' ? stats.admin : stats.umum) + ')' : '';
+  const paintChips = () => chips.replaceChildren(...P.FILTERS.map(([k, l]) => h('button', { class: 'achip', type: 'button', 'data-f': k, 'aria-pressed': String(st.filter === k), onclick: () => { if (st.filter !== k) { st.filter = k; paintChips(); load(false); } } }, l + cnt(k))));
 
   async function act(fn, ok) {
     try { await fn(); toast(ok); st.open = null; await load(false, true); }
@@ -58,9 +61,21 @@ export async function renderUserManager(box, { onBack, mosques = [] } = {}) {
   let t = null;
   search.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { st.q = search.value; load(false); }, 300); });
   paintChips();
-  box.replaceChildren(back, h('h2', { class: 'mt' }, 'Pengguna'),
-    h('p', { class: 'muted' }, 'Akun yang sudah mendaftar. Status hanya bisa diatur menjadi Admin Masjid, atau dikembalikan menjadi pengguna umum. Admin Masjid mendaftarkan masjidnya sendiri; Anda memverifikasinya di menu Data Masjid.'),
-    search, chips, status, list, moreBtn);
+  const card = (ic, tone, id, label, sub) => { const b = h('b', { id }, '…'); return h('div', { class: 'us-stat ' + tone }, h('span', { class: 'us-sic' }, icon(ic)), h('div', { class: 'us-st' }, b, h('span', {}, label), h('small', {}, sub))); };
+  const sTotal = card(ICONS.users, 'g', 'us-s-total', 'Total Pengguna', 'Semua akun terdaftar');
+  const sAdmin = card(ICONS.mosque, 'g2', 'us-s-admin', 'Admin Masjid', 'Mengelola masjid');
+  const sUmum = card(ICONS.user, 'y', 'us-s-umum', 'Pengguna Umum', 'Jamaah aplikasi');
+  const sBaru = card(ICONS.clock, 'n', 'us-s-baru', 'Baru Minggu Ini', 'Akun baru terdaftar');
+  const statBox = h('div', { class: 'us-stats', id: 'us-stats', hidden: 'hidden' }, sTotal, sAdmin, sUmum, sBaru);
+  box.replaceChildren(back,
+    h('div', { class: 'us-hero' }, h('div', { class: 'us-hero-tx' }, h('h2', {}, 'Pengguna'),
+      h('p', { class: 'muted' }, 'Akun yang sudah mendaftar di aplikasi BAITUNA. Status hanya bisa diatur menjadi Admin Masjid, atau dikembalikan menjadi pengguna umum. Admin Masjid mendaftarkan masjidnya sendiri; Anda memverifikasinya di menu Data Masjid.'))),
+    statBox, search, chips, status, list, moreBtn);
+  P.userStats().then(s => {
+    if (!s) return; stats = s;
+    [['us-s-total', s.total], ['us-s-admin', s.admin], ['us-s-umum', s.umum], ['us-s-baru', s.baru]].forEach(([id, v]) => { const el = statBox.querySelector('#' + id); if (el) el.textContent = String(v); });
+    statBox.hidden = false; paintChips();
+  }).catch(() => {});
   window.scrollTo(0, 0);
   await load(false);
 }

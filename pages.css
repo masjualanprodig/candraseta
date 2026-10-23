@@ -436,3 +436,18 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .hbe-edit input[type=file]{font-size:.85rem;overflow:hidden;text-overflow:ellipsis}
 .hbe-thumb{max-width:200px;aspect-ratio:16/10}
 .hbe-edit small.muted{overflow-wrap:anywhere}
+
+/* v143 - halaman Pengguna: bagian atas */
+.us-hero{position:relative;margin-top:10px;padding-right:96px;min-height:110px}
+.us-hero::after{content:"";position:absolute;right:-4px;top:0;width:110px;height:100%;background:url("masjid-hero.svg") right center/contain no-repeat;opacity:.55;pointer-events:none}
+.us-hero h2{margin:0 0 4px}
+.us-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.us-stats[hidden]{display:none}
+.us-stat{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid var(--border,#e4e0d4);border-radius:18px;background:#fff}
+.us-sic{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#DDEEE6}
+.us-sic .ic{width:24px;height:24px;stroke:var(--green-deep)}
+.us-stat.g2 .us-sic{background:#DDEEE6}.us-stat.y .us-sic{background:#FBEFCF}.us-stat.y .us-sic .ic{stroke:#B7791F}.us-stat.n .us-sic{background:#ECEFEC}
+.us-st{display:flex;flex-direction:column;min-width:0}
+.us-st b{font-size:1.45rem;line-height:1.1;color:var(--green-deep)}
+.us-st span{font-size:.85rem;font-weight:600;color:var(--green-deep);overflow-wrap:anywhere}
+.us-st small{font-size:.72rem;color:var(--text-2);overflow-wrap:anywhere}
