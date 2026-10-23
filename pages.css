@@ -451,3 +451,6 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .us-st b{font-size:1.45rem;line-height:1.1;color:var(--green-deep)}
 .us-st span{font-size:.85rem;font-weight:600;color:var(--green-deep);overflow-wrap:anywhere}
 .us-st small{font-size:.72rem;color:var(--text-2);overflow-wrap:anywhere}
+
+/* v162 - kartu utama Ramadan Center: latar hijau (sebelumnya tertimpa putih, teks tak terbaca) */
+.panel.jhero.rc-hero{background:linear-gradient(135deg,var(--emerald) 0%,var(--green-deep) 100%);color:#fff;border:0}
