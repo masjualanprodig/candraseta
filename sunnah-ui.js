@@ -5,6 +5,8 @@ import { h, toast, hint, ask } from './ui.js';
 import { SLOTS, GRADES, listSunnah, createSunnah, updateSunnah, deleteSunnah, matches, copyText, loadDone, saveDone, toggleDone } from './sunnah-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
 import { REMINDER_KEYS } from './sunnah-link.js';
+import { renderSunnahImport, downloadSunnahTemplate } from './sunnah-import-ui.js';
+import { svg, P } from './doa-import-ui.js';
 
 const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.status === 404);
 const PAGE = 30;
@@ -98,6 +100,7 @@ export async function renderSunnahManager(box, onBack) {
     return;
   }
   const reload = () => renderSunnahManager(box, onBack);
+  const showImport = () => renderSunnahImport(box, { onBack: reload, onDone: reload });
   let editing = null;
   const slotSel = h('select', { class: 'in', 'aria-label': 'Waktu' }, ...Object.keys(SLOTS).map(k => h('option', { value: k }, SLOTS[k])));
   const title = h('input', { class: 'in', placeholder: 'Judul amalan (wajib)', maxlength: '150', autocomplete: 'off', 'aria-label': 'Judul amalan' });
@@ -151,7 +154,11 @@ export async function renderSunnahManager(box, onBack) {
     onBack ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: onBack }, '← Kembali ke dashboard') : '',
     h('h2', { class: 'mt' }, 'Kelola Amalan Sunnah Harian'),
     h('p', { class: 'muted' }, 'Hanya Super Admin yang bisa menambah, mengubah, dan menghapus. Setiap amalan wajib memuat judul, penjelasan, sumber (perawi dan nomor), derajat (shahih atau hasan), dan keterangan siapa yang menilai derajatnya. Hadits yang lemah tidak bisa disimpan. Sebaiknya diperiksa ustaz sebelum diumumkan.'),
-    form, ...Object.keys(SLOTS).map(group), rows.length ? '' : h('div', { class: 'panel' }, h('p', { class: 'muted' }, 'Belum ada amalan.'))
+    h('div', { class: 'dm-tiles', id: 'sm-tiles' },
+      h('button', { class: 'dm-tile main', type: 'button', id: 'sm-import', onclick: showImport }, svg(P.xl, 'ic dm-tic'), h('span', {}, h('b', {}, 'Import dari Excel/Spreadsheet'), h('small', {}, 'Tambah banyak amalan sekaligus'))),
+      h('button', { class: 'dm-tile', type: 'button', id: 'sm-tpl', onclick: downloadSunnahTemplate }, svg(P.file, 'ic dm-tic'), h('span', {}, h('b', {}, 'Download Template Excel'), h('small', {}, 'Gunakan template untuk import')))),
+    form, ...Object.keys(SLOTS).map(group), rows.length ? '' : h('div', { class: 'panel' }, h('p', { class: 'muted' }, 'Belum ada amalan. Isi satu per satu lewat formulir di atas, atau impor sekaligus dari Excel.'),
+      h('button', { class: 'btn-sm', type: 'button', id: 'sm-import2', onclick: showImport }, 'Import dari Excel'))
   ].flat());
   window.scrollTo(0, 0);
 }

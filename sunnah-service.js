@@ -49,3 +49,18 @@ export function loadDone(now = new Date()) {
 }
 export function saveDone(d) { try { localStorage.setItem(PKEY, JSON.stringify(d)); } catch (e) {} }
 export const toggleDone = (d, id) => ({ ...d, ids: d.ids.includes(id) ? d.ids.filter(x => x !== id) : [...d.ids, id] });
+
+// Impor massal (Super Admin): per 100 baris. Berhenti pada kegagalan pertama; yang sudah tersimpan tetap ada.
+export async function importSunnah(payloads, onProgress) {
+  const res = { saved: 0, failedFrom: null, error: null };
+  for (let i = 0; i < payloads.length; i += 100) {
+    const part = payloads.slice(i, i + 100);
+    try {
+      const out = await db('sunnah_items', { method: 'POST', query: 'select=id', prefer: 'return=representation', body: part });
+      if (!Array.isArray(out) || out.length !== part.length) throw Object.assign(new Error('jumlah tidak sesuai'), { status: 500 });
+      res.saved += part.length;
+    } catch (e) { res.failedFrom = i; res.error = e; break; }
+    if (onProgress) onProgress(res.saved, payloads.length);
+  }
+  return res;
+}

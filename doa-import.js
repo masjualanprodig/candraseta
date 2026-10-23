@@ -89,7 +89,7 @@ function parseSheet(xml, shared) {
   return rows;
 }
 // Mengembalikan { rows: [{r, cells:[]}], sheet } dari berkas .xlsx. Rumus tidak dihitung.
-export async function readXlsx(bytes) {
+export async function readXlsx(bytes, prefer = 'doa') {
   if (!(bytes instanceof Uint8Array)) bytes = new Uint8Array(bytes);
   if (bytes.length > LIMIT.bytes) throw new Error('Ukuran berkas melebihi ' + fmtSize(LIMIT.bytes) + '.');
   const ents = zipEntries(bytes);
@@ -99,7 +99,7 @@ export async function readXlsx(bytes) {
   const sheets = []; const reS = /<sheet\b([^>]*)\/?>/g; let m;
   while ((m = reS.exec(wb))) { const nm = /\bname="([^"]*)"/.exec(m[1]), id = /\br:id="([^"]*)"/.exec(m[1]); if (nm && id) sheets.push({ name: xmlUnesc(nm[1]), rid: id[1] }); }
   if (!sheets.length) throw new Error('Berkas Excel tidak berisi lembar kerja.');
-  const pick = sheets.find(s => s.name.trim().toLowerCase() === 'doa') || sheets[0];
+  const pick = sheets.find(s => s.name.trim().toLowerCase() === prefer) || sheets[0];
   let target = null; const reR = /<Relationship\b([^>]*)\/?>/g;
   while ((m = reR.exec(rels))) { const id = /\bId="([^"]*)"/.exec(m[1]), tg = /\bTarget="([^"]*)"/.exec(m[1]); if (id && tg && id[1] === pick.rid) target = tg[1]; }
   if (!target) throw new Error('Lembar kerja tidak ditemukan di berkas.');
@@ -129,14 +129,14 @@ function zipWrite(files) {
   return out;
 }
 const cell = (ci, r, text, s) => text === '' || text == null ? '' : '<c r="' + colName(ci) + r + '" s="' + s + '" t="inlineStr"><is><t xml:space="preserve">' + xmlEsc(text) + '</t></is></c>';
-function sheetXml(rows, { widths, validations, freeze }) {
+export function sheetXml(rows, { widths, validations, freeze }) {
   const rx = rows.map((row, i) => '<row r="' + (i + 1) + '">' + row.map((c, ci) => cell(ci, i + 1, c.t, c.s)).join('') + '</row>').join('');
   return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
     + (freeze ? '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' : '')
     + '<cols>' + widths.map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join('') + '</cols>'
     + '<sheetData>' + rx + '</sheetData>' + (validations || '') + '</worksheet>';
 }
-const listVal = (sqref, items) => '<dataValidation type="list" allowBlank="1" showErrorMessage="1" errorTitle="Nilai tidak dikenali" error="Pilih salah satu nilai dari daftar." sqref="' + sqref + '"><formula1>"' + xmlEsc(items.join(',')) + '"</formula1></dataValidation>';
+export const listVal = (sqref, items) => '<dataValidation type="list" allowBlank="1" showErrorMessage="1" errorTitle="Nilai tidak dikenali" error="Pilih salah satu nilai dari daftar." sqref="' + sqref + '"><formula1>"' + xmlEsc(items.join(',')) + '"</formula1></dataValidation>';
 const STYLES = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
   + '<fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF0B5D4B"/><name val="Calibri"/></font></fonts>'
   + '<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0B5D4B"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDCEFE8"/></patternFill></fill></fills>'
@@ -168,7 +168,10 @@ export function buildTemplate() {
     ['8. Batas: maksimal ' + LIMIT.rows + ' baris dan ' + fmtSize(LIMIT.bytes) + ' per berkas. Format .xlsx (Google Sheets: Berkas > Unduh > Microsoft Excel). Rumus tidak dihitung; tulis nilai biasa.'],
     ['9. Data yang tampaknya sudah ada (teks Arab/judul sama) dilewati, tidak menimpa data lama.']].map(r => r.map(t => ({ t, s: 3 })));
   const petunjuk = sheetXml(tips, { widths: [140] });
-  const sheets = [['Doa', doa], ['Contoh', contoh], ['Petunjuk', petunjuk]];
+  return buildWorkbook([['Doa', doa], ['Contoh', contoh], ['Petunjuk', petunjuk]]);
+}
+// Rakit berkas .xlsx dari daftar [nama lembar, xml lembar]. Dipakai juga oleh template impor lain (mis. Amalan Sunnah).
+export function buildWorkbook(sheets) {
   return zipWrite([
     ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' + sheets.map((_, i) => '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('') + '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
     ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],

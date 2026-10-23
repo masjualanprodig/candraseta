@@ -1268,3 +1268,4 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .nt-day:has(input:checked){background:#066755;border-color:#066755;color:#fff}
 .nt-day:has(input:focus-visible){outline:2px solid #D4981F;outline-offset:2px}
 .nt-form>.btn-sm{align-self:flex-start}
+.dmi-cols ol:has(> li:nth-child(10)){columns:1;padding-left:1.6rem}
