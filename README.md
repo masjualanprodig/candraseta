@@ -566,3 +566,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v146
 - Layar pembuka bawaan Android: ikon "any" (192 dan 512) dibuat transparan sehingga logo menempel di latar krem; ikon maskable (peluncur) tetap berlatar putih. Latar manifest kembali krem.
+
+## Tambahan v147
+- Ikon maskable (yang dipakai Android untuk layar pembuka dan peluncur) kini berlatar krem sama dengan latar layar pembuka, jadi kotak putih tidak terlihat lagi.
