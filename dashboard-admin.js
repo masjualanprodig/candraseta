@@ -5,7 +5,7 @@ import { h, toast, ask, hint, STATUS_LABEL } from './ui.js';
 import { listMosques, updateMosqueStatus, deleteMosque, listInvitations, fetchTeam } from './mosque-service.js';
 import { INVITE_ROLES } from './permissions.js';
 import { teamPanel } from './team-panel.js';
-import { getSession, storageRemove } from './supabase.js';
+import { getSession, storageRemove, mosqueCover } from './supabase.js';
 import { renderWorldManager } from './world-ui.js';
 import { renderHistoryManager } from './history-ui.js';
 import { renderRukunManager } from './rukun-ui.js';
@@ -43,6 +43,7 @@ const BUTTONS = {
   rejected: [['Kembalikan ke verifikasi', 'retry'], ['Hapus', 'del', 1]]
 };
 
+const mpState = { g: 'all', q: '', prov: '', open: false };
 const openPanels = new Set(); // masjid yang panel pengurusnya sedang dibuka
 
 async function changeStatus(m, cfg, box) {
@@ -77,22 +78,28 @@ export async function renderAdmin(box, view = 'home') {
     buttons: (() => { const m0 = list.find(x => x.id === id); return m0 ? BUTTONS[m0.status] || [] : []; })(),
     onAction: (m, key) => changeStatus(m, ACTIONS[key], box)
   });
-  const rows = list.map(m => h('div', { class: 'mrow' },
-    h('div', { class: 'minfo' },
-      h('strong', {}, m.name),
-      h('div', { class: 'muted' }, [m.city, m.province].filter(Boolean).join(', ') || 'Lokasi belum diisi'),
-      m.status_reason ? h('div', { class: 'muted' }, 'Alasan: ' + m.status_reason) : ''),
-    h('div', { class: 'macts' },
-      h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status),
-      h('button', { class: 'btn-sm ghost', type: 'button', 'data-act': 'check', 'aria-label': 'Periksa data ' + m.name, onclick: () => openReview(m.id) }, 'Cek'),
-      (BUTTONS[m.status] || []).map(([label, key, alt]) =>
-        h('button', { class: 'btn-sm' + (alt ? ' alt' : ''), onclick: () => changeStatus(m, ACTIONS[key], box) }, label)),
-      m.status === 'active' ? h('button', { class: 'btn-sm ghost adm-kas', type: 'button', onclick: () => renderKasManager(box, m, { onBack: () => renderAdmin(box, 'masjid'), roles: { admin: true, approve: true } }) }, 'Kas') : '',
-      m.status === 'active' && invites ? h('button', {
-        class: 'btn-sm ghost',
-        onclick: () => { openPanels.has(m.id) ? openPanels.delete(m.id) : openPanels.add(m.id); renderAdmin(box, 'masjid'); }
-      }, openPanels.has(m.id) ? 'Tutup pengurus' : 'Pengurus') : ''),
-    m.status === 'active' && invites && openPanels.has(m.id) ? teamPanel({ mosqueId: m.id, team: teams[m.id] || [], invites: invites.filter(i => i.mosque_id === m.id), roles: INVITE_ROLES, canRevokeAdmin: true, selfId: me && me.id, onChange: () => renderAdmin(box, 'masjid') }) : ''));
+  const GROUP = { all: () => true, active: m => m.status === 'active', pending: m => m.status === 'pending' || m.status === 'draft', off: m => m.status === 'rejected' || m.status === 'suspended' };
+  const fmtDate = d => { try { return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } };
+  const mrow = m => {
+    const cover = mosqueCover(m), where = [m.city, m.province].filter(Boolean).join(', ') || 'Lokasi belum diisi';
+    const acts = [...(BUTTONS[m.status] || []).map(([label, key, alt]) => h('button', { class: 'mk-mi' + (alt ? ' alt' : ''), type: 'button', onclick: () => changeStatus(m, ACTIONS[key], box) }, label)),
+      m.status === 'active' ? h('button', { class: 'mk-mi adm-kas', type: 'button', onclick: () => renderKasManager(box, m, { onBack: () => renderAdmin(box, 'masjid'), roles: { admin: true, approve: true } }) }, 'Kas') : '',
+      m.status === 'active' && invites ? h('button', { class: 'mk-mi', type: 'button', onclick: () => { openPanels.has(m.id) ? openPanels.delete(m.id) : openPanels.add(m.id); renderAdmin(box, 'masjid'); } }, openPanels.has(m.id) ? 'Tutup pengurus' : 'Pengurus') : ''];
+    return h('div', { class: 'mrow mk-card', 'data-st': m.status },
+      h('div', { class: 'mk-main' },
+        cover ? h('img', { class: 'mk-img', src: cover, alt: '', loading: 'lazy' }) : h('span', { class: 'mk-img mk-ph' }, icon(ICONS.mosque)),
+        h('div', { class: 'mk-txt' },
+          h('strong', {}, m.name),
+          h('span', { class: 'mk-where' }, icon(ICONS.pin), where),
+          h('span', { class: 'badge b-' + m.status }, STATUS_LABEL[m.status] || m.status),
+          m.created_at ? h('span', { class: 'mk-date' }, icon(ICONS.agenda), 'Terdaftar ' + fmtDate(m.created_at)) : '',
+          m.status_reason ? h('span', { class: 'mk-date' }, 'Alasan: ' + m.status_reason) : '')),
+      h('div', { class: 'mk-acts' },
+        h('button', { class: 'mk-detail', type: 'button', 'data-act': 'check', 'aria-label': 'Lihat detail ' + m.name, onclick: () => openReview(m.id) }, icon(ICONS.eye), 'Lihat Detail'),
+        acts.filter(Boolean).length ? h('details', { class: 'mk-menu' }, h('summary', { 'aria-label': 'Aksi lainnya untuk ' + m.name }, icon(ICONS.more)), h('div', { class: 'mk-pop' }, ...acts.filter(Boolean))) : ''),
+      m.status === 'active' && invites && openPanels.has(m.id) ? teamPanel({ mosqueId: m.id, team: teams[m.id] || [], invites: invites.filter(i => i.mosque_id === m.id), roles: INVITE_ROLES, canRevokeAdmin: true, selfId: me && me.id, onChange: () => renderAdmin(box, 'masjid') }) : '');
+  };
+  const rows = list.map(mrow);
 
   const who = await whoAmI();
   const openAudit = () => renderAuditLog(box, { onBack: () => renderAdmin(box), mosques: list.map(m => ({ id: m.id, name: m.name })) });
@@ -132,15 +139,42 @@ export async function renderAdmin(box, view = 'home') {
     { key: 'open-more', id: 'qa-more', onclick: () => go('more') }]);
   if (waiting) { const t = grid.querySelector('#qa-masjid .qk-ic'); if (t) t.append(badge(waiting)); }
   if (view === 'masjid') {
+    const prov = [...new Set(list.map(m => m.province).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'id'));
+    const f = mpState; if (f.prov && !prov.includes(f.prov)) f.prov = '';
+    const cnt = k => list.filter(GROUP[k]).length;
+    const tile = (ic, tone, value, label, sub, id) => h('div', { class: 'mt-i ' + tone, id }, h('span', { class: 'mt-ic' }, icon(ic)), h('div', { class: 'mt-tx' }, h('b', {}, String(value)), h('strong', {}, label), h('small', {}, sub)));
+    const listBox = h('div', { id: 'mp-rows' }), shown = h('span', { class: 'muted', id: 'mp-shown' });
+    const chipBar = h('div', { class: 'mp-chips', role: 'tablist' });
+    const apply = () => {
+      const q = f.q.trim().toLowerCase();
+      const vis = list.map((m, i) => [m, rows[i]]).filter(([m]) => GROUP[f.g](m) && (!f.prov || m.province === f.prov) && (!q || [m.name, m.city, m.province].filter(Boolean).join(' ').toLowerCase().includes(q)));
+      listBox.replaceChildren(...(vis.length ? vis.map(x => x[1]) : [h('p', { class: 'muted mp-empty' }, list.length ? 'Tidak ada masjid yang cocok dengan pencarian atau saringan.' : 'Belum ada masjid. Masjid baru muncul di sini setelah didaftarkan Admin Masjid.')]));
+      shown.textContent = vis.length + ' masjid ditampilkan';
+      chipBar.replaceChildren(...[['all', 'Semua'], ['active', 'Aktif'], ['pending', 'Menunggu'], ['off', 'Nonaktif']].map(([k, l]) =>
+        h('button', { class: 'mp-chip' + (f.g === k ? ' on' : ''), type: 'button', role: 'tab', 'aria-selected': String(f.g === k), 'data-g': k, onclick: () => { f.g = k; apply(); } }, l, h('i', {}, String(cnt(k))))));
+    };
+    const search = h('input', { class: 'in', id: 'mp-q', type: 'search', placeholder: 'Cari nama masjid atau wilayah…', 'aria-label': 'Cari masjid', value: f.q, oninput: e => { f.q = e.target.value; apply(); } });
+    const provSel = h('select', { class: 'in', id: 'mp-prov', 'aria-label': 'Provinsi', onchange: e => { f.prov = e.target.value; apply(); } }, h('option', { value: '' }, 'Semua provinsi'), ...prov.map(x => h('option', { value: x }, x)));
+    provSel.value = f.prov;
+    const filterPanel = h('div', { class: 'mp-fp', id: 'mp-fp', hidden: !f.open }, h('label', { class: 'hint', for: 'mp-prov' }, 'Provinsi'), provSel);
+    if (!f.open) filterPanel.setAttribute('hidden', '');
+    const filterBtn = h('button', { class: 'mp-filter', id: 'mp-filter', type: 'button', 'aria-expanded': String(!!f.open), onclick: () => { f.open = !f.open; filterPanel.toggleAttribute('hidden', !f.open); filterBtn.setAttribute('aria-expanded', String(!!f.open)); } }, icon(ICONS.filter), 'Filter');
     box.replaceChildren(h('div', { class: 'home', id: 'masjid-page' },
       h('div', { class: 'home-body mp-body' },
-        h('div', { class: 'mp-head' }, h('button', { class: 'btn-sm ghost', id: 'masjid-back', type: 'button', onclick: () => renderAdmin(box) }, '← Beranda'), h('h2', {}, 'Masjid')),
-        h('p', { class: 'muted' }, 'Masjid baru didaftarkan oleh Admin Masjid. Periksa datanya, lalu setujui atau tolak di sini.'),
+        h('button', { class: 'mp-back', id: 'masjid-back', type: 'button', onclick: () => renderAdmin(box) }, icon(ICONS.chev, 'mp-bk'), 'Kembali'),
+        h('div', { class: 'mp-hero' }, h('div', {}, h('h2', {}, 'Data Masjid'), h('p', { class: 'muted' }, 'Kelola dan verifikasi masjid di BAITUNA.')), h('img', { class: 'mp-art', src: 'art-masjid-list.svg', alt: '' })),
+        h('div', { class: 'mt-grid', id: 'mp-tiles' },
+          tile(ICONS.mosque, 'g', list.length, 'Masjid Terdaftar', 'Semua masjid di aplikasi', 'mt-all'),
+          tile(ICONS.shield, 'g', count('active'), 'Masjid Aktif', 'Masjid yang sudah disetujui', 'mt-act'),
+          tile(ICONS.clock, 'y', count('pending') + count('draft'), 'Menunggu Verifikasi', 'Perlu pemeriksaan', 'mt-pen'),
+          tile(ICONS.mosqueoff, 'r', count('rejected') + count('suspended'), 'Nonaktif', 'Ditolak atau dinonaktifkan', 'mt-off')),
+        h('div', { class: 'mp-tools' }, h('div', { class: 'mp-search' }, icon(ICONS.search), search), filterBtn),
+        filterPanel,
         listAnchor,
-        h('div', { class: 'panel' },
-          h('h3', {}, 'Daftar masjid (' + list.length + ')'),
-          rows.length ? rows : h('p', { class: 'muted' }, 'Belum ada masjid. Masjid baru muncul di sini setelah didaftarkan Admin Masjid.')),
+        h('div', { class: 'panel mp-list' },
+          h('div', { class: 'mp-lh' }, h('h3', {}, 'Daftar Masjid'), shown), chipBar, listBox),
         invites ? '' : h('p', { class: 'muted' }, 'Fitur undangan pengurus belum aktif: jalankan invitations.sql di Supabase SQL Editor.'))));
+    apply();
     window.scrollTo(0, 0);
     return;
   }

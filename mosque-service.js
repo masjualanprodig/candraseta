@@ -22,7 +22,7 @@ export async function fetchMemberships(userId) {
 }
 
 export async function listMosques() {
-  const rows = await db('mosques', { query: 'select=id,name,city,province,status,status_reason,created_at&order=created_at.desc' });
+  const rows = await db('mosques', { query: 'select=id,name,city,province,status,status_reason,created_at,photo_path,photos&order=created_at.desc' });
   return Array.isArray(rows) ? rows : [];
 }
 

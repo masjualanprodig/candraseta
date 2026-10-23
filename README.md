@@ -599,3 +599,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v155
 - Statistik Platform (Super Admin): ikon dalam lingkaran berwarna seperti desain (Data Masjid: hijau, hijau, kuning, merah; Data Pengguna: biru, hijau, kuning) dengan angka lebih besar.
 - "Data Pengguna" kini selalu tampil di bawah Data Masjid. Bila `sql/pengguna_statistik.sql` belum dijalankan, tampil petunjuk menjalankannya (sebelumnya bagian itu disembunyikan).
+
+## Tambahan v156
+- Halaman Data Masjid (Super Admin) dirombak: tombol Kembali membulat, judul dengan ilustrasi masjid, 4 kartu angka berikon lingkaran (Masjid Terdaftar, Aktif, Menunggu Verifikasi, Nonaktif), kolom cari (nama/kota/provinsi) + Filter provinsi, kartu "Daftar Masjid" dengan penyaring Semua/Aktif/Menunggu/Nonaktif berhitungan, dan tiap masjid tampil berfoto, lokasi, status, tanggal terdaftar, tombol "Lihat Detail" serta menu ⋮ (Setujui, Tolak, Nonaktifkan, Hapus, Kas, Pengurus). Foto diambil dari foto sampul/galeri masjid; tanpa foto tampil ikon masjid. Di tablet/desktop daftar dua kolom.
