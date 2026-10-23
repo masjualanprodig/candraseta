@@ -560,3 +560,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v144 (splash Android)
 - Warna latar manifest (layar pembuka bawaan Android) diganti biru langit sama dengan splash BAITUNA, dan latar halaman awal memakai gradasi yang sama, agar peralihan ke splash tidak berkedip krem. Layar pembuka bawaan Android (ikon di tengah) dibuat oleh sistem Android dan tidak bisa diganti gambar sendiri.
+
+## Tambahan v145
+- Splash BAITUNA selalu memakai latar langit + ilustrasi masjid (seperti di iPhone), tidak lagi berganti ke foto latar di Android.

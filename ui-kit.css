@@ -131,3 +131,6 @@ label.btn-sm{cursor:pointer;display:inline-flex;align-items:center;min-height:va
 .br-art{display:flex;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--border)}
 .br-art-prev{flex:none;width:96px;height:56px;border-radius:12px;background:var(--surface-green) center/cover no-repeat;border:1px solid var(--border)}
 .br-art-tx{display:grid;gap:6px;min-width:0}.br-art-tx b{font-size:.84rem}
+/* v145 - splash selalu bergaya langit + ilustrasi masjid (sama di Android dan iPhone), walau foto latar sudah dimuat */
+.has-photo .splash .hero-bg{background:linear-gradient(180deg,#9CC7E4 0%,#CFE3E8 20%,#F7EAC7 42%,#F3CF86 55%,#E8C879 62%,var(--green-dark) 100%)}
+.has-photo .splash .hero-art{display:block}
