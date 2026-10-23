@@ -578,3 +578,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v150
 - Unggah audio adzan: tanda merah pada kolom hilang setelah isian benar. Panduan: jalankan sql/adzan.sql sebelum mengunggah audio.
+
+## Tambahan v151
+- Daftar audio adzan untuk semua pengguna gagal dimuat karena diurutkan memakai kolom created_at yang tidak boleh dibaca pengguna umum; kini diurutkan dengan sort_order lalu nama.

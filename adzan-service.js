@@ -49,7 +49,7 @@ const saveLib = items => { try { localStorage.setItem(LKEY, JSON.stringify(items
 // Daftar audio aktif untuk semua orang. Gagal memuat -> salinan terakhir di perangkat.
 export async function listAudio() {
   try {
-    const r = await request('/rest/v1/adzan_audio?select=' + COLS + '&order=sort_order.asc,created_at.asc&limit=60');
+    const r = await request('/rest/v1/adzan_audio?select=' + COLS + '&order=sort_order.asc,name.asc&limit=60');
     if (!r.ok) return { items: cachedItems(), error: r.status === 404 || (r.data && (r.data.code === '42P01' || r.data.code === 'PGRST205')) ? 'sql' : 'net' };
     const items = cleanItems(r.data); saveLib(items); return { items, error: null };
   } catch (e) { return { items: cachedItems(), error: 'net' }; }
