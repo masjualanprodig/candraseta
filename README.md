@@ -563,3 +563,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v145
 - Splash BAITUNA selalu memakai latar langit + ilustrasi masjid (seperti di iPhone), tidak lagi berganti ke foto latar di Android.
+
+## Tambahan v146
+- Layar pembuka bawaan Android: ikon "any" (192 dan 512) dibuat transparan sehingga logo menempel di latar krem; ikon maskable (peluncur) tetap berlatar putih. Latar manifest kembali krem.
