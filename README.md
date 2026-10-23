@@ -554,3 +554,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v142
 - Ikon mata (tampilkan/sembunyikan) di kolom Password dan Ulangi password pada Daftar akun, reset password, dan Ganti Password di Profil.
+
+## Tambahan v143 (Super Admin: statistik pengguna)
+- Statistik Platform: bagian "Data Pengguna" (Total Pengguna, Admin Masjid, Pengguna Umum) di bawah "Data Masjid". Halaman Pengguna: bagian atas dengan 4 kartu angka (Total, Admin Masjid, Pengguna Umum, Baru Minggu Ini), ilustrasi masjid, dan jumlah di tiap saringan. Jalankan sql/pengguna_statistik.sql (setelah admin_akun.sql); tanpa SQL itu bagian angka pengguna disembunyikan dan halaman tetap berfungsi seperti biasa.
+
+## Tambahan v144 (splash Android)
+- Warna latar manifest (layar pembuka bawaan Android) diganti biru langit sama dengan splash BAITUNA, dan latar halaman awal memakai gradasi yang sama, agar peralihan ke splash tidak berkedip krem. Layar pembuka bawaan Android (ikon di tengah) dibuat oleh sistem Android dan tidak bisa diganti gambar sendiri.

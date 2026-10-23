@@ -207,6 +207,7 @@ async function start() {
     try { if (!(await validToken())) setSession(null); } catch (e) { setSession(null); }
   }
   await wait;
+  const boot = document.getElementById('boot-style'); if (boot) boot.remove(); // latar awal sama dengan splash; setelah itu tiap halaman memakai latarnya sendiri
   if (link && link.recovery) { show('reset'); return; }
   if (getSession()) { enterApp(); return; }
   show('login');
