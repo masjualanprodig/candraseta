@@ -614,3 +614,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v160
 - Push adzan: getar, tetap tampil sampai diketuk, dan adzan diputar otomatis bila BAITUNA masih terbuka. Panduan "Agar HP berbunyi adzan" di Notifikasi.
+
+## Tambahan v161
+- "Lihat Detail >" Statistik Platform dipindah ke dalam kotak Data Masjid (seperti Data Pengguna); kotak terpisah v159 dihapus.

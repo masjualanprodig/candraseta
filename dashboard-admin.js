@@ -188,7 +188,7 @@ export async function renderAdmin(box, view = 'home') {
     jadwal: prayerCard(),
     artikel: await articleSection(5) || '',
     mgmt: grid,
-    stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', head: statGroupHead(ICONS.mosque, 'Data Masjid', 'Statistik masjid yang terdaftar di aplikasi.'), after: userStatsBlock(ustats, openUsers), items: [
+    stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', head: statGroupHead(ICONS.mosque, 'Data Masjid', 'Statistik masjid yang terdaftar di aplikasi.', '', openMasjid, 'sgw-all'), after: userStatsBlock(ustats, openUsers), items: [
         { ic: ICONS.mosque, value: list.length, label: 'Masjid Terdaftar', tone: 'mg' }, { ic: ICONS.shield, value: count('active'), label: 'Masjid Aktif', tone: 'mg' },
         { ic: ICONS.clock, value: count('pending'), label: 'Menunggu Verifikasi', tone: 'mo' }, { ic: ICONS.mosqueoff, value: count('rejected') + count('suspended'), label: 'Ditolak / Nonaktif', tone: 'mr' }] }) };
   const body = await homeBody('super', B);
