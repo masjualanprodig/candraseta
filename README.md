@@ -575,3 +575,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v149
 - Editor (Super Admin): menu Notifikasi dan Audio Adzan (unggah & kelola). Unggah audio adzan: bila Nama atau Sumber/pelantun kosong, kolomnya bertanda merah dengan pesan jelas; daftar yang gagal dimuat menyebut adzan.sql.
+
+## Tambahan v150
+- Unggah audio adzan: tanda merah pada kolom hilang setelah isian benar. Panduan: jalankan sql/adzan.sql sebelum mengunggah audio.

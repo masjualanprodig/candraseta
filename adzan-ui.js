@@ -129,6 +129,7 @@ export function adzanPage({ go } = {}) {
     add.addEventListener('click', async () => {
       if (busy) return;
       const f = file.files && file.files[0];
+      [name, credit, file].forEach(x => x.removeAttribute('aria-invalid'));
       const v = A.validate({ name: name.value, kind: kind.value, credit: credit.value });
       if (v.error) {
         msg.textContent = v.error; msg.className = 'hint jerr';
