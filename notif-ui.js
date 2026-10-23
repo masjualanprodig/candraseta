@@ -171,6 +171,13 @@ export function notifPage({ go } = {}) {
       kids.push(h('details', { class: 'nt-more' }, h('summary', {}, 'Data & batasan'),
         h('p', { class: 'hint' }, 'Dikirim ke server: alamat notifikasi HP, lokasi dibulatkan ±1 km, zona waktu, dan pilihan salat, adzan, Ramadan. Tanpa nama atau email; dihapus saat push dimatikan.'),
         h('p', { class: 'hint' }, 'Nada memakai bawaan HP, dan HP hemat baterai bisa menunda notifikasi. Jangan jadikan satu-satunya alarm ibadah.')));
+      kids.push(h('details', { class: 'nt-more', id: 'ns-nada' }, h('summary', {}, 'Agar HP berbunyi adzan saat waktu salat'),
+        h('p', { class: 'hint' }, 'Aplikasi web tidak bisa memutar audio sendiri saat tertutup. Suara notifikasi ditentukan HP, jadi atur sekali saja:'),
+        h('ol', { class: 'hint' },
+          h('li', {}, 'Simpan berkas adzan ke HP sebagai nada (Pengaturan HP → Suara → Nada notifikasi, atau taruh berkas di folder Notifications).'),
+          h('li', {}, 'Tekan lama notifikasi BAITUNA → Setelan (atau Pengaturan HP → Aplikasi → BAITUNA → Notifikasi).'),
+          h('li', {}, 'Pilih kategori notifikasinya → Suara → pilih nada adzan tadi. Pastikan volume notifikasi tidak nol dan hemat baterai tidak membatasi BAITUNA.')),
+        h('p', { class: 'hint' }, 'Bila BAITUNA masih terbuka (walau di latar) dan audio adzan sudah dipilih, adzan di aplikasi diputar otomatis saat notifikasi masuk.')));
       return fold('ns-push', 'Notifikasi saat aplikasi tertutup', perm === 'granted' && P.supported() && P.state().on ? 'Aktif' : 'Mati', ...kids);
     };
     const devBox = fold('ns-devbox', 'Pengingat di HP', S.device && perm === 'granted' ? 'Aktif' : 'Mati',

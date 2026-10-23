@@ -1,7 +1,7 @@
 // BAITUNA - service-worker.js
 // Cache aset statis agar aplikasi cepat dan bisa dibuka offline (hanya tampilan dasar).
 // Data Supabase TIDAK pernah disimpan di cache.
-const CACHE = 'baituna-static-v133';
+const CACHE = 'baituna-static-v134';
 const ASSETS = [
   './', 'index.html', 'style.css', 'components.css', 'responsive.css',
   'config.js', 'supabase.js', 'auth.js', 'router.js', 'permissions.js', 'ui.js',
@@ -37,9 +37,15 @@ self.addEventListener('push', e => {
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { title: 'BAITUNA', body: e.data ? e.data.text() : '' }; }
   if (!d || typeof d !== 'object') d = {};
   const url = typeof d.url === 'string' && d.url.length < 200 ? d.url : './';
-  e.waitUntil(self.registration.showNotification(String(d.title || 'BAITUNA').slice(0, 100), {
-    body: String(d.body || '').slice(0, 300), tag: String(d.tag || 'baituna').slice(0, 80), icon: 'icon-192.png', badge: 'icon-192.png', data: { url }
-  }));
+  let adz = null, at = 0;
+  try { const u = new URL(url, self.registration.scope); if (u.origin === self.location.origin) { adz = u.searchParams.get('adzan'); at = Number(u.searchParams.get('t')); } } catch (x) { /* abaikan */ }
+  const opts = { body: String(d.body || '').slice(0, 300), tag: String(d.tag || 'baituna').slice(0, 80), icon: 'icon-192.png', badge: 'icon-192.png', data: { url } };
+  if (adz) { opts.vibrate = [300, 150, 300, 150, 300]; opts.renotify = true; opts.requireInteraction = true; }
+  e.waitUntil(Promise.all([
+    self.registration.showNotification(String(d.title || 'BAITUNA').slice(0, 100), opts),
+    // BAITUNA masih terbuka (walau di latar): putar adzan langsung, tanpa menunggu notifikasi diketuk
+    adz ? self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => list.forEach(c => c.postMessage({ type: 'baituna-adzan', key: adz, t: at }))) : null
+  ]));
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
