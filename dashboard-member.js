@@ -32,7 +32,7 @@ export async function renderMember(box, memberships, access = {}) {
   const articles = await articleSection(5);
   const B = {
     banner: bannerCarousel([
-      { art: 'banner_sejarah', kicker: 'Sejarah Islam', title: 'Bersama BAITUNA', text: 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', cta: 'Pelajari Sekarang', onclick: () => go('sejarah') },
+      { art: 'banner_sejarah', title: 'Bersama BAITUNA', text: 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', cta: 'Pelajari Sekarang', onclick: () => go('sejarah') },
       { art: 'banner_belajar', title: 'Belajar Qur’an', text: 'Materi belajar membaca Al-Qur’an, dari dasar sampai lancar.', cta: 'Mulai Belajar', onclick: () => go('belajar'), tone: 'gold' },
       { art: 'banner_sunnah', title: 'Amalan Sunnah Harian', text: 'Pengingat amalan sunnah untuk dibiasakan setiap hari.', cta: 'Lihat Amalan', onclick: () => go('sunnah') }]),
     buku: promoBanner({ id: 'pk', art: 'promo_buku', title: 'Pustaka Buku', text: 'Koleksi buku Islami digital untuk menambah ilmu.', cta: 'Jelajahi Buku', onclick: () => go('buku') }),

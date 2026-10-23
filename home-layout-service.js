@@ -47,7 +47,7 @@ const PROMO = {
 };
 export const DEFAULTS = {
   jamaah: {
-    banner: { slides: [SL('Bersama BAITUNA', 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', 'Pelajari Sekarang', 'sejarah', 'green', 'banner_sejarah', { kicker: 'Sejarah Islam' }),
+    banner: { slides: [SL('Bersama BAITUNA', 'Jelajahi kisah, pelajaran, dan nilai-nilai yang menginspirasi kehidupan sehari-hari.', 'Pelajari Sekarang', 'sejarah', 'green', 'banner_sejarah'),
       SL('Belajar Qur’an', 'Materi belajar membaca Al-Qur’an, dari dasar sampai lancar.', 'Mulai Belajar', 'belajar', 'gold', 'banner_belajar'),
       SL('Amalan Sunnah Harian', 'Pengingat amalan sunnah untuk dibiasakan setiap hari.', 'Lihat Amalan', 'sunnah', 'green', 'banner_sunnah')] },
     buku: PROMO.buku, pasar: PROMO.pasar,

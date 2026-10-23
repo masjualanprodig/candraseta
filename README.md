@@ -617,3 +617,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v161
 - "Lihat Detail >" Statistik Platform dipindah ke dalam kotak Data Masjid (seperti Data Pengguna); kotak terpisah v159 dihapus.
+
+## Tambahan v163
+- Banner Jamaah "Bersama BAITUNA": tulisan kecil "SEJARAH ISLAM" di atas judul dihapus (tidak ada di editor Super Admin).
