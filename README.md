@@ -581,3 +581,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v151
 - Daftar audio adzan untuk semua pengguna gagal dimuat karena diurutkan memakai kolom created_at yang tidak boleh dibaca pengguna umum; kini diurutkan dengan sort_order lalu nama.
+
+## Tambahan v152
+- Keterangan di halaman Adzan diringkas menjadi 3 poin ("Perlu diketahui").

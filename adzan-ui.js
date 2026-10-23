@@ -108,14 +108,11 @@ export function adzanPage({ go } = {}) {
     return h('div', { class: 'panel', id: 'az-audio' }, ...kids);
   }
 
-  const limitsPanel = () => h('div', { class: 'panel', id: 'az-limits' }, h('h3', {}, 'Cara kerja dan batasannya'),
+  const limitsPanel = () => h('div', { class: 'panel', id: 'az-limits' }, h('h3', {}, 'Perlu diketahui'),
     h('ul', { class: 'az-list' },
-      h('li', {}, 'Suara adzan hanya berbunyi ', h('b', {}, 'selama BAITUNA terbuka'), ' di peramban. Aplikasi web tidak bisa memutar suara sendiri saat tertutup.'),
-      h('li', {}, 'Agar notifikasi tetap tampil saat BAITUNA tertutup, aktifkan ', h('b', {}, 'push'), ' di Notifikasi > Pengaturan. Notifikasi push memakai nada bawaan HP; ketuk notifikasinya untuk membuka BAITUNA dan memutar adzan.'),
-      h('li', {}, 'Setelah membuka BAITUNA, ketuk layar sekali. Peramban menahan suara otomatis sebelum ada ketukan; bila tertahan, muncul tombol "Putar adzan".'),
-      h('li', {}, 'HP bisa membekukan peramban yang berjalan di latar belakang atau layar mati, sehingga adzan terlambat atau tidak berbunyi.'),
-      h('li', {}, 'Notifikasi memerlukan izin dari HP Anda masing-masing, dan tampil tanpa suara adzan (suara notifikasi memakai nada bawaan HP).'),
-      h('li', {}, 'Waktu dihitung di perangkat dan bisa berbeda beberapa menit dari adzan masjid. Jangan jadikan satu-satunya penanda waktu salat; ikuti adzan masjid dan jadwal setempat.')));
+      h('li', {}, 'Suara adzan hanya berbunyi ', h('b', {}, 'selama BAITUNA terbuka'), '. Ketuk layar sekali setelah membuka aplikasi.'),
+      h('li', {}, 'Saat BAITUNA tertutup, aktifkan ', h('b', {}, 'push'), ' di Notifikasi > Pengaturan. Notifikasinya tanpa suara adzan.'),
+      h('li', {}, 'Waktu dihitung di HP dan bisa beda beberapa menit. Tetap ikuti adzan masjid setempat.')));
 
   /* ---------- Super Admin ---------- */
   function adminPanel() {
