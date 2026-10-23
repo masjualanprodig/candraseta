@@ -280,6 +280,6 @@ export const statGroupHead = (ic, title, sub, tone) => h('div', { class: 'sm-gh'
 /* Data Pengguna (Super Admin): total, Admin Masjid, pengguna umum */
 export const userStatsBlock = s => h('div', { class: 'sm-grp', id: 'sgw-users' },
   statGroupHead(ICONS.users, 'Data Pengguna', 'Statistik akun pengguna yang terdaftar di aplikasi.', 'blue'),
-  h('div', { class: 'sm-row' },
+  !s ? h('p', { class: 'sm-hint', id: 'sgw-users-off' }, 'Data pengguna belum aktif. Jalankan pengguna_statistik.sql di Supabase SQL Editor, lalu buka ulang beranda.') : h('div', { class: 'sm-row' },
     ...[[ICONS.users, s.total, 'Total Pengguna', 'Semua akun terdaftar', 'ub'], [ICONS.user, s.admin, 'Admin Masjid', 'Mengelola masjid', 'ug'], [ICONS.users, s.umum, 'Pengguna Umum', 'Jamaah aplikasi', 'uy']].map(([ic, v, l, sb, tn]) =>
       h('div', { class: 'sm-i ' + tn }, h('span', { class: 'sm-ic' }, icon(ic)), h('b', {}, String(v)), h('small', {}, l), h('small', { class: 'sm-sub2' }, sb)))));

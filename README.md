@@ -595,3 +595,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Tablet (768px ke atas): menu bawah tidak lagi melebar penuh (di tengah, maks 600px); beranda dua kolom untuk Pustaka/Pasar, Agenda/Pengumuman, dan artikel; daftar "Lainnya" dua kolom.
 - Desktop (1024px ke atas): menu pindah ke samping kiri (dengan logo BAITUNA), konten lebih lebar; beranda dua kolom (Tasbih/Jadwal, ringkasan, statistik); kepala halaman publik melayang membulat.
 - Dicek otomatis di lebar 390, 768, 1024, 1280 px: tidak ada geser menyamping.
+
+## Tambahan v155
+- Statistik Platform (Super Admin): ikon dalam lingkaran berwarna seperti desain (Data Masjid: hijau, hijau, kuning, merah; Data Pengguna: biru, hijau, kuning) dengan angka lebih besar.
+- "Data Pengguna" kini selalu tampil di bawah Data Masjid. Bila `sql/pengguna_statistik.sql` belum dijalankan, tampil petunjuk menjalankannya (sebelumnya bagian itu disembunyikan).

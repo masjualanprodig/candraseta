@@ -315,3 +315,13 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,
 .sm-grp{margin-top:10px;padding-top:6px;border-top:1px solid var(--border)}
 .sm-sub2{opacity:.85}
 .sm-i.ub .sm-ic .ic{stroke:#2A74C6}.sm-i.ug .sm-ic .ic{stroke:#2F8F4E}.sm-i.uy .sm-ic .ic{stroke:#C98A12}
+
+/* v155 - ikon lingkaran berwarna pada Statistik Platform */
+#sgw .sm-ic{width:46px;height:46px;border-radius:50%;background:#E8F3EC;margin-bottom:2px}
+#sgw .sm-ic .ic{width:24px;height:24px}
+#sgw .sm-i.mg .sm-ic .ic{stroke:var(--green-deep)}
+#sgw .sm-i.mo .sm-ic{background:#FBF0D6}#sgw .sm-i.mo .sm-ic .ic{stroke:#C98A12}
+#sgw .sm-i.mr .sm-ic{background:#FBE4E1}#sgw .sm-i.mr .sm-ic .ic{stroke:#C0392B}
+#sgw .sm-i.ub .sm-ic{background:#E3EEFB}#sgw .sm-i.ug .sm-ic{background:#E8F3EC}#sgw .sm-i.uy .sm-ic{background:#FBF0D6}
+#sgw .sm-i b{font-size:1.25rem}
+#sgw .sm-hint{margin:8px 0 2px;padding:10px 12px;border-radius:14px;background:#FBF3DF;color:#6b4a00;font-size:.82rem;line-height:1.45}

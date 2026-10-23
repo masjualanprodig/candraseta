@@ -154,9 +154,9 @@ export async function renderAdmin(box, view = 'home') {
     jadwal: prayerCard(),
     artikel: await articleSection(5) || '',
     mgmt: grid,
-    stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', head: ustats ? statGroupHead(ICONS.mosque, 'Data Masjid', 'Statistik masjid yang terdaftar di aplikasi.') : '', after: ustats ? userStatsBlock(ustats) : '', items: [
-        { ic: ICONS.mosque, value: list.length, label: 'Masjid Terdaftar' }, { ic: ICONS.shield, value: count('active'), label: 'Masjid Aktif' },
-        { ic: ICONS.clock, value: count('pending'), label: 'Menunggu Verifikasi' }, { ic: ICONS.mosqueoff, value: count('rejected') + count('suspended'), label: 'Ditolak / Nonaktif' }] }) };
+    stats: summaryCard({ id: 'sgw', title: 'Statistik Platform', onAll: openMasjid, allLabel: 'Lihat Detail', head: statGroupHead(ICONS.mosque, 'Data Masjid', 'Statistik masjid yang terdaftar di aplikasi.'), after: userStatsBlock(ustats), items: [
+        { ic: ICONS.mosque, value: list.length, label: 'Masjid Terdaftar', tone: 'mg' }, { ic: ICONS.shield, value: count('active'), label: 'Masjid Aktif', tone: 'mg' },
+        { ic: ICONS.clock, value: count('pending'), label: 'Menunggu Verifikasi', tone: 'mo' }, { ic: ICONS.mosqueoff, value: count('rejected') + count('suspended'), label: 'Ditolak / Nonaktif', tone: 'mr' }] }) };
   const body = await homeBody('super', B);
   box.replaceChildren(h('div', { class: 'home', id: 'home-super' },
     greetingHeader({ title: who.name || 'Super Admin', sub: 'Mari perkuat iman, manfaatkan fitur BAITUNA untuk kehidupan Islami yang lebih baik.', place: { name: 'Super Admin BAITUNA', ic: ICONS.shield }, name: who.name, email: who.email, avatar: who.avatar || undefined }),
