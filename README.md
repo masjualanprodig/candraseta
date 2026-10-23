@@ -608,3 +608,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v158
 - Kelola Amalan Sunnah Harian (Super Admin): tombol "Import dari Excel/Spreadsheet" dan "Download Template Excel", seperti Kelola Doa Shahih. Alur: unduh template → isi lembar "Amalan" → unggah → pratinjau (baris valid, bermasalah, diduga duplikat) → impor. Kolom: waktu, judul_amalan, penjelasan, teks_arab, teks_latin, sumber, derajat_hadis (Shahih/Hasan), penilai_derajat, keterangan, terkait_pengingat. Aturan sama dengan formulir (hadis lemah ditolak, sumber dan penilai wajib). Duplikat (judul sama di waktu yang sama, atau teks Arab sama) dilewati. Kolom terkait_pengingat butuh sunnah_link.sql; bila belum, tampil petunjuk.
 - File baru: sunnah-import.js, sunnah-import-ui.js. doa-import.js kini membagikan pembuat .xlsx-nya (tanpa perubahan perilaku impor doa).
+
+## Tambahan v159
+- "Lihat Detail >" di Statistik Platform kini berada di dalam kotak (home.css).

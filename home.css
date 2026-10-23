@@ -390,3 +390,8 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,
 .sm-gh .sm-gt{flex:1}
 .sm-gall{flex:none;display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 4px 0 8px;border:0;background:none;font:inherit;font-weight:700;font-size:.8rem;color:var(--green-deep);cursor:pointer;white-space:nowrap}
 .sm-gall .ic{width:16px;height:16px;stroke:var(--green-deep)}
+
+/* v159 - "Lihat Detail" Statistik Platform di dalam kotak */
+#sgw .sh-all{gap:4px;min-height:44px;padding:0 12px 0 16px;border-radius:16px;background:#E7F1EB;color:var(--green-deep);font-size:.85rem}
+#sgw .sh-all .ic{width:16px;height:16px;stroke:var(--green-deep)}
+#sgw .sh-all:active{background:#D6E8DE}
