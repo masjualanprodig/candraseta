@@ -569,3 +569,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v147
 - Ikon maskable (yang dipakai Android untuk layar pembuka dan peluncur) kini berlatar krem sama dengan latar layar pembuka, jadi kotak putih tidak terlihat lagi.
+
+## Tambahan v148
+- Layar pembuka Android: latar manifest dan ikon maskable diputihkan agar kotak ikon menyatu dengan latar.
