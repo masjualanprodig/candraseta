@@ -10,7 +10,7 @@ const shortDate = k => parseKey(k).toLocaleDateString('id-ID', { day: 'numeric',
 
 export function trackerPage() {
   const wrap = h('div', { class: 'tracker' });
-  let data = T.load(), view = T.dayKey(), range = 7;
+  let data = T.load(), view = T.dayKey(), range = 7, hasil = 'hari';
   const today = () => T.dayKey();
   const oldest = () => T.dayKeysBack(T.BACK_DAYS + 1)[0];
   const commit = next => { data = next; if (!T.save(data)) toast('Belum bisa disimpan di perangkat ini.', true); };
@@ -85,6 +85,56 @@ export function trackerPage() {
       h('label', { class: 'flab' }, h('span', { class: 'hint' }, 'Catatan hari ini'), note));
   }
 
+
+  /* ---- hasil target: per hari atau per pekan, sederhana ---- */
+  function goalSec() {
+    const chip = (k, l) => h('button', { class: 'achip', type: 'button', role: 'tab', 'data-hasil': k, 'aria-selected': String(hasil === k), onclick: () => { hasil = k; draw(); } }, l);
+    const tabs = h('div', { class: 'achips', role: 'tablist', 'aria-label': 'Hasil per hari atau per pekan' }, chip('hari', view === today() ? 'Hari ini' : 'Hari dipilih'), chip('pekan', '7 hari terakhir'));
+    if (hasil === 'hari') {
+      const g = T.dayGoal(data, view);
+      const body = g.state === 'notarget' ? [] : [
+        h('div', { class: 'tg-big' }, h('b', { id: 'tg-done' }, g.done + ' dari ' + g.total), h('span', { class: 'muted' }, ' target tercapai')),
+        h('div', { class: 'dbar tg-bar' + (g.state === 'full' ? ' full' : ''), role: 'img', 'aria-label': g.done + ' dari ' + g.total + ' target' }, h('i', { style: 'width:' + g.pct + '%' })),
+        h('ul', { class: 'tg-parts' }, ...g.parts.map(p => h('li', { class: (p.got === p.units ? 'ok' : '') }, h('span', { class: 'tg-mk', 'aria-hidden': 'true' }, p.got === p.units ? '✓' : '○'), h('span', { class: 'tg-pl' }, p.label), h('span', { class: 'muted' }, p.text))))];
+      return section('Hasil target', tabs, ...body, h('p', { class: 'tg-msg ' + g.state, id: 'tg-msg', role: 'status' }, T.dayMessage(g)),
+        g.off ? h('p', { class: 'hint' }, 'Hari ini ditandai libur, jadi salat tidak dihitung.') : '');
+    }
+    const W = T.weekResult(data, new Date());
+    const bars = h('div', { class: 'tg-week', role: 'img', 'aria-label': 'Hasil target 7 hari terakhir: ' + W.full + ' hari tercapai penuh' }, ...W.days.map(g => h('div', { class: 'tg-col ' + g.state, 'data-k': g.key },
+      h('span', { class: 'tg-mark', 'aria-hidden': 'true' }, g.state === 'full' ? '✓' : g.state === 'notarget' ? '' : g.pct + '%'),
+      h('span', { class: 'tg-track', 'aria-hidden': 'true' }, h('i', { style: 'height:' + Math.max(g.state === 'none' || g.state === 'notarget' ? 4 : 8, g.pct) + '%' })),
+      h('span', { class: 'tg-day' }, DAYS[parseKey(g.key).getDay()]))));
+    return section('Hasil target', tabs, bars,
+      h('div', { class: 'tg-big' }, h('b', { id: 'tg-wk' }, W.full + ' dari 7'), h('span', { class: 'muted' }, ' hari target tercapai penuh')),
+      h('p', { class: 'tg-msg ' + (W.full >= 3 ? 'full' : W.full >= 1 ? 'part' : 'none'), id: 'tg-msg', role: 'status' }, W.message),
+      h('p', { class: 'hint' }, 'Hijau dengan ✓ = semua target hari itu tercapai. Kuning = sebagian. Abu-abu = belum dicentang. Dihitung dari daftar target Anda saat ini.'));
+  }
+
+  /* ---- mulai tracker harian (di bagian bawah) ---- */
+  function startSec() {
+    const D = data.daily;
+    const time = h('input', { class: 'in tk-time', type: 'time', id: 'td-time', 'aria-label': 'Jam pengingat harian' }); time.value = D.time;
+    const dl = () => {
+      const r = data.reminders.find(x => x.id === D.rid); const ics = r && T.reminderIcs(r, new Date()); if (!ics) { toast('Pengingat tidak valid.', true); return; }
+      try { const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' })), a = h('a', { href: url, download: 'pengingat-baituna.ics' }); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); toast('Berkas kalender diunduh. Buka berkasnya di aplikasi kalender HP.'); }
+      catch (e) { toast('Tidak bisa membuat berkas kalender di perangkat ini.', true); }
+    };
+    if (!D.on) return section('Mulai Tracker Harian',
+      h('p', {}, 'Mulai sekarang, lalu centang setiap hari apa yang sudah Anda lakukan. Anda akan diingatkan pada jam yang dipilih, dan bisa melihat hasilnya per hari atau per pekan.'),
+      h('div', { class: 'tk-trow' }, h('label', { class: 'hint', for: 'td-time' }, 'Diingatkan setiap hari jam'), time),
+      h('button', { class: 'btn-primary tg-start', type: 'button', id: 'td-start', onclick: () => {
+        const nx = T.startDaily(data, time.value, new Date()); if (nx === data) { toast('Pengingat sudah penuh (maks. ' + T.MAX_REMINDERS + '). Hapus satu dulu.', true); return; }
+        commit(nx); draw(); toast('Tracker harian dimulai. Selamat beribadah.');
+      } }, 'Mulai Tracker Harian'),
+      h('p', { class: 'hint' }, 'Tips: tambahkan dulu amalan atau target halaman di atas, agar ada yang dicentang.'));
+    return section('Tracker Harian sedang berjalan',
+      h('p', { id: 'td-state' }, 'Dimulai ', h('b', {}, longDate(D.since)), '. Pengingat setiap hari jam ', h('b', {}, D.time), '.'),
+      h('div', { class: 'tk-trow' }, h('label', { class: 'hint', for: 'td-time' }, 'Ubah jam pengingat'), time, h('button', { class: 'btn-sm ghost', type: 'button', id: 'td-save', onclick: () => { act(d => T.setDailyTime(d, time.value)); toast('Jam pengingat disimpan.'); } }, 'Simpan jam')),
+      h('div', { class: 'tk-racts' }, h('button', { class: 'btn-sm', type: 'button', id: 'td-cal', onclick: dl }, 'Pasang alarm di kalender HP'),
+        h('button', { class: 'btn-sm ghost', type: 'button', id: 'td-stop', onclick: async () => { if (!(await ask({ title: 'Hentikan tracker harian?', text: 'Pengingat harian dihapus. Catatan yang sudah ada tetap tersimpan.', reason: false }))) return; act(d => T.stopDaily(d)); toast('Tracker harian dihentikan.'); } }, 'Hentikan')),
+      h('p', { class: 'hint' }, 'Pengingat tampil di halaman ini dan menu Notifikasi saat BAITUNA dibuka. Agar HP berbunyi sendiri walau BAITUNA tertutup, ketuk "Pasang alarm di kalender HP" lalu buka berkasnya.'));
+  }
+
   function summarySec() {
     const S = T.summarize(data, range, new Date());
     const chip = (n, l) => h('button', { class: 'achip', type: 'button', role: 'tab', 'aria-selected': String(range === n), onclick: () => { range = n; draw(); } }, l);
@@ -147,7 +197,7 @@ export function trackerPage() {
       dueBox(), dateNav(),
       data.show.salat ? salatSec(day) : '', data.show.quran ? quranSec(day) : '', data.show.amalan ? amalanSec(day) : '',
       !data.show.salat && !data.show.quran && !data.show.amalan ? h('div', { class: 'panel center' }, h('p', { class: 'muted' }, 'Semua bagian disembunyikan. Aktifkan kembali di "Atur tampilan" di bawah.')) : '',
-      summarySec(), remindSec(), settingsSec());
+      goalSec(), summarySec(), remindSec(), settingsSec(), startSec());
     window.scrollTo(0, y);
   }
   draw();

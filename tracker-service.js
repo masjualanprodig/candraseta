@@ -6,6 +6,7 @@ export { dayKey };
 export const KEY = 'baituna.tracker.v1';
 export const SALAT = [['subuh', 'Subuh'], ['dzuhur', 'Dzuhur'], ['ashar', 'Ashar'], ['maghrib', 'Maghrib'], ['isya', 'Isya']];
 export const SALAT_KEYS = SALAT.map(s => s[0]);
+export const DAILY_LABEL = 'Isi tracker ibadah hari ini';
 export const MAX_ITEMS = 20, MAX_REMINDERS = 10, MAX_NOTE = 500, MAX_NAME = 40, MAX_QURAN = 200, KEEP_DAYS = 400, BACK_DAYS = 30;
 // Hanya nama; tidak ada klaim keutamaan. Pengguna bebas memakai, mengubah, atau mengabaikannya.
 export const SUGGESTIONS = ['Salat Dhuha', 'Salat Witir', 'Salat Tahajud', 'Puasa sunnah', 'Dzikir pagi', 'Dzikir petang', 'Sedekah', 'Membaca Al-Qur’an'];
@@ -16,7 +17,7 @@ const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2
 const validId = s => typeof s === 'string' && /^[a-z0-9]{4,20}$/.test(s);
 const validTime = s => typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
 
-export const emptyData = () => ({ v: 1, show: { salat: true, quran: true, amalan: true }, quranTarget: 0, items: [], reminders: [], days: {} });
+export const emptyData = () => ({ v: 1, show: { salat: true, quran: true, amalan: true }, quranTarget: 0, items: [], reminders: [], days: {}, daily: { on: false, since: '', time: '20:00', rid: '' } });
 export const emptyDay = () => ({ salat: {}, off: false, quran: 0, items: [], note: '', rd: [] });
 
 export function sanitize(o) {
@@ -35,6 +36,10 @@ export function sanitize(o) {
     if (d.reminders.length >= MAX_REMINDERS || !r || !validId(r.id) || rs.has(r.id) || !validTime(r.time)) continue;
     const label = clean(r.label, MAX_NAME); if (!label) continue;
     rs.add(r.id); d.reminders.push({ id: r.id, label, time: r.time, on: r.on !== false });
+  }
+  if (o.daily && typeof o.daily === 'object') {
+    const q = o.daily, on = q.on === true && isKey(q.since);
+    d.daily = { on, since: on ? q.since : '', time: validTime(q.time) ? q.time : '20:00', rid: on && rs.has(q.rid) ? q.rid : '' };
   }
   if (o.days && typeof o.days === 'object') {
     for (const [k, v] of Object.entries(o.days)) {
@@ -124,4 +129,48 @@ export function reminderIcs(r, now = new Date()) {
   return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//BAITUNA//Tracker Ibadah//ID', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
     'UID:baituna-' + (validId(r.id) ? r.id : newId()) + '@baituna.vercel.app', 'DTSTAMP:' + stamp, 'DTSTART:' + date + 'T' + hh + mm + '00', 'DURATION:PT5M', 'RRULE:FREQ=DAILY',
     'SUMMARY:' + icsEsc(label), 'DESCRIPTION:' + icsEsc('Pengingat pribadi dari BAITUNA'), 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(label), 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n') + '\r\n';
+}
+
+/* ---- Tracker harian (v164): mulai/berhenti, target harian, hasil per hari & per pekan ----
+   Target harian = semua bagian yang sedang ditampilkan: 5 salat (kecuali hari libur), halaman Al-Qur'an (bila ada target),
+   dan setiap amalan di daftar. Hanya "x dari y"; tanpa nilai, peringkat, atau streak. */
+export function startDaily(d, time, now = new Date()) {
+  const t = validTime(time) ? time : '20:00';
+  let rem = d.reminders.filter(r => r.label === DAILY_LABEL);
+  let nx = d;
+  if (!rem.length) { nx = addReminder(d, DAILY_LABEL, t); if (nx === d) return d; rem = nx.reminders.filter(r => r.label === DAILY_LABEL); }
+  const rid = rem[0].id;
+  return { ...nx, reminders: nx.reminders.map(r => r.id === rid ? { ...r, time: t, on: true } : r), daily: { on: true, since: dayKey(now), time: t, rid } };
+}
+export const setDailyTime = (d, time) => d.daily.on && validTime(time) ? { ...d, reminders: d.reminders.map(r => r.id === d.daily.rid ? { ...r, time } : r), daily: { ...d.daily, time } } : d;
+export const stopDaily = d => ({ ...removeReminder(d, d.daily.rid), daily: { on: false, since: '', time: d.daily.time, rid: '' } });
+
+export function dayGoal(d, k) {
+  const x = getDay(d, k), parts = [];
+  if (d.show.salat && !x.off) { const n = SALAT_KEYS.filter(s => x.salat[s]).length; parts.push({ key: 'salat', label: 'Salat wajib', done: n, need: 5, units: 5, got: n, text: n + ' dari 5' }); }
+  if (d.show.quran && d.quranTarget > 0) parts.push({ key: 'quran', label: 'Al-Qur’an', done: Math.min(x.quran, d.quranTarget), need: d.quranTarget, units: 1, got: x.quran >= d.quranTarget ? 1 : 0, text: x.quran + ' dari ' + d.quranTarget + ' halaman' });
+  if (d.show.amalan) for (const it of d.items) { const on = x.items.includes(it.id); parts.push({ key: 'i:' + it.id, label: it.name, done: on ? 1 : 0, need: 1, units: 1, got: on ? 1 : 0, text: on ? 'sudah' : 'belum' }); }
+  const total = parts.reduce((a, p) => a + p.units, 0), done = parts.reduce((a, p) => a + p.got, 0);
+  const state = !total ? 'notarget' : done === total ? 'full' : done > 0 ? 'part' : 'none';
+  return { key: k, off: x.off, parts, total, done, pct: total ? Math.round(done / total * 100) : 0, state };
+}
+export function dayMessage(g) {
+  if (g.state === 'notarget') return 'Belum ada target. Tambahkan amalan atau target halaman agar hasilnya bisa dilihat.';
+  if (g.state === 'full') return 'Alhamdulillah, semua target hari ini sudah tercapai. Barakallahu fiik.';
+  if (g.state === 'part') return 'Sedikit lagi, tersisa ' + (g.total - g.done) + '. Semangat, Anda sudah memulainya.';
+  return 'Belum ada yang dicentang. Mulai dari yang paling mudah, ya.';
+}
+export function weekResult(d, end = new Date()) {
+  const keys = dayKeysBack(7, end), days = keys.map(k => dayGoal(d, k));
+  const counted = days.filter(g => g.state !== 'notarget').length, full = days.filter(g => g.state === 'full').length;
+  const filled = days.filter(g => g.state === 'full' || g.state === 'part').length;
+  return { days, counted, full, filled, message: weekMessage(full, counted) };
+}
+export function weekMessage(full, counted) {
+  if (!counted) return 'Belum ada target. Tambahkan amalan atau target halaman, lalu centang setiap hari.';
+  if (full >= counted && full >= 7) return 'Alhamdulillah, 7 hari target tercapai semua. Semoga istiqamah dan diberkahi.';
+  if (full >= 5) return 'Masya Allah, hasil pekan ini sangat baik. Pertahankan, ya.';
+  if (full >= 3) return 'Alhamdulillah, sudah baik. Pekan depan bisa ditambah sedikit demi sedikit.';
+  if (full >= 1) return 'Terima kasih sudah berusaha. Tidak apa-apa belum penuh; besok kita coba lagi.';
+  return 'Pekan ini belum ada target yang tercapai, dan itu tidak mengapa. Hari ini adalah kesempatan baru. Mulai dari satu amalan saja.';
 }
