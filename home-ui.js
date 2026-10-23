@@ -275,11 +275,12 @@ export const announceCard = ({ post, when, onAll, onOpen, onCreate }) => h('sect
   : h('div', { class: 'sm-hint' }, h('p', {}, 'Belum ada pengumuman.'), onCreate ? h('button', { class: 'sm-hint-btn', type: 'button', id: 'an-create', onclick: onCreate }, 'Buat Pengumuman') : ''));
 
 /* ===== Kepala kelompok pada kartu statistik (lingkaran ikon + judul + keterangan) ===== */
-export const statGroupHead = (ic, title, sub, tone) => h('div', { class: 'sm-gh' + (tone ? ' ' + tone : '') },
-  h('span', { class: 'sm-gic' }, icon(ic)), h('div', { class: 'sm-gt' }, h('b', {}, title), h('small', {}, sub)));
+export const statGroupHead = (ic, title, sub, tone, onAll, id) => h('div', { class: 'sm-gh' + (tone ? ' ' + tone : '') },
+  h('span', { class: 'sm-gic' }, icon(ic)), h('div', { class: 'sm-gt' }, h('b', {}, title), h('small', {}, sub)),
+  onAll ? h('button', { class: 'sm-gall', type: 'button', id: id || '', onclick: onAll }, 'Lihat Detail', icon(ICONS.chev)) : '');
 /* Data Pengguna (Super Admin): total, Admin Masjid, pengguna umum */
-export const userStatsBlock = s => h('div', { class: 'sm-grp', id: 'sgw-users' },
-  statGroupHead(ICONS.users, 'Data Pengguna', 'Statistik akun pengguna yang terdaftar di aplikasi.', 'blue'),
+export const userStatsBlock = (s, onAll) => h('div', { class: 'sm-grp', id: 'sgw-users' },
+  statGroupHead(ICONS.users, 'Data Pengguna', 'Statistik akun pengguna yang terdaftar di aplikasi.', 'blue', onAll, 'sgw-users-all'),
   !s ? h('p', { class: 'sm-hint', id: 'sgw-users-off' }, 'Data pengguna belum aktif. Jalankan pengguna_statistik.sql di Supabase SQL Editor, lalu buka ulang beranda.') : h('div', { class: 'sm-row' },
     ...[[ICONS.users, s.total, 'Total Pengguna', 'Semua akun terdaftar', 'ub'], [ICONS.user, s.admin, 'Admin Masjid', 'Mengelola masjid', 'ug'], [ICONS.users, s.umum, 'Pengguna Umum', 'Jamaah aplikasi', 'uy']].map(([ic, v, l, sb, tn]) =>
       h('div', { class: 'sm-i ' + tn }, h('span', { class: 'sm-ic' }, icon(ic)), h('b', {}, String(v)), h('small', {}, l), h('small', { class: 'sm-sub2' }, sb)))));

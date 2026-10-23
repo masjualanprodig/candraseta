@@ -385,3 +385,8 @@ html.has-photo .hh{background:linear-gradient(180deg,rgba(6,40,32,.6) 0%,rgba(6,
 .mp-search .in{font-size:.9rem;padding-left:42px;padding-right:10px}
 .mp-filter{padding:0 14px;gap:6px}
 @media (max-width:360px){.mt-ic{width:44px;height:44px}.mt-ic .ic{width:24px;height:24px}.mk-img{width:92px;height:84px}}
+
+/* v157 - Lihat Detail pada kepala Data Pengguna */
+.sm-gh .sm-gt{flex:1}
+.sm-gall{flex:none;display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 4px 0 8px;border:0;background:none;font:inherit;font-weight:700;font-size:.8rem;color:var(--green-deep);cursor:pointer;white-space:nowrap}
+.sm-gall .ic{width:16px;height:16px;stroke:var(--green-deep)}
