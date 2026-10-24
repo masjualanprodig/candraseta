@@ -1342,3 +1342,4 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .ms-warn.ms-st,.ms-st.ms-warn{background:#fdecc8;color:#8a5a00}
 .ms-bad{background:#f9d9d5;color:#a4281c}
 .ms-off{background:#e8ecea;color:#56635e}
+.ms-adminbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;margin:.6rem 0;background:#eef6f2;border:1px dashed var(--teal)}

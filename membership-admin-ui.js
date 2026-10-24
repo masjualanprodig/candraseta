@@ -11,7 +11,7 @@ const QRIS_MAX = 500 * 1024;
 // ctx: { draw(...nodes), exit() }
 export function membershipAdminPage(ctx) {
   const { draw } = ctx;
-  const st = { tab: 'verif', filter: 'menunggu_verifikasi' };
+  const st = { tab: ctx.tab || 'verif', filter: 'menunggu_verifikasi' };
   const back = h('button', { class: 'btn-ghost bk-back', type: 'button', id: 'ma-back', onclick: () => ctx.exit() }, '← Kelola buku');
   const tabs = () => h('div', { class: 'mk-chips', id: 'ma-tabs', role: 'group', 'aria-label': 'Bagian' }, ...[['verif', 'Verifikasi'], ['komisi', 'Komisi'], ['atur', 'Pengaturan']].map(([k, l]) =>
     h('button', { class: 'mk-chip' + (st.tab === k ? ' on' : ''), type: 'button', id: 'ma-t-' + k, 'aria-pressed': String(st.tab === k), onclick: () => { st.tab = k; show(); } }, l)));

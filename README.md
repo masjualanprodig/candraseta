@@ -653,3 +653,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Admin (Super Admin, dari Kelola Pustaka Buku → Membership): verifikasi (setujui/tolak + alasan), komisi masjid (pencatatan + status), pengaturan paket/rekening/QRIS/persentase komisi/WA admin. Editor buku: pilihan akses + unggah PDF.
 - Keamanan: aktivasi hanya di server setelah Super Admin menyetujui; satu transaksi tidak bisa diaktifkan atau dikomisikan dua kali; PDF premium dijaga kebijakan Storage; bukti bayar hanya terlihat pemilik dan Super Admin.
 - Tes: `membership_browser_test.py` (84).
+
+## Tambahan v172
+- Pustaka Buku: buku Gratis selalu di urutan paling atas (grid dan list), Premium sesudahnya.
+- Super Admin: tombol "Atur Membership" di Pustaka Buku, serta pintasan "Ubah harga paket" (halaman pilih paket) dan "Atur rekening & QRIS" (halaman pembayaran) yang langsung membuka Pengaturan Membership. Jamaah biasa tidak melihatnya.

@@ -130,7 +130,9 @@ export const notReady = e => !!e && (e.status === 404 || e.code === 'PGRST205' |
 // Pencarian dan penyaring di perangkat (jumlah buku kecil).
 export function filterBooks(items, { kind = '', q = '', access = '' } = {}) {
   const s = oneLine(q).toLowerCase();
-  return items.filter(b => (!kind || b.kind === kind) && (!access || (b.access || 'gratis') === access) && (!s || (b.title + ' ' + htmlToText(b.description)).toLowerCase().includes(s)));
+  const out = items.filter(b => (!kind || b.kind === kind) && (!access || (b.access || 'gratis') === access) && (!s || (b.title + ' ' + htmlToText(b.description)).toLowerCase().includes(s)));
+  // Buku Gratis selalu di atas Premium (urutan lain tetap: terbaru dulu).
+  return out.map((b, i) => [b, i]).sort((x, y) => ((x[0].access === 'premium') - (y[0].access === 'premium')) || (x[1] - y[1])).map(x => x[0]);
 }
 
 /* ===== Tampilan pilihan pengguna (disimpan di perangkat) ===== */

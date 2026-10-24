@@ -95,7 +95,7 @@ export function booksPage({ go, onSignIn } = {}) {
   /* ===== Membership: kotak status + alur (digambar di halaman ini) ===== */
   const refreshMember = async () => { try { st.member = getSession() && getSession().user ? await MS.myMembership() : null; } catch (e) { st.member = null; } };
   function openMembership(start) {
-    membershipFlow({ draw, start, signIn: () => { if (onSignIn) onSignIn(); }, exit: async () => { await refreshMember(); st.open ? showDetail(st.open) : showList(); } });
+    membershipFlow({ draw, start, isAdmin: st.isAdmin, openAdmin: tab => membershipAdminPage({ draw, tab, exit: () => openMembership(start) }), signIn: () => { if (onSignIn) onSignIn(); }, exit: async () => { await refreshMember(); st.open ? showDetail(st.open) : showList(); } });
   }
   function memberBox() {
     const act = MS.isActive(st.member), logged = !!(getSession() && getSession().user);
@@ -103,6 +103,7 @@ export function booksPage({ go, onSignIn } = {}) {
       h('span', {}, h('b', {}, act ? 'Membership Premium aktif' : 'Buku Premium terkunci'), h('span', { class: 'muted bk-sd' }, act ? 'Berlaku sampai ' + MS.fmtDate(st.member.ends_at) : 'Gabung membership untuk membaca semua buku Premium.')),
       h('div', { class: 'qa-acts' },
         h('button', { class: 'btn-sm' + (act ? ' ghost' : ''), type: 'button', id: 'bk-join', onclick: () => { st.open = ''; openMembership(act ? 'plans' : 'plans'); } }, act ? 'Perpanjang' : 'Gabung Membership'),
+        st.isAdmin ? h('button', { class: 'btn-sm', type: 'button', id: 'bk-atur', onclick: () => membershipAdminPage({ draw, tab: 'atur', exit: () => { showList(); } }) }, 'Atur Membership') : '',
         logged ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'bk-mine', onclick: () => { st.open = ''; openMembership('mine'); } }, 'Membership Saya') : ''));
   }
 

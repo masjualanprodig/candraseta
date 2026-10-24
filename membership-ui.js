@@ -21,6 +21,8 @@ export function membershipFlow(ctx) {
   const loading = () => draw(h('p', { class: 'muted', id: 'ms-loading' }, 'Memuat…'));
   const failView = e => draw(back('← Pustaka', ctx.exit), h('div', { class: 'empty' }, h('p', { class: 'muted', id: 'ms-fail' }, M.notReady(e) ? M.errorText(e) : 'Belum bisa dimuat. Periksa koneksi.')),
     M.notReady(e) ? '' : h('button', { class: 'btn-sm', type: 'button', id: 'ms-retry', onclick: () => start() }, 'Coba lagi'));
+  const adminBar = tab => ctx.isAdmin ? h('div', { class: 'panel ms-adminbar', id: 'ms-adminbar' }, h('b', {}, 'Super Admin'), h('span', { class: 'muted bk-sd' }, tab === 'plans' ? 'Ubah harga paket di sini.' : 'Atur rekening bank dan QRIS di sini.'),
+    h('button', { class: 'btn-sm', type: 'button', id: 'ms-adminedit', onclick: () => ctx.openAdmin('atur') }, tab === 'plans' ? 'Ubah harga paket' : 'Atur rekening & QRIS')) : '';
   const plan = () => S.plans.find(p => p.code === S.planCode) || null;
 
   async function refresh() {
@@ -43,7 +45,7 @@ export function membershipFlow(ctx) {
     });
     const go = h('button', { class: 'btn-primary', type: 'button', id: 'ms-next', onclick: () => { if (plan() && plan().price) dataScreen(); } }, 'Lanjutkan');
     const kids = [back('← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Pilih Paket Membership'),
-      h('p', { class: 'muted' }, 'Buka semua buku Premium di Pustaka Buku.')];
+      h('p', { class: 'muted' }, 'Buka semua buku Premium di Pustaka Buku.'), adminBar('plans')];
     if (M.isActive(S.member)) kids.push(note('Membership Anda aktif sampai ' + M.fmtDate(S.member.ends_at) + '. Paket baru menambah masa aktif setelah tanggal itu.', 'ms-info'));
     kids.push(h('ul', { class: 'ms-ben' }, ...M.BENEFITS.map(b => h('li', {}, b))));
     kids.push(cards.length ? h('div', { class: 'ms-plans', id: 'ms-plans', role: 'radiogroup', 'aria-label': 'Paket' }, ...cards) : h('p', { class: 'muted', id: 'ms-noplan' }, 'Belum ada paket yang tersedia.'));
@@ -162,7 +164,7 @@ export function membershipFlow(ctx) {
     draw(back('← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Pembayaran Membership'),
       o.status === 'ditolak' ? h('div', { class: 'panel ms-rej', id: 'ms-rej' }, h('b', {}, 'Pembayaran ditolak'), h('p', {}, o.reject_reason || ''), h('p', { class: 'hint' }, 'Periksa lalu kirim ulang bukti yang benar.')) : '',
       h('div', { class: 'panel ms-sum', id: 'ms-sum' }, h('h3', {}, 'Ringkasan Pesanan'), row('Kode pesanan', o.ref_code), row('Paket', o.plan_name), row('Masjid rujukan', o.mosque_name || 'Belum memilih'), row('Perkiraan berakhir', M.fmtDate(end))),
-      h('h3', {}, 'Pilih Metode Pembayaran'), seg, amountRow, body,
+      adminBar('pay'), h('h3', {}, 'Pilih Metode Pembayaran'), seg, amountRow, body,
       S.settings.pay_note ? note(S.settings.pay_note, 'ms-info') : '',
       note('Cantumkan kode ' + o.ref_code + ' pada berita transfer bila memungkinkan.'),
       h('h3', {}, 'Unggah Bukti Pembayaran'), file, prev, note('Foto atau tangkapan layar bukti transfer/QRIS (JPG, PNG, atau WebP). Membership belum aktif sebelum admin menyetujui.'), err, send,
