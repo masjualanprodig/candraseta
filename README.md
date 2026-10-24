@@ -635,3 +635,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v167
 - Formulir "Daftarkan masjid baru": kolom Koordinat + tombol "Isi dari lokasi HP ini".
 - Profil masjid publik: kartu "Jadwal salat" disembunyikan bila masjid belum punya koordinat (tidak lagi menampilkan pesan "Lokasi belum diisi").
+
+## Tambahan v168
+- Tasbih Digital (kartu di beranda dan halaman penuh) + penghitung kartu Dzikir Pagi/Petang: HP bergetar saat target tercapai. Bawaan menyala; ada pilihan "Getar saat target tercapai" untuk mematikan. Pilihan disimpan di HP.
+- Catatan: getar tidak ada di iPhone/Safari, dan di Android bergantung pengaturan getar HP. Bila peramban tidak mendukung, pilihan tidak ditampilkan.

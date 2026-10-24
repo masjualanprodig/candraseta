@@ -26,3 +26,7 @@ function tone(c, freq, start, dur, vol) {
 export function tick() { const c = ready(); if (c) { try { tone(c, 1000, 0, 0.05, 0.06); } catch (e) {} } }
 // Lonceng dua nada lembut saat target/bacaan selesai.
 export function chime() { const c = ready(); if (c) { try { tone(c, 784, 0, 0.35, 0.18); tone(c, 1175, 0.18, 0.55, 0.16); } catch (e) {} } }
+
+// Getar saat target tercapai (v168). Tidak ada di iPhone; di Android bergantung pengaturan HP/peramban. Hanya berjalan setelah ketukan.
+export const canVibrate = () => typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+export function buzz() { try { if (canVibrate()) navigator.vibrate([250, 120, 250, 120, 500]); } catch (e) { /* abaikan */ } }

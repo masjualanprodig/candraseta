@@ -61,7 +61,7 @@ export function loadTasbih() {
 export function saveTasbih(s) { try { localStorage.setItem(TKEY, JSON.stringify(s)); } catch (e) {} }
 // Bunyi: lonceng saat target tercapai (bawaan nyala), detak tiap ketukan (bawaan mati).
 export function loadSound() {
-  try { const o = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (o && typeof o === 'object') return { done: o.done !== false, tap: o.tap === true }; } catch (e) {}
-  return { done: true, tap: false };
+  try { const o = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (o && typeof o === 'object') return { done: o.done !== false, tap: o.tap === true, vib: o.vib !== false }; } catch (e) {}
+  return { done: true, tap: false, vib: true };
 }
-export function saveSound(v) { try { localStorage.setItem(SKEY, JSON.stringify({ done: !!v.done, tap: !!v.tap })); } catch (e) {} }
+export function saveSound(v) { try { localStorage.setItem(SKEY, JSON.stringify({ done: !!v.done, tap: !!v.tap, vib: v.vib !== false })); } catch (e) {} }
