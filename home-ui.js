@@ -11,7 +11,7 @@ import { initials, getMyProfile, cleanName, avatarUrl } from './profile-service.
 import { CATALOG } from './quick-catalog.js';
 import { refreshIcons } from './branding-service.js';
 import { intent, undo, loadTasbih, saveTasbih, loadSound, saveSound } from './dzikir-service.js';
-import { canSound, tick, chime, canVibrate, buzz } from './dzikir-sound.js';
+import { canSound, tick, chime, canVibrate, buzz, testBuzz } from './dzikir-sound.js';
 
 let backFn = () => {};
 export const setHomeBack = fn => { backFn = fn; };
@@ -129,7 +129,11 @@ export function tasbihCard() {
   const opt = (label, checked, onchange) => { const cb = h('input', { type: 'checkbox' }); cb.checked = checked; cb.addEventListener('change', () => onchange(cb.checked)); return h('label', { class: 'dopt' }, cb, h('span', {}, label)); };
   opts.append(...(canSound() ? [opt('Bunyi lonceng saat target tercapai', snd.done, v => { snd = { ...snd, done: v }; saveSound(snd); if (v) chime(); }),
     opt('Bunyi detak tiap ketukan (pelan)', snd.tap, v => { snd = { ...snd, tap: v }; saveSound(snd); if (v) tick(); })] : [h('p', { class: 'hint' }, 'Perangkat ini tidak mendukung bunyi.')]));
-  if (canVibrate()) opts.append(opt('Getar saat target tercapai', snd.vib, v => { snd = { ...snd, vib: v }; saveSound(snd); if (v) buzz(); }));
+  if (canVibrate()) {
+    const vmsg = h('p', { class: 'hint', id: 'tb-vib-msg', role: 'status' });
+    opts.append(opt('Getar saat target tercapai', snd.vib, v => { snd = { ...snd, vib: v }; saveSound(snd); }),
+      h('button', { type: 'button', class: 'btn ghost', id: 'tb-vib-test', onclick: () => { vmsg.textContent = testBuzz(); } }, 'Coba getar'), vmsg);
+  }
   gear.addEventListener('click', () => { opts.hidden = !opts.hidden; gear.setAttribute('aria-expanded', String(!opts.hidden)); });
   const art = h('span', { class: 'tb-art', 'aria-hidden': 'true' }); art.innerHTML = BEADS;   // gambar statis dari kode ini
   paint();

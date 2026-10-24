@@ -5,7 +5,7 @@
 import { h, toast, hint, ask } from './ui.js';
 import { icon, ICONS } from './feed-ui.js';
 import { intent, SESSIONS, KINDS, listDhikr, createDhikr, updateDhikr, deleteDhikr, bump, undo, clampCount, loadProgress, saveProgress, loadTasbih, saveTasbih, loadSound, saveSound } from './dzikir-service.js';
-import { canSound, tick, chime, canVibrate, buzz } from './dzikir-sound.js';
+import { canSound, tick, chime, canVibrate, buzz, testBuzz } from './dzikir-sound.js';
 import { listSurahs, loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
 import { ayatBlock, refLabel } from './rukun-ui.js';
@@ -181,7 +181,11 @@ export function dzikirPage() {
       opts.push(opt('Bunyi lonceng saat target tercapai', sound.done, v => { sound = { ...sound, done: v }; saveSound(sound); if (v) chime(); }));
       opts.push(opt('Bunyi detak tiap ketukan (pelan)', sound.tap, v => { sound = { ...sound, tap: v }; saveSound(sound); if (v) tick(); }));
     } else opts.push(h('p', { class: 'hint' }, 'Perangkat atau peramban ini tidak mendukung bunyi. Tanda target tercapai berupa perubahan warna dan tulisan.'));
-    if (canVibrate()) opts.push(opt('Getar saat target tercapai', sound.vib, v => { sound = { ...sound, vib: v }; saveSound(sound); if (v) buzz(); }));
+    if (canVibrate()) {
+      const vmsg = h('p', { class: 'hint', id: 'vib-msg', role: 'status' });
+      opts.push(opt('Getar saat target tercapai', sound.vib, v => { sound = { ...sound, vib: v }; saveSound(sound); }));
+      opts.push(h('button', { type: 'button', class: 'btn ghost', id: 'vib-test', onclick: () => { vmsg.textContent = testBuzz(); } }, 'Coba getar'), vmsg);
+    }
     kids.push(h('div', { class: 'dopts' }, ...opts));
     kids.push(tab === 'tasbih' ? tasbihView() : sessionView(tab), note());
     content.replaceChildren(...kids);

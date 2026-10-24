@@ -639,3 +639,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v168
 - Tasbih Digital (kartu di beranda dan halaman penuh) + penghitung kartu Dzikir Pagi/Petang: HP bergetar saat target tercapai. Bawaan menyala; ada pilihan "Getar saat target tercapai" untuk mematikan. Pilihan disimpan di HP.
 - Catatan: getar tidak ada di iPhone/Safari, dan di Android bergantung pengaturan getar HP. Bila peramban tidak mendukung, pilihan tidak ditampilkan.
+
+## Tambahan v169
+- Tasbih (beranda & halaman penuh): tombol "Coba getar" di samping pilihan getar. Menggetarkan HP 0,6 detik dan menampilkan apakah peramban menerima atau menolak perintah getar, untuk membedakan masalah aplikasi dengan pengaturan HP.
