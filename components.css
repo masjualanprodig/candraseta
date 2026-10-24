@@ -1293,3 +1293,52 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 
 /* v166 - daftar pengurus di profil masjid */
 .ofc-list{display:flex;flex-direction:column}.ofc-row{display:flex;flex-direction:column;gap:2px;padding:.55rem 0;border-bottom:1px solid #e6eeeb}.ofc-row:last-child{border-bottom:0}
+
+/* ===== Membership Premium Pustaka Buku (v171) ===== */
+.bk-gi{position:relative}
+.bk-badge{position:absolute;left:.4rem;top:.4rem;display:inline-flex;align-items:center;gap:.25rem;padding:.2rem .55rem;border-radius:999px;font-size:.72rem;font-weight:800;line-height:1.2}
+.bk-b-free{background:#0e7a5f;color:#fff}
+.bk-b-prem{background:linear-gradient(135deg,#E8C879,#D5A84B);color:#4a3508}
+.bk-badge .ic-sm{width:.85rem;height:.85rem}
+.bk-chip-prem{background:var(--gold-pale);color:var(--gold-ink)}
+.bk-li .bk-badge{position:static}
+.bk-mem{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between;align-items:center;margin:.7rem 0;background:linear-gradient(135deg,#fffaf0,#fbf1d9);border:1px solid var(--gold-soft)}
+.bk-mem .qa-acts{display:flex;gap:.4rem;flex-wrap:wrap}
+.bk-lock{display:flex;flex-direction:column;gap:.4rem;align-items:flex-start;margin:.8rem 0;background:#fffaf0;border:1px solid var(--gold-soft)}
+.bk-lock .ic-lg{color:var(--gold-ink)}
+.ms-plans{display:flex;flex-direction:column;gap:.6rem;margin:.8rem 0}
+.ms-plan{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.9rem;border:2px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;position:relative}
+.ms-plan input{position:absolute;opacity:0;pointer-events:none}
+.ms-plan.on{border-color:var(--gold);background:#fffaf0}
+.ms-plan.off{opacity:.6;cursor:not-allowed}
+.ms-pn{display:flex;flex-direction:column;gap:.15rem}
+.ms-pp{font-weight:800;font-size:1.05rem;text-align:right}
+.ms-save{display:inline-block;background:#c0392b;color:#fff;border-radius:999px;padding:.05rem .5rem;font-size:.72rem;font-weight:800}
+.ms-ben{margin:.6rem 0;padding-left:1.2rem;display:flex;flex-direction:column;gap:.25rem}
+.ms-row{display:flex;justify-content:space-between;gap:.8rem;padding:.3rem 0;border-bottom:1px dashed var(--line)}
+.ms-row:last-child{border-bottom:0}
+.ms-row b{text-align:right;word-break:break-word}
+.ms-sum{margin:.8rem 0}
+.ms-info{background:var(--gold-pale);border-radius:12px;padding:.6rem .8rem}
+.ms-warn{color:#8a5a00}
+.ms-st.ms-warn{background:#fdecc8;color:#8a5a00}
+.ms-rej{border:1px solid #e7b4ae;background:#fdf1ef}
+.ms-seg{margin:.4rem 0}
+.ms-amt{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:.6rem 0;padding:.7rem;border-radius:14px;background:#f3f8f5;flex-wrap:wrap}
+.ms-amt-v{font-size:1.15rem}
+.ms-acc{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.7rem;border:1px solid var(--line);border-radius:14px;background:#fff;margin:.4rem 0}
+.ms-num{font-size:1.1rem;font-weight:800;letter-spacing:.03em}
+.ms-qris{display:flex;flex-direction:column;align-items:center;gap:.4rem;margin:.6rem 0}
+.ms-qimg{max-width:260px;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+.ms-pv{max-width:100%;max-height:320px;border-radius:12px;border:1px solid var(--line);margin:.4rem 0}
+.ms-mlist{display:flex;flex-direction:column;gap:.3rem;max-height:240px;overflow:auto;margin:.4rem 0}
+.ms-mi{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:.55rem .7rem;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:inherit;cursor:pointer}
+.ms-msel{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.6rem .7rem;border:1px solid var(--line);border-radius:12px;background:#f3f8f5}
+.ms-state{margin:.8rem 0}
+.ms-oh{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-bottom:.3rem}
+.ms-ord{margin:.6rem 0}
+.ms-st{display:inline-block;padding:.15rem .6rem;border-radius:999px;font-size:.76rem;font-weight:800}
+.ms-ok{background:#d9f0e5;color:#0b6b4a}
+.ms-warn.ms-st,.ms-st.ms-warn{background:#fdecc8;color:#8a5a00}
+.ms-bad{background:#f9d9d5;color:#a4281c}
+.ms-off{background:#e8ecea;color:#56635e}

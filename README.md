@@ -645,3 +645,11 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v170
 - Fitur getar pada Tasbih dan Dzikir dihapus (di HP uji, peramban menerima perintah tetapi sistem HP tidak menggetarkan; tidak bisa dijamin di semua HP). Tanda target tercapai tetap lonceng, warna, dan tulisan. Pilihan getar dan tombol "Coba getar" dihilangkan.
+
+## Tambahan v171 — Pustaka Buku Premium + Membership
+- **SQL BARU (jalankan dulu): `membership.sql`** (setelah buku.sql; aman diulang; tidak menghapus data buku). Isi: kolom buku `access` (gratis/premium, bawaan gratis), `file_path`, `has_file`; tabel paket, pengaturan, rekening, membership, transaksi, komisi, log; fungsi server (buat pesanan, kirim bukti, verifikasi, status komisi, alamat berkas); bucket privat `book-files` (PDF) dan `payment-proofs` (bukti bayar), bucket publik `membership-assets` (gambar QRIS). 75 tes SQL (`membership_tests.sql`).
+- Kondisi awal: SQL menandai Premium hanya untuk judul Amigdala Mabrur, Amigdala Sakinah, Tahfizhul…, Otak Ajaib, Energi Sholat, Amigdala Bebas Hutang, sekali saja dan hanya bila belum ada buku premium. Periksa di Kelola Pustaka Buku.
+- Jamaah: filter Semua/Gratis/Premium, label dan gembok di sampul, detail buku terkunci untuk non-member, alur Pilih Paket → Isi Data → Pembayaran (transfer/QRIS) → Unggah Bukti → Menunggu Verifikasi, serta Membership Saya (status, tanggal, riwayat, kontak admin).
+- Admin (Super Admin, dari Kelola Pustaka Buku → Membership): verifikasi (setujui/tolak + alasan), komisi masjid (pencatatan + status), pengaturan paket/rekening/QRIS/persentase komisi/WA admin. Editor buku: pilihan akses + unggah PDF.
+- Keamanan: aktivasi hanya di server setelah Super Admin menyetujui; satu transaksi tidak bisa diaktifkan atau dikomisikan dua kali; PDF premium dijaga kebijakan Storage; bukti bayar hanya terlihat pemilik dan Super Admin.
+- Tes: `membership_browser_test.py` (84).

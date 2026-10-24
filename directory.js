@@ -163,7 +163,7 @@ function renderMarket() {
 }
 
 function renderBuku() {
-  $('public-content').replaceChildren(tabs(), booksPage({ go }));
+  $('public-content').replaceChildren(tabs(), booksPage({ go, onSignIn: () => exitPublic() }));
 }
 
 function renderTanya() {

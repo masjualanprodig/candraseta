@@ -1,15 +1,29 @@
 // BAITUNA - books-service.js
 // Pustaka Buku: katalog buku fisik dan digital. Dibaca siapa saja (hanya yang tampil); hanya Super Admin yang mengelola (RLS di buku.sql).
 // BAITUNA tidak memproses pembayaran: pembeli diarahkan ke WhatsApp penjual atau ke link checkout yang diisi Super Admin.
-import { request, db, publicPhotoUrl } from './supabase.js';
+import { request, db, publicPhotoUrl, validToken } from './supabase.js';
 import { normalizeWa, waLink, waDisplay, rp } from './market-service.js';
 
 export const BUCKET = 'book-covers';
 export const VIEW_KEY = 'baituna.books.v1';
 export const KINDS = [{ key: 'fisik', label: 'Buku fisik' }, { key: 'digital', label: 'Buku digital' }];
+// Status akses (v171): Gratis dibaca semua jamaah; Premium hanya untuk membership aktif.
+export const ACCESS = [{ key: 'gratis', label: 'Gratis' }, { key: 'premium', label: 'Premium' }];
+export const accessLabel = a => a === 'premium' ? 'Premium' : 'Gratis';
+export const isPremium = b => !!b && b.access === 'premium';
+export const FILE_BUCKET = 'book-files';
+export const FILE_MAX = 50 * 1024 * 1024;
+export const newFilePath = () => { let id = null; try { id = crypto.randomUUID ? crypto.randomUUID() : null; } catch (e) { /* abaikan */ } return (id || Math.random().toString(16).slice(2, 14)) + '-' + Date.now() + '.pdf'; };
+// Alamat berkas hanya diberikan server bila pemanggil berhak (gratis / membership aktif / Super Admin).
+export async function bookFilePath(id) {
+  const r = await request('/rest/v1/rpc/book_file_path', { method: 'POST', body: { p_book: id }, token: await tokenOrNull() });
+  return r.ok && typeof r.data === 'string' ? r.data : null;
+}
+const tokenOrNull = async () => { try { return await validToken(); } catch (e) { return null; } };
 export const kindLabel = k => (KINDS.find(x => x.key === k) || {}).label || 'Buku';
 export const LIMIT = { titleMin: 3, titleMax: 150, descMin: 10, descMax: 2000, htmlMax: 8000, labelMax: 30, priceMax: 100000000, urlMax: 500 };
-const COLS = 'id,title,description,kind,price,order_type,order_label,order_wa,order_url,cover_path,active,created_at,updated_at';
+const COLS = 'id,title,description,kind,price,order_type,order_label,order_wa,order_url,cover_path,active,created_at,updated_at,access,has_file';
+const ADMIN_COLS = COLS + ',file_path';
 const oneLine = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
 
 export const priceText = p => { const n = Number(p); return !Number.isFinite(n) || n < 0 ? '' : n === 0 ? 'Gratis' : rp(n); };
@@ -92,7 +106,7 @@ export function validate(f) {
   if (price == null) return { error: 'Harga belum benar. Isi angka, mis. 85000 (atau 0 / "gratis"). Maksimal Rp 100.000.000.', field: 'price' };
   const label = oneLine(f.orderLabel);
   if (label.length > LIMIT.labelMax) return { error: 'Teks tombol maksimal ' + LIMIT.labelMax + ' huruf.', field: 'label' };
-  const out = { title, description, kind: f.kind, price, active: f.active !== false, order_type: f.orderType, order_label: label || null };
+  const out = { title, description, kind: f.kind, price, access: f.access === 'premium' ? 'premium' : 'gratis', active: f.active !== false, order_type: f.orderType, order_label: label || null };
   if (f.orderType === 'wa') {
     const wa = normalizeWa(f.orderTarget);
     if (!wa) return { error: 'Nomor WhatsApp tidak valid. Contoh: 0812 3456 7890.', field: 'target' };
@@ -114,9 +128,9 @@ export async function listBooks() {
 export const notReady = e => !!e && (e.status === 404 || e.code === 'PGRST205' || e.code === '42P01');
 
 // Pencarian dan penyaring di perangkat (jumlah buku kecil).
-export function filterBooks(items, { kind = '', q = '' } = {}) {
+export function filterBooks(items, { kind = '', q = '', access = '' } = {}) {
   const s = oneLine(q).toLowerCase();
-  return items.filter(b => (!kind || b.kind === kind) && (!s || (b.title + ' ' + htmlToText(b.description)).toLowerCase().includes(s)));
+  return items.filter(b => (!kind || b.kind === kind) && (!access || (b.access || 'gratis') === access) && (!s || (b.title + ' ' + htmlToText(b.description)).toLowerCase().includes(s)));
 }
 
 /* ===== Tampilan pilihan pengguna (disimpan di perangkat) ===== */
@@ -124,9 +138,10 @@ export function loadView() { try { const v = JSON.parse(localStorage.getItem(VIE
 export function saveView(view) { try { localStorage.setItem(VIEW_KEY, JSON.stringify({ view: view === 'list' ? 'list' : 'grid' })); } catch (e) { /* abaikan */ } }
 
 /* ===== Kelola (Super Admin) ===== */
-export const listAllBooks = async () => (await db('books', { query: 'select=' + COLS + '&order=created_at.desc&limit=500' })) || [];
-export const createBook = (f, coverPath) => db('books', { method: 'POST', body: { ...f, cover_path: coverPath || null }, prefer: 'return=minimal' });
+export const listAllBooks = async () => (await db('books', { query: 'select=' + ADMIN_COLS + '&order=created_at.desc&limit=500' })) || [];
+export const createBook = (f, coverPath, filePath) => db('books', { method: 'POST', body: { ...f, cover_path: coverPath || null, file_path: filePath || null }, prefer: 'return=minimal' });
 export const updateBook = (id, patch) => db('books', { method: 'PATCH', query: 'id=eq.' + encodeURIComponent(id), body: patch, prefer: 'return=minimal' });
+export const setBookFile = (id, path) => db('books', { method: 'PATCH', query: 'id=eq.' + encodeURIComponent(id), body: { file_path: path }, prefer: 'return=minimal' });
 export const deleteBook = id => db('books', { method: 'DELETE', query: 'id=eq.' + encodeURIComponent(id), prefer: 'return=minimal' });
 export const newCoverPath = () => { let id = null; try { id = crypto.randomUUID ? crypto.randomUUID() : null; } catch (e) { /* abaikan */ } return (id || Math.random().toString(16).slice(2, 14)) + '-' + Date.now() + '.jpg'; };
 export function saveError(e) {
