@@ -27,6 +27,20 @@ export async function createDhikr(kind, f) {
 export async function updateDhikr(id, kind, f) {
   return one(await db('dhikr_items', { method: 'PATCH', query: 'id=eq.' + enc(id), prefer: 'return=representation', body: fieldsOf(kind, f) }));
 }
+// Impor massal (Excel): 100 baris per permintaan, berhenti di kegagalan pertama; yang sudah tersimpan tetap ada.
+export async function importDhikr(payloads, onProgress) {
+  const res = { saved: 0, failedFrom: null, error: null };
+  for (let i = 0; i < payloads.length; i += 100) {
+    const part = payloads.slice(i, i + 100);
+    try {
+      const out = await db('dhikr_items', { method: 'POST', query: 'select=id', prefer: 'return=representation', body: part });
+      if (!Array.isArray(out) || out.length !== part.length) throw Object.assign(new Error('jumlah tidak sesuai'), { status: 500 });
+      res.saved += part.length;
+    } catch (e) { res.failedFrom = i; res.error = e; break; }
+    if (onProgress) onProgress(res.saved, payloads.length);
+  }
+  return res;
+}
 export async function deleteDhikr(id) {
   one(await db('dhikr_items', { method: 'DELETE', query: 'id=eq.' + enc(id), prefer: 'return=representation' }));
 }

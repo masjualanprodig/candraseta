@@ -9,6 +9,8 @@ import { canSound, tick, chime } from './dzikir-sound.js';
 import { listSurahs, loadAyat } from './quran-service.js';
 import { applyReadingPrefs } from './quran-ui.js';
 import { ayatBlock, refLabel } from './rukun-ui.js';
+import { renderDhikrImport, downloadDhikrTemplate } from './dzikir-import-ui.js';
+import { svg as isvg, P as IP } from './doa-import-ui.js';
 
 const notReady = e => e && (e.code === '42P01' || e.code === 'PGRST205' || e.status === 404);
 
@@ -309,6 +311,9 @@ export async function renderDhikrManager(box, onBack) {
     onBack ? h('button', { class: 'btn-sm ghost', type: 'button', onclick: onBack }, '← Kembali ke dashboard') : '',
     h('h2', { class: 'mt' }, 'Kelola Dzikir Pagi & Petang'),
     h('p', { class: 'muted' }, 'Hanya Super Admin yang bisa mengubah. Teks doa/dzikir wajib memuat teks Arab, terjemahan, dan sumber yang jelas. Isi jumlah bacaan sesuai riwayat yang Anda rujuk. Sebaiknya diperiksa ustaz sebelum diumumkan. Bacaan berstatus "Pagi & Petang" tampil di kedua tab.'),
+    h('div', { class: 'dm-tiles', id: 'dz-tiles' },
+      h('button', { class: 'dm-tile main', type: 'button', id: 'dz-import', onclick: () => renderDhikrImport(box, { onBack: reload, onDone: reload }) }, isvg(IP.xl, 'ic dm-tic'), h('span', {}, h('b', {}, 'Import dari Excel/Spreadsheet'), h('small', {}, 'Tambah banyak bacaan sekaligus'))),
+      h('button', { class: 'dm-tile', type: 'button', id: 'dz-tpl', onclick: downloadDhikrTemplate }, isvg(IP.file, 'ic dm-tic'), h('span', {}, h('b', {}, 'Download Template Excel'), h('small', {}, 'Gunakan template untuk import')))),
     form, group('pagi'), group('petang'), group('keduanya')
   ].flat());
   window.scrollTo(0, 0);

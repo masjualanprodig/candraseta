@@ -657,3 +657,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v172
 - Pustaka Buku: buku Gratis selalu di urutan paling atas (grid dan list), Premium sesudahnya.
 - Super Admin: tombol "Atur Membership" di Pustaka Buku, serta pintasan "Ubah harga paket" (halaman pilih paket) dan "Atur rekening & QRIS" (halaman pembayaran) yang langsung membuka Pengaturan Membership. Jamaah biasa tidak melihatnya.
+
+## Tambahan v173 — Import Dzikir Pagi & Petang dari Excel
+- Kelola Dzikir (Super Admin) kini punya ubin "Import dari Excel/Spreadsheet" dan "Download Template Excel".
+- Alur: unduh template -> isi -> unggah -> pratinjau (valid / bermasalah / diduga duplikat) -> konfirmasi -> simpan (100 baris per permintaan) -> laporan CSV.
+- Validasi mengikuti dzikir.sql: jenis teks wajib Arab, terjemahan, sumber; jenis ayat wajib surah/ayat (maks. 6 ayat); jumlah 1-1000. Baris "CONTOH" ditolak. Tidak ada teks dzikir yang dibuat aplikasi.
+- File baru: dzikir-import.js, dzikir-import-ui.js. Tidak ada SQL baru.
