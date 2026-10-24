@@ -2,12 +2,19 @@
 // Proses autentikasi: masuk, keluar, reset password, dan tautan dari email.
 import { request, getSession, setSession, persistSession, normalizeSession } from './supabase.js';
 
+const codeOf = r => String((r && r.data && (r.data.error_code || r.data.code)) || '');
+// Pesan batas server dibedakan: batas kirim email (pengaturan Supabase) vs terlalu banyak permintaan dari satu jaringan.
+export const RL_EMAIL = 'Pendaftaran sedang ramai: batas kirim email konfirmasi di server BAITUNA tercapai. Coba lagi nanti, atau hubungi pengurus.';
+export const RL_NET = 'Terlalu banyak percobaan dari jaringan internet ini. Tunggu sekitar 5 menit, atau coba pakai data seluler.';
+const rateMsg = r => { const c = codeOf(r); return c === 'over_email_send_rate_limit' ? RL_EMAIL : (/rate_limit/.test(c) || r.status === 429) ? RL_NET : ''; };
+export const NOT_CONFIRMED = 'Email akun ini belum dikonfirmasi. Periksa kotak masuk dan folder spam. Bila email tidak datang, hubungi pengurus BAITUNA untuk mengaktifkan akun.';
+
 export function friendlyAuthError(r) {
-  const code = (r.data && (r.data.error_code || r.data.code)) || '';
+  const code = codeOf(r);
   const raw = JSON.stringify(r.data || {});
   if (code === 'invalid_credentials' || /invalid login/i.test(raw)) return 'Email/No. HP atau password salah.';
-  if (code === 'email_not_confirmed') return 'Email belum dikonfirmasi. Periksa kotak masuk Anda.';
-  if (/rate_limit/.test(code) || r.status === 429) return 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.';
+  if (code === 'email_not_confirmed') return NOT_CONFIRMED;
+  if (rateMsg(r)) return rateMsg(r);
   if (r.status === 0) return 'Tidak ada koneksi internet.';
   return 'Gagal masuk. Periksa koneksi lalu coba lagi.';
 }
@@ -94,14 +101,16 @@ export async function readEmailLink() {
 
 // Pendaftaran akun jamaah. Jika proyek meminta konfirmasi email, hasilnya { ok:true, confirm:true }.
 export function signUpError(r) {
-  const code = (r.data && (r.data.error_code || r.data.code)) || '';
+  const code = codeOf(r);
   if (code === 'user_already_exists' || code === 'email_exists') return 'Email ini sudah terdaftar. Silakan masuk, atau pakai Lupa password.';
   if (code === 'weak_password') return 'Password terlalu lemah. Pakai minimal 8 karakter berisi huruf dan angka.';
   if (code === 'signup_disabled' || code === 'email_provider_disabled') return 'Pendaftaran akun sedang ditutup.';
-  if (code === 'over_email_send_rate_limit' || /rate_limit/.test(code) || r.status === 429) return 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.';
+  if (rateMsg(r)) return rateMsg(r);
   if (r.status === 0) return 'Tidak ada koneksi internet.';
-  if (code === 'validation_failed' || r.status === 400 || r.status === 422) return 'Email atau password belum sesuai. Periksa lagi isian Anda.';
-  return 'Pendaftaran belum berhasil. Coba lagi.';
+  if (code === 'email_address_not_authorized') return 'Email konfirmasi belum bisa dikirim ke alamat ini (pengaturan server). Hubungi pengurus BAITUNA.';
+  if (code === 'email_address_invalid') return 'Alamat email ini tidak diterima. Periksa lagi penulisannya.';
+  if (code === 'validation_failed' || r.status === 400 || r.status === 422) return 'Email atau password belum sesuai. Periksa lagi isian Anda.' + (code ? ' (kode: ' + code + ')' : '');
+  return 'Pendaftaran belum berhasil. Coba lagi.' + (code ? ' (kode: ' + code + ')' : r.status ? ' (kode: ' + r.status + ')' : '');
 }
 export function passwordIssue(pw, email) {
   if (String(pw || '').length < 8) return 'Password minimal 8 karakter.';
@@ -109,10 +118,35 @@ export function passwordIssue(pw, email) {
   if (email && pw.toLowerCase() === String(email).toLowerCase()) return 'Password tidak boleh sama dengan email.';
   return '';
 }
+// Akun yang sebenarnya sudah terbuat di percobaan sebelumnya (mis. pendaftar menekan Daftar lagi):
+// coba langsung masuk dengan password yang baru diketik, alih-alih menolak dengan "sudah terdaftar".
+async function resumeExisting(email, password) {
+  const r = await request('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } });
+  if (r.ok && r.data && r.data.access_token) { setSession(normalizeSession(r.data)); return { ok: true, confirm: false, existed: true }; }
+  if (codeOf(r) === 'email_not_confirmed') return { ok: false, error: 'Akun Anda sudah terbuat sebelumnya, tetapi email belum dikonfirmasi. Periksa email (juga folder spam), atau hubungi pengurus BAITUNA untuk mengaktifkan akun.' };
+  if (rateMsg(r)) return { ok: false, error: rateMsg(r) };
+  if (r.status === 0) return { ok: false, error: 'Tidak ada koneksi internet.' };
+  return { ok: false, error: 'Akun dengan email ini sudah ada. Silakan Masuk (bisa pakai email atau nomor HP). Bila lupa password, pilih Lupa password.' };
+}
 export async function signUp({ name, email, phone, password }) {
-  if (phone) { const a = await phoneAvailable(phone); if (!a.ok) return { ok: false, error: a.error }; if (!a.free) return { ok: false, error: 'Nomor HP ini sudah terdaftar. Silakan masuk, atau pakai nomor lain.' }; }
+  email = String(email || '').trim();
+  if (phone) {
+    const a = await phoneAvailable(phone);
+    if (!a.ok) return { ok: false, error: a.error };
+    if (!a.free) {
+      const owner = await emailForPhone(phone);
+      if (owner && owner.toLowerCase() === email.toLowerCase()) return resumeExisting(email, password);
+      return { ok: false, error: 'Nomor HP ini sudah dipakai akun lain. Bila itu akun Anda, pilih Masuk (bisa pakai nomor HP) atau Lupa password. Bila bukan, pakai nomor lain.' };
+    }
+  }
   const r = await request('/auth/v1/signup?redirect_to=' + encodeURIComponent(location.origin + '/'), { method: 'POST', body: { email, password, data: { full_name: name, phone: phone || undefined } } });
-  if (!r.ok) return { ok: false, error: signUpError(r) };
+  if (!r.ok) {
+    const c = codeOf(r);
+    if (c === 'user_already_exists' || c === 'email_exists') return resumeExisting(email, password);
+    return { ok: false, error: signUpError(r) };
+  }
   if (r.data && r.data.access_token) { setSession(normalizeSession(r.data)); return { ok: true, confirm: false }; }
+  // Supabase menyamarkan email yang sudah ada (identities kosong) saat konfirmasi email aktif.
+  if (r.data && Array.isArray(r.data.identities) && r.data.identities.length === 0) return resumeExisting(email, password);
   return { ok: true, confirm: true };
 }

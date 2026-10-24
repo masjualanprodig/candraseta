@@ -686,3 +686,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v177 — Ikon mahkota emas di filter Premium
 - Ikon mahkota pada chip filter "Premium" (Pustaka Buku) kini berlatar lingkaran emas.
+
+## Tambahan v178 — Perbaikan gagal daftar akun
+- Penyebab utama: "Confirm email" aktif dengan server email bawaan Supabase (2 email/jam, hanya ke anggota tim) sehingga pendaftar kena batas (429) dan email konfirmasi tidak sampai. Matikan "Confirm email" di Authentication > Sign In / Providers > Email; untuk email reset password pasang SMTP sendiri (mis. Resend) lalu naikkan batas di Authentication > Rate Limits.
+- Daftar ulang dengan nomor HP + email yang sama: aplikasi langsung mencoba masuk dengan password yang diketik (tidak lagi "Nomor HP sudah terdaftar"). Nomor milik akun lain: pesan "sudah dipakai akun lain".
+- Pesan batas server dibedakan: batas kirim email vs terlalu banyak permintaan dari satu jaringan. Galat lain menampilkan kode untuk dilaporkan.
+- aktifkan_akun_tertunda.sql: mengaktifkan akun yang tersangkut belum konfirmasi email (jalankan setelah Confirm email dimatikan).

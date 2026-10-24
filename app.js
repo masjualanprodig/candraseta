@@ -125,7 +125,7 @@ $('signup-form').addEventListener('submit', async e => {
   if (!r.ok) { sm(r.error); return; }
   $('su-pw').value = $('su-pw2').value = '';
   if (r.confirm) { sm('Pendaftaran diterima. Kami mengirim tautan konfirmasi ke ' + email + '. Buka email itu (periksa juga folder spam), lalu masuk.', 'ok'); return; }
-  toast('Akun dibuat. Selamat datang.'); enterApp();
+  toast(r.existed ? 'Akun Anda sudah ada. Selamat datang kembali.' : 'Akun dibuat. Selamat datang.'); enterApp();
 });
 
 /* ===== Tampilan yang diatur Super Admin (foto latar, font, ikon); bila kosong: bg-masjid.jpg atau ilustrasi bawaan ===== */
