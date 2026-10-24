@@ -680,3 +680,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Kartu Grid: sampul persegi, label Gratis/Premium, tombol titik tiga (Lihat detail; Super Admin juga Ubah buku), judul, penulis, chip Digital/Premium. List: kartu per buku dengan panah.
 - Banner "Akses semua buku Premium" di bawah daftar (berubah menjadi status bila membership aktif). Kalimat "Pembayaran dan pengiriman diurus langsung dengan penjual…" dihapus dari daftar.
 - Penulis (opsional): buku_penulis.sql menambah kolom author; tanpa SQL ini aplikasi tetap jalan, nama penulis hanya tidak tampil. Formulir Kelola buku punya isian Penulis bila kolom ada.
+
+## Tambahan v176 — Filter Pustaka Buku lebih ringkas
+- Filter jadi satu baris: dropdown "Semua Jenis" (Semua Jenis / Buku digital / Buku fisik) di kiri, lalu chip Gratis dan Premium. Chip "Semua" dihilangkan; tekan lagi chip yang aktif untuk melepas filter.

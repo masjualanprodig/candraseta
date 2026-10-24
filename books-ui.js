@@ -181,20 +181,20 @@ export function booksPage({ go, onSignIn } = {}) {
     const search = h('input', { class: 'bk-qin', id: 'bk-q', type: 'search', maxlength: '60', placeholder: 'Cari judul buku, penulis, atau topik…', 'aria-label': 'Cari buku' }); search.value = st.q;
     search.addEventListener('input', () => { st.q = search.value; paintItems(); });
     const chip = (on, attrs, ic, label, fn) => h('button', { class: 'bk-fc' + (on ? ' on' : ''), type: 'button', 'aria-pressed': String(on), ...attrs, onclick: fn }, ic ? icon(ic, 'ic-sm') : '', label);
-    const achips = h('div', { class: 'bk-fr', id: 'bk-access', role: 'group', 'aria-label': 'Akses buku' },
-      chip(st.access === '', { 'data-access': '' }, null, 'Semua', () => { st.access = ''; drawList(); }),
-      chip(st.access === 'gratis', { 'data-access': 'gratis' }, null, 'Gratis', () => { st.access = 'gratis'; drawList(); }),
-      chip(st.access === 'premium', { 'data-access': 'premium' }, IC.crown, 'Premium', () => { st.access = 'premium'; drawList(); }));
-    const chips = h('div', { class: 'bk-fr', id: 'bk-kinds', role: 'group', 'aria-label': 'Jenis buku' },
-      chip(st.kind === '', { 'data-kind': '' }, null, 'Semua Jenis', () => { st.kind = ''; drawList(); }),
-      chip(st.kind === 'digital', { 'data-kind': 'digital' }, ICONS.book, 'Buku digital', () => { st.kind = 'digital'; drawList(); }),
-      chip(st.kind === 'fisik', { 'data-kind': 'fisik' }, IC.box, 'Buku fisik', () => { st.kind = 'fisik'; drawList(); }));
+    // Satu baris: dropdown jenis (Semua Jenis / Buku digital / Buku fisik) di kiri, lalu Gratis dan Premium. Tekan lagi chip yang aktif untuk melepas.
+    const kindSel = h('select', { class: 'bk-ksel', id: 'bk-kind', 'aria-label': 'Jenis buku' }, h('option', { value: '' }, 'Semua Jenis'), h('option', { value: 'digital' }, 'Buku digital'), h('option', { value: 'fisik' }, 'Buku fisik'));
+    kindSel.value = st.kind; kindSel.addEventListener('change', () => { st.kind = kindSel.value; drawList(); });
+    const filters = h('div', { class: 'bk-fr', id: 'bk-filters' },
+      h('label', { class: 'bk-fc bk-kwrap' + (st.kind ? ' on' : ''), for: 'bk-kind' }, kindSel, icon(IC.down, 'ic-sm')),
+      h('span', { class: 'bk-acc', id: 'bk-access', role: 'group', 'aria-label': 'Akses buku' },
+        chip(st.access === 'gratis', { 'data-access': 'gratis' }, null, 'Gratis', () => { st.access = st.access === 'gratis' ? '' : 'gratis'; drawList(); }),
+        chip(st.access === 'premium', { 'data-access': 'premium' }, IC.crown, 'Premium', () => { st.access = st.access === 'premium' ? '' : 'premium'; drawList(); })));
     const count = h('span', { class: 'bk-count', id: 'bk-count', 'aria-live': 'polite' }, '');
     const sortSel = h('select', { class: 'bk-sort', id: 'bk-sort', 'aria-label': 'Urutkan buku' }, ...B.SORTS.map(o => h('option', { value: o.key }, o.label)));
     sortSel.value = st.sort; sortSel.addEventListener('change', () => { st.sort = sortSel.value; paintItems(); });
     const bar = h('div', { class: 'bk-bar' }, count, h('label', { class: 'bk-sortl', for: 'bk-sort' }, icon(IC.sort, 'ic-sm'), h('span', {}, 'Urutkan'), sortSel, icon(IC.down, 'ic-sm')));
     const box = h('div', { id: 'bk-items' });
-    kids.push(h('label', { class: 'bk-search' }, icon(ICONS.search, 'ic-sm'), search), viewSeg(), achips, chips, bar, box, premiumBanner());
+    kids.push(h('label', { class: 'bk-search' }, icon(ICONS.search, 'ic-sm'), search), viewSeg(), filters, bar, box, premiumBanner());
     draw(...kids); paintItems();
     function paintItems() {
       const rows = B.filterBooks(st.items || [], { kind: st.kind, q: st.q, access: st.access, sort: st.sort });
