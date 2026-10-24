@@ -642,3 +642,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v169
 - Tasbih (beranda & halaman penuh): tombol "Coba getar" di samping pilihan getar. Menggetarkan HP 0,6 detik dan menampilkan apakah peramban menerima atau menolak perintah getar, untuk membedakan masalah aplikasi dengan pengaturan HP.
+
+## Tambahan v170
+- Fitur getar pada Tasbih dan Dzikir dihapus (di HP uji, peramban menerima perintah tetapi sistem HP tidak menggetarkan; tidak bisa dijamin di semua HP). Tanda target tercapai tetap lonceng, warna, dan tulisan. Pilihan getar dan tombol "Coba getar" dihilangkan.
