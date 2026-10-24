@@ -683,3 +683,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v176 — Filter Pustaka Buku lebih ringkas
 - Filter jadi satu baris: dropdown "Semua Jenis" (Semua Jenis / Buku digital / Buku fisik) di kiri, lalu chip Gratis dan Premium. Chip "Semua" dihilangkan; tekan lagi chip yang aktif untuk melepas filter.
+
+## Tambahan v177 — Ikon mahkota emas di filter Premium
+- Ikon mahkota pada chip filter "Premium" (Pustaka Buku) kini berlatar lingkaran emas.

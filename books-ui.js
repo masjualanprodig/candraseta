@@ -180,7 +180,7 @@ export function booksPage({ go, onSignIn } = {}) {
     }
     const search = h('input', { class: 'bk-qin', id: 'bk-q', type: 'search', maxlength: '60', placeholder: 'Cari judul buku, penulis, atau topik…', 'aria-label': 'Cari buku' }); search.value = st.q;
     search.addEventListener('input', () => { st.q = search.value; paintItems(); });
-    const chip = (on, attrs, ic, label, fn) => h('button', { class: 'bk-fc' + (on ? ' on' : ''), type: 'button', 'aria-pressed': String(on), ...attrs, onclick: fn }, ic ? icon(ic, 'ic-sm') : '', label);
+    const chip = (on, attrs, ic, label, fn) => h('button', { class: 'bk-fc' + (on ? ' on' : ''), type: 'button', 'aria-pressed': String(on), ...attrs, onclick: fn }, ic ? (ic === IC.crown ? h('span', { class: 'bk-gico' }, icon(ic, 'ic-sm')) : icon(ic, 'ic-sm')) : '', label);
     // Satu baris: dropdown jenis (Semua Jenis / Buku digital / Buku fisik) di kiri, lalu Gratis dan Premium. Tekan lagi chip yang aktif untuk melepas.
     const kindSel = h('select', { class: 'bk-ksel', id: 'bk-kind', 'aria-label': 'Jenis buku' }, h('option', { value: '' }, 'Semua Jenis'), h('option', { value: 'digital' }, 'Buku digital'), h('option', { value: 'fisik' }, 'Buku fisik'));
     kindSel.value = st.kind; kindSel.addEventListener('change', () => { st.kind = kindSel.value; drawList(); });

@@ -1498,3 +1498,6 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .bk-kwrap .ic{position:absolute;right:.65rem;top:50%;transform:translateY(-50%);pointer-events:none;width:1rem;height:1rem}
 @media (max-width:380px){.bk-ksel{padding:.45rem 1.7rem .45rem .65rem}.bk-kwrap .ic{right:.5rem}}
 .bk-ksel option{color:#163D35;background:#fff}
+.bk-gico{display:inline-flex;align-items:center;justify-content:center;width:1.45rem;height:1.45rem;flex:none;margin-left:-.25rem;border-radius:50%;background:linear-gradient(135deg,#F3DCA0,#D5A84B);color:#5a3f06}
+.bk-fc .bk-gico .ic{width:.9rem;height:.9rem}
+.bk-fc.on .bk-gico{background:linear-gradient(135deg,#F3DCA0,#D5A84B);color:#5a3f06}
