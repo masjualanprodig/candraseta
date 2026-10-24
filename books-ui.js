@@ -11,7 +11,16 @@ import * as MS from './membership-service.js';
 import { membershipFlow } from './membership-ui.js';
 import { membershipAdminPage } from './membership-admin-ui.js';
 
-export const NOTE = 'Pembayaran dan pengiriman diurus langsung dengan penjual di luar BAITUNA. Periksa dulu penjual, harga, dan ongkos kirim sebelum membayar.';
+// Ikon tambahan (path statis, gaya sama dengan ICONS).
+const IC = {
+  crown: '<path d="M3.5 8.5l4.2 3.6L12 5l4.3 7.1 4.2-3.6-1.8 9.5H5.3L3.5 8.5z"/><path d="M5.5 21h13"/>',
+  grid: '<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>',
+  list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+  sort: '<path d="M8 4v16M8 4L5 7M8 4l3 3M16 20V4M16 20l-3-3M16 20l3-3"/>',
+  kebab: '<path d="M12 5h.01M12 12h.01M12 19h.01"/>',
+  box: '<path d="M12 3l8 4v10l-8 4-8-4V7l8-4z"/><path d="M4 7l8 4 8-4M12 11v10"/>',
+  down: '<path d="M6 9l6 6 6-6"/>'
+};
 
 
 /* ===== Editor teks sederhana (tebal, miring, garis bawah, daftar) ===== */
@@ -79,7 +88,7 @@ function richEditor(id, placeholder) {
 
 export function booksPage({ go, onSignIn } = {}) {
   const wrap = h('div', { class: 'books' });
-  const st = { items: null, fail: null, kind: '', access: '', q: '', view: B.loadView(), isAdmin: false, open: '', member: null };
+  const st = { items: null, fail: null, kind: '', access: '', q: '', sort: 'terbaru', view: B.loadView(), isAdmin: false, open: '', member: null };
   const canRead = b => !B.isPremium(b) || st.isAdmin || MS.isActive(st.member);
   const draw = (...k) => wrap.replaceChildren(...k);
   const back = (label, fn) => h('button', { class: 'btn-ghost bk-back', type: 'button', id: 'bk-back', onclick: fn }, label);
@@ -92,19 +101,29 @@ export function booksPage({ go, onSignIn } = {}) {
       : h('span', { class: 'bk-img bk-ph ' + cls, 'aria-hidden': 'true' }, icon(ICONS.book, 'ic-lg'));
   };
 
-  /* ===== Membership: kotak status + alur (digambar di halaman ini) ===== */
+  /* ===== Membership: alur (digambar di halaman ini) ===== */
   const refreshMember = async () => { try { st.member = getSession() && getSession().user ? await MS.myMembership() : null; } catch (e) { st.member = null; } };
   function openMembership(start) {
     membershipFlow({ draw, start, isAdmin: st.isAdmin, openAdmin: tab => membershipAdminPage({ draw, tab, exit: () => openMembership(start) }), signIn: () => { if (onSignIn) onSignIn(); }, exit: async () => { await refreshMember(); st.open ? showDetail(st.open) : showList(); } });
   }
-  function memberBox() {
-    const act = MS.isActive(st.member), logged = !!(getSession() && getSession().user);
-    return h('div', { class: 'panel bk-mem', id: 'bk-mem', 'data-active': String(act) },
-      h('span', {}, h('b', {}, act ? 'Membership Premium aktif' : 'Buku Premium terkunci'), h('span', { class: 'muted bk-sd' }, act ? 'Berlaku sampai ' + MS.fmtDate(st.member.ends_at) : 'Gabung membership untuk membaca semua buku Premium.')),
-      h('div', { class: 'qa-acts' },
-        h('button', { class: 'btn-sm' + (act ? ' ghost' : ''), type: 'button', id: 'bk-join', onclick: () => { st.open = ''; openMembership(act ? 'plans' : 'plans'); } }, act ? 'Perpanjang' : 'Gabung Membership'),
-        st.isAdmin ? h('button', { class: 'btn-sm', type: 'button', id: 'bk-atur', onclick: () => membershipAdminPage({ draw, tab: 'atur', exit: () => { showList(); } }) }, 'Atur Membership') : '',
-        logged ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'bk-mine', onclick: () => { st.open = ''; openMembership('mine'); } }, 'Membership Saya') : ''));
+  // Banner di bawah daftar: ajakan bergabung (belum aktif) atau status membership (aktif).
+  function premiumBanner() {
+    const act = MS.isActive(st.member), left = act ? MS.daysLeft(st.member) : null;
+    const sub = act ? 'Berlaku sampai ' + MS.fmtDate(st.member.ends_at) + (left != null && left <= 7 ? ' (tinggal ' + Math.max(left, 0) + ' hari). Ketuk untuk memperpanjang.' : '. Ketuk untuk melihat detail.')
+      : 'Dapatkan membership untuk membaca seluruh buku Premium di Pustaka Buku BAITUNA.';
+    return h('div', { id: 'bk-mem', 'data-active': String(act) },
+      h('button', { class: 'bk-promo', type: 'button', id: act ? 'bk-promo-open' : 'bk-join', onclick: () => { st.open = ''; openMembership(act ? 'mine' : 'plans'); } },
+        h('span', { class: 'bk-promo-ic' }, icon(IC.crown, 'ic-sm')),
+        h('span', { class: 'bk-promo-t' }, h('b', {}, act ? 'Membership Premium aktif' : 'Akses semua buku Premium'), h('span', {}, sub)),
+        icon(ICONS.chev, 'bk-chev')));
+  }
+  // Header hijau: judul + tombol Premium (membership saya bila sudah masuk, pilihan paket bila belum).
+  function hero() {
+    const logged = !!(getSession() && getSession().user);
+    return h('header', { class: 'bk-hero' },
+      h('span', { class: 'bk-hero-ic' }, icon(ICONS.book, 'ic-sm')),
+      h('span', { class: 'bk-hero-t' }, h('h2', { class: 'bk-hero-h' }, 'Pustaka Buku'), h('span', { class: 'bk-hero-s' }, 'BAITUNA')),
+      h('button', { class: 'bk-pill', type: 'button', id: 'bk-mine', 'aria-label': logged ? 'Membership Premium saya' : 'Lihat paket Membership Premium', onclick: () => { st.open = ''; openMembership(logged ? 'mine' : 'plans'); } }, icon(IC.crown, 'ic-sm'), 'Premium'));
   }
 
   async function load() {
@@ -114,38 +133,72 @@ export function booksPage({ go, onSignIn } = {}) {
 
   /* ===== Daftar ===== */
   function viewSeg() {
-    return h('div', { class: 'seg bk-seg', id: 'bk-view', role: 'group', 'aria-label': 'Tampilan' }, ...[['grid', 'Grid'], ['list', 'List']].map(([k, l]) =>
-      h('button', { class: 'segb', type: 'button', id: 'bk-v-' + k, 'aria-pressed': String(st.view === k), 'aria-selected': String(st.view === k), onclick: () => { if (st.view !== k) { st.view = k; B.saveView(k); drawList(); } } }, l)));
+    return h('div', { class: 'seg bk-seg', id: 'bk-view', role: 'group', 'aria-label': 'Tampilan' }, ...[['grid', 'Grid', IC.grid], ['list', 'List', IC.list]].map(([k, l, ic]) =>
+      h('button', { class: 'segb', type: 'button', id: 'bk-v-' + k, 'aria-pressed': String(st.view === k), 'aria-selected': String(st.view === k), onclick: () => { if (st.view !== k) { st.view = k; B.saveView(k); drawList(); } } }, icon(ic, 'ic-sm'), l)));
   }
-  // Label akses di sampul: Premium (dengan gembok bila belum berhak) atau Gratis untuk buku yang bisa dibaca di aplikasi.
+  // Label di sampul: Premium (mahkota, sama dengan mockup; gembok hanya di halaman detail) atau Gratis untuk buku yang bisa dibaca di aplikasi.
   const badge = b => {
-    if (B.isPremium(b)) return h('span', { class: 'bk-badge bk-b-prem', 'data-access': 'premium' }, canRead(b) ? '' : icon(ICONS.lock, 'ic-sm'), 'Premium');
+    if (B.isPremium(b)) return h('span', { class: 'bk-badge bk-b-prem', 'data-access': 'premium' }, icon(IC.crown, 'ic-sm'), 'Premium');
     return b.has_file ? h('span', { class: 'bk-badge bk-b-free', 'data-access': 'gratis' }, 'Gratis') : '';
   };
-  const gridItem = b => h('button', { class: 'bk-gi', type: 'button', 'data-id': b.id, 'aria-label': b.title + (B.isPremium(b) ? ' (Premium)' : ''), onclick: () => showDetail(b.id) }, thumb(b, 'bk-g-img'), badge(b));
+  const kindChip = b => h('span', { class: 'bk-k' }, b.kind === 'digital' ? 'Digital' : 'Fisik');
+  const premChip = b => h('span', { class: 'bk-k bk-kp' }, icon(IC.crown, 'ic-sm'), 'Premium');
+  const freeChip = () => h('span', { class: 'bk-k bk-kf' }, 'Gratis');
+  const author = b => b.author ? h('span', { class: 'bk-au' }, b.author) : '';
+  const closeMenus = () => wrap.querySelectorAll('.bk-menu').forEach(m => m.remove());
+  const onDoc = ev => { if (!wrap.isConnected) { document.removeEventListener('click', onDoc); return; } if (!ev.target.closest || !ev.target.closest('.bk-kb, .bk-menu')) closeMenus(); };
+  document.addEventListener('click', onDoc);
+  function kebab(b) {
+    const btn = h('button', { class: 'bk-kb', type: 'button', 'aria-label': 'Menu ' + b.title, 'aria-haspopup': 'menu', 'aria-expanded': 'false' }, icon(IC.kebab, 'ic-sm'));
+    btn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      const had = btn.parentNode.querySelector('.bk-menu'); closeMenus(); btn.setAttribute('aria-expanded', 'false');
+      if (had) return;
+      const it = (label, fn) => h('button', { class: 'bk-mi', type: 'button', role: 'menuitem', onclick: () => { closeMenus(); fn(); } }, label);
+      const menu = h('div', { class: 'bk-menu', role: 'menu' }, it('Lihat detail', () => showDetail(b.id)), st.isAdmin ? it('Ubah buku', () => { showManage(b); window.scrollTo(0, 0); }) : '');
+      btn.after(menu); btn.setAttribute('aria-expanded', 'true');
+    });
+    return btn;
+  }
+  const gridItem = b => h('div', { class: 'bk-gc', 'data-id': b.id },
+    h('button', { class: 'bk-gi', type: 'button', 'data-id': b.id, 'aria-label': b.title + (B.isPremium(b) ? ' (Premium)' : ''), onclick: () => showDetail(b.id) }, thumb(b, 'bk-g-img'), badge(b)),
+    kebab(b),
+    h('div', { class: 'bk-gt', onclick: () => showDetail(b.id) }, h('b', { class: 'bk-title' }, b.title), author(b), h('span', { class: 'bk-chips' }, kindChip(b), B.isPremium(b) ? premChip(b) : '')));
   const listItem = b => h('button', { class: 'bk-li', type: 'button', 'data-id': b.id, onclick: () => showDetail(b.id) }, thumb(b, 'bk-l-img'),
-    h('span', { class: 'bk-lt' }, h('b', { class: 'bk-title' }, b.title),
+    h('span', { class: 'bk-lt' }, h('b', { class: 'bk-title' }, b.title), author(b),
       h('span', { class: 'muted bk-sd' }, B.shortDesc(b.description)),
-      h('span', { class: 'bk-meta' }, b.has_file || B.isPremium(b) ? '' : h('span', { class: 'bk-price' }, B.priceText(b.price)), h('span', { class: 'chip' }, b.kind === 'digital' ? 'Digital' : 'Fisik'), badge(b))));
+      h('span', { class: 'bk-chips' }, b.has_file || B.isPremium(b) ? '' : h('span', { class: 'bk-price' }, B.priceText(b.price)), B.isPremium(b) ? '' : b.has_file ? freeChip() : '', kindChip(b), B.isPremium(b) ? premChip(b) : '')),
+    icon(ICONS.chev, 'bk-chev'));
   function drawList() {
-    const kids = [h('h2', { class: 'wtitle' }, 'Pustaka Buku'), h('p', { class: 'muted' }, 'Buku fisik dan digital pilihan. Buku Gratis dibaca semua jamaah; buku Premium khusus anggota membership.'), memberBox()];
-    if (st.isAdmin) kids.push(h('div', { class: 'bk-acts' }, h('button', { class: 'btn-sm', type: 'button', id: 'bk-manage', onclick: showManage }, 'Kelola buku')));
+    const kids = [hero()];
+    if (st.isAdmin) kids.push(h('div', { class: 'bk-acts' }, h('button', { class: 'btn-sm', type: 'button', id: 'bk-manage', onclick: showManage }, 'Kelola buku'),
+      h('button', { class: 'btn-sm ghost', type: 'button', id: 'bk-atur', onclick: () => membershipAdminPage({ draw, tab: 'atur', exit: () => { showList(); } }) }, 'Atur Membership')));
     if (st.fail) {
       kids.push(empty(B.notReady(st.fail) ? 'Pustaka Buku belum aktif. Pengelola perlu menjalankan buku.sql.' : 'Daftar buku belum bisa dimuat. Periksa koneksi.'));
       if (!B.notReady(st.fail)) kids.push(h('button', { class: 'btn-sm', type: 'button', id: 'bk-retry', onclick: async () => { draw(h('p', { class: 'muted', id: 'bk-loading' }, 'Memuat…')); await load(); drawList(); } }, 'Coba lagi'));
       draw(...kids); return;
     }
-    const search = h('input', { class: 'in', id: 'bk-q', type: 'search', maxlength: '60', placeholder: 'Cari buku…', 'aria-label': 'Cari buku' }); search.value = st.q;
+    const search = h('input', { class: 'bk-qin', id: 'bk-q', type: 'search', maxlength: '60', placeholder: 'Cari judul buku, penulis, atau topik…', 'aria-label': 'Cari buku' }); search.value = st.q;
     search.addEventListener('input', () => { st.q = search.value; paintItems(); });
-    const chips = h('div', { class: 'mk-chips', id: 'bk-kinds', role: 'group', 'aria-label': 'Jenis buku' }, ...[{ key: '', label: 'Semua' }, ...B.KINDS].map(c =>
-      h('button', { class: 'mk-chip' + (st.kind === c.key ? ' on' : ''), type: 'button', 'data-kind': c.key, 'aria-pressed': String(st.kind === c.key), onclick: () => { st.kind = c.key; drawList(); } }, c.label)));
-    const achips = h('div', { class: 'mk-chips', id: 'bk-access', role: 'group', 'aria-label': 'Akses buku' }, ...[{ key: '', label: 'Semua' }, ...B.ACCESS].map(c =>
-      h('button', { class: 'mk-chip' + (st.access === c.key ? ' on' : ''), type: 'button', 'data-access': c.key, 'aria-pressed': String(st.access === c.key), onclick: () => { st.access = c.key; drawList(); } }, c.label)));
+    const chip = (on, attrs, ic, label, fn) => h('button', { class: 'bk-fc' + (on ? ' on' : ''), type: 'button', 'aria-pressed': String(on), ...attrs, onclick: fn }, ic ? icon(ic, 'ic-sm') : '', label);
+    const achips = h('div', { class: 'bk-fr', id: 'bk-access', role: 'group', 'aria-label': 'Akses buku' },
+      chip(st.access === '', { 'data-access': '' }, null, 'Semua', () => { st.access = ''; drawList(); }),
+      chip(st.access === 'gratis', { 'data-access': 'gratis' }, null, 'Gratis', () => { st.access = 'gratis'; drawList(); }),
+      chip(st.access === 'premium', { 'data-access': 'premium' }, IC.crown, 'Premium', () => { st.access = 'premium'; drawList(); }));
+    const chips = h('div', { class: 'bk-fr', id: 'bk-kinds', role: 'group', 'aria-label': 'Jenis buku' },
+      chip(st.kind === '', { 'data-kind': '' }, null, 'Semua Jenis', () => { st.kind = ''; drawList(); }),
+      chip(st.kind === 'digital', { 'data-kind': 'digital' }, ICONS.book, 'Buku digital', () => { st.kind = 'digital'; drawList(); }),
+      chip(st.kind === 'fisik', { 'data-kind': 'fisik' }, IC.box, 'Buku fisik', () => { st.kind = 'fisik'; drawList(); }));
+    const count = h('span', { class: 'bk-count', id: 'bk-count', 'aria-live': 'polite' }, '');
+    const sortSel = h('select', { class: 'bk-sort', id: 'bk-sort', 'aria-label': 'Urutkan buku' }, ...B.SORTS.map(o => h('option', { value: o.key }, o.label)));
+    sortSel.value = st.sort; sortSel.addEventListener('change', () => { st.sort = sortSel.value; paintItems(); });
+    const bar = h('div', { class: 'bk-bar' }, count, h('label', { class: 'bk-sortl', for: 'bk-sort' }, icon(IC.sort, 'ic-sm'), h('span', {}, 'Urutkan'), sortSel, icon(IC.down, 'ic-sm')));
     const box = h('div', { id: 'bk-items' });
-    kids.push(h('div', { class: 'bk-tools' }, search, viewSeg()), achips, chips, box, h('p', { class: 'hint' }, NOTE));
+    kids.push(h('label', { class: 'bk-search' }, icon(ICONS.search, 'ic-sm'), search), viewSeg(), achips, chips, bar, box, premiumBanner());
     draw(...kids); paintItems();
     function paintItems() {
-      const rows = B.filterBooks(st.items || [], { kind: st.kind, q: st.q, access: st.access });
+      const rows = B.filterBooks(st.items || [], { kind: st.kind, q: st.q, access: st.access, sort: st.sort });
+      count.textContent = rows.length + ' buku tersedia';
       if (!rows.length) { box.replaceChildren(empty(st.q || st.kind || st.access ? 'Tidak ada buku yang cocok.' : 'Belum ada buku di pustaka.')); return; }
       box.replaceChildren(st.view === 'list' ? h('div', { class: 'bk-list', id: 'bk-list' }, ...rows.map(listItem)) : h('div', { class: 'bk-grid', id: 'bk-grid' }, ...rows.map(gridItem)));
     }
@@ -189,7 +242,7 @@ export function booksPage({ go, onSignIn } = {}) {
       h('article', { class: 'panel bk-detail', id: 'bk-detail', 'data-access': prem ? 'premium' : 'gratis' },
         cu ? h('img', { class: 'bk-cover', src: cu, alt: 'Sampul ' + b.title, decoding: 'async' }) : h('div', { class: 'bk-cover bk-ph', 'aria-hidden': 'true' }, icon(ICONS.book, 'ic-lg')),
         h('div', { class: 'chips mt' }, h('span', { class: 'chip' }, B.kindLabel(b.kind)), prem ? h('span', { class: 'chip bk-chip-prem' }, 'Premium') : b.has_file ? h('span', { class: 'chip' }, 'Gratis') : ''),
-        h('h3', { class: 'bk-dt' }, b.title), b.has_file || prem ? '' : h('p', { class: 'bk-price bk-dp' }, B.priceText(b.price)),
+        h('h3', { class: 'bk-dt' }, b.title), b.author ? h('p', { class: 'bk-au bk-dau', id: 'bk-dauthor' }, b.author) : '', b.has_file || prem ? '' : h('p', { class: 'bk-price bk-dp' }, B.priceText(b.price)),
         descNode(b.description),
         access, readBox,
         b.has_file ? '' : order));
@@ -204,6 +257,7 @@ export function booksPage({ go, onSignIn } = {}) {
     const e0 = editing && typeof editing === 'object' && editing.id ? all.find(x => x.id === editing.id) || null : null;
     const reload = () => showManage();
     const lab = (t, f) => h('label', { class: 'hint bk-lab', for: f }, t);
+    const authorIn = h('input', { class: 'in', id: 'bk-f-author', maxlength: String(B.LIMIT.authorMax), placeholder: 'Contoh: Candra Seta (opsional)', autocomplete: 'off' });
     const title = h('input', { class: 'in', id: 'bk-f-title', maxlength: String(B.LIMIT.titleMax), placeholder: 'Contoh: Fiqih Salat Praktis', autocomplete: 'off' });
     const rt = richEditor('bk-f-desc', 'Tentang isi buku, penulis, jumlah halaman, dll.');
     const desc = rt.el;
@@ -226,7 +280,7 @@ export function booksPage({ go, onSignIn } = {}) {
     otype.addEventListener('change', sync); sync();
     let removeCover = false;
     function fill(b) {
-      title.value = b.title; rt.set(b.description); accessSel.value = b.access === 'premium' ? 'premium' : 'gratis';
+      title.value = b.title; authorIn.value = b.author || ''; rt.set(b.description); accessSel.value = b.access === 'premium' ? 'premium' : 'gratis';
       pdfPrev.replaceChildren(b.file_path ? h('p', { class: 'hint', id: 'bk-f-hasfile' }, 'Berkas PDF sudah terunggah. ', h('button', { class: 'btn-sm alt', type: 'button', id: 'bk-f-rmpdf', onclick: () => { removePdf = true; pdfPrev.replaceChildren(h('p', { class: 'hint' }, 'Berkas PDF akan dihapus saat disimpan.')); } }, 'Hapus berkas')) : h('p', { class: 'hint' }, 'Belum ada berkas PDF.')); label.value = b.order_label || ''; kind.value = b.kind; price.value = String(b.price); otype.value = b.order_type; sync();
       target.value = b.order_type === 'wa' ? b.order_wa : b.order_url; active.checked = !!b.active;
       const u = B.coverUrl(b); prev.replaceChildren(u ? h('img', { class: 'bk-pv', src: u, alt: 'Banner saat ini' }) : '');
@@ -237,7 +291,7 @@ export function booksPage({ go, onSignIn } = {}) {
     let busy = false;
     const form = h('form', { class: 'panel rform', id: 'bk-form', novalidate: 'novalidate' },
       h('h3', {}, e0 ? 'Ubah: ' + e0.title : 'Tambah buku'),
-      lab('Nama buku *', 'bk-f-title'), title, lab('Deskripsi *', 'bk-f-desc'), rt.box,
+      lab('Nama buku *', 'bk-f-title'), title, B.authorSupported() ? lab('Penulis (opsional)', 'bk-f-author') : '', B.authorSupported() ? authorIn : h('p', { class: 'hint', id: 'bk-f-noauthor' }, 'Kolom penulis belum aktif di server. Jalankan buku_penulis.sql bila ingin menampilkan nama penulis.'), lab('Deskripsi *', 'bk-f-desc'), rt.box,
       h('div', { class: 'grid2' }, h('div', {}, lab('Jenis buku *', 'bk-f-kind'), kind), h('div', {}, lab('Harga (Rp) * — isi 0 bila gratis', 'bk-f-price'), price)),
       lab('Akses buku *', 'bk-f-access'), accessSel, h('p', { class: 'hint' }, 'Gratis: dibaca semua jamaah. Premium: hanya anggota membership aktif (dijaga di server).'),
       h('label', { class: 'hint bk-lab', for: 'bk-f-pdf' }, 'Berkas buku PDF (opsional, maks. 50 MB)'), pdf, pdfPrev,
@@ -248,8 +302,8 @@ export function booksPage({ go, onSignIn } = {}) {
       h('div', { class: 'mt row-btns' }, save, e0 ? h('button', { class: 'btn-sm ghost', type: 'button', id: 'bk-f-cancel', onclick: reload }, 'Batal ubah') : ''));
     form.addEventListener('submit', async ev => {
       ev.preventDefault(); if (busy) return;
-      const v = B.validate({ title: title.value, description: rt.get(), kind: kind.value, price: price.value, orderType: otype.value, orderTarget: target.value, orderLabel: label.value, active: active.checked, access: accessSel.value });
-      if (v.error) { err.textContent = v.error; ({ title, description: desc, kind, price, target, orderType: otype, label })[v.field].focus(); return; }
+      const v = B.validate({ author: B.authorSupported() ? authorIn.value : undefined, title: title.value, description: rt.get(), kind: kind.value, price: price.value, orderType: otype.value, orderTarget: target.value, orderLabel: label.value, active: active.checked, access: accessSel.value });
+      if (v.error) { err.textContent = v.error; ({ title, description: desc, kind, price, target, orderType: otype, label, author: authorIn })[v.field].focus(); return; }
       const pf = pdf.files && pdf.files[0];
       if (pf && (pf.type !== 'application/pdf' || pf.size > B.FILE_MAX)) { err.textContent = 'Berkas buku harus PDF dan maksimal 50 MB.'; pdf.focus(); return; }
       err.textContent = ''; busy = true; save.disabled = true;

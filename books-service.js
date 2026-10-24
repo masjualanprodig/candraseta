@@ -21,7 +21,7 @@ export async function bookFilePath(id) {
 }
 const tokenOrNull = async () => { try { return await validToken(); } catch (e) { return null; } };
 export const kindLabel = k => (KINDS.find(x => x.key === k) || {}).label || 'Buku';
-export const LIMIT = { titleMin: 3, titleMax: 150, descMin: 10, descMax: 2000, htmlMax: 8000, labelMax: 30, priceMax: 100000000, urlMax: 500 };
+export const LIMIT = { titleMin: 3, titleMax: 150, descMin: 10, descMax: 2000, htmlMax: 8000, labelMax: 30, priceMax: 100000000, urlMax: 500, authorMax: 80 };
 const COLS = 'id,title,description,kind,price,order_type,order_label,order_wa,order_url,cover_path,active,created_at,updated_at,access,has_file';
 const ADMIN_COLS = COLS + ',file_path';
 const oneLine = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
@@ -104,9 +104,12 @@ export function validate(f) {
   if (!KINDS.some(k => k.key === f.kind)) return { error: 'Pilih jenis buku.', field: 'kind' };
   const price = parsePrice(f.price);
   if (price == null) return { error: 'Harga belum benar. Isi angka, mis. 85000 (atau 0 / "gratis"). Maksimal Rp 100.000.000.', field: 'price' };
+  const author = oneLine(f.author);
+  if (author.length > LIMIT.authorMax) return { error: 'Nama penulis maksimal ' + LIMIT.authorMax + ' huruf.', field: 'author' };
   const label = oneLine(f.orderLabel);
   if (label.length > LIMIT.labelMax) return { error: 'Teks tombol maksimal ' + LIMIT.labelMax + ' huruf.', field: 'label' };
   const out = { title, description, kind: f.kind, price, access: f.access === 'premium' ? 'premium' : 'gratis', active: f.active !== false, order_type: f.orderType, order_label: label || null };
+  if (f.author !== undefined) out.author = author || null; // hanya dikirim bila kolom penulis ada di server
   if (f.orderType === 'wa') {
     const wa = normalizeWa(f.orderTarget);
     if (!wa) return { error: 'Nomor WhatsApp tidak valid. Contoh: 0812 3456 7890.', field: 'target' };
@@ -120,19 +123,27 @@ export function validate(f) {
 }
 
 /* ===== Baca (siapa saja) ===== */
+// Kolom penulis (buku_penulis.sql) opsional: bila belum dijalankan, daftar tetap dimuat tanpa penulis.
+let authorOk = false;
+export const authorSupported = () => authorOk;
 export async function listBooks() {
-  const r = await request('/rest/v1/books?select=' + COLS + '&active=eq.true&order=created_at.desc&limit=300');
+  const q = c => '/rest/v1/books?select=' + c + '&active=eq.true&order=created_at.desc&limit=300';
+  let r = await request(q(COLS + ',author')); authorOk = r.ok;
+  if (!r.ok && r.status === 400) r = await request(q(COLS));
   if (!r.ok) throw Object.assign(new Error('HTTP ' + r.status), { status: r.status, code: r.data && r.data.code });
   return r.data || [];
 }
 export const notReady = e => !!e && (e.status === 404 || e.code === 'PGRST205' || e.code === '42P01');
 
-// Pencarian dan penyaring di perangkat (jumlah buku kecil).
-export function filterBooks(items, { kind = '', q = '', access = '' } = {}) {
+// Pencarian, penyaring, dan pengurutan di perangkat (jumlah buku kecil).
+export const SORTS = [{ key: 'terbaru', label: 'Terbaru' }, { key: 'terlama', label: 'Terlama' }, { key: 'judul', label: 'Judul A–Z' }];
+export function filterBooks(items, { kind = '', q = '', access = '', sort = 'terbaru' } = {}) {
   const s = oneLine(q).toLowerCase();
-  const out = items.filter(b => (!kind || b.kind === kind) && (!access || (b.access || 'gratis') === access) && (!s || (b.title + ' ' + htmlToText(b.description)).toLowerCase().includes(s)));
-  // Buku Gratis selalu di atas Premium (urutan lain tetap: terbaru dulu).
-  return out.map((b, i) => [b, i]).sort((x, y) => ((x[0].access === 'premium') - (y[0].access === 'premium')) || (x[1] - y[1])).map(x => x[0]);
+  const out = items.filter(b => (!kind || b.kind === kind) && (!access || (b.access || 'gratis') === access) && (!s || (b.title + ' ' + (b.author || '') + ' ' + htmlToText(b.description)).toLowerCase().includes(s)));
+  const ts = b => Date.parse(b.created_at) || 0;
+  const cmp = sort === 'judul' ? (x, y) => String(x.title).localeCompare(String(y.title), 'id') : sort === 'terlama' ? (x, y) => ts(x) - ts(y) : (x, y) => ts(y) - ts(x);
+  // Buku Gratis selalu di atas Premium; di dalam tiap kelompok mengikuti urutan pilihan (urutan asli bila sama).
+  return out.map((b, i) => [b, i]).sort((x, y) => ((x[0].access === 'premium') - (y[0].access === 'premium')) || cmp(x[0], y[0]) || (x[1] - y[1])).map(x => x[0]);
 }
 
 /* ===== Tampilan pilihan pengguna (disimpan di perangkat) ===== */
@@ -140,7 +151,10 @@ export function loadView() { try { const v = JSON.parse(localStorage.getItem(VIE
 export function saveView(view) { try { localStorage.setItem(VIEW_KEY, JSON.stringify({ view: view === 'list' ? 'list' : 'grid' })); } catch (e) { /* abaikan */ } }
 
 /* ===== Kelola (Super Admin) ===== */
-export const listAllBooks = async () => (await db('books', { query: 'select=' + ADMIN_COLS + '&order=created_at.desc&limit=500' })) || [];
+export const listAllBooks = async () => {
+  try { const r = (await db('books', { query: 'select=' + ADMIN_COLS + ',author&order=created_at.desc&limit=500' })) || []; authorOk = true; return r; }
+  catch (e) { if (e && e.status !== 400) throw e; authorOk = false; return (await db('books', { query: 'select=' + ADMIN_COLS + '&order=created_at.desc&limit=500' })) || []; }
+};
 export const createBook = (f, coverPath, filePath) => db('books', { method: 'POST', body: { ...f, cover_path: coverPath || null, file_path: filePath || null }, prefer: 'return=minimal' });
 export const updateBook = (id, patch) => db('books', { method: 'PATCH', query: 'id=eq.' + encodeURIComponent(id), body: patch, prefer: 'return=minimal' });
 export const setBookFile = (id, path) => db('books', { method: 'PATCH', query: 'id=eq.' + encodeURIComponent(id), body: { file_path: path }, prefer: 'return=minimal' });

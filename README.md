@@ -602,6 +602,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v156
 - Halaman Data Masjid (Super Admin) dirombak: tombol Kembali membulat, judul dengan ilustrasi masjid, 4 kartu angka berikon lingkaran (Masjid Terdaftar, Aktif, Menunggu Verifikasi, Nonaktif), kolom cari (nama/kota/provinsi) + Filter provinsi, kartu "Daftar Masjid" dengan penyaring Semua/Aktif/Menunggu/Nonaktif berhitungan, dan tiap masjid tampil berfoto, lokasi, status, tanggal terdaftar, tombol "Lihat Detail" serta menu ⋮ (Setujui, Tolak, Nonaktifkan, Hapus, Kas, Pengurus). Foto diambil dari foto sampul/galeri masjid; tanpa foto tampil ikon masjid. Di tablet/desktop daftar dua kolom.
+
 ## Tambahan v157
 - Statistik Platform (Super Admin): kepala "Data Pengguna" kini punya tombol "Lihat Detail >" yang membuka halaman Pengguna.
 
@@ -617,6 +618,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## Tambahan v161
 - "Lihat Detail >" Statistik Platform dipindah ke dalam kotak Data Masjid (seperti Data Pengguna); kotak terpisah v159 dihapus.
+
+## Tambahan v162
+- Ramadan Center: kartu utama (hitung mundur) kembali berlatar hijau; sebelumnya putih sehingga teks tidak terbaca.
 
 ## Tambahan v163
 - Banner Jamaah "Bersama BAITUNA": tulisan kecil "SEJARAH ISLAM" di atas judul dihapus (tidak ada di editor Super Admin).
@@ -669,3 +673,10 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Panel Super Admin "Atur Membership": tab Transaksi (8 filter, cari, ringkasan, detail + riwayat bukti + histori, verifikasi/tolak dengan alasan), konfirmasi ubah harga + histori harga, uji koneksi Telegram + log notifikasi + kirim ulang yang gagal.
 - membership_v2.sql: harga awal 3 bulan Rp69.000 (bila kosong), checkout idempoten, metode wajib siap, bukti harus ada di Storage, riwayat bukti, histori harga, antrean notifikasi (kunci unik, klaim atomik, retry 5x), tanggal mulai diperbarui saat beli ulang setelah habis, bucket bukti 5 MB.
 - Telegram dikirim fungsi server baituna-push (tg-core.js); token hanya di Secrets Supabase (TELEGRAM_BOT_TOKEN, TELEGRAM_SUPER_ADMIN_CHAT_ID).
+
+## Tambahan v175 — Tampilan Pustaka Buku mengikuti mockup
+- Header hijau (judul Pustaka Buku + tombol Premium), kolom cari "Cari judul buku, penulis, atau topik…", Grid/List dengan ikon, filter Semua/Gratis/Premium dan Semua Jenis/Buku digital/Buku fisik dalam satu baris (tidak menumpuk di layar 360 px).
+- Penghitung "N buku tersedia" dan pilihan Urutkan (Terbaru, Terlama, Judul A–Z; buku Gratis tetap di atas Premium).
+- Kartu Grid: sampul persegi, label Gratis/Premium, tombol titik tiga (Lihat detail; Super Admin juga Ubah buku), judul, penulis, chip Digital/Premium. List: kartu per buku dengan panah.
+- Banner "Akses semua buku Premium" di bawah daftar (berubah menjadi status bila membership aktif). Kalimat "Pembayaran dan pengiriman diurus langsung dengan penjual…" dihapus dari daftar.
+- Penulis (opsional): buku_penulis.sql menambah kolom author; tanpa SQL ini aplikasi tetap jalan, nama penulis hanya tidak tampil. Formulir Kelola buku punya isian Penulis bila kolom ada.

@@ -999,18 +999,8 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .books .bk-acts{display:flex;flex-wrap:wrap;gap:.45rem;margin:.6rem 0}
 .books .bk-back{margin:.2rem 0 .6rem}
 .books .in{display:block;width:100%;margin:.5rem 0}
-.bk-tools{display:flex;flex-direction:column;gap:.2rem;margin-top:.6rem}
-.bk-seg{margin:.2rem 0 .5rem}
-.bk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:.7rem 0}
-.bk-gi{display:block;padding:0;border:1px solid var(--line);background:#fff;border-radius:14px;overflow:hidden;cursor:pointer;aspect-ratio:3/4}
-.bk-gi:active{transform:scale(.985)}
 .bk-img{display:block;object-fit:cover;background:#e8efe9}
-.bk-g-img{width:100%;height:100%}
 .bk-ph{display:flex;align-items:center;justify-content:center;color:var(--teal)}
-.bk-list{display:flex;flex-direction:column;margin:.5rem 0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
-.bk-li{display:flex;gap:.8rem;width:100%;padding:.75rem;text-align:left;font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--line);cursor:pointer}
-.bk-li:last-child{border-bottom:0}
-.bk-l-img{width:64px;height:88px;flex:0 0 64px;border-radius:8px}
 .bk-lt{display:flex;flex-direction:column;gap:.2rem;min-width:0;flex:1}
 .bk-title{display:block;line-height:1.3;overflow-wrap:anywhere}
 .bk-sd{font-size:.85rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -1295,13 +1285,11 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .ofc-list{display:flex;flex-direction:column}.ofc-row{display:flex;flex-direction:column;gap:2px;padding:.55rem 0;border-bottom:1px solid #e6eeeb}.ofc-row:last-child{border-bottom:0}
 
 /* ===== Membership Premium Pustaka Buku (v171) ===== */
-.bk-gi{position:relative}
 .bk-badge{position:absolute;left:.4rem;top:.4rem;display:inline-flex;align-items:center;gap:.25rem;padding:.2rem .55rem;border-radius:999px;font-size:.72rem;font-weight:800;line-height:1.2}
 .bk-b-free{background:#0e7a5f;color:#fff}
 .bk-b-prem{background:linear-gradient(135deg,#E8C879,#D5A84B);color:#4a3508}
 .bk-badge .ic-sm{width:.85rem;height:.85rem}
 .bk-chip-prem{background:var(--gold-pale);color:var(--gold-ink)}
-.bk-li .bk-badge{position:static}
 .bk-mem{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between;align-items:center;margin:.7rem 0;background:linear-gradient(135deg,#fffaf0,#fbf1d9);border:1px solid var(--gold-soft)}
 .bk-mem .qa-acts{display:flex;gap:.4rem;flex-wrap:wrap}
 .bk-lock{display:flex;flex-direction:column;gap:.4rem;align-items:flex-start;margin:.8rem 0;background:#fffaf0;border:1px solid var(--gold-soft)}
@@ -1438,3 +1426,69 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .ma-log{font-size:.85rem;margin:.4rem 0;padding-left:1.1rem}
 .ma-nt{display:flex;justify-content:space-between;gap:.6rem;padding:.45rem 0;border-bottom:1px dashed var(--line);font-size:.86rem}
 .ma-filters{flex-wrap:nowrap}
+
+/* ===== Pustaka Buku v175 (mengikuti mockup) ===== */
+.bk-hero{display:flex;align-items:center;gap:.7rem;padding:.75rem .9rem;margin:.2rem 0 .8rem;border-radius:22px;background:linear-gradient(135deg,#0a7a63,#064B3D);color:#fff}
+.bk-hero-ic{display:inline-flex;align-items:center;justify-content:center;width:2.6rem;height:2.6rem;flex:none;border-radius:14px;background:rgba(255,255,255,.14)}
+.bk-hero-ic .ic{width:1.5rem;height:1.5rem;color:#fff;opacity:1}
+.bk-hero-t{display:flex;flex-direction:column;min-width:0;flex:1}
+.bk-hero .bk-hero-h{margin:0;font-size:1.2rem;line-height:1.15;color:#fff;font-weight:800;letter-spacing:0}
+.bk-hero-s{font-size:.68rem;letter-spacing:.28em;font-weight:700;color:#cfe6dd}
+.bk-pill{display:inline-flex;align-items:center;gap:.35rem;flex:none;border:1.5px solid var(--gold);background:rgba(0,0,0,.14);color:var(--gold-soft);border-radius:999px;padding:.45rem .85rem;font:inherit;font-weight:800;font-size:.85rem;cursor:pointer}
+.bk-pill .ic{width:1.05rem;height:1.05rem}
+.bk-search{display:flex;align-items:center;gap:.55rem;padding:0 1rem;margin:.2rem 0 .7rem;background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:0 2px 8px rgba(6,75,61,.06);color:var(--sage)}
+.bk-search .ic{width:1.2rem;height:1.2rem;flex:none}
+.bk-search:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(8,102,83,.15)}
+.bk-qin{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;padding:.8rem 0;color:var(--text)}
+.bk-seg{background:#eaf0ec;border-color:transparent;margin:.2rem 0 .7rem}
+.bk-seg .segb{display:inline-flex;align-items:center;justify-content:center;gap:.4rem}
+.bk-seg .segb .ic{width:1.05rem;height:1.05rem}
+.bk-seg .segb[aria-selected="true"]{background:var(--green-deep)}
+.bk-fr{display:flex;gap:.35rem;flex-wrap:wrap;margin:.45rem 0}
+.bk-fc{display:inline-flex;align-items:center;gap:.35rem;border:1.5px solid #d4dfda;background:#fff;color:var(--teal);border-radius:999px;padding:.5rem .68rem;font:inherit;font-weight:700;font-size:.8rem;cursor:pointer;white-space:nowrap}
+.bk-fc .ic{width:.95rem;height:.95rem}
+.bk-fc.on{background:var(--green-deep);border-color:var(--green-deep);color:#fff}
+.bk-bar{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:.8rem 0 .4rem;font-size:.88rem;color:var(--text-2)}
+.bk-sortl{display:inline-flex;align-items:center;gap:.3rem;color:var(--text-2)}
+.bk-sortl .ic{width:1rem;height:1rem}
+.bk-sort{appearance:none;-webkit-appearance:none;border:0;background:transparent;font:inherit;font-weight:700;color:var(--green-deep);padding:.3rem 0;cursor:pointer}
+.bk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:.5rem 0}
+.bk-gc{position:relative;display:flex;flex-direction:column;min-width:0;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 2px 10px rgba(6,75,61,.06)}
+.bk-gi{position:relative;display:block;width:100%;padding:0;border:0;background:#e8efe9;border-radius:17px 17px 0 0;overflow:hidden;cursor:pointer;aspect-ratio:1/1}
+.bk-gi:active{transform:scale(.985)}
+.bk-g-img{width:100%;height:100%}
+.bk-gt{display:flex;flex-direction:column;gap:.2rem;flex:1;padding:.65rem .7rem .75rem;cursor:pointer}
+.bk-gt .bk-title{font-size:.95rem}
+.bk-au{display:block;font-size:.8rem;color:var(--text-2);line-height:1.3}
+.bk-dau{margin:.1rem 0 .4rem}
+.bk-chips{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-top:auto;padding-top:.3rem}
+.bk-k{display:inline-flex;align-items:center;gap:.25rem;border-radius:999px;padding:.22rem .7rem;font-size:.78rem;font-weight:700;background:#e3f1ec;color:var(--teal)}
+.bk-k .ic{width:.8rem;height:.8rem}
+.bk-kp{background:linear-gradient(135deg,#F3DCA0,#E4BE68);color:#5a3f06}
+.bk-kf{color:var(--emerald)}
+.bk-kb{position:absolute;top:.5rem;right:.5rem;z-index:2;width:2rem;height:2rem;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:rgba(255,255,255,.88);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.22);cursor:pointer}
+.bk-kb .ic{width:1.1rem;height:1.1rem;stroke-width:3}
+.bk-menu{position:absolute;top:2.8rem;right:.5rem;z-index:6;min-width:9.5rem;display:flex;flex-direction:column;padding:.25rem;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.bk-mi{border:0;background:transparent;text-align:left;font:inherit;font-weight:600;padding:.6rem .75rem;border-radius:8px;color:var(--text);cursor:pointer}
+.bk-mi:hover,.bk-mi:focus-visible{background:#eef5f1}
+.bk-list{display:flex;flex-direction:column;gap:.6rem;margin:.5rem 0}
+.bk-li{display:flex;align-items:center;gap:.8rem;width:100%;padding:.7rem;text-align:left;font:inherit;color:inherit;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 8px rgba(6,75,61,.05);cursor:pointer}
+.bk-l-img{width:78px;height:78px;flex:0 0 78px;border-radius:12px}
+.bk-li .bk-chev{color:var(--sage)}
+.bk-chev{width:1.2rem;height:1.2rem;flex:none}
+.bk-promo{display:flex;align-items:center;gap:.8rem;width:100%;margin:.9rem 0;padding:.9rem 1rem;text-align:left;font:inherit;color:inherit;cursor:pointer;border-radius:16px;border:1px solid #efdca5;background:linear-gradient(135deg,#fff7e0,#fbefc9)}
+.bk-promo-ic{display:inline-flex;align-items:center;justify-content:center;width:2.8rem;height:2.8rem;flex:none;border-radius:50%;background:linear-gradient(135deg,#F3DCA0,#D5A84B);color:#5a3f06}
+.bk-promo-ic .ic{width:1.5rem;height:1.5rem}
+.bk-promo-t{display:flex;flex-direction:column;gap:.15rem;flex:1;min-width:0}
+.bk-promo-t b{font-size:.98rem}
+.bk-promo-t span{font-size:.82rem;color:var(--text-2);line-height:1.35}
+.bk-promo .bk-chev{color:var(--gold-ink)}
+@media (max-width:380px){
+  .bk-hero{gap:.55rem;padding:.7rem .75rem}
+  .bk-hero .bk-hero-h{font-size:1.02rem;white-space:nowrap}
+  .bk-pill{padding:.4rem .65rem;font-size:.8rem}
+  .bk-qin{font-size:.9rem}
+  .bk-fr{gap:.3rem}
+  .bk-fc{padding:.45rem .5rem;font-size:.76rem;gap:.28rem}
+  .bk-fc .ic{width:.85rem;height:.85rem}
+}
