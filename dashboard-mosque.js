@@ -133,6 +133,16 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
     mapsMsg.className = 'hint' + (maps.ok || maps.empty ? '' : ' mk-err');
     mapsMsg.textContent = mapsText(maps);
   });
+  // Koordinat (untuk jadwal salat masjid). Tautan pendek Google Maps tidak memuat koordinat, jadi bisa diisi di sini.
+  const coordIn = h('input', { class: 'in mt', id: 'rg-coord', inputmode: 'text', placeholder: 'Koordinat untuk jadwal salat, mis. -7.8123, 110.3456 (opsional)', maxlength: '40', autocomplete: 'off', 'aria-label': 'Koordinat masjid (lintang, bujur)' });
+  const coordMsg = h('p', { class: 'hint', id: 'rg-coord-msg' }, 'Agar jadwal salat masjid tampil: tekan lama titik masjid di Google Maps lalu salin angkanya, atau pakai tombol di bawah saat Anda berada di masjid.');
+  coordIn.addEventListener('input', () => { const c = parseCoords(coordIn.value); coordMsg.className = 'hint' + (c.ok || c.empty ? '' : ' mk-err'); coordMsg.textContent = c.ok ? 'Koordinat terbaca: ' + c.lat + ', ' + c.lng + '.' : c.empty ? 'Kosong: jadwal salat belum tampil sampai koordinat diisi.' : 'Format belum benar. Contoh: -7.8123, 110.3456'; });
+  const gpsBtn = h('button', { class: 'btn-sm ghost', type: 'button', id: 'rg-gps', onclick: () => {
+    if (!navigator.geolocation) { toast('Perangkat ini tidak mendukung lokasi.', true); return; }
+    gpsBtn.disabled = true; coordMsg.textContent = 'Mengambil lokasi…';
+    navigator.geolocation.getCurrentPosition(p => { gpsBtn.disabled = false; coordIn.value = p.coords.latitude.toFixed(5) + ', ' + p.coords.longitude.toFixed(5); coordIn.dispatchEvent(new Event('input')); },
+      () => { gpsBtn.disabled = false; toast('Lokasi tidak bisa diambil. Izinkan lokasi di peramban, atau ketik koordinatnya.', true); }, { enableHighAccuracy: true, timeout: 15000 });
+  } }, 'Isi dari lokasi HP ini (saat di masjid)');
   // Foto masjid: sampai 10, tiap foto otomatis diperkecil sampai maksimal 100 KB.
   const shots = []; // { blob, url }
   const pick = h('input', { class: 'in', id: 'rg-photos', type: 'file', multiple: 'multiple', accept: 'image/jpeg,image/png,image/webp', 'aria-label': 'Pilih foto masjid' });
@@ -170,10 +180,13 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
     if (n.length < 3) { err.textContent = 'Nama masjid minimal 3 huruf.'; return; }
     if (!agree.checked) { err.textContent = 'Centang persetujuan ketentuan dulu.'; return; }
     if (!maps.empty && !maps.ok) { err.textContent = 'Tautan lokasi harus dari Google Maps, atau kosongkan.'; return; }
+    const cd = parseCoords(coordIn.value);
+    if (!cd.empty && !cd.ok) { err.textContent = 'Format koordinat belum benar. Contoh: -7.8123, 110.3456'; return; }
+    const pt = cd.ok ? { lat: cd.lat, lng: cd.lng } : maps.ok && maps.lat != null ? { lat: maps.lat, lng: maps.lng } : { lat: null, lng: null };
     btn.disabled = true;
     try {
       const newId = await registerMosque({ name: n, province: chosen(prov2), city: chosen(city2), district: chosen(dist2), phone: phone.value.trim(), address: addr.value.trim(),
-        mapsUrl: maps.ok ? maps.url : null, lat: maps.ok ? maps.lat : null, lng: maps.ok ? maps.lng : null });
+        mapsUrl: maps.ok ? maps.url : null, lat: pt.lat, lng: pt.lng });
       let note = '';
       if (shots.length && typeof newId === 'string') {
         try { const g = await saveGallery(newId, shots.map(s => s.blob)); if (g.failed) note = ' ' + g.failed + ' foto gagal diunggah.'; }
@@ -187,7 +200,7 @@ async function renderRegister(box, onBack, { currentId = null, onPick = null } =
       err.textContent = e && e.code === '22023' && e.message ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : e && e.status === 0 ? 'Tidak ada koneksi internet.' : e && (e.status === 403 || e.code === '42501') ? 'Hanya Admin Masjid yang boleh mendaftarkan masjid.' : 'Belum terkirim. ' + hint(e);
     }
     btn.disabled = false;
-  } }, h('h3', {}, 'Daftarkan masjid baru'), h('div', { class: 'grid2' }, name, prov, city, dist, phone), wnote, addr, mapsIn, mapsMsg,
+  } }, h('h3', {}, 'Daftarkan masjid baru'), h('div', { class: 'grid2' }, name, prov, city, dist, phone), wnote, addr, mapsIn, mapsMsg, coordIn, coordMsg, h('div', { class: 'mt' }, gpsBtn),
     h('div', { class: 'rg-photobox', id: 'rg-photobox' }, h('h3', {}, 'Foto masjid'), emptyBox, strip, pickMsg, h('div', { class: 'mt' }, pick)),
     h('div', { class: 'rg-terms', id: 'rg-terms' }, h('b', {}, 'Ketentuan pendaftaran'), h('ul', {}, ...TERMS.map(t => h('li', {}, t)))),
     h('label', { class: 'dopt' }, agree, h('span', {}, 'Saya sudah membaca dan menyetujui ketentuan di atas.')),

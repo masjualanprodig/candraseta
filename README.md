@@ -631,3 +631,7 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 ## Tambahan v166
 - Profil masjid (publik): daftar Pengurus masjid (nama + jabatan, tanpa email) tampil; butuh pengurus_publik.sql.
 - Edit profil masjid: kolom Koordinat (lintang, bujur) + tombol "Isi dari lokasi HP ini". Tautan Google Maps pendek tidak memuat koordinat, jadi jadwal salat butuh koordinat ini. Mengganti tautan tidak lagi menghapus koordinat.
+
+## Tambahan v167
+- Formulir "Daftarkan masjid baru": kolom Koordinat + tombol "Isi dari lokasi HP ini".
+- Profil masjid publik: kartu "Jadwal salat" disembunyikan bila masjid belum punya koordinat (tidak lagi menampilkan pesan "Lokasi belum diisi").

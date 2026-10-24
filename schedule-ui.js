@@ -10,8 +10,7 @@ const ROWS = [['fajr', 'Subuh'], ['sunrise', 'Terbit'], ['dhuhr', 'Dzuhur'], ['a
 export function prayerPanel(m, now = Date.now()) {
   const lat = Number(m.latitude), lng = Number(m.longitude);
   if (m.latitude === null || m.longitude === null || m.latitude === undefined || !isFinite(lat) || !isFinite(lng)) {
-    return h('div', { class: 'panel' }, h('h3', {}, 'Jadwal salat'),
-      h('p', { class: 'muted' }, 'Lokasi masjid belum diisi, jadi jadwal salat belum bisa dihitung. Pengurus dapat mengisi koordinat di profil masjid.'));
+    return ''; // koordinat belum diisi: panel disembunyikan di profil publik (pengurus mengisinya di Edit profil)
   }
   const tz = m.timezone || 'Asia/Jakarta';
   const day = todayIn(tz, now);
