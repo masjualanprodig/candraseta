@@ -663,3 +663,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Alur: unduh template -> isi -> unggah -> pratinjau (valid / bermasalah / diduga duplikat) -> konfirmasi -> simpan (100 baris per permintaan) -> laporan CSV.
 - Validasi mengikuti dzikir.sql: jenis teks wajib Arab, terjemahan, sumber; jenis ayat wajib surah/ayat (maks. 6 ayat); jumlah 1-1000. Baris "CONTOH" ditolak. Tidak ada teks dzikir yang dibuat aplikasi.
 - File baru: dzikir-import.js, dzikir-import-ui.js. Tidak ada SQL baru.
+
+## Tambahan v174 — Perombakan Membership Premium Pustaka Buku
+- Alur jamaah baru di dalam aplikasi: Pilih Paket -> Checkout (nama, WhatsApp, email opsional, masjid rujukan, ringkasan) -> Pilih Metode (QRIS/Transfer; yang belum dikonfigurasi tidak bisa dipilih) -> Bayar (nomor BTM-YYYYMMDD-XXXXXX, salin, QRIS + simpan, rekening + salin, cara bayar, batas waktu) -> Terima Kasih + Unggah Bukti (JPG/PNG/WebP, maks. 5 MB, pratinjau) -> Bukti Terkirim -> Riwayat & Status (timeline + riwayat bukti) -> Alhamdulillah (aktif) -> Membership Saya (detail, hampir berakhir, berakhir, perpanjang manual).
+- Panel Super Admin "Atur Membership": tab Transaksi (8 filter, cari, ringkasan, detail + riwayat bukti + histori, verifikasi/tolak dengan alasan), konfirmasi ubah harga + histori harga, uji koneksi Telegram + log notifikasi + kirim ulang yang gagal.
+- membership_v2.sql: harga awal 3 bulan Rp69.000 (bila kosong), checkout idempoten, metode wajib siap, bukti harus ada di Storage, riwayat bukti, histori harga, antrean notifikasi (kunci unik, klaim atomik, retry 5x), tanggal mulai diperbarui saat beli ulang setelah habis, bucket bukti 5 MB.
+- Telegram dikirim fungsi server baituna-push (tg-core.js); token hanya di Secrets Supabase (TELEGRAM_BOT_TOKEN, TELEGRAM_SUPER_ADMIN_CHAT_ID).
