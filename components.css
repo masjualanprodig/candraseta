@@ -1607,3 +1607,8 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .bk-detail .bk-desc{white-space:normal;line-height:1.55}
 .bk-detail .bk-desc p{margin:0 0 .55rem}
 .bk-detail .bk-desc p:last-child{margin-bottom:0}
+/* v185: jarak paragraf deskripsi buku standar (tidak terlalu rapat/jauh) */
+.bk-detail .bk-desc p{margin:0 0 .85rem}
+.bk-detail .bk-desc p:last-child{margin-bottom:0}
+.bk-detail .bk-desc ul,.bk-detail .bk-desc ol{margin:0 0 .85rem}
+.bk-detail .bk-desc li{margin:0 0 .3rem}
