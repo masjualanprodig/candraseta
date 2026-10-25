@@ -221,6 +221,7 @@ export function membershipFlow(ctx) {
     if (!o) { plansScreen(); return; }
     loading();
     let ready; try { ready = await loadPay(); } catch (e) { failView(e); return; }
+    try { S.orders = await M.myOrders(); o = findOrder(o.id) || o; } catch (e) { /* pakai data yang ada */ }   // status terbaru dari server, bukan salinan lama
     let m = o.method && ready[o.method] ? o.method : ready.qris ? 'qris' : ready.transfer ? 'transfer' : '';
     const qr = M.qrisUrl(S.settings), body = h('div', { id: 'ms-method-body' });
     const tabs = h('div', { class: 'ms-tabs', id: 'ms-seg', role: 'tablist', 'aria-label': 'Metode pembayaran' }, ...[['qris', 'QRIS'], ['transfer', 'Transfer Bank']].map(([k, l]) => {
@@ -250,7 +251,11 @@ export function membershipFlow(ctx) {
     const rej = o.status === 'ditolak';
     const cancel = o.status === 'menunggu_pembayaran' ? h('button', { class: 'btn-sm alt', type: 'button', id: 'ms-cancel', onclick: async () => {
       if (!(await ask({ title: 'Batalkan pesanan ini?', text: 'Pesanan ' + o.ref_code + ' dibatalkan. Anda bisa memesan lagi kapan saja.' }))) return;
-      try { await M.cancelOrder(o.id); M.pingNotify(); S.orders = await M.myOrders(); toast('Pesanan dibatalkan.'); plansScreen(); } catch (e) { toast('Gagal memperbarui status. ' + M.errorText(e), true); }
+      try { await M.cancelOrder(o.id); M.pingNotify(); S.orders = await M.myOrders(); toast('Pesanan dibatalkan.'); plansScreen(); }
+      catch (e) {
+        if (e && e.message === 'tidak_bisa') { try { S.orders = await M.myOrders(); } catch (x) { /* abaikan */ } toast('Status pesanan sudah berubah. Menampilkan status terbaru.'); statusScreen(findOrder(o.id) || o); return; }
+        toast('Gagal memperbarui status. ' + M.errorText(e), true);
+      }
     } }, 'Batalkan pesanan') : '';
     const wa = M.adminWaLink(S.settings.admin_wa, 'Assalamu’alaikum, saya butuh bantuan untuk pesanan membership ' + o.ref_code + '.');
     draw(back('← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Pembayaran'), h('p', { class: 'muted' }, 'Bayar dengan QRIS atau Transfer Bank.'), steps(2),

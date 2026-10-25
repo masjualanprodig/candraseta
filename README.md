@@ -726,3 +726,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v187
 - Editor deskripsi buku: isi yang dibuka untuk diedit tidak lagi dirapatkan (jarak paragraf sama seperti saat disimpan); perapihan jarak hanya untuk tampilan baca.
+
+## v188
+- Membership: layar Pembayaran selalu memuat status pesanan terbaru; bila Batalkan pesanan gagal karena status sudah berubah di server, ditampilkan status terbaru (bukan galat buntu).
