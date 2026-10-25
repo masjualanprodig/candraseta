@@ -42,6 +42,23 @@ const seenSet = id => { try { localStorage.setItem(SEEN_KEY, id); } catch (e) { 
 // ctx: { draw(...nodes), exit(), signIn(), start: 'auto' | 'mine' | 'plans', isAdmin, openAdmin(tab) }
 export function membershipFlow(ctx) {
   const { draw } = ctx;
+  // v203: produk 'taaruf' (BAITUNA Ta'aruf Premium) memakai alur yang sama dengan teks & paket sendiri.
+  const P = ctx.product === 'taaruf' ? 'taaruf' : 'baituna';
+  const T = P === 'taaruf' ? {
+    title: 'Ta’aruf Premium', sub: 'Pilih paket BAITUNA Ta’aruf Premium.', benefits: ctx.benefits || [], pnote: 'Premium aktif setelah pembayaran diverifikasi admin. Premium tidak menjamin diterima calon dan tidak membuka data pribadi tanpa izin.',
+    item: 'BAITUNA Ta’aruf Premium', plan: m => 'Ta’aruf Premium ' + m + ' Bulan', thanks: 'Terima Kasih Sudah Memesan BAITUNA Ta’aruf Premium!', exitLabel: 'Kembali ke BAITUNA Ta’aruf',
+    actBen: ['Lihat lebih banyak profil calon sesuai kriteria', 'Filter pencarian lengkap', 'Agenda, topik, dan catatan perkenalan', 'Tanpa perpanjangan otomatis'], startLabel: 'Kembali ke BAITUNA Ta’aruf',
+    wa: 'BAITUNA Ta’aruf Premium', soon: 'Perpanjang bila ingin tetap memakai fitur Premium.', ended: 'Premium telah berakhir. Akses kembali mengikuti aturan gratis; proses perkenalan yang berjalan tetap ada.',
+    none: 'Anda belum berlangganan Ta’aruf Premium. Fitur gratis tetap bisa dipakai.', login: 'Untuk bergabung dan membayar Ta’aruf Premium, silakan masuk atau daftar akun BAITUNA.', mineTitle: 'Ta’aruf Premium Saya', seen: 'baituna.taaruf.seen'
+  } : {
+    title: 'Membership Premium', sub: 'Pilih Paket Membership. Buka semua buku Premium di Pustaka Buku.', benefits: M.BENEFITS, pnote: 'Setelah membership aktif, Anda bisa langsung membaca semua buku Premium.',
+    item: 'Membership BAITUNA', plan: m => 'Membership ' + m + ' Bulan', thanks: 'Terima Kasih Sudah Memesan Membership BAITUNA!', exitLabel: 'Kembali ke Pustaka Buku',
+    actBen: ['Membaca semua buku Premium', 'Buku Gratis tetap bisa dibaca siapa saja', 'Tanpa perpanjangan otomatis', 'Masjid pilihan tetap tercatat'], startLabel: 'Mulai Jelajahi Buku',
+    wa: 'Membership BAITUNA', soon: 'Perpanjang bila ingin tetap membaca buku Premium.', ended: 'Membership telah berakhir. Akses buku Premium berhenti; buku Gratis tetap bisa dibaca.',
+    none: 'Anda belum punya membership. Buku Gratis tetap bisa dibaca.', login: 'Untuk bergabung dan membayar membership, silakan masuk atau daftar akun BAITUNA.', mineTitle: 'Membership Saya', seen: SEEN_KEY
+  };
+  const seenGetP = () => { try { return localStorage.getItem(T.seen) || ''; } catch (e) { return ''; } };
+  const seenSetP = id => { try { localStorage.setItem(T.seen, id); } catch (e) { /* abaikan */ } };
   const S = { plans: [], planCode: '', mosque: null, noMosque: false, name: '', phone: '', email: '', member: null, orders: [], settings: null, accounts: null, method: '', profileDone: false };
   const back = (label, fn) => h('button', { class: 'btn-ghost bk-back', type: 'button', id: 'ms-back', onclick: fn }, label);
   const note = (t, cls) => h('p', { class: 'hint ' + (cls || '') }, t);
@@ -50,7 +67,7 @@ export function membershipFlow(ctx) {
   const failView = e => draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('div', { class: 'empty' }, h('p', { class: 'muted', id: 'ms-fail' }, M.notReady(e) ? M.errorText(e) : e && e.status === 0 ? 'Tidak ada koneksi internet. Periksa jaringan Anda.' : 'Belum bisa dimuat. Coba lagi.')),
     M.notReady(e) ? '' : h('button', { class: 'btn-sm', type: 'button', id: 'ms-retry', onclick: () => start() }, 'Coba lagi'));
   const adminBar = tab => ctx.isAdmin ? h('div', { class: 'panel ms-adminbar', id: 'ms-adminbar' }, h('b', {}, 'Super Admin'), h('span', { class: 'muted bk-sd' }, tab === 'plans' ? 'Ubah harga paket di sini.' : 'Atur rekening bank dan QRIS di sini.'),
-    h('button', { class: 'btn-sm', type: 'button', id: 'ms-adminedit', onclick: () => ctx.openAdmin('atur') }, tab === 'plans' ? 'Ubah harga paket' : 'Atur rekening & QRIS')) : '';
+    h('button', { class: 'btn-sm', type: 'button', id: 'ms-adminedit', onclick: () => ctx.openAdmin(tab === 'plans' ? 'plans' : 'atur') }, tab === 'plans' ? 'Ubah harga paket' : 'Atur rekening & QRIS')) : '';
   const plan = () => S.plans.find(p => p.code === S.planCode) || null;
   const steps = n => h('ol', { class: 'ms-steps', id: 'ms-steps', 'aria-label': 'Langkah' }, ...['Data', 'Pembayaran', 'Selesai'].map((t, i) =>
     h('li', A({ class: i + 1 < n ? 'done' : i + 1 === n ? 'on' : '', 'aria-current': i + 1 === n ? 'step' : null }), h('span', { class: 'ms-sn' }, i + 1 < n ? ic(I.check) : String(i + 1)), h('span', {}, t))));
@@ -60,7 +77,7 @@ export function membershipFlow(ctx) {
   const findOrder = id => S.orders.find(x => x.id === id);
 
   async function refresh() {
-    const [plans, member, orders] = await Promise.all([M.listPlans(), M.myMembership(), M.myOrders()]);
+    const [plans, member, orders] = await Promise.all([M.listPlans(P), M.myMembership(P), M.myOrders(P)]);
     S.plans = plans; S.member = member; S.orders = orders;
   }
   async function loadPay() { if (!S.settings) S.settings = await M.settingsPublic(); if (!S.accounts) S.accounts = await M.listAccounts(); return M.methodsReady(S.settings, S.accounts); }
@@ -82,17 +99,17 @@ export function membershipFlow(ctx) {
     });
     const go = h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-next', onclick: () => { if (plan() && plan().price) { toast('Paket ' + plan().months + ' bulan dipilih.'); checkoutScreen(); } } }, 'Lanjutkan ke Checkout');
     const open = M.openOrder(S.orders);
-    const kids = [back(ctx.backLabel || '← Pustaka', ctx.exit), h('div', { class: 'ms-crownhead', 'aria-hidden': 'true' }, ic(I.crown, 'ms-crownic')), h('h2', { class: 'wtitle ms-ptitle' }, 'Membership Premium'),
-      h('p', { class: 'muted ms-psub' }, 'Pilih Paket Membership. Buka semua buku Premium di Pustaka Buku.'), adminBar('plans')];
+    const kids = [back(ctx.backLabel || '← Pustaka', ctx.exit), h('div', { class: 'ms-crownhead', 'aria-hidden': 'true' }, ic(I.crown, 'ms-crownic')), h('h2', { class: 'wtitle ms-ptitle' }, T.title),
+      h('p', { class: 'muted ms-psub' }, T.sub), adminBar('plans')];
     const rej = !open && S.orders[0] && S.orders[0].status === 'ditolak' ? S.orders[0] : null;
     if (open) kids.push(h('div', { class: 'panel ms-open', id: 'ms-open' }, h('b', {}, 'Ada pesanan yang belum selesai'), h('p', { class: 'muted' }, open.ref_code + ' · ' + open.plan_name + ' · ' + M.statusLabel(open.status)),
       h('button', { class: 'btn-sm', type: 'button', id: 'ms-continue', onclick: () => route(open) }, 'Lihat pesanan')));
     if (rej) kids.push(h('div', { class: 'panel ms-rej', id: 'ms-open' }, h('b', {}, 'Bukti pembayaran ditolak'), h('p', { class: 'muted' }, rej.ref_code + ' · Alasan: ' + (rej.reject_reason || '-')),
       h('button', { class: 'btn-sm', type: 'button', id: 'ms-continue', onclick: () => statusScreen(rej) }, 'Lihat & kirim ulang bukti')));
     if (M.isActive(S.member)) kids.push(infoBox('Membership Anda aktif sampai ' + M.fmtDate(S.member.ends_at) + '. Paket baru ditambahkan setelah tanggal itu, sisa masa aktif tidak hilang.', 'ms-actnote'));
-    kids.push(h('ul', { class: 'ms-ben' }, ...M.BENEFITS.map(b => h('li', {}, ic(I.checkc, 'ms-ic ms-okc'), h('span', {}, b)))));
+    kids.push(h('ul', { class: 'ms-ben' }, ...T.benefits.map(b => h('li', {}, ic(I.checkc, 'ms-ic ms-okc'), h('span', {}, b)))));
     kids.push(cards.length ? h('div', { class: 'ms-plans', id: 'ms-plans', role: 'radiogroup', 'aria-label': 'Paket' }, ...cards) : h('p', { class: 'muted', id: 'ms-noplan' }, 'Belum ada paket yang tersedia.'));
-    kids.push(go, h('p', { class: 'hint ms-pnote', id: 'ms-pnote' }, 'Setelah membership aktif, Anda bisa langsung membaca semua buku Premium.'));
+    kids.push(go, h('p', { class: 'hint ms-pnote', id: 'ms-pnote' }, T.pnote));
     if (S.orders.length) kids.push(h('button', { class: 'btn-sm ghost mt', type: 'button', id: 'ms-tomine', onclick: mineScreen }, 'Membership Saya & riwayat'));
     draw(...kids); paint();
     function paint() { const p = plan(); go.disabled = !(p && p.price) || !!open; for (const l of document.querySelectorAll('.ms-plan')) l.classList.toggle('on', l.getAttribute('data-code') === S.planCode); }
@@ -151,7 +168,7 @@ export function membershipFlow(ctx) {
         lab('Email (opsional)', 'ms-email'), field(I.mail, email), lab('Masjid Tujuan Donasi', 'ms-msearch'), mosqueBox,
         infoBox('Sebagian dari biaya membership Anda akan didonasikan ke masjid yang Anda pilih di atas. Pilih masjid yang ingin Anda bantu. Nomor WhatsApp Anda tidak ditampilkan ke pengguna lain.', 'ms-donnote')),
       h('div', { class: 'panel ms-sum', id: 'ms-sum' }, h('h3', {}, 'Ringkasan Pesanan'),
-        h('div', { class: 'ms-item' }, h('span', { class: 'ms-crown' }, ic(I.crown)), h('span', { class: 'ms-it' }, h('b', {}, 'Membership BAITUNA'), h('span', { class: 'muted' }, 'Paket ' + p.months + ' Bulan')), h('b', { class: 'ms-ip' }, M.rp(p.price))),
+        h('div', { class: 'ms-item' }, h('span', { class: 'ms-crown' }, ic(I.crown)), h('span', { class: 'ms-it' }, h('b', {}, T.item), h('span', { class: 'muted' }, 'Paket ' + p.months + ' Bulan')), h('b', { class: 'ms-ip' }, M.rp(p.price))),
         row('Periode', p.months + ' bulan'), row('Perkiraan berakhir', M.fmtDate(end) + ' (dihitung saat diverifikasi)'), row('Total Pembayaran', M.rp(p.price), 'ms-total')),
       err, btn);
   }
@@ -197,12 +214,16 @@ export function membershipFlow(ctx) {
       if (!S.method || btn.disabled) return;
       btn.disabled = true; btn.textContent = 'Membuat pesanan…'; err.textContent = '';
       try {
-        const id = await M.createOrder({ plan: p.code, name: S.valid.name, phone: S.valid.phone, email: S.valid.email, mosque: S.mosque ? S.mosque.id : null, method: S.method });
+        const id = await M.createOrder({ plan: p.code, name: S.valid.name, phone: S.valid.phone, email: S.valid.email, mosque: S.mosque ? S.mosque.id : null, method: S.method }, P);
         M.pingNotify();
-        S.orders = await M.myOrders(); const o = findOrder(id) || M.openOrder(S.orders);
+        S.orders = await M.myOrders(P); const o = findOrder(id) || M.openOrder(S.orders);
         toast('Pesanan berhasil dibuat.'); thanksScreen(o);
       } catch (e) {
-        if (e && e.message === 'order_terbuka') { try { S.orders = await M.myOrders(); } catch (x) { /* abaikan */ } const o = M.openOrder(S.orders); if (o) { toast('Anda masih punya pesanan yang belum selesai. Ditampilkan.'); route(o); return; } }
+        if (e && e.message === 'order_terbuka') {
+          try { S.orders = await M.myOrders(P); } catch (x) { /* abaikan */ } const o = M.openOrder(S.orders); if (o) { toast('Anda masih punya pesanan yang belum selesai. Ditampilkan.'); route(o); return; }
+          let other = null; try { other = M.openOrder(await M.myOrders('all')); } catch (x) { /* abaikan */ }
+          if (other) { err.textContent = 'Anda masih punya pesanan ' + (M.productOf(other) === 'taaruf' ? 'BAITUNA Ta’aruf Premium' : 'Membership BAITUNA') + ' (' + other.ref_code + ') yang belum selesai. Selesaikan atau batalkan dulu dari halaman ' + (M.productOf(other) === 'taaruf' ? 'BAITUNA Ta’aruf' : 'Pustaka Buku') + '.'; btn.disabled = false; btn.textContent = 'Lanjutkan Pembayaran'; return; }
+        }
         err.textContent = 'Gagal membuat transaksi. ' + M.errorText(e); btn.disabled = false; btn.textContent = 'Lanjutkan Pembayaran';
         if (e && e.message === 'metode_belum') { S.settings = null; S.accounts = null; }
       }
@@ -221,7 +242,7 @@ export function membershipFlow(ctx) {
     if (!o) { plansScreen(); return; }
     loading();
     let ready; try { ready = await loadPay(); } catch (e) { failView(e); return; }
-    try { S.orders = await M.myOrders(); o = findOrder(o.id) || o; } catch (e) { /* pakai data yang ada */ }   // status terbaru dari server, bukan salinan lama
+    try { S.orders = await M.myOrders(P); o = findOrder(o.id) || o; } catch (e) { /* pakai data yang ada */ }   // status terbaru dari server, bukan salinan lama
     let m = o.method && ready[o.method] ? o.method : ready.qris ? 'qris' : ready.transfer ? 'transfer' : '';
     const qr = M.qrisUrl(S.settings), body = h('div', { id: 'ms-method-body' });
     const tabs = h('div', { class: 'ms-tabs', id: 'ms-seg', role: 'tablist', 'aria-label': 'Metode pembayaran' }, ...[['qris', 'QRIS'], ['transfer', 'Transfer Bank']].map(([k, l]) => {
@@ -251,9 +272,9 @@ export function membershipFlow(ctx) {
     const rej = o.status === 'ditolak';
     const cancel = o.status === 'menunggu_pembayaran' ? h('button', { class: 'btn-sm alt', type: 'button', id: 'ms-cancel', onclick: async () => {
       if (!(await ask({ title: 'Batalkan pesanan ini?', text: 'Pesanan ' + o.ref_code + ' dibatalkan. Anda bisa memesan lagi kapan saja.' }))) return;
-      try { await M.cancelOrder(o.id); M.pingNotify(); S.orders = await M.myOrders(); toast('Pesanan dibatalkan.'); plansScreen(); }
+      try { await M.cancelOrder(o.id); M.pingNotify(); S.orders = await M.myOrders(P); toast('Pesanan dibatalkan.'); plansScreen(); }
       catch (e) {
-        if (e && e.message === 'tidak_bisa') { try { S.orders = await M.myOrders(); } catch (x) { /* abaikan */ } toast('Status pesanan sudah berubah. Menampilkan status terbaru.'); statusScreen(findOrder(o.id) || o); return; }
+        if (e && e.message === 'tidak_bisa') { try { S.orders = await M.myOrders(P); } catch (x) { /* abaikan */ } toast('Status pesanan sudah berubah. Menampilkan status terbaru.'); statusScreen(findOrder(o.id) || o); return; }
         toast('Gagal memperbarui status. ' + M.errorText(e), true);
       }
     } }, 'Batalkan pesanan') : '';
@@ -297,7 +318,7 @@ export function membershipFlow(ctx) {
         prog.textContent = 'Mengunggah bukti…'; await M.uploadProof(path, img.blob);
         prog.textContent = 'Menyimpan…'; await M.attachProof(o.id, path, o.method || (S.settings && S.settings.qris_path ? 'qris' : 'transfer'));
         M.pingNotify();
-        S.orders = await M.myOrders(); toast('Bukti pembayaran berhasil dikirim.');
+        S.orders = await M.myOrders(P); toast('Bukti pembayaran berhasil dikirim.');
         sentScreen(findOrder(o.id) || { ...o, status: 'menunggu_verifikasi', proof_at: new Date().toISOString() });
       } catch (e) {
         prog.textContent = '';
@@ -307,13 +328,13 @@ export function membershipFlow(ctx) {
     });
     draw(back('← Pembayaran', () => payScreen(o)), steps(3),
       h('div', { class: 'ms-hero', id: 'ms-thanks' }, h('span', { class: 'ms-heroic ms-okbg' }, ic(I.check)),
-        h('h2', { class: 'wtitle' }, rej ? 'Kirim Ulang Bukti Pembayaran' : 'Terima Kasih Sudah Memesan Membership BAITUNA!'),
+        h('h2', { class: 'wtitle' }, rej ? 'Kirim Ulang Bukti Pembayaran' : T.thanks),
         h('p', { class: 'muted', id: 'ms-thanks-msg' }, rej ? 'Bukti sebelumnya ditolak: ' + (o.reject_reason || '-') + '. Silakan unggah bukti yang benar.' : 'Pesanan membership Anda berhasil dibuat. Setelah membayar, unggah bukti pembayaran di bawah ini. Membership akan aktif setelah pembayaran diverifikasi oleh admin BAITUNA.')),
-      h('div', { class: 'panel ms-sum', id: 'ms-sum' }, refBox(o), row('Tanggal Transaksi', M.fmtDateTime(o.created_at)), row('Paket', 'Membership ' + o.months + ' Bulan'), row('Periode', o.months + ' bulan'),
+      h('div', { class: 'panel ms-sum', id: 'ms-sum' }, refBox(o), row('Tanggal Transaksi', M.fmtDateTime(o.created_at)), row('Paket', T.plan(o.months)), row('Periode', o.months + ' bulan'),
         row('Total Pembayaran', M.rp(o.amount), 'ms-total'), row('Metode Pembayaran', M.methodLabel(o.method)), h('div', { class: 'ms-row' }, h('span', { class: 'muted' }, 'Status Pembayaran'), h('span', { class: tone(o.status), id: 'ms-stat' }, M.statusLabel(o.status)))),
       h('h3', {}, 'Upload Bukti Pembayaran ', h('span', { class: 'ms-req' }, '*')), file, drop, prev, err, prog, send,
       h('div', { class: 'row-btns mt' }, h('button', { class: 'btn-sm ghost', type: 'button', id: 'ms-repay', onclick: () => payScreen(o) }, 'Lihat cara pembayaran'), h('button', { class: 'btn-sm ghost', type: 'button', id: 'ms-detail', onclick: () => statusScreen(o) }, 'Lihat Detail Transaksi'),
-        h('button', { class: 'btn-sm ghost', type: 'button', id: 'ms-tolib', onclick: ctx.exit }, 'Kembali ke Pustaka Buku')));
+        h('button', { class: 'btn-sm ghost', type: 'button', id: 'ms-tolib', onclick: ctx.exit }, T.exitLabel)));
   }
 
   /* ===== 6. Bukti terkirim ===== */
@@ -324,7 +345,7 @@ export function membershipFlow(ctx) {
       h('div', { class: 'panel ms-sum' }, row('Nomor Pesanan', o.ref_code), row('Total Pembayaran', M.rp(o.amount)), row('Waktu Kirim', M.fmtDateTime(o.proof_at || new Date())),
         h('div', { class: 'ms-row' }, h('span', { class: 'muted' }, 'Status'), h('span', { class: tone('menunggu_verifikasi'), id: 'ms-stat' }, 'Menunggu Verifikasi'))),
       h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-detail', onclick: () => statusScreen(o) }, 'Lihat Detail Pesanan'),
-      h('button', { class: 'btn-sm ghost ms-cta2', type: 'button', id: 'ms-tolib', onclick: ctx.exit }, 'Kembali ke Pustaka Buku'));
+      h('button', { class: 'btn-sm ghost ms-cta2', type: 'button', id: 'ms-tolib', onclick: ctx.exit }, T.exitLabel));
   }
 
   /* ===== 7. Riwayat & status satu transaksi (timeline) ===== */
@@ -363,12 +384,12 @@ export function membershipFlow(ctx) {
 
   /* ===== 8. Baru aktif ===== */
   function activatedScreen(o) {
-    seenSet(o.id);
+    seenSetP(o.id);
     draw(back(ctx.backLabel || '← Pustaka', ctx.exit),
       h('div', { class: 'ms-hero', id: 'ms-activated' }, h('span', { class: 'ms-heroic ms-okbg' }, ic(I.check)), h('h2', { class: 'wtitle' }, 'Alhamdulillah!'), h('p', { class: 'muted' }, 'Membership Anda telah aktif. Pembayaran sudah diverifikasi admin.')),
-      h('div', { class: 'panel ms-sum' }, row('Paket', 'Membership ' + o.months + ' Bulan'), row('Mulai aktif', M.fmtDate(S.member ? S.member.started_at : o.starts_at)), row('Berlaku hingga', M.fmtDate(S.member ? S.member.ends_at : o.ends_at), 'ms-until')),
-      h('ul', { class: 'ms-ben' }, ...['Membaca semua buku Premium', 'Buku Gratis tetap bisa dibaca siapa saja', 'Tanpa perpanjangan otomatis', 'Masjid pilihan tetap tercatat'].map(b => h('li', {}, ic(I.checkc, 'ms-ic ms-okc'), h('span', {}, b)))),
-      h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-read', onclick: ctx.exit }, 'Mulai Jelajahi Buku'),
+      h('div', { class: 'panel ms-sum' }, row('Paket', T.plan(o.months)), row('Mulai aktif', M.fmtDate(S.member ? S.member.started_at : o.starts_at)), row('Berlaku hingga', M.fmtDate(S.member ? S.member.ends_at : o.ends_at), 'ms-until')),
+      h('ul', { class: 'ms-ben' }, ...T.actBen.map(b => h('li', {}, ic(I.checkc, 'ms-ic ms-okc'), h('span', {}, b)))),
+      h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-read', onclick: ctx.exit }, T.startLabel),
       h('button', { class: 'btn-sm ghost ms-cta2', type: 'button', id: 'ms-tomine', onclick: mineScreen }, 'Lihat Riwayat Membership'));
   }
 
@@ -377,7 +398,7 @@ export function membershipFlow(ctx) {
     loading();
     try { await refresh(); S.settings = S.settings || await M.settingsPublic(); } catch (e) { failView(e); return; }
     const m = S.member, act = M.isActive(m), open = M.openOrder(S.orders), last = S.orders.find(x => x.status === 'disetujui'), left = M.daysLeft(m);
-    const wa = M.adminWaLink(S.settings.admin_wa, 'Assalamu’alaikum, saya butuh bantuan terkait Membership BAITUNA.');
+    const wa = M.adminWaLink(S.settings.admin_wa, 'Assalamu’alaikum, saya butuh bantuan terkait ' + T.wa + '.');
     const hist = S.orders.map(o => h('button', { class: 'panel ms-ord', type: 'button', 'data-id': o.id, 'data-status': o.status, onclick: () => statusScreen(o) },
       h('div', { class: 'ms-oh' }, h('b', {}, o.plan_name), h('span', { class: tone(o.status) }, M.statusLabel(o.status))),
       h('span', { class: 'muted' }, o.ref_code + ' · ' + M.rp(o.amount) + ' · ' + M.fmtDate(o.created_at)),
@@ -385,15 +406,15 @@ export function membershipFlow(ctx) {
       o.status === 'ditolak' && o.reject_reason ? h('span', { class: 'ms-warn' }, 'Ditolak: ' + o.reject_reason) : ''));
     const head = act ? 'Membership Aktif' : m ? 'Membership Berakhir' : 'Belum Berlangganan';
     const renew = h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-buy', onclick: plansScreen }, act || m ? 'Perpanjang Membership' : 'Gabung Membership'); if (open) renew.disabled = true;
-    draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Membership Saya'),
+    draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, T.mineTitle),
       h('div', { class: 'panel ms-detail', id: 'ms-mine', 'data-active': String(act) }, h('span', { class: 'ms-crown ms-crown-lg' + (act ? '' : ' off') }, ic(I.crown)), h('h3', { id: 'ms-head' }, head),
-        last ? row('Paket', 'Membership ' + last.months + ' Bulan') : '', last ? row('Total Pembayaran', M.rp(last.amount)) : '',
+        last ? row('Paket', T.plan(last.months)) : '', last ? row('Total Pembayaran', M.rp(last.amount)) : '',
         m ? row('Mulai aktif', M.fmtDate(m.started_at)) : '', m ? row('Berlaku hingga', M.fmtDate(m.ends_at), 'ms-until') : '',
         last ? row('Masjid Rujukan', last.mosque_name || 'Belum dipilih') : '', last ? row('Nomor Pesanan', last.ref_code) : '', last ? row('Metode Pembayaran', M.methodLabel(last.method)) : '',
         h('div', { class: 'ms-row' }, h('span', { class: 'muted' }, 'Status'), h('span', { class: 'ms-st ' + (act ? 'ms-ok' : 'ms-off'), id: 'ms-mstatus' }, act ? 'Aktif' : m ? 'Berakhir' : 'Belum berlangganan'))),
-      act && left != null && left <= 7 ? h('div', { class: 'ms-note ms-deadline', id: 'ms-soon' }, ic(I.clock), h('span', {}, 'Membership berakhir dalam ' + left + ' hari. Perpanjang bila ingin tetap membaca buku Premium.')) : '',
-      !act && m ? h('div', { class: 'ms-note', id: 'ms-ended' }, ic(I.info), h('span', {}, 'Membership telah berakhir. Akses buku Premium berhenti; buku Gratis tetap bisa dibaca.')) : '',
-      !m ? note('Anda belum punya membership. Buku Gratis tetap bisa dibaca.') : '',
+      act && left != null && left <= 7 ? h('div', { class: 'ms-note ms-deadline', id: 'ms-soon' }, ic(I.clock), h('span', {}, (P === 'taaruf' ? 'Premium' : 'Membership') + ' berakhir dalam ' + left + ' hari. ' + T.soon)) : '',
+      !act && m ? h('div', { class: 'ms-note', id: 'ms-ended' }, ic(I.info), h('span', {}, T.ended)) : '',
+      !m ? note(T.none) : '',
       infoBox('Tidak ada perpanjangan otomatis. Anda bisa memperpanjang secara manual; masa aktif baru ditambahkan setelah masa aktif sekarang berakhir.'),
       open ? h('div', { class: 'panel ms-open', id: 'ms-open' }, h('b', {}, 'Ada pesanan yang belum selesai'), h('p', { class: 'muted' }, open.ref_code + ' · ' + M.statusLabel(open.status)), h('button', { class: 'btn-sm', type: 'button', id: 'ms-continue', onclick: () => route(open) }, 'Lihat pesanan')) : '',
       renew,
@@ -411,13 +432,13 @@ export function membershipFlow(ctx) {
   async function start() {
     const sess = getSession();
     if (!sess || !sess.user) {
-      draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('div', { class: 'panel ms-state', id: 'ms-login' }, h('h2', { class: 'wtitle' }, 'Masuk dulu'), h('p', { class: 'muted' }, 'Untuk bergabung dan membayar membership, silakan masuk atau daftar akun BAITUNA.'), h('button', { class: 'btn-primary', type: 'button', id: 'ms-signin', onclick: ctx.signIn }, 'Masuk atau Daftar')));
+      draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('div', { class: 'panel ms-state', id: 'ms-login' }, h('h2', { class: 'wtitle' }, 'Masuk dulu'), h('p', { class: 'muted' }, T.login), h('button', { class: 'btn-primary', type: 'button', id: 'ms-signin', onclick: ctx.signIn }, 'Masuk atau Daftar')));
       return;
     }
     loading();
     try { await refresh(); } catch (e) { failView(e); return; }
     const fresh = S.orders.find(x => x.status === 'disetujui');
-    if (fresh && M.isActive(S.member) && seenGet() !== fresh.id && Date.now() - new Date(fresh.reviewed_at || 0).getTime() < 14 * 86400000) { activatedScreen(fresh); return; }
+    if (fresh && M.isActive(S.member) && seenGetP() !== fresh.id && Date.now() - new Date(fresh.reviewed_at || 0).getTime() < 14 * 86400000) { activatedScreen(fresh); return; }
     if (ctx.start === 'mine') { mineScreen(); return; }
     const o = M.openOrder(S.orders);
     if (o && ctx.start !== 'plans') { route(o); return; }

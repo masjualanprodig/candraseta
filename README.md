@@ -775,3 +775,13 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ### v202
 - Kalimat "(kecerdasan buatan, bukan manusia)" dihapus dari "Cara kerja". Keterangan di bawah tiap jawaban tetap ada.
+
+### v203 — BAITUNA Ta'aruf
+- Modul baru BAITUNA Ta'aruf (taaruf-ui.js, taaruf-service.js, taaruf.css; SQL: taaruf.sql). Titik masuk: satu kartu "BAITUNA Ta'aruf" (label Baru) di Lainnya. Dashboard, banner, dan bilah bawah tidak diubah.
+- CV bertahap (Profil -> Preferensi -> Verifikasi), rekomendasi calon, kuota 2 profil unik untuk pengguna gratis (dihitung & dikunci di server), detail profil tanpa foto, perkenalan dua arah, agenda/topik/catatan/jadwal (Premium), kontak dibagikan atas izin, keputusan (lanjut/minta waktu/akhiri), laporan, blokir, jeda/hapus CV, Kelola Ta'aruf (Super Admin).
+- Ta'aruf Premium terpisah dari Membership BAITUNA (Rp19.900/1 bln, Rp99.000/6 bln, bisa diubah Super Admin), dibayar lewat alur QRIS/transfer + verifikasi admin yang sama (membership_orders.product = 'taaruf').
+- membership-ui.js / membership-service.js: alur bayar menerima produk 'taaruf'; perilaku Membership BAITUNA tidak berubah.
+
+### v204
+- Atur Membership > Pengaturan kini memuat dua bagian: "Paket Membership BAITUNA" dan "Paket BAITUNA Ta'aruf Premium". Super Admin bisa mengubah harga & menampilkan/menyembunyikan paket Ta'aruf di sana (fungsi server tf_admin_plan, histori harga tercatat). Kelola Ta'aruf > Pengaturan tetap bisa dipakai.
+- Teks bawaan Privasi & Disclaimer: bagian baru "BAITUNA Ta'aruf".

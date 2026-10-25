@@ -34,6 +34,7 @@ import { kiblatPage } from './qibla-ui.js';
 import { ramadanPage } from './ramadan-ui.js';
 import { adzanPage } from './adzan-ui.js';
 import { aiForumPage } from './ai-ui.js';
+import { taarufPage } from './taaruf-ui.js';
 import { booksPage } from './books-ui.js';
 import { kasPublicPanel } from './kas-ui.js';
 import { publicPhotoUrl, mosqueCover, GALLERY_BUCKET } from './supabase.js';
@@ -71,6 +72,7 @@ export function openDirectory(from, back, tab) {
   if (state.tab === 'adzan') { renderAdzan(); return; }
   if (state.tab === 'tanya') { renderTanyaAi(); return; } // v200: jalan pintas lama 'tanya' membuka Forum Tanya Jawab BAITUNA
   if (state.tab === 'tanyaai') { renderTanyaAi(); return; }
+  if (state.tab === 'taaruf') { renderTaaruf(); return; }
   if (state.tab === 'buku') { renderBuku(); return; }
   if (state.tab === 'more') { renderMore(); return; }
   if (!state.loaded) load(true); else renderList();
@@ -85,12 +87,12 @@ export function openMosque(m, from, back) {
   renderDetail(m, renderFeed, '← Agenda');
 }
 
-const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', sunnah: 'Amalan Sunnah Harian', belajar: 'Belajar Membaca Al-Qur\u2019an', asma: 'Asmaul Husna', tracker: 'Tracker Ibadah Harian', zakat: 'Kalkulator Zakat', market: 'Pasar Umat', notif: 'Notifikasi', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', kiblat: 'Arah Kiblat', ramadan: 'Ramadan Center', adzan: 'Adzan', tanya: 'Tanya Jawab', tanyaai: 'Forum Tanya Jawab', buku: 'Pustaka Buku', more: 'Lainnya' };
+const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalender Islam', quran: 'Al-Qur\u2019an', world: 'Galeri Masjid Dunia', sejarah: 'Sejarah Islam', rukun: 'Rukun Islam & Iman', berita: 'Berita & Artikel Islam', dzikir: 'Dzikir Pagi & Petang', doa: 'Doa Shahih', sunnah: 'Amalan Sunnah Harian', belajar: 'Belajar Membaca Al-Qur\u2019an', asma: 'Asmaul Husna', tracker: 'Tracker Ibadah Harian', zakat: 'Kalkulator Zakat', market: 'Pasar Umat', notif: 'Notifikasi', profil: 'Profil & Pengaturan', jadwal: 'Jadwal Salat', kiblat: 'Arah Kiblat', ramadan: 'Ramadan Center', adzan: 'Adzan', tanya: 'Tanya Jawab', tanyaai: 'Forum Tanya Jawab', taaruf: 'BAITUNA Ta\u2019aruf', buku: 'Pustaka Buku', more: 'Lainnya' };
 // Halaman yang dibuka dari tab "Lainnya" (tab itu tetap tampak terpilih).
-const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'profil', 'jadwal', 'kiblat', 'ramadan', 'adzan', 'tanya', 'tanyaai', 'buku'];
+const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'profil', 'jadwal', 'kiblat', 'ramadan', 'adzan', 'tanya', 'tanyaai', 'taaruf', 'buku'];
 // Setelah masuk, Profil ada di bilah bawah; Agenda dan Kalender pindah ke menu Lainnya.
-const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'jadwal', 'kiblat', 'ramadan', 'adzan', 'tanya', 'tanyaai', 'buku'];
-const jump = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'market') renderMarket(); else if (key === 'notif') renderNotif(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'kiblat') renderKiblat(); else if (key === 'ramadan') renderRamadan(); else if (key === 'adzan') renderAdzan(); else if (key === 'tanya') renderTanyaAi(); else if (key === 'tanyaai') renderTanyaAi(); else if (key === 'buku') renderBuku(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
+const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'jadwal', 'kiblat', 'ramadan', 'adzan', 'tanya', 'tanyaai', 'taaruf', 'buku'];
+const jump = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'market') renderMarket(); else if (key === 'notif') renderNotif(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'kiblat') renderKiblat(); else if (key === 'ramadan') renderRamadan(); else if (key === 'adzan') renderAdzan(); else if (key === 'tanya') renderTanyaAi(); else if (key === 'tanyaai') renderTanyaAi(); else if (key === 'taaruf') renderTaaruf(); else if (key === 'buku') renderBuku(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
 // Riwayat halaman fitur: tombol Kembali (termasuk Kembali bawaan HP) kembali ke halaman yang baru saja dilihat, lengkap dengan posisi gulirnya.
 const trail = [];
 const go = key => {
@@ -124,8 +126,8 @@ function tabs() {
 }
 
 function renderMore() {
-  const card = (key, ic, title, sub) => h('button', { class: 'morecard', type: 'button', onclick: () => go(key) },
-    h('span', { class: 'mc-ic' }, icon(ic)), h('span', { class: 'mc-tx' }, h('b', {}, title), h('span', { class: 'muted' }, sub)));
+  const card = (key, ic, title, sub, badge) => h('button', { class: 'morecard', type: 'button', onclick: () => go(key) },
+    h('span', { class: 'mc-ic' }, icon(ic)), h('span', { class: 'mc-tx' }, h('b', {}, title, badge ? h('span', { class: 'mc-new' }, badge) : ''), h('span', { class: 'muted' }, sub)));
   $('public-content').replaceChildren(tabs(), h('h2', { class: 'wtitle' }, 'Lainnya'),
     h('div', { class: 'qlist' },
       ...(getSession() ? [card('info', ICONS.agenda, 'Agenda & Pengumuman', 'Kegiatan dan kabar dari masjid'), card('cal', ICONS.moon, 'Kalender Islam', 'Tanggal Masehi dan Hijriah (perkiraan)')]
@@ -140,6 +142,7 @@ function renderMore() {
       card('jadwal', ICONS.clock, 'Jadwal Salat', 'Waktu salat sesuai lokasi Anda'),
       card('buku', ICONS.book, 'Pustaka Buku', 'Buku fisik dan digital, pesan lewat WhatsApp atau link checkout'),
       card('tanyaai', '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>', 'Forum Tanya Jawab', 'Tanya jawab keislaman beserta rujukannya (khusus membership)'),
+      card('taaruf', '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/><path d="M9 12.5l2 2 4-4"/>', 'BAITUNA Ta’aruf', 'Ikhtiar menuju keluarga sakinah', 'Baru'),
       card('adzan', ICONS.mosque, 'Adzan', 'Suara dan pengingat adzan tiap waktu salat'),
       card('kiblat', ICONS.compass, 'Arah Kiblat', 'Kompas kiblat dari lokasi Anda ke Ka’bah'),
       card('dzikir', ICONS.dzikir, 'Dzikir Pagi & Petang', 'Bacaan dan penghitung ketukan'),
@@ -165,6 +168,10 @@ function renderMarket() {
 
 function renderBuku() {
   $('public-content').replaceChildren(tabs(), booksPage({ go, onSignIn: () => exitPublic(), openId: takeOpen('buku') }));
+}
+
+function renderTaaruf() {
+  $('public-content').replaceChildren(tabs(), taarufPage({ go, onSignIn: () => exitPublic() }));
 }
 
 function renderTanyaAi() {

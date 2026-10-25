@@ -13,7 +13,7 @@ const LOG = { dibuat: 'Pesanan dibuat', bukti_dikirim: 'Bukti dikirim', disetuju
 export function membershipAdminPage(ctx) {
   const { draw } = ctx;
   const st = { tab: ctx.tab === 'verif' || !ctx.tab ? 'trx' : ctx.tab, filter: 'menunggu_verifikasi', q: '' };
-  const back = h('button', { class: 'btn-ghost bk-back', type: 'button', id: 'ma-back', onclick: () => ctx.exit() }, '← Kelola buku');
+  const back = h('button', { class: 'btn-ghost bk-back', type: 'button', id: 'ma-back', onclick: () => ctx.exit() }, ctx.backLabel || '← Kelola buku');
   const tabs = () => h('div', { class: 'mk-chips', id: 'ma-tabs', role: 'group', 'aria-label': 'Bagian' }, ...[['trx', 'Transaksi'], ['komisi', 'Komisi'], ['atur', 'Pengaturan']].map(([k, l]) =>
     h('button', { class: 'mk-chip' + (st.tab === k ? ' on' : ''), type: 'button', id: 'ma-t-' + k, 'aria-pressed': String(st.tab === k), onclick: () => { st.tab = k; show(); } }, l)));
   const frame = (...k) => draw(back, h('h2', { class: 'wtitle' }, 'Atur Membership'), tabs(), ...k);
@@ -116,10 +116,11 @@ export function membershipAdminPage(ctx) {
 
   /* ===== Pengaturan ===== */
   async function atur() {
-    const [plans, accounts, set, hist, notes] = await Promise.all([M.listPlans(), M.adminAccounts(), M.adminSettings(), M.planHistory().catch(() => null), M.adminNotifications().catch(() => null)]);
+    const [plans, accounts, set, hist, notes, tplans, thist] = await Promise.all([M.listPlans(), M.adminAccounts(), M.adminSettings(), M.planHistory().catch(() => null), M.adminNotifications().catch(() => null),
+      M.listPlans('taaruf').catch(() => null), M.taarufPlanHistory().catch(() => null)]);
     const lab = (t, f) => h('label', { class: 'hint bk-lab', for: f }, t);
     // Paket
-    const planCard = p => {
+    const planCard = (p, save) => {
       const price = h('input', { class: 'in', id: 'ma-price-' + p.code, inputmode: 'numeric', maxlength: '12', placeholder: 'Belum ditetapkan' }); price.value = p.price == null ? '' : String(p.price);
       const act = h('input', { type: 'checkbox', id: 'ma-pact-' + p.code }); act.checked = !!p.active; const err = h('p', { class: 'mk-err', role: 'alert' }, '');
       return h('div', { class: 'panel', 'data-code': p.code }, h('b', {}, p.name), lab('Harga (Rp)', 'ma-price-' + p.code), price, h('label', { class: 'qa-check' }, act, ' Tampilkan paket ini'), err,
@@ -127,7 +128,7 @@ export function membershipAdminPage(ctx) {
           const v = M.parsePrice(price.value); if (v.error) { err.textContent = v.error; return; } err.textContent = '';
           if (v.ok === p.price && act.checked === !!p.active) { toast('Tidak ada perubahan.'); return; }
           if (!(await ask({ title: 'Simpan perubahan paket?', text: p.name + ': ' + (p.price == null ? 'belum ada harga' : M.rp(p.price)) + ' → ' + (v.ok == null ? 'tanpa harga (tidak bisa dibeli)' : M.rp(v.ok)) + (act.checked ? '' : ', disembunyikan') + '. Berlaku untuk transaksi baru; transaksi lama tidak berubah. Perubahan dicatat.' }))) return;
-          try { await M.savePlan(p.id, { price: v.ok, active: act.checked }); toast('Paket disimpan.'); show(); } catch (e) { err.textContent = M.errorText(e); }
+          try { if (save) await save(p, v.ok, act.checked); else await M.savePlan(p.id, { price: v.ok, active: act.checked }); toast('Paket disimpan.'); show(); } catch (e) { err.textContent = M.errorText(e); }
         } }, 'Simpan paket'));
     };
     // Rekening
@@ -179,7 +180,14 @@ export function membershipAdminPage(ctx) {
     const histBox = hist && hist.length ? h('details', { class: 'panel', id: 'ma-phist' }, h('summary', {}, 'Histori perubahan harga'),
       ...hist.map(x => h('div', { class: 'ms-row' }, h('span', { class: 'muted' }, M.fmtDateTime(x.changed_at) + ' · ' + x.plan_code.replace('b', ' bulan')),
         h('b', {}, (x.old_price == null ? '-' : M.rp(x.old_price)) + ' → ' + (x.new_price == null ? '-' : M.rp(x.new_price)) + (x.old_active !== x.new_active ? (x.new_active ? ' · ditampilkan' : ' · disembunyikan') : ''))))) : '';
-    frame(h('h3', {}, 'Paket'), h('p', { class: 'muted' }, 'Harga berlaku untuk transaksi baru. Transaksi lama menyimpan harga saat dipesan.'), ...plans.map(planCard), histBox,
+    const tSave = (p, price, active) => M.saveTaarufPlan(p.code, price, active);
+    const tHistBox = thist && thist.length ? h('details', { class: 'panel', id: 'ma-thist' }, h('summary', {}, 'Histori perubahan harga Ta’aruf'),
+      ...thist.map(x => h('div', { class: 'ms-row' }, h('span', { class: 'muted' }, M.fmtDateTime(x.changed_at) + ' · ' + (x.plan_name || '')),
+        h('b', {}, (x.old_price == null ? '-' : M.rp(x.old_price)) + ' → ' + (x.new_price == null ? '-' : M.rp(x.new_price)) + (x.old_active !== x.new_active ? (x.new_active ? ' · ditampilkan' : ' · disembunyikan') : ''))))) : '';
+    const tBox = tplans === null ? h('p', { class: 'hint ms-warn', id: 'ma-tnone' }, 'Paket Ta’aruf belum tersedia. Jalankan taaruf.sql.')
+      : h('div', { id: 'ma-tplans' }, ...tplans.map(p => planCard(p, tSave)), tHistBox);
+    frame(h('h3', {}, 'Paket Membership BAITUNA'), h('p', { class: 'muted' }, 'Buku Premium & Forum Tanya Jawab. Harga berlaku untuk transaksi baru. Transaksi lama menyimpan harga saat dipesan.'), ...plans.map(p => planCard(p)), histBox,
+      h('h3', { id: 'ma-thead' }, 'Paket BAITUNA Ta’aruf Premium'), h('p', { class: 'muted' }, 'Terpisah dari Membership BAITUNA. Harga berlaku untuk transaksi baru.'), tBox,
       h('h3', {}, 'Notifikasi Telegram'), tgBox,
       h('h3', {}, 'Rekening pembayaran'), h('p', { class: 'muted' }, 'Isi hanya rekening resmi milik pengelola BAITUNA. Jamaah melihat rekening yang aktif.'), accounts.length ? h('div', { id: 'ma-accs' }, ...accounts.map(accRow)) : h('p', { class: 'muted', id: 'ma-noacc' }, 'Belum ada rekening.'), addAcc,
       h('h3', {}, 'QRIS, komisi, dan kontak'), h('div', { class: 'panel rform' },

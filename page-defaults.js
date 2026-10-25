@@ -39,6 +39,32 @@ Untuk bertanya Anda harus masuk. Judul, rincian, kategori, dan nama depan (bila 
 ## Pustaka Buku
 Pustaka Buku menampilkan buku yang dijual pengelola. BAITUNA tidak memproses pembayaran dan tidak menyimpan data pembeli: tombol Pesan membuka WhatsApp penjual atau link checkout milik penjual, yang berlaku kebijakan privasi mereka sendiri. Nomor WhatsApp atau link yang diisi pengelola tidak ditampilkan sebagai teks, tetapi terbuka saat tombol Pesan ditekan. Tampilan Grid atau List yang Anda pilih disimpan di perangkat.
 
+## BAITUNA Ta’aruf
+BAITUNA Ta’aruf membantu jamaah berusia 19 tahun ke atas saling mengenal calon pasangan secara terarah. Untuk memakainya Anda harus masuk dengan akun BAITUNA. Fitur ini tidak memakai foto, tidak meminta unggah dokumen identitas, dan tidak mengirim data CV ke layanan kecerdasan buatan.
+
+Data yang disimpan di server BAITUNA:
+- CV Ta’aruf: nama tampilan, jenis kelamin, tanggal lahir, provinsi dan kota, pendidikan, pekerjaan, status pernikahan, tanggungan, kesiapan menikah, rencana tempat tinggal, harapan tentang anak, isian "Tentang saya", harapan keluarga, visi hidup, nilai dan gaya hidup, serta informasi tambahan (bila diisi)
+- preferensi calon (rentang usia, wilayah, dan filter lain)
+- daftar profil calon yang pernah Anda buka, untuk menghitung kuota profil gratis
+- permintaan perkenalan, statusnya, dan keputusan Anda
+- topik yang ditandai, jadwal yang diusulkan, kontak yang Anda bagikan, dan catatan pribadi
+- daftar blokir dan laporan yang Anda kirim
+- status Ta’aruf Premium dan transaksinya (nama, nomor WhatsApp, email bila diisi, masjid rujukan, dan bukti bayar, sama seperti Membership)
+
+Yang dapat dilihat calon:
+- Calon lawan jenis yang sesuai kriteria dapat melihat nama tampilan, usia (bukan tanggal lahir), kota dan provinsi, pendidikan, pekerjaan, status pernikahan, kesiapan menikah, serta isian tentang diri, keluarga, visi, dan nilai hidup Anda.
+- Informasi tambahan hanya terlihat oleh calon yang berlangganan Ta’aruf Premium.
+- Nama lengkap akun, email, nomor HP, alamat, dan tanggal lahir tidak ditampilkan kepada calon.
+- Kontak hanya terlihat bila Anda sendiri membagikannya, hanya oleh calon dalam proses yang sedang berjalan, dan disembunyikan kembali saat proses diakhiri. Disarankan membagikan nomor wali atau keluarga.
+- Topik yang ditandai dan jadwal yang diusulkan terlihat oleh kedua pihak. Catatan pribadi hanya untuk Anda: tidak ditampilkan kepada calon dan tidak ada di panel pengelola.
+- Bila Anda menolak, calon hanya melihat bahwa perkenalan belum dapat dilanjutkan, tanpa alasan. Menyembunyikan profil dari rekomendasi tidak diberitahukan kepada calon. Pelapor tidak diberitahukan kepada pihak yang dilaporkan.
+
+Pengelola (Super Admin) dapat melihat CV dan email akun untuk menangani laporan dan mencatat pemeriksaan identitas. Pemeriksaan identitas dilakukan langsung oleh pengurus; dokumen tidak disimpan di aplikasi. Setiap tindakan pengelola (menonaktifkan profil, menandai identitas, menindaklanjuti laporan, mengubah harga) tercatat di log.
+
+Anda dapat mengubah CV, menjeda profil agar tidak tampil di rekomendasi, atau menghapus CV kapan saja di menu CV Ta’aruf Saya. Saat CV dihapus, CV, preferensi, dan catatan pribadi Anda langsung dihapus, proses yang berjalan diakhiri, dan kontak yang dibagikan disembunyikan. Riwayat status perkenalan, riwayat kuota, laporan, log pengelola, dan catatan transaksi tetap disimpan untuk keselamatan pengguna dan pencatatan pembayaran. Laporan dari pengguna lain tentang Anda tetap disimpan walaupun CV dihapus.
+
+Label verifikasi memiliki batas: email dikonfirmasi saat mendaftar, usia dinyatakan sendiri, dan "Identitas diperiksa pengurus" hanya berarti pengurus pernah mencocokkan identitas secara langsung. BAITUNA tidak menjamin kebenaran seluruh isi CV, kecocokan, atau keberhasilan perkenalan, dan tidak dapat mencegah orang lain mencatat atau memotret layar. Jangan pernah mengirim uang atau data pribadi kepada calon. Libatkan wali atau keluarga, lalu laporkan dan blokir bila ada yang mencurigakan.
+
 ## Kas Masjid
 Pengurus masjid dapat mencatat pemasukan dan pengeluaran kas di BAITUNA. Aplikasi hanya mencatat, tidak memegang atau memindahkan uang. Catatan berisi akun kas, kategori, jumlah, tanggal, keterangan, dan (bila diisi) nama pihak terkait serta foto bukti. Catatan hanya dapat dilihat Bendahara, Ketua Takmir, Admin Masjid masjid itu, dan admin pusat. Catatan tidak dapat dihapus; kesalahan dikoreksi dengan catatan pembatalan, dan setiap perubahan penting terekam di jejak audit. Foto bukti disimpan privat. Ringkasan total bulanan baru tampil kepada jamaah jika pengurus mengaktifkannya; rincian dan nama pihak tidak ikut ditampilkan.
 
