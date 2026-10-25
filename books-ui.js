@@ -96,7 +96,7 @@ function richEditor(id, placeholder) {
   return {
     el, box,
     get: () => { const v = B.sanitizeHtml(el.innerHTML); return B.htmlToText(v) ? v : ''; },
-    set: html => { el.innerHTML = B.descToHtml(html); },
+    set: html => { el.innerHTML = B.sanitizeHtml(html); },
   };
 }
 

@@ -723,3 +723,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v186
 - Layar paket: poin ke-4 manfaat membership diganti "Setiap bulan ada 1-2 buku baru yang akan terbit dan GRATIS".
+
+## v187
+- Editor deskripsi buku: isi yang dibuka untuk diedit tidak lagi dirapatkan (jarak paragraf sama seperti saat disimpan); perapihan jarak hanya untuk tampilan baca.
