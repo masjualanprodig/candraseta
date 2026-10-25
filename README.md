@@ -750,3 +750,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v195
 - Banner satu gambar (termasuk GIF) kini tampil utuh sesuai rasio aslinya, tidak terpotong, responsif di semua lebar layar. Banner slide (lebih dari 1 gambar) tetap 16:9.
+
+## v196
+- Banner satu gambar: bingkai putih dihilangkan (sudut membulat + bayangan lembut). Banner utama/slide tetap berbingkai.

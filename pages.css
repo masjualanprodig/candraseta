@@ -457,3 +457,7 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 /* v195: banner satu gambar mengikuti rasio asli gambar (tidak terpotong), responsif di semua lebar */
 .bn-solo .bn-slide.bn-img{aspect-ratio:auto;min-height:3.5rem;background:transparent}
 .bn-solo .bn-slide.bn-img img{height:auto;max-width:100%;object-fit:contain}
+/* v196: banner satu gambar tanpa bingkai putih; hanya sudut membulat + bayangan lembut */
+.home-body > .bn.bn-solo{background:transparent;padding:0;border-radius:var(--r-banner);box-shadow:none}
+.home-body > .bn.bn-solo .bn-track{border-radius:var(--r-banner);box-shadow:0 6px 18px rgba(6,75,61,.18);overflow:hidden}
+.bn-solo .bn-slide.bn-img{border-radius:var(--r-banner)}
