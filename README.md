@@ -753,3 +753,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v196
 - Banner satu gambar: bingkai putih dihilangkan (sudut membulat + bayangan lembut). Banner utama/slide tetap berbingkai.
+
+## v197
+- Banner satu gambar/GIF transparan menempel langsung di latar beranda (tanpa kartu, bayangan, potongan sudut). Pratinjau di editor menampilkan gambar utuh di atas pola kotak-kotak.

@@ -461,3 +461,10 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 .home-body > .bn.bn-solo{background:transparent;padding:0;border-radius:var(--r-banner);box-shadow:none}
 .home-body > .bn.bn-solo .bn-track{border-radius:var(--r-banner);box-shadow:0 6px 18px rgba(6,75,61,.18);overflow:hidden}
 .bn-solo .bn-slide.bn-img{border-radius:var(--r-banner)}
+/* v197: banner satu gambar/GIF transparan "menempel" langsung di latar beranda: tanpa kartu, bayangan, atau potongan sudut */
+.home-body > .bn.bn-solo .bn-track{border-radius:0;box-shadow:none;overflow:hidden;background:transparent}
+.bn-solo .bn-slide.bn-img{border-radius:0;background:transparent;box-shadow:none}
+.bn-solo .bn-slide.bn-img img{background:transparent}
+/* pratinjau di editor: gambar utuh di atas kotak-kotak (kelihatan transparan), tidak dipotong */
+.hbe-simg .hbe-thumb{aspect-ratio:auto;max-height:200px;object-fit:contain;background:repeating-conic-gradient(#e6ebe7 0 25%,#fff 0 50%) 0 0/16px 16px}
+.hbe-simg .hbe-thumb-empty{aspect-ratio:16/9}
