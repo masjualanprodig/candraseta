@@ -27,6 +27,12 @@ export async function emailForPhone(phone) {
   const r = await request('/rest/v1/rpc/login_email_for_phone', { method: 'POST', body: { p_phone: phone } });
   return r.ok && typeof r.data === 'string' && r.data.includes('@') ? r.data : null;
 }
+// Satu nomor HP boleh dipakai beberapa akun (nomor_hp_bersama.sql). Jumlah akun pemakai nomor (null bila fungsi belum ada / galat).
+export async function phoneAccountCount(phone) {
+  const r = await request('/rest/v1/rpc/phone_account_count', { method: 'POST', body: { p_phone: phone } });
+  return r.ok && typeof r.data === 'number' ? r.data : null;
+}
+export const SHARED_PHONE = 'Nomor HP ini dipakai lebih dari satu akun. Silakan masuk memakai email akun Anda.';
 export async function phoneAvailable(phone) {
   const r = await request('/rest/v1/rpc/phone_available', { method: 'POST', body: { p_phone: phone } });
   if (r.status === 0) return { ok: false, error: 'Tidak ada koneksi internet.' };
@@ -38,7 +44,7 @@ export async function signIn(identifier, password) {
   let email = String(identifier || '').trim();
   if (!email.includes('@')) {
     const em = await emailForPhone(email);
-    if (!em) return { ok: false, error: 'Email/No. HP atau password salah.' };
+    if (!em) { const n = await phoneAccountCount(email); return { ok: false, error: n > 1 ? SHARED_PHONE : 'Email/No. HP atau password salah.' }; }
     email = em;
   }
   return signInEmail(email, password);
@@ -58,7 +64,10 @@ export async function signOut() {
 
 export async function requestPasswordReset(identifier) {
   let email = String(identifier || '').trim();
-  if (!email.includes('@')) { email = await emailForPhone(email); if (!email) return { ok: true }; }   // pesan netral
+  if (!email.includes('@')) {
+    const ph = email; email = await emailForPhone(ph);
+    if (!email) { const n = await phoneAccountCount(ph); return n > 1 ? { ok: false, error: 'Nomor HP ini dipakai lebih dari satu akun. Isi email akun Anda, lalu pilih Lupa password lagi.' } : { ok: true }; }   // pesan netral
+  }
   const r = await request('/auth/v1/recover?redirect_to=' + encodeURIComponent(location.origin + '/'), { method: 'POST', body: { email } });
   if (r.status === 429) return { ok: false, error: 'Terlalu sering meminta tautan. Coba lagi beberapa menit lagi.' };
   if (r.status === 0) return { ok: false, error: 'Tidak ada koneksi internet.' };
@@ -130,15 +139,7 @@ async function resumeExisting(email, password) {
 }
 export async function signUp({ name, email, phone, password }) {
   email = String(email || '').trim();
-  if (phone) {
-    const a = await phoneAvailable(phone);
-    if (!a.ok) return { ok: false, error: a.error };
-    if (!a.free) {
-      const owner = await emailForPhone(phone);
-      if (owner && owner.toLowerCase() === email.toLowerCase()) return resumeExisting(email, password);
-      return { ok: false, error: 'Nomor HP ini sudah dipakai akun lain. Bila itu akun Anda, pilih Masuk (bisa pakai nomor HP) atau Lupa password. Bila bukan, pakai nomor lain.' };
-    }
-  }
+  // Nomor HP tidak lagi harus unik: satu HP boleh untuk beberapa akun dengan email berbeda. Yang unik hanya email.
   const r = await request('/auth/v1/signup?redirect_to=' + encodeURIComponent(location.origin + '/'), { method: 'POST', body: { email, password, data: { full_name: name, phone: phone || undefined } } });
   if (!r.ok) {
     const c = codeOf(r);

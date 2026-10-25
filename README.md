@@ -692,3 +692,8 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Daftar ulang dengan nomor HP + email yang sama: aplikasi langsung mencoba masuk dengan password yang diketik (tidak lagi "Nomor HP sudah terdaftar"). Nomor milik akun lain: pesan "sudah dipakai akun lain".
 - Pesan batas server dibedakan: batas kirim email vs terlalu banyak permintaan dari satu jaringan. Galat lain menampilkan kode untuk dilaporkan.
 - aktifkan_akun_tertunda.sql: mengaktifkan akun yang tersangkut belum konfirmasi email (jalankan setelah Confirm email dimatikan).
+
+## Tambahan v179 — Satu nomor HP untuk banyak akun
+- Pendaftaran tidak lagi menolak nomor HP yang sudah dipakai akun lain: satu HP (mis. HP keluarga) boleh untuk beberapa akun dengan email berbeda. Yang harus unik hanya email.
+- nomor_hp_bersama.sql: menghapus indeks unik nomor HP (diganti indeks biasa) dan menambah phone_account_count(p_phone).
+- Masuk/Lupa password dengan nomor HP tetap bisa bila nomor itu hanya dipakai satu akun; bila dipakai beberapa akun, aplikasi meminta memakai email.
