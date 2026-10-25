@@ -705,3 +705,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Editor: Jenis buku Digital/Fisik; "Cara pembacaan / pemesanan": Digital = Baca langsung di aplikasi (tanpa checkout, tanpa WhatsApp/link, PDF wajib); Fisik = Full checkout di website (link). WhatsApp hanya untuk buku fisik lama. Kolom penerbit, kategori, tahun, jumlah halaman.
 - buku_baca.sql: order_type 'read', kolom info buku, aturan digital=baca/fisik=checkout; buku digital lama dipindah ke 'read' (WA/link dikosongkan).
 - Layar paket: judul "Membership Premium", tombol "Lanjutkan ke Checkout".
+
+## v181
+- Pembaca PDF: pesan galat kini menyebut tahap gagal (pustaka / berkas / baca-pdf / tampil) agar penyebab mudah dilacak.

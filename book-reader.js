@@ -121,20 +121,24 @@ export function openReader({ id, title, load }) {
   addEventListener('resize', onResize);
 
   /* ----- muat ----- */
+  let stage0 = 'pustaka';
   (async () => {
     try {
-      const [lib, data] = await Promise.all([loadLib(), load()]);
+      stage0 = 'pustaka';
+      const [lib, data] = await Promise.all([loadLib().catch(e => { stage0 = 'pustaka'; throw e; }), (async () => { try { return await load(); } catch (e) { stage0 = 'berkas'; throw e; } })()]);
       if (closed) return;
       status.textContent = 'Menyiapkan halaman…';
+      stage0 = 'baca-pdf';
       doc = await lib.getDocument({ data: new Uint8Array(data), isEvalSupported: false, enableXfa: false, stopAtErrors: false }).promise;
       if (closed) { doc.destroy(); return; }
       total = doc.numPages; page = Math.min(Math.max(1, page), total);
       slider.max = String(total); root.setAttribute('data-pages', String(total));
       if (pref.page > 1 && pref.page <= total) toast('Melanjutkan dari halaman ' + pref.page + '.');
+      stage0 = 'tampil';
       await render();
     } catch (e) {
       if (closed) return;
-      const msg = e && e.status === 0 ? 'Tidak ada koneksi internet.' : e && (e.status === 401 || e.status === 403) ? 'Anda belum berhak membaca buku ini.' : e && e.status === 404 ? 'Berkas buku tidak ditemukan.' : e && e.status === 415 ? 'Berkas buku bukan PDF yang sah.' : e && e.name === 'PasswordException' ? 'PDF ini dikunci password dan tidak bisa dibuka.' : 'Buku belum bisa dibuka. Coba lagi.';
+      const msg = e && e.status === 0 ? 'Tidak ada koneksi internet.' : e && (e.status === 401 || e.status === 403) ? 'Anda belum berhak membaca buku ini.' : e && e.status === 404 ? 'Berkas buku tidak ditemukan.' : e && e.status === 415 ? 'Berkas buku bukan PDF yang sah.' : e && e.name === 'PasswordException' ? 'PDF ini dikunci password dan tidak bisa dibuka.' : 'Buku belum bisa dibuka. Coba lagi. (kode: ' + stage0 + (e && (e.name || e.message) ? ' – ' + String(e.name && e.name !== 'Error' ? e.name : e.message).slice(0, 60) : '') + ')';
       status.replaceChildren(h('span', { id: 'rd-err' }, msg), h('button', { class: 'btn-sm', type: 'button', id: 'rd-close2', onclick: () => close() }, 'Tutup'));
       status.classList.add('rd-errbox');
     }
