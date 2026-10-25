@@ -766,3 +766,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Server: tanya_ai.sql (tabel ai_*, RLS, kuota 20/hari) + Edge Function baituna-tanya-ai (Gemini; kunci di Supabase Secrets).
 - Membership: manfaat ke-5 "Forum Tanya Jawab BAITUNA"; alur membership bisa dibuka dari forum (tombol kembali "← Forum Tanya Jawab").
 - Pustaka Buku & Berita bisa dibuka langsung ke satu buku/artikel (dipakai Sumber Terkait).
+
+### v200
+- Tanya Jawab gratis (penjawab resmi) dihapus dari menu. Kini hanya ada satu: Forum Tanya Jawab BAITUNA (AI, khusus membership), dengan ikon berkilau, di Lainnya. Pintasan lama "Tanya Jawab" di Beranda ikut membuka forum ini. Data pertanyaan lama di database tidak dihapus.

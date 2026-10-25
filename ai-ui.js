@@ -77,8 +77,7 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
         h('li', {}, 'Jawaban AI bukan fatwa dan bisa keliru. Untuk perkara besar atau pribadi, tanyakan langsung kepada ulama atau ustaz yang Anda percaya.'),
         h('li', {}, 'Riwayat percakapan tersimpan di akun Anda, hanya bisa dilihat oleh Anda, dan bisa dihapus kapan saja.'),
         h('li', {}, 'Batas ' + st.limit + ' pertanyaan per hari agar layanan tetap terjangkau.')),
-      h('p', { class: 'hint' }, 'Ingin bertanya kepada penjawab resmi (manusia)? Gunakan Tanya Jawab biasa, gratis.'),
-      go ? btn('Buka Tanya Jawab penjawab resmi', 'btn-sm ghost', 'ai-to-qa', () => go('tanya')) : '');
+      '');
     let cta;
     if (mode === 'tamu') cta = btn('Masuk atau Daftar', 'ai-gold', 'ai-signin', () => { if (onSignIn) onSignIn(); });
     else if (mode === 'kunci') cta = open ? btn('Lihat status pesanan', 'ai-gold', 'ai-order', () => openMembership('mine')) : btn('Gabung Membership', 'ai-gold', 'ai-join', () => openMembership('plans'));

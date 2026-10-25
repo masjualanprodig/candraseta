@@ -33,7 +33,6 @@ import { notifPage } from './notif-ui.js';
 import { kiblatPage } from './qibla-ui.js';
 import { ramadanPage } from './ramadan-ui.js';
 import { adzanPage } from './adzan-ui.js';
-import { qaPage } from './qa-ui.js';
 import { aiForumPage } from './ai-ui.js';
 import { booksPage } from './books-ui.js';
 import { kasPublicPanel } from './kas-ui.js';
@@ -70,7 +69,7 @@ export function openDirectory(from, back, tab) {
   if (state.tab === 'kiblat') { renderKiblat(); return; }
   if (state.tab === 'ramadan') { renderRamadan(); return; }
   if (state.tab === 'adzan') { renderAdzan(); return; }
-  if (state.tab === 'tanya') { renderTanya(); return; }
+  if (state.tab === 'tanya') { renderTanyaAi(); return; } // v200: jalan pintas lama 'tanya' membuka Forum Tanya Jawab BAITUNA
   if (state.tab === 'tanyaai') { renderTanyaAi(); return; }
   if (state.tab === 'buku') { renderBuku(); return; }
   if (state.tab === 'more') { renderMore(); return; }
@@ -91,7 +90,7 @@ const SUBS = { dir: 'Direktori Masjid', info: 'Agenda & Pengumuman', cal: 'Kalen
 const MORE = ['more', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'profil', 'jadwal', 'kiblat', 'ramadan', 'adzan', 'tanya', 'tanyaai', 'buku'];
 // Setelah masuk, Profil ada di bilah bawah; Agenda dan Kalender pindah ke menu Lainnya.
 const MORE_AUTH = ['more', 'info', 'cal', 'world', 'sejarah', 'rukun', 'berita', 'dzikir', 'doa', 'sunnah', 'belajar', 'asma', 'tracker', 'zakat', 'market', 'notif', 'jadwal', 'kiblat', 'ramadan', 'adzan', 'tanya', 'tanyaai', 'buku'];
-const jump = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'market') renderMarket(); else if (key === 'notif') renderNotif(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'kiblat') renderKiblat(); else if (key === 'ramadan') renderRamadan(); else if (key === 'adzan') renderAdzan(); else if (key === 'tanya') renderTanya(); else if (key === 'tanyaai') renderTanyaAi(); else if (key === 'buku') renderBuku(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
+const jump = key => { state.tab = key; if (key === 'cal') renderCalendar(); else if (key === 'info') renderFeed(); else if (key === 'quran') renderQuran(); else if (key === 'world') renderWorld(); else if (key === 'sejarah') renderHistory(); else if (key === 'rukun') renderRukun(); else if (key === 'berita') renderBerita(); else if (key === 'dzikir') renderDzikir(); else if (key === 'doa') renderDoa(); else if (key === 'sunnah') renderSunnah(); else if (key === 'belajar') renderBelajar(); else if (key === 'asma') renderAsma(); else if (key === 'tracker') renderTracker(); else if (key === 'zakat') renderZakat(); else if (key === 'market') renderMarket(); else if (key === 'notif') renderNotif(); else if (key === 'profil') renderProfil(); else if (key === 'jadwal') renderJadwal(); else if (key === 'kiblat') renderKiblat(); else if (key === 'ramadan') renderRamadan(); else if (key === 'adzan') renderAdzan(); else if (key === 'tanya') renderTanyaAi(); else if (key === 'tanyaai') renderTanyaAi(); else if (key === 'buku') renderBuku(); else if (key === 'more') renderMore(); else if (!state.loaded) load(true); else renderList(); window.scrollTo(0, 0); };
 // Riwayat halaman fitur: tombol Kembali (termasuk Kembali bawaan HP) kembali ke halaman yang baru saja dilihat, lengkap dengan posisi gulirnya.
 const trail = [];
 const go = key => {
@@ -140,8 +139,7 @@ function renderMore() {
       card('zakat', ICONS.zakat, 'Kalkulator Zakat', 'Zakat maal dan penghasilan, nisab, haul, dan rujukan'),
       card('jadwal', ICONS.clock, 'Jadwal Salat', 'Waktu salat sesuai lokasi Anda'),
       card('buku', ICONS.book, 'Pustaka Buku', 'Buku fisik dan digital, pesan lewat WhatsApp atau link checkout'),
-      card('tanya', ICONS.chat, 'Tanya Jawab', 'Tanyakan, dan baca jawaban penjawab resmi beserta rujukannya'),
-      card('tanyaai', ICONS.chat, 'Forum Tanya Jawab BAITUNA', 'Tanya jawab dibantu AI beserta rujukannya (khusus membership)'),
+      card('tanyaai', '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>', 'Forum Tanya Jawab BAITUNA', 'Tanya jawab dibantu AI beserta rujukannya (khusus membership)'),
       card('adzan', ICONS.mosque, 'Adzan', 'Suara dan pengingat adzan tiap waktu salat'),
       card('kiblat', ICONS.compass, 'Arah Kiblat', 'Kompas kiblat dari lokasi Anda ke Ka’bah'),
       card('dzikir', ICONS.dzikir, 'Dzikir Pagi & Petang', 'Bacaan dan penghitung ketukan'),
@@ -167,15 +165,6 @@ function renderMarket() {
 
 function renderBuku() {
   $('public-content').replaceChildren(tabs(), booksPage({ go, onSignIn: () => exitPublic(), openId: takeOpen('buku') }));
-}
-
-function renderTanya() {
-  // v199: pintu masuk Forum Tanya Jawab BAITUNA (AI, Premium) di atas Tanya Jawab penjawab resmi yang tetap seperti semula.
-  const entry = h('button', { class: 'ai-entry', type: 'button', id: 'qa-to-ai', onclick: () => go('tanyaai') },
-    h('span', { class: 'ai-entry-ic' }, icon(ICONS.chat)),
-    h('span', { class: 'ai-entry-tx' }, h('b', {}, 'Forum Tanya Jawab BAITUNA'), h('span', {}, 'Tanya langsung, dijawab dengan bantuan AI beserta rujukannya. Khusus membership.')),
-    h('span', { class: 'ai-entry-tag' }, 'Premium'));
-  $('public-content').replaceChildren(tabs(), entry, qaPage({ go, onSignIn: () => exitPublic() }));
 }
 
 function renderTanyaAi() {
