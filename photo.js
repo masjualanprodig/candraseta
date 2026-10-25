@@ -113,3 +113,21 @@ export async function prepareSquarePhoto(file) {
   } finally { if (bmp.close) bmp.close(); }
   throw { code: 'size' };
 }
+
+/* ===== Banner beranda: JPEG/PNG/WebP dikompres <= 100 KB; GIF (animasi) diunggah apa adanya ===== */
+// GIF tidak bisa dikecilkan otomatis di perangkat tanpa merusak animasinya, jadi dipakai utuh dengan batas ukuran sendiri.
+export const GIF_MAX_BYTES = 600 * 1024;
+export const BANNER_ERRORS = { ...PRODUCT_ERRORS, gifsize: 'GIF lebih dari 600 KB. GIF tidak bisa dikecilkan otomatis; kecilkan dulu ukurannya (kurangi lebar/jumlah frame) lalu unggah lagi.', gifbad: 'Berkas GIF tidak sah. Coba berkas lain.' };
+export async function prepareBannerImage(file) {
+  if (file && file.type === 'image/gif') {
+    if (file.size > MAX_INPUT) throw { code: 'big' };
+    if (file.size > GIF_MAX_BYTES) throw { code: 'gifsize' };
+    const head = new Uint8Array(await file.slice(0, 6).arrayBuffer());
+    if (String.fromCharCode(...head) !== 'GIF87a' && String.fromCharCode(...head) !== 'GIF89a') throw { code: 'gifbad' };
+    let bmp; try { bmp = await createImageBitmap(file); } catch (e) { throw { code: 'decode' }; }
+    const r = { blob: file.slice(0, file.size, 'image/gif'), width: bmp.width, height: bmp.height, originalSize: file.size, ext: 'gif' };
+    if (bmp.close) bmp.close();
+    return r;
+  }
+  return { ...(await prepareProductPhoto(file)), ext: 'jpg' };
+}

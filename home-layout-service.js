@@ -202,7 +202,7 @@ export async function saveLayout(role, blocks, previous) {
   try {
     for (let i = 0; i < src.length; i++) {
       const hs = holders(src[i]), ps = holders(prepared[i]);
-      for (let j = 0; j < hs.length; j++) if (hs[j]._file) { const name = await upload('lay', hs[j]._file.blob, 'jpg'); up.push(name); ps[j].img = name; }
+      for (let j = 0; j < hs.length; j++) if (hs[j]._file) { const name = await upload('lay', hs[j]._file.blob, hs[j]._file.ext === 'gif' ? 'gif' : 'jpg'); up.push(name); ps[j].img = name; }
     }
     prepared.forEach(b => { holders(b).forEach(x => { if (!x.img) delete x.img; }); });
     await rpc('layout_set', { p_role: role, p_blocks: prepared });

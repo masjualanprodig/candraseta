@@ -744,3 +744,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v193
 - + Banner gambar: editor benar-benar satu gambar (tanpa Tambah slide, tanpa kecepatan geser, tanpa label Slide 1).
+
+## v194
+- Banner beranda (Banner gambar & Banner slide) mendukung GIF animasi: diunggah apa adanya, maksimal 600 KB. JPEG/PNG/WebP tetap dikompres maksimal 100 KB. SQL baru: banner_gif.sql (izinkan image/gif di bucket branding).

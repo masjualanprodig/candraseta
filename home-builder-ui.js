@@ -2,7 +2,7 @@
 // Editor "Tampilan Beranda" (Super Admin): atur blok beranda tiap peran dari atas ke bawah.
 // Naik/turun dengan tombol, tambah/hapus blok, ubah isi blok, pratinjau, simpan, kembalikan ke bawaan.
 import { h, toast, ask } from './ui.js';
-import { prepareImage, prepareProductPhoto, PRODUCT_ERRORS } from './photo.js';
+import { prepareImage, prepareBannerImage, BANNER_ERRORS } from './photo.js';
 import { errorText } from './branding-service.js';
 import { urlFor } from './branding-service.js';
 import { ROLES, SPEEDS, DEFAULT_SPEED, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, KMODES, AMODES, kartuKind, newKartu, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
@@ -35,7 +35,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
   const isSingle = b => b.t === 'banner' && b.slides.length === 1 && b.speed === 0;
   function summary(b) {
     if (b.t === 'b') { const ch = b.o && pruneBlocks(role, [b])[0].o; return ['Bawaan: ' + builtinLabel(role, b.id), ch ? 'Sudah Anda ubah' : 'Bagian aplikasi yang sudah ada']; }
-    if (isSingle(b)) return [TYPE_NAME.banner1, 'Satu gambar · maks. 100 KB' + (b.slides[0].link && LINKS[b.slides[0].link] ? ' · menuju ' + LINKS[b.slides[0].link][0] : '')];
+    if (isSingle(b)) return [TYPE_NAME.banner1, 'Satu gambar · JPEG maks. 100 KB, GIF maks. 600 KB' + (b.slides[0].link && LINKS[b.slides[0].link] ? ' · menuju ' + LINKS[b.slides[0].link][0] : '')];
     if (b.t === 'banner') return [TYPE_NAME.banner, b.slides.length + ' slide · gambar saja · ' + (b.speed > 0 ? 'geser tiap ' + b.speed + ' dtk' : 'tidak otomatis')];
     if (b.t === 'kartu') { const k = kartuKind(b.feature); return [TYPE_NAME.kartu, (b.title || LINKS[b.feature][0]) + ' · ' + (k === 'agenda' ? AMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + ' ' + b.count + ' agenda' : k === 'data' ? KMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + (b.mode !== 'kartu' ? ' ' + b.count + ' item' : '') : k === 'embed' ? (b.size === 'penuh' ? 'Penuh' : 'Ringkas') : 'Kartu')]; }
     if (b.t === 'fitur') return [TYPE_NAME.fitur, (b.title || 'Akses Cepat') + ' · ' + b.items.length + ' menu'];
@@ -52,16 +52,16 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
     const move2 = (k, d) => { const j = k + d; if (j < 0 || j >= b.slides.length) return; [b.slides[k], b.slides[j]] = [b.slides[j], b.slides[k]]; bump(); draw(); };
     const single = isSingle(b);
     const list = b.slides.map((s, k) => {
-      const fileIn = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'hb-file', 'aria-label': (s._file || s.img ? 'Ganti gambar slide ' : 'Pilih gambar slide ') + (k + 1) });
+      const fileIn = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp,image/gif', class: 'hb-file', 'aria-label': (s._file || s.img ? 'Ganti gambar slide ' : 'Pilih gambar slide ') + (k + 1) });
       fileIn.addEventListener('change', async () => {
         const f = fileIn.files && fileIn.files[0]; if (!f) return;
-        try { const p = await prepareProductPhoto(f); s._file = p; s._url = URL.createObjectURL(p.blob); bump(); draw(); }
-        catch (e) { toast(e && e.code && PRODUCT_ERRORS[e.code] ? PRODUCT_ERRORS[e.code] : errorText(e), true); fileIn.value = ''; }
+        try { const p = await prepareBannerImage(f); s._file = p; s._url = URL.createObjectURL(p.blob); bump(); draw(); }
+        catch (e) { toast(e && e.code && BANNER_ERRORS[e.code] ? BANNER_ERRORS[e.code] : errorText(e), true); fileIn.value = ''; }
       });
       const u = slideImg(s);
       return h('div', { class: 'hbe-slide hbe-simg' }, single ? '' : h('b', {}, 'Slide ' + (k + 1)),
         u ? h('img', { class: 'hbe-thumb', src: u, alt: 'Gambar slide ' + (k + 1) }) : h('div', { class: 'hbe-thumb hbe-thumb-empty' }, 'Belum ada gambar'),
-        field(u ? 'Ganti gambar (JPEG/PNG/WebP)' : 'Gambar (JPEG/PNG/WebP) — wajib', fileIn),
+        field(u ? 'Ganti gambar (JPEG/PNG/WebP/GIF)' : 'Gambar (JPEG/PNG/WebP/GIF) — wajib', fileIn),
         field('Saat banner diketuk, menuju', select([['', '(tidak menuju ke mana-mana)'], ...Object.entries(LINKS).map(([k2, v]) => [k2, v[0]])], s.link || '', v => { if (v) s.link = v; else delete s.link; })),
         s.title ? h('small', { class: 'muted' }, 'Slide lama ini punya judul: “' + s.title + '”. Judul tetap tampil di atas gambar.') : '',
         single ? '' : h('div', { class: 'hbe-acts' },
@@ -70,10 +70,10 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
           b.slides.length > 1 ? h('button', { class: 'btn-sm alt hb-sl-del', type: 'button', onclick: () => { b.slides.splice(k, 1); bump(); draw(); } }, 'Hapus slide') : ''));
     });
     if (single) return h('div', { class: 'hbe-edit' },
-      h('small', { class: 'muted' }, 'Banner satu gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres sampai maksimal 100 KB. Boleh diberi link ke fitur tertentu.'),
+      h('small', { class: 'muted' }, 'Banner satu gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar JPEG/PNG/WebP otomatis dikompres sampai maksimal 100 KB. GIF animasi dipakai apa adanya (maksimal 600 KB). Boleh diberi link ke fitur tertentu.'),
       ...list);
     return h('div', { class: 'hbe-edit' },
-      h('small', { class: 'muted' }, 'Banner hanya berisi gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres sampai maksimal 100 KB. Tiap slide bisa diberi link ke fitur tertentu.'),
+      h('small', { class: 'muted' }, 'Banner hanya berisi gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar JPEG/PNG/WebP otomatis dikompres sampai maksimal 100 KB. GIF animasi dipakai apa adanya (maksimal 600 KB). Tiap slide bisa diberi link ke fitur tertentu.'),
       ...list,
       b.slides.length < LIMITS.slides ? h('button', { class: 'btn-sm ghost hb-sl-add', type: 'button', onclick: () => { b.slides.push({}); bump(); draw(); } }, '+ Tambah slide (' + b.slides.length + ' dari ' + LIMITS.slides + ')') : h('small', { class: 'muted' }, 'Maksimal ' + LIMITS.slides + ' slide.'),
       field('Kecepatan geser otomatis', select(SPEEDS.map(([v, l]) => [String(v), l]), String(b.speed), v => { b.speed = Number(v); })),
