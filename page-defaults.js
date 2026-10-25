@@ -33,11 +33,14 @@ Tanpa nama, email, atau akun. Data ini dihapus saat push dimatikan atau saat And
 ## Kritik & saran
 Bila Anda mengirim kritik dan saran lewat formulir, nama, email, dan isi pesan Anda disimpan di server BAITUNA dan diteruskan ke email pengelola agar dapat dibalas. Alamat IP tidak disimpan utuh; hanya sidik satu arah yang dipakai untuk membatasi spam. Mohon tidak menuliskan kata sandi, nomor kartu, atau data sensitif lain. Pesan dapat dihapus pengelola atas permintaan Anda.
 
-## Tanya Jawab
-Untuk bertanya Anda harus masuk. Judul, rincian, kategori, dan nama depan (bila Anda memilih menampilkannya) disimpan di server BAITUNA; identitas akun penanya tidak ditampilkan ke publik. Menandai "Bermanfaat" dan penghitung dibaca memakai penanda acak di perangkat Anda (bukan identitas) agar satu perangkat dihitung sekali. Pertanyaan baru tampil ke publik hanya setelah dijawab penjawab resmi. Mohon tidak menuliskan data pribadi yang sensitif.
+## Forum Tanya Jawab
+Forum Tanya Jawab khusus untuk akun dengan membership aktif, jadi Anda harus masuk. Pertanyaan dan jawaban disimpan di server BAITUNA sebagai riwayat percakapan akun Anda, dan hanya dapat dibuka dari akun Anda di aplikasi. Anda dapat menghapus percakapan kapan saja.
+Teks pertanyaan Anda, beserta beberapa pesan sebelumnya dalam percakapan yang sama, dikirim ke layanan pemrosesan pihak ketiga (Google) untuk menyusun jawaban. Nama, email, dan nomor telepon akun Anda tidak ikut dikirim. Penyedia tersebut dapat memproses teks sesuai kebijakan mereka sendiri, sehingga mohon tidak menuliskan data pribadi atau rahasia dalam pertanyaan.
+Jawaban disusun oleh asisten digital dan bukan fatwa. Ayat Al-Qur’an yang dikutip diperiksa ke teks Al-Qur’an, tetapi isi jawaban tetap dapat keliru. Untuk perkara penting, tanyakan langsung kepada ustaz atau ulama yang Anda percaya. Laporan yang Anda kirim tentang suatu jawaban dapat dibaca pengelola untuk perbaikan.
 
-## Pustaka Buku
-Pustaka Buku menampilkan buku yang dijual pengelola. BAITUNA tidak memproses pembayaran dan tidak menyimpan data pembeli: tombol Pesan membuka WhatsApp penjual atau link checkout milik penjual, yang berlaku kebijakan privasi mereka sendiri. Nomor WhatsApp atau link yang diisi pengelola tidak ditampilkan sebagai teks, tetapi terbuka saat tombol Pesan ditekan. Tampilan Grid atau List yang Anda pilih disimpan di perangkat.
+## Pustaka Buku dan Membership
+Pustaka Buku menampilkan buku yang dijual pengelola. Untuk pembelian buku, BAITUNA tidak memproses pembayaran dan tidak menyimpan data pembeli: tombol Pesan membuka WhatsApp penjual atau link checkout milik penjual, yang berlaku kebijakan privasi mereka sendiri. Tampilan Grid atau List yang Anda pilih disimpan di perangkat.
+Untuk Membership BAITUNA, pembayaran dilakukan manual lewat transfer atau QRIS dan diperiksa oleh pengelola. Data pesanan yang disimpan: nama lengkap, nomor telepon, paket, nominal, masjid (bila dipilih), status, dan foto bukti pembayaran. Bukti pembayaran disimpan di tempat penyimpanan privat yang hanya dapat dibuka oleh pemilik pesanan dan pengelola.
 
 ## BAITUNA Ta’aruf
 BAITUNA Ta’aruf membantu jamaah berusia 19 tahun ke atas saling mengenal calon pasangan secara terarah. Untuk memakainya Anda harus masuk dengan akun BAITUNA. Fitur ini tidak memakai foto, tidak meminta unggah dokumen identitas, dan tidak mengirim data CV ke layanan kecerdasan buatan.
@@ -75,7 +78,7 @@ Untuk membuat akun Anda mengisi nama lengkap, nomor HP/WhatsApp, email, dan pass
 Perubahan penting (mis. kas, pengurus, undangan, status masjid, keputusan pendaftaran, buku) dicatat otomatis berisi jenis kejadian, waktu, pelaku, dan ringkasan. Catatan tidak dapat diubah atau dihapus. Admin pusat melihat semuanya; Admin Masjid hanya melihat catatan masjidnya.
 
 ## Layanan pihak ketiga
-Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Email kritik dan saran diteruskan lewat penyedia layanan email (Resend). Peta menggunakan data OpenStreetMap. Layanan tersebut dapat menerima alamat IP perangkat Anda sesuai kebijakan masing-masing.
+Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Pertanyaan di Forum Tanya Jawab diproses oleh layanan Google, seperti dijelaskan di bagian Forum Tanya Jawab. Email kritik dan saran diteruskan lewat penyedia layanan email (Resend). Peta menggunakan data OpenStreetMap. Layanan tersebut dapat menerima alamat IP perangkat Anda sesuai kebijakan masing-masing.
 
 ## Disclaimer keagamaan
 - BAITUNA bukan lembaga fatwa. Isi aplikasi tidak menggantikan bimbingan ustaz atau ulama yang Anda percayai.

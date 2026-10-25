@@ -68,13 +68,14 @@ export async function ask({ question, category, conversationId, clientId }) {
   try {
     res = await fetch(FN_URL, { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + token, apikey: CONFIG.SUPABASE_ANON_KEY },
       body: JSON.stringify({ action: 'ask', question, category: category || null, conversation_id: conversationId || null, client_id: clientId }) });
-  } catch (e) { throw Object.assign(new Error('offline'), { status: 0, error: 'offline' }); }
+  } catch (e) { const off = typeof navigator !== 'undefined' && navigator.onLine === false; throw Object.assign(new Error(off ? 'offline' : 'tak_terjangkau'), { status: 0, error: off ? 'offline' : 'tak_terjangkau' }); }
   let j = null; try { j = await res.json(); } catch (e) { /* abaikan */ }
   if (!res.ok || !j || !j.ok) throw Object.assign(new Error((j && j.error) || 'http'), { status: res.status, error: (j && j.error) || 'http', message: j && j.message, limit: j && j.limit, conversationId: j && j.conversation_id || null });
   return j;
 }
 export function errorText(e) {
   if (!e) return 'Belum berhasil. Coba lagi.';
+  if (e.status === 0 && e.error === 'tak_terjangkau') return 'Forum Tanya Jawab belum dapat dihubungi saat ini. Pertanyaan Anda tidak hilang; silakan coba lagi sebentar lagi. Jika terus berulang, hubungi pengelola.';
   if (e.status === 0) return 'Tidak ada koneksi internet. Pertanyaan Anda tidak hilang; silakan coba lagi.';
   if (e.status === 404 && !e.message && e.error === 'http') return 'Forum Tanya Jawab belum aktif di server. Pengelola perlu memasang fungsi baituna-tanya-ai.';
   if (e.error === 'ai_belum_diatur') return 'Layanan Forum Tanya Jawab belum diatur oleh pengelola. Silakan coba lagi nanti.';

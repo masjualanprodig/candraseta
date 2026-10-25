@@ -19,7 +19,7 @@ import { READING_SIZES, readingPrefs, saveReadingPrefs, lastRead } from './quran
 import { listSurahs } from './quran-service.js';
 import { legalView } from './page-ui.js';
 
-export const APP_VERSION = 'v204';
+export const APP_VERSION = 'v205';
 // Semua data yang disimpan di perangkat (tanpa sesi masuk). Dihapus lewat "Hapus data di perangkat ini".
 const DEVICE_KEYS = ['baituna.dzikir.v1', 'baituna.tasbih.v1', 'baituna.sound.v1', 'baituna.loc.v1', 'baituna.doa.fav.v1', 'baituna.sunnah.v1', 'baituna.belajar.v1', 'baituna.asma.v1', 'baituna.zakat.v1', 'baituna.tracker.v1', 'baituna.quranpref.v1', 'baituna.qari.v1', 'baituna.quranlast.v1', 'baituna.quranpage.v1', 'baituna.mushaftheme.v1', 'baituna.mushafawake.v1', 'baituna.mushafswipe.v1', 'baituna.quranmode.v1', 'baituna.notif.v1', 'baituna.notifseen.v1', 'baituna.ramadan.v1', 'baituna.ramadancache.v1', 'baituna.adzanlib.v1', 'baituna.push.v1', 'baituna.qa.v1', 'baituna.qa.vote.v1', 'baituna.books.v1', 'baituna.brand.v1'];
 const SIZE_LABEL = ['Kecil', 'Sedang', 'Besar', 'Lebih besar', 'Terbesar'];
@@ -213,7 +213,7 @@ export function profilPage({ onSignIn, onLogout } = {}) {
       h('p', {}, 'Platform digital untuk masjid: direktori, agenda dan pengumuman, jadwal salat, Al-Qur’an, dzikir, doa, dan bacaan Islami.'),
       h('p', { class: 'muted' }, 'Versi ' + APP_VERSION)),
     h('div', { class: 'panel' }, h('h3', {}, 'Privasi singkat'),
-      h('p', { class: 'muted' }, 'Lokasi, favorit, hitungan dzikir, dan pengaturan tampilan hanya disimpan di perangkat Anda. Data akun (nama, telepon, peran) disimpan di server dan hanya bisa diubah oleh pemiliknya. Teks Al-Qur’an dimuat dari AlQuran Cloud dan tidak diubah. Konten doa, dzikir, dan artikel dimasukkan admin pusat dengan sumber yang jelas dan sebaiknya diperiksa ustaz.'),
+      h('p', { class: 'muted' }, 'Lokasi, favorit, hitungan dzikir, dan pengaturan tampilan hanya disimpan di perangkat Anda. Data akun (nama, telepon, peran) disimpan di server dan hanya bisa diubah oleh pemiliknya. Pertanyaan Forum Tanya Jawab diproses oleh layanan pihak ketiga (Google); jangan menulis data pribadi di dalamnya. CV BAITUNA Ta’aruf dan bukti pembayaran membership bersifat pribadi dan tidak dibuka untuk umum. Teks Al-Qur’an dimuat dari AlQuran Cloud dan tidak diubah. Konten doa, dzikir, dan artikel dimasukkan admin pusat dengan sumber yang jelas dan sebaiknya diperiksa ustaz.'),
       h('button', { class: 'btn-sm ghost', type: 'button', id: 'about-privasi', onclick: go('privasi') }, 'Baca Privasi & Disclaimer lengkap')));
 
   let legal = null;

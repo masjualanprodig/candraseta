@@ -782,6 +782,10 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Ta'aruf Premium terpisah dari Membership BAITUNA (Rp19.900/1 bln, Rp99.000/6 bln, bisa diubah Super Admin), dibayar lewat alur QRIS/transfer + verifikasi admin yang sama (membership_orders.product = 'taaruf').
 - membership-ui.js / membership-service.js: alur bayar menerima produk 'taaruf'; perilaku Membership BAITUNA tidak berubah.
 
-### v204
+### v205
+- Forum Tanya Jawab: pesan error dibedakan (HP offline vs layanan tidak terjangkau). Fungsi `baituna-tanya-ai` mencatat alasan kegagalan Gemini ke Logs (tanpa kunci rahasia) dan mencoba ulang sekali bila Gemini sibuk (429/5xx). Fungsi perlu ditempel ulang di Supabase.
+- Teks Privasi: bagian "Forum Tanya Jawab" dan "Pustaka Buku dan Membership" ditulis ulang, "Layanan pihak ketiga" dan kartu "Privasi singkat" diperbarui.
+
+## v204
 - Atur Membership > Pengaturan kini memuat dua bagian: "Paket Membership BAITUNA" dan "Paket BAITUNA Ta'aruf Premium". Super Admin bisa mengubah harga & menampilkan/menyembunyikan paket Ta'aruf di sana (fungsi server tf_admin_plan, histori harga tercatat). Kelola Ta'aruf > Pengaturan tetap bisa dipakai.
 - Teks bawaan Privasi & Disclaimer: bagian baru "BAITUNA Ta'aruf".
