@@ -1603,3 +1603,7 @@ button.bj-level{display:flex;gap:.8rem;align-items:center;width:100%;text-align:
 .ms-ptitle{text-align:center}
 .ms-psub{text-align:center}
 .ms-pnote{text-align:center}
+/* v183: jarak antar paragraf deskripsi buku dirapatkan */
+.bk-detail .bk-desc{white-space:normal;line-height:1.55}
+.bk-detail .bk-desc p{margin:0 0 .55rem}
+.bk-detail .bk-desc p:last-child{margin-bottom:0}

@@ -708,3 +708,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v181
 - Pembaca PDF: pesan galat kini menyebut tahap gagal (pustaka / berkas / baca-pdf / tampil) agar penyebab mudah dilacak.
+
+## v182
+- Pembaca: bila pustaka pdf.js gagal dimuat, pesan menyebut sebabnya (berkas hilang / jenis salah / browser tidak cocok).
+
+## v183
+- Detail buku: jarak antar paragraf deskripsi dirapatkan (paragraf kosong dibuang, maksimal satu baris kosong).

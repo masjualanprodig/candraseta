@@ -68,7 +68,8 @@ export function sanitizeHtml(input) {
   };
   return walk(doc.body).replace(/<(b|i|u|p|h4|mark)><\/\1>/g, '').replace(/(<br>){3,}/g, '<br><br>').replace(/^(<br>)+|(<br>)+$/g, '').replace(/<mark><mark>/g, '<mark>').replace(/<\/mark><\/mark>/g, '</mark>').trim();
 }
-export const descToHtml = t => sanitizeHtml(t);
+// Tampilan: paragraf kosong (<p><br></p>) dan baris kosong berlebih dibuang agar jarak antar paragraf rapat.
+export const descToHtml = t => sanitizeHtml(t).replace(/<p>(\s|<br>)*<\/p>/g, '').replace(/(<br>){3,}/g, '<br><br>').replace(/^(<br>)+|(<br>)+$/g, '').replace(/<\/p><br>/g, '</p>').replace(/<br><p>/g, '<p>');
 
 // Deskripsi singkat untuk tampilan list: dipotong di batas kata.
 export function shortDesc(t, max = 110) {
