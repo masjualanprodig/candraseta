@@ -720,3 +720,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v185
 - Deskripsi buku: jarak antar paragraf distandarkan (0,85 rem).
+
+## v186
+- Layar paket: poin ke-4 manfaat membership diganti "Setiap bulan ada 1-2 buku baru yang akan terbit dan GRATIS".

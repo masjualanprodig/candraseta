@@ -30,7 +30,7 @@ export const BENEFITS = [
   'Membaca semua buku Premium di Pustaka Buku',
   'Buku Gratis tetap bisa dibaca siapa saja',
   'Dibayar sekali untuk satu periode, tidak diperpanjang otomatis',
-  'Masjid pilihan Anda tercatat sebagai masjid rujukan',
+  'Setiap bulan ada 1-2 buku baru yang akan terbit dan GRATIS',
 ];
 
 /* ===== Tanggal ===== */
