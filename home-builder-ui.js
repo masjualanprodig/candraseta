@@ -31,9 +31,11 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
   const remove = i => { blocks.splice(i, 1); bump(); draw(); };
   const hiddenBuiltins = () => BUILTINS[role].filter(([id]) => !blocks.some(b => b.t === 'b' && b.id === id));
 
+  // Banner 1 gambar = satu slide tanpa geser otomatis (dibuat lewat tombol + Banner gambar).
+  const isSingle = b => b.t === 'banner' && b.slides.length === 1 && b.speed === 0;
   function summary(b) {
     if (b.t === 'b') { const ch = b.o && pruneBlocks(role, [b])[0].o; return ['Bawaan: ' + builtinLabel(role, b.id), ch ? 'Sudah Anda ubah' : 'Bagian aplikasi yang sudah ada']; }
-    if (b.t === 'banner' && b.slides.length === 1) return [TYPE_NAME.banner1, 'Satu gambar · maks. 100 KB' + (b.slides[0].link && LINKS[b.slides[0].link] ? ' · menuju ' + LINKS[b.slides[0].link][0] : '')];
+    if (isSingle(b)) return [TYPE_NAME.banner1, 'Satu gambar · maks. 100 KB' + (b.slides[0].link && LINKS[b.slides[0].link] ? ' · menuju ' + LINKS[b.slides[0].link][0] : '')];
     if (b.t === 'banner') return [TYPE_NAME.banner, b.slides.length + ' slide · gambar saja · ' + (b.speed > 0 ? 'geser tiap ' + b.speed + ' dtk' : 'tidak otomatis')];
     if (b.t === 'kartu') { const k = kartuKind(b.feature); return [TYPE_NAME.kartu, (b.title || LINKS[b.feature][0]) + ' · ' + (k === 'agenda' ? AMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + ' ' + b.count + ' agenda' : k === 'data' ? KMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + (b.mode !== 'kartu' ? ' ' + b.count + ' item' : '') : k === 'embed' ? (b.size === 'penuh' ? 'Penuh' : 'Ringkas') : 'Kartu')]; }
     if (b.t === 'fitur') return [TYPE_NAME.fitur, (b.title || 'Akses Cepat') + ' · ' + b.items.length + ' menu'];
@@ -48,6 +50,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
     if (!Number.isInteger(b.speed)) b.speed = DEFAULT_SPEED;
     const slideImg = x => x._url || (x.img && urlFor(x.img)) || '';
     const move2 = (k, d) => { const j = k + d; if (j < 0 || j >= b.slides.length) return; [b.slides[k], b.slides[j]] = [b.slides[j], b.slides[k]]; bump(); draw(); };
+    const single = isSingle(b);
     const list = b.slides.map((s, k) => {
       const fileIn = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'hb-file', 'aria-label': (s._file || s.img ? 'Ganti gambar slide ' : 'Pilih gambar slide ') + (k + 1) });
       fileIn.addEventListener('change', async () => {
@@ -56,16 +59,19 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
         catch (e) { toast(e && e.code && PRODUCT_ERRORS[e.code] ? PRODUCT_ERRORS[e.code] : errorText(e), true); fileIn.value = ''; }
       });
       const u = slideImg(s);
-      return h('div', { class: 'hbe-slide hbe-simg' }, h('b', {}, 'Slide ' + (k + 1)),
+      return h('div', { class: 'hbe-slide hbe-simg' }, single ? '' : h('b', {}, 'Slide ' + (k + 1)),
         u ? h('img', { class: 'hbe-thumb', src: u, alt: 'Gambar slide ' + (k + 1) }) : h('div', { class: 'hbe-thumb hbe-thumb-empty' }, 'Belum ada gambar'),
         field(u ? 'Ganti gambar (JPEG/PNG/WebP)' : 'Gambar (JPEG/PNG/WebP) — wajib', fileIn),
         field('Saat banner diketuk, menuju', select([['', '(tidak menuju ke mana-mana)'], ...Object.entries(LINKS).map(([k2, v]) => [k2, v[0]])], s.link || '', v => { if (v) s.link = v; else delete s.link; })),
         s.title ? h('small', { class: 'muted' }, 'Slide lama ini punya judul: “' + s.title + '”. Judul tetap tampil di atas gambar.') : '',
-        h('div', { class: 'hbe-acts' },
+        single ? '' : h('div', { class: 'hbe-acts' },
           h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Naikkan slide', ...(k === 0 ? { disabled: 'disabled' } : {}), onclick: () => move2(k, -1) }, '↑'),
           h('button', { class: 'btn-sm ghost', type: 'button', 'aria-label': 'Turunkan slide', ...(k === b.slides.length - 1 ? { disabled: 'disabled' } : {}), onclick: () => move2(k, 1) }, '↓'),
           b.slides.length > 1 ? h('button', { class: 'btn-sm alt hb-sl-del', type: 'button', onclick: () => { b.slides.splice(k, 1); bump(); draw(); } }, 'Hapus slide') : ''));
     });
+    if (single) return h('div', { class: 'hbe-edit' },
+      h('small', { class: 'muted' }, 'Banner satu gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres sampai maksimal 100 KB. Boleh diberi link ke fitur tertentu.'),
+      ...list);
     return h('div', { class: 'hbe-edit' },
       h('small', { class: 'muted' }, 'Banner hanya berisi gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres sampai maksimal 100 KB. Tiap slide bisa diberi link ke fitur tertentu.'),
       ...list,

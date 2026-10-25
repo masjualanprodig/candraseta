@@ -741,3 +741,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v192
 - Editor Tampilan Beranda (Super Admin): tombol "+ Banner gambar" (1 gambar, tanpa geser otomatis, bisa diberi tautan ke fitur). Gambar banner dikompres otomatis maksimal 100 KB.
+
+## v193
+- + Banner gambar: editor benar-benar satu gambar (tanpa Tambah slide, tanpa kecepatan geser, tanpa label Slide 1).
