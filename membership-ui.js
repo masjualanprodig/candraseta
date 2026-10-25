@@ -47,7 +47,7 @@ export function membershipFlow(ctx) {
   const note = (t, cls) => h('p', { class: 'hint ' + (cls || '') }, t);
   const infoBox = (t, id) => h('div', A({ class: 'ms-note', id: id || null }), ic(I.info), h('span', {}, t));
   const loading = () => draw(h('p', { class: 'muted', id: 'ms-loading' }, 'Memuat…'));
-  const failView = e => draw(back('← Pustaka', ctx.exit), h('div', { class: 'empty' }, h('p', { class: 'muted', id: 'ms-fail' }, M.notReady(e) ? M.errorText(e) : e && e.status === 0 ? 'Tidak ada koneksi internet. Periksa jaringan Anda.' : 'Belum bisa dimuat. Coba lagi.')),
+  const failView = e => draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('div', { class: 'empty' }, h('p', { class: 'muted', id: 'ms-fail' }, M.notReady(e) ? M.errorText(e) : e && e.status === 0 ? 'Tidak ada koneksi internet. Periksa jaringan Anda.' : 'Belum bisa dimuat. Coba lagi.')),
     M.notReady(e) ? '' : h('button', { class: 'btn-sm', type: 'button', id: 'ms-retry', onclick: () => start() }, 'Coba lagi'));
   const adminBar = tab => ctx.isAdmin ? h('div', { class: 'panel ms-adminbar', id: 'ms-adminbar' }, h('b', {}, 'Super Admin'), h('span', { class: 'muted bk-sd' }, tab === 'plans' ? 'Ubah harga paket di sini.' : 'Atur rekening bank dan QRIS di sini.'),
     h('button', { class: 'btn-sm', type: 'button', id: 'ms-adminedit', onclick: () => ctx.openAdmin('atur') }, tab === 'plans' ? 'Ubah harga paket' : 'Atur rekening & QRIS')) : '';
@@ -82,7 +82,7 @@ export function membershipFlow(ctx) {
     });
     const go = h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-next', onclick: () => { if (plan() && plan().price) { toast('Paket ' + plan().months + ' bulan dipilih.'); checkoutScreen(); } } }, 'Lanjutkan ke Checkout');
     const open = M.openOrder(S.orders);
-    const kids = [back('← Pustaka', ctx.exit), h('div', { class: 'ms-crownhead', 'aria-hidden': 'true' }, ic(I.crown, 'ms-crownic')), h('h2', { class: 'wtitle ms-ptitle' }, 'Membership Premium'),
+    const kids = [back(ctx.backLabel || '← Pustaka', ctx.exit), h('div', { class: 'ms-crownhead', 'aria-hidden': 'true' }, ic(I.crown, 'ms-crownic')), h('h2', { class: 'wtitle ms-ptitle' }, 'Membership Premium'),
       h('p', { class: 'muted ms-psub' }, 'Pilih Paket Membership. Buka semua buku Premium di Pustaka Buku.'), adminBar('plans')];
     const rej = !open && S.orders[0] && S.orders[0].status === 'ditolak' ? S.orders[0] : null;
     if (open) kids.push(h('div', { class: 'panel ms-open', id: 'ms-open' }, h('b', {}, 'Ada pesanan yang belum selesai'), h('p', { class: 'muted' }, open.ref_code + ' · ' + open.plan_name + ' · ' + M.statusLabel(open.status)),
@@ -258,7 +258,7 @@ export function membershipFlow(ctx) {
       }
     } }, 'Batalkan pesanan') : '';
     const wa = M.adminWaLink(S.settings.admin_wa, 'Assalamu’alaikum, saya butuh bantuan untuk pesanan membership ' + o.ref_code + '.');
-    draw(back('← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Pembayaran'), h('p', { class: 'muted' }, 'Bayar dengan QRIS atau Transfer Bank.'), steps(2),
+    draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Pembayaran'), h('p', { class: 'muted' }, 'Bayar dengan QRIS atau Transfer Bank.'), steps(2),
       rej ? h('div', { class: 'panel ms-rej', id: 'ms-rej' }, h('b', {}, 'Bukti pembayaran ditolak'), h('p', {}, 'Alasan: ' + (o.reject_reason || '-')), h('p', { class: 'hint' }, 'Periksa pembayaran Anda, lalu kirim ulang bukti yang benar.')) : '',
       tabs, h('div', { class: 'panel ms-paybox' }, refBox(o), h('div', { class: 'ms-totline' }, h('span', { class: 'muted' }, 'Total Pembayaran'), h('b', { class: 'ms-big', id: 'ms-amount' }, M.rp(o.amount)), h('span', { class: 'muted' }, o.plan_name)), body),
       o.status === 'menunggu_pembayaran' ? h('div', { class: 'ms-note ms-deadline', id: 'ms-deadline' }, ic(I.clock), h('span', {}, 'Selesaikan pembayaran sebelum ' + M.fmtDateTime(o.expires_at) + '. Setelah itu pesanan kedaluwarsa otomatis.')) : '',
@@ -318,7 +318,7 @@ export function membershipFlow(ctx) {
 
   /* ===== 6. Bukti terkirim ===== */
   function sentScreen(o) {
-    draw(back('← Pustaka', ctx.exit),
+    draw(back(ctx.backLabel || '← Pustaka', ctx.exit),
       h('div', { class: 'ms-hero', id: 'ms-sent' }, h('span', { class: 'ms-heroic ms-goldbg' }, ic(I.docclock)), h('h2', { class: 'wtitle' }, 'Bukti Pembayaran Terkirim'),
         h('p', { class: 'muted', id: 'ms-sent-msg' }, 'Bukti pembayaran berhasil dikirim. Tim BAITUNA sedang memeriksa pembayaran Anda. Membership aktif setelah pembayaran diverifikasi.')),
       h('div', { class: 'panel ms-sum' }, row('Nomor Pesanan', o.ref_code), row('Total Pembayaran', M.rp(o.amount)), row('Waktu Kirim', M.fmtDateTime(o.proof_at || new Date())),
@@ -364,7 +364,7 @@ export function membershipFlow(ctx) {
   /* ===== 8. Baru aktif ===== */
   function activatedScreen(o) {
     seenSet(o.id);
-    draw(back('← Pustaka', ctx.exit),
+    draw(back(ctx.backLabel || '← Pustaka', ctx.exit),
       h('div', { class: 'ms-hero', id: 'ms-activated' }, h('span', { class: 'ms-heroic ms-okbg' }, ic(I.check)), h('h2', { class: 'wtitle' }, 'Alhamdulillah!'), h('p', { class: 'muted' }, 'Membership Anda telah aktif. Pembayaran sudah diverifikasi admin.')),
       h('div', { class: 'panel ms-sum' }, row('Paket', 'Membership ' + o.months + ' Bulan'), row('Mulai aktif', M.fmtDate(S.member ? S.member.started_at : o.starts_at)), row('Berlaku hingga', M.fmtDate(S.member ? S.member.ends_at : o.ends_at), 'ms-until')),
       h('ul', { class: 'ms-ben' }, ...['Membaca semua buku Premium', 'Buku Gratis tetap bisa dibaca siapa saja', 'Tanpa perpanjangan otomatis', 'Masjid pilihan tetap tercatat'].map(b => h('li', {}, ic(I.checkc, 'ms-ic ms-okc'), h('span', {}, b)))),
@@ -385,7 +385,7 @@ export function membershipFlow(ctx) {
       o.status === 'ditolak' && o.reject_reason ? h('span', { class: 'ms-warn' }, 'Ditolak: ' + o.reject_reason) : ''));
     const head = act ? 'Membership Aktif' : m ? 'Membership Berakhir' : 'Belum Berlangganan';
     const renew = h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-buy', onclick: plansScreen }, act || m ? 'Perpanjang Membership' : 'Gabung Membership'); if (open) renew.disabled = true;
-    draw(back('← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Membership Saya'),
+    draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Membership Saya'),
       h('div', { class: 'panel ms-detail', id: 'ms-mine', 'data-active': String(act) }, h('span', { class: 'ms-crown ms-crown-lg' + (act ? '' : ' off') }, ic(I.crown)), h('h3', { id: 'ms-head' }, head),
         last ? row('Paket', 'Membership ' + last.months + ' Bulan') : '', last ? row('Total Pembayaran', M.rp(last.amount)) : '',
         m ? row('Mulai aktif', M.fmtDate(m.started_at)) : '', m ? row('Berlaku hingga', M.fmtDate(m.ends_at), 'ms-until') : '',
@@ -411,7 +411,7 @@ export function membershipFlow(ctx) {
   async function start() {
     const sess = getSession();
     if (!sess || !sess.user) {
-      draw(back('← Pustaka', ctx.exit), h('div', { class: 'panel ms-state', id: 'ms-login' }, h('h2', { class: 'wtitle' }, 'Masuk dulu'), h('p', { class: 'muted' }, 'Untuk bergabung dan membayar membership, silakan masuk atau daftar akun BAITUNA.'), h('button', { class: 'btn-primary', type: 'button', id: 'ms-signin', onclick: ctx.signIn }, 'Masuk atau Daftar')));
+      draw(back(ctx.backLabel || '← Pustaka', ctx.exit), h('div', { class: 'panel ms-state', id: 'ms-login' }, h('h2', { class: 'wtitle' }, 'Masuk dulu'), h('p', { class: 'muted' }, 'Untuk bergabung dan membayar membership, silakan masuk atau daftar akun BAITUNA.'), h('button', { class: 'btn-primary', type: 'button', id: 'ms-signin', onclick: ctx.signIn }, 'Masuk atau Daftar')));
       return;
     }
     loading();

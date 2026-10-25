@@ -31,7 +31,7 @@ async function shareArticle(a) {
 }
 
 /* ===== 1. Jamaah ===== */
-export function articlesPage() {
+export function articlesPage({ openId } = {}) {
   const wrap = h('div', { class: 'news' });
   let cat = 'all', items = [], hasMore = false, loading = false, failed = false, loadedOnce = false, q = '', qt = null;
   const search = h('input', { class: 'in', type: 'search', placeholder: 'Cari artikel…', 'aria-label': 'Cari artikel', maxlength: '60', autocomplete: 'off' });
@@ -100,7 +100,7 @@ export function articlesPage() {
     window.scrollTo(0, 0);
     let a;
     try { a = await getArticle(id); } catch (e) { a = undefined; }
-    const back = h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { draw(); } }, '← Berita & Artikel');
+    const back = h('button', { class: 'btn-sm ghost', type: 'button', onclick: () => { if (loadedOnce) draw(); else fetchPage(true); } }, '← Berita & Artikel');
     if (a === undefined) { wrap.replaceChildren(back, h('div', { class: 'empty' }, h('p', { class: 'muted' }, 'Artikel belum bisa dimuat. Periksa koneksi, lalu coba lagi.'), h('button', { class: 'btn-sm', type: 'button', onclick: () => detail(id) }, 'Coba lagi'))); return; }
     if (!a) { wrap.replaceChildren(back, h('div', { class: 'empty' }, h('p', { class: 'muted' }, 'Artikel ini tidak tersedia lagi.'))); return; }
     const link = safeUrl(a.source_url);
@@ -117,7 +117,7 @@ export function articlesPage() {
     window.scrollTo(0, 0);
   }
 
-  fetchPage(true);
+  if (openId) detail(openId); else fetchPage(true);
   return wrap;
 }
 

@@ -759,3 +759,10 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v198
 - Banner satu gambar: jarak atas dan bawah dirapatkan sedikit.
+
+## v199 — Forum Tanya Jawab BAITUNA (dibantu AI, khusus membership)
+- Halaman baru `tanyaai` (ai-ui.js, ai-service.js, ai.css): pengenalan/terkunci, 9 kategori, contoh pertanyaan, percakapan + lanjutan, Dalil & Rujukan (ayat diverifikasi ke mushaf, sumber kurasi), Sumber Terkait (artikel/buku asli), Simpan/Bagikan/Laporkan/Mulai baru/Hapus, Riwayat, Kelola (Super Admin: laporan & sumber rujukan).
+- Pintu masuk: kartu di halaman Tanya Jawab (lama, tetap utuh) dan di Lainnya. Dashboard TIDAK diubah.
+- Server: tanya_ai.sql (tabel ai_*, RLS, kuota 20/hari) + Edge Function baituna-tanya-ai (Gemini; kunci di Supabase Secrets).
+- Membership: manfaat ke-5 "Forum Tanya Jawab BAITUNA"; alur membership bisa dibuka dari forum (tombol kembali "← Forum Tanya Jawab").
+- Pustaka Buku & Berita bisa dibuka langsung ke satu buku/artikel (dipakai Sumber Terkait).

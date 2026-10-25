@@ -100,7 +100,7 @@ function richEditor(id, placeholder) {
   };
 }
 
-export function booksPage({ go, onSignIn } = {}) {
+export function booksPage({ go, onSignIn, openId } = {}) {
   const wrap = h('div', { class: 'books' });
   const st = { items: null, fail: null, kind: '', access: '', q: '', sort: 'terbaru', view: B.loadView(), isAdmin: false, open: '', member: null };
   const canRead = b => !B.isPremium(b) || st.isAdmin || MS.isActive(st.member);
@@ -424,6 +424,6 @@ export function booksPage({ go, onSignIn } = {}) {
   const sess = getSession();
   if (sess && sess.user) loadAccess(sess.user).then(a => { if (a && a.isAdmin) { st.isAdmin = true; if (wrap.querySelector('#bk-items')) drawList(); } }).catch(() => {});
   refreshMember().then(() => { if (wrap.querySelector('#bk-items')) drawList(); });
-  showList();
+  if (openId) showDetail(openId); else showList();
   return wrap;
 }

@@ -31,6 +31,7 @@ export const BENEFITS = [
   'Buku Gratis tetap bisa dibaca siapa saja',
   'Dibayar sekali untuk satu periode, tidak diperpanjang otomatis',
   'Setiap bulan ada 1-2 buku baru yang akan terbit dan GRATIS',
+  'Forum Tanya Jawab BAITUNA: tanya jawab keislaman dibantu AI beserta rujukannya (maksimal 20 pertanyaan per hari)',
 ];
 
 /* ===== Tanggal ===== */
