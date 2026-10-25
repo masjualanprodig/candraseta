@@ -714,3 +714,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v183
 - Detail buku: jarak antar paragraf deskripsi dirapatkan (paragraf kosong dibuang, maksimal satu baris kosong).
+
+## v184
+- Checkout membership: label "Masjid Tujuan Donasi" + penjelasan donasi; QRIS/daftar rekening tampil langsung setelah memilih metode; Lanjutkan Pembayaran langsung ke halaman terima kasih + unggah bukti (cara pembayaran tetap bisa dibuka lagi).

@@ -141,15 +141,15 @@ export function membershipFlow(ctx) {
       const v = M.validateData({ name: name.value, phone: phone.value });
       if (v.error) { err.textContent = v.error; (v.field === 'name' ? name : phone).focus(); return; }
       const ve = M.validEmail(email.value); if (ve.error) { err.textContent = ve.error; email.focus(); return; }
-      if (!S.mosque && !S.noMosque) { err.textContent = 'Pilih masjid rujukan Anda, atau pilih "Belum memilih masjid".'; return; }
+      if (!S.mosque && !S.noMosque) { err.textContent = 'Pilih masjid tujuan donasi Anda, atau pilih "Belum memilih masjid".'; return; }
       err.textContent = ''; S.valid = { name: v.ok.name, phone: v.ok.phone, email: ve.ok };
       methodScreen();
     });
     draw(back('← Pilih paket', plansScreen), h('h2', { class: 'wtitle' }, 'Checkout Membership'), h('p', { class: 'muted' }, 'Isi data dan konfirmasi pesanan.'), steps(1),
       h('div', { class: 'panel rform ms-form', id: 'ms-form' }, h('h3', {}, 'Data Pemesan'),
         lab('Nama Lengkap', 'ms-name', true), field(I.user, name), lab('Nomor WhatsApp', 'ms-phone', true), field(I.phone, phone),
-        lab('Email (opsional)', 'ms-email'), field(I.mail, email), lab('Masjid Rujukan', 'ms-msearch'), mosqueBox,
-        infoBox('Membership akan terhubung dengan akun Anda dan masjid rujukan yang Anda pilih. Nomor WhatsApp tidak ditampilkan ke pengguna lain.')),
+        lab('Email (opsional)', 'ms-email'), field(I.mail, email), lab('Masjid Tujuan Donasi', 'ms-msearch'), mosqueBox,
+        infoBox('Sebagian dari biaya membership Anda akan didonasikan ke masjid yang Anda pilih di atas. Pilih masjid yang ingin Anda bantu. Nomor WhatsApp Anda tidak ditampilkan ke pengguna lain.', 'ms-donnote')),
       h('div', { class: 'panel ms-sum', id: 'ms-sum' }, h('h3', {}, 'Ringkasan Pesanan'),
         h('div', { class: 'ms-item' }, h('span', { class: 'ms-crown' }, ic(I.crown)), h('span', { class: 'ms-it' }, h('b', {}, 'Membership BAITUNA'), h('span', { class: 'muted' }, 'Paket ' + p.months + ' Bulan')), h('b', { class: 'ms-ip' }, M.rp(p.price))),
         row('Periode', p.months + ' bulan'), row('Perkiraan berakhir', M.fmtDate(end) + ' (dihitung saat diverifikasi)'), row('Total Pembayaran', M.rp(p.price), 'ms-total')),
@@ -172,7 +172,27 @@ export function membershipFlow(ctx) {
     };
     const box = h('div', { class: 'ms-methods', id: 'ms-methods', role: 'radiogroup', 'aria-label': 'Metode pembayaran' },
       opt('qris', 'QRIS', 'Bayar dengan semua aplikasi e-wallet dan mobile banking.', I.qr), opt('transfer', 'Transfer Bank', 'Transfer ke rekening resmi BAITUNA.', I.bank));
-    function paint() { btn.disabled = !S.method; for (const l of box.querySelectorAll('.ms-mcard')) l.classList.toggle('on', l.getAttribute('data-m') === S.method); }
+    // Rincian pembayaran langsung tampil setelah metode dipilih: QRIS (gambar) atau daftar rekening bank.
+    const detail = h('div', { class: 'panel ms-paybox', id: 'ms-detail-pay' });
+    async function saveQr0() {
+      const qr = M.qrisUrl(S.settings);
+      try { const r = await fetch(qr); const b = await r.blob(); const a = h('a', { href: URL.createObjectURL(b), download: 'QRIS-BAITUNA.' + (b.type === 'image/png' ? 'png' : 'jpg') }); document.body.append(a); a.click(); a.remove(); toast('QR Code disimpan.'); }
+      catch (e) { window.open(qr, '_blank', 'noopener'); }
+    }
+    function drawDetail() {
+      if (S.method === 'qris') {
+        const qr = M.qrisUrl(S.settings);
+        detail.replaceChildren(h('h3', {}, 'Scan QRIS untuk membayar'), h('div', { class: 'ms-qris' }, h('img', { class: 'ms-qimg', id: 'ms-qimg', src: qr, alt: 'QRIS resmi BAITUNA' }), S.settings.qris_merchant ? h('b', {}, S.settings.qris_merchant) : '',
+          h('span', { class: 'muted' }, 'Bayar tepat ' + M.rp(p.price)), h('button', { class: 'btn-sm ghost ms-saveqr', type: 'button', id: 'ms-saveqr', onclick: saveQr0 }, ic(I.down), 'Simpan QR Code')));
+        detail.hidden = false;
+      } else if (S.method === 'transfer') {
+        const accs = (S.accounts || []).filter(a => a.active !== false);
+        detail.replaceChildren(h('h3', {}, 'Transfer ke salah satu rekening'), ...accs.map(a => h('div', { class: 'ms-acc', 'data-id': a.id }, h('div', {}, h('b', {}, a.bank), h('div', { class: 'ms-num' }, a.number), h('span', { class: 'muted' }, 'a.n. ' + a.holder)), copyBtn(a.number.replace(/\D/g, ''), 'Nomor rekening'))),
+          h('p', { class: 'muted' }, 'Transfer tepat ' + M.rp(p.price) + '.'));
+        detail.hidden = false;
+      } else { detail.replaceChildren(); detail.hidden = true; }
+    }
+    function paint() { btn.disabled = !S.method; for (const l of box.querySelectorAll('.ms-mcard')) l.classList.toggle('on', l.getAttribute('data-m') === S.method); drawDetail(); }
     btn.addEventListener('click', async () => {
       if (!S.method || btn.disabled) return;
       btn.disabled = true; btn.textContent = 'Membuat pesanan…'; err.textContent = '';
@@ -180,7 +200,7 @@ export function membershipFlow(ctx) {
         const id = await M.createOrder({ plan: p.code, name: S.valid.name, phone: S.valid.phone, email: S.valid.email, mosque: S.mosque ? S.mosque.id : null, method: S.method });
         M.pingNotify();
         S.orders = await M.myOrders(); const o = findOrder(id) || M.openOrder(S.orders);
-        toast('Pesanan berhasil dibuat.'); payScreen(o);
+        toast('Pesanan berhasil dibuat.'); thanksScreen(o);
       } catch (e) {
         if (e && e.message === 'order_terbuka') { try { S.orders = await M.myOrders(); } catch (x) { /* abaikan */ } const o = M.openOrder(S.orders); if (o) { toast('Anda masih punya pesanan yang belum selesai. Ditampilkan.'); route(o); return; } }
         err.textContent = 'Gagal membuat transaksi. ' + M.errorText(e); btn.disabled = false; btn.textContent = 'Lanjutkan Pembayaran';
@@ -189,9 +209,9 @@ export function membershipFlow(ctx) {
     });
     draw(back('← Data pemesan', checkoutScreen), h('h2', { class: 'wtitle' }, 'Pilih Metode Pembayaran'), h('p', { class: 'muted' }, 'Pilih QRIS atau Transfer Bank.'), steps(2),
       h('div', { class: 'panel ms-totbox', id: 'ms-totbox' }, h('span', { class: 'muted' }, 'Total Pembayaran'), h('b', { class: 'ms-big', id: 'ms-amount' }, M.rp(p.price)), h('span', { class: 'muted' }, 'Paket ' + p.months + ' Bulan')),
-      adminBar('pay'), h('h3', {}, 'Pilih Metode Pembayaran'), box,
+      adminBar('pay'), h('h3', {}, 'Pilih Metode Pembayaran'), box, detail,
       !ready.qris && !ready.transfer ? h('div', { class: 'ms-note ms-bad-note', id: 'ms-nomethod', role: 'alert' }, ic(I.info), h('span', {}, 'Metode pembayaran belum dikonfigurasi. Pesanan belum bisa dibuat; silakan coba lagi nanti.')) : '',
-      infoBox('Nomor pesanan dibuat setelah Anda menekan Lanjutkan Pembayaran. Membership aktif setelah pembayaran diverifikasi oleh admin.'),
+      infoBox('Lakukan pembayaran sesuai metode di atas, lalu tekan Lanjutkan Pembayaran. Anda akan diarahkan ke halaman terima kasih untuk mengunggah bukti pembayaran. Membership aktif setelah pembayaran diverifikasi oleh admin.'),
       err, btn);
     paint();
   }
@@ -283,11 +303,11 @@ export function membershipFlow(ctx) {
     draw(back('← Pembayaran', () => payScreen(o)), steps(3),
       h('div', { class: 'ms-hero', id: 'ms-thanks' }, h('span', { class: 'ms-heroic ms-okbg' }, ic(I.check)),
         h('h2', { class: 'wtitle' }, rej ? 'Kirim Ulang Bukti Pembayaran' : 'Terima Kasih Sudah Memesan Membership BAITUNA!'),
-        h('p', { class: 'muted', id: 'ms-thanks-msg' }, rej ? 'Bukti sebelumnya ditolak: ' + (o.reject_reason || '-') + '. Silakan unggah bukti yang benar.' : 'Pesanan membership Anda berhasil dibuat. Silakan lakukan pembayaran dan unggah bukti pembayaran. Membership akan aktif setelah pembayaran diverifikasi oleh admin BAITUNA.')),
+        h('p', { class: 'muted', id: 'ms-thanks-msg' }, rej ? 'Bukti sebelumnya ditolak: ' + (o.reject_reason || '-') + '. Silakan unggah bukti yang benar.' : 'Pesanan membership Anda berhasil dibuat. Setelah membayar, unggah bukti pembayaran di bawah ini. Membership akan aktif setelah pembayaran diverifikasi oleh admin BAITUNA.')),
       h('div', { class: 'panel ms-sum', id: 'ms-sum' }, refBox(o), row('Tanggal Transaksi', M.fmtDateTime(o.created_at)), row('Paket', 'Membership ' + o.months + ' Bulan'), row('Periode', o.months + ' bulan'),
         row('Total Pembayaran', M.rp(o.amount), 'ms-total'), row('Metode Pembayaran', M.methodLabel(o.method)), h('div', { class: 'ms-row' }, h('span', { class: 'muted' }, 'Status Pembayaran'), h('span', { class: tone(o.status), id: 'ms-stat' }, M.statusLabel(o.status)))),
       h('h3', {}, 'Upload Bukti Pembayaran ', h('span', { class: 'ms-req' }, '*')), file, drop, prev, err, prog, send,
-      h('div', { class: 'row-btns mt' }, h('button', { class: 'btn-sm ghost', type: 'button', id: 'ms-detail', onclick: () => statusScreen(o) }, 'Lihat Detail Transaksi'),
+      h('div', { class: 'row-btns mt' }, h('button', { class: 'btn-sm ghost', type: 'button', id: 'ms-repay', onclick: () => payScreen(o) }, 'Lihat cara pembayaran'), h('button', { class: 'btn-sm ghost', type: 'button', id: 'ms-detail', onclick: () => statusScreen(o) }, 'Lihat Detail Transaksi'),
         h('button', { class: 'btn-sm ghost', type: 'button', id: 'ms-tolib', onclick: ctx.exit }, 'Kembali ke Pustaka Buku')));
   }
 
