@@ -249,7 +249,12 @@ function renderCalendar() {
   box.replaceChildren(tabs(), v.el);
   v.mount();
 }
-$('public-back').addEventListener('click', () => backPublic());
+// Tombol "Kembali" di pojok atas: bila sedang di dalam sebuah halaman (detail, layar pengelolaan) naik SATU tingkat lewat tombol "←" halaman itu,
+// sama seperti tombol Kembali bawaan HP; bukan loncat ke Beranda. Bila sudah di halaman utama fitur: kembali ke halaman sebelumnya / Beranda.
+$('public-back').addEventListener('click', () => {
+  const inner = [...document.querySelectorAll('#public-content button')].find(b => /^←/.test(b.textContent.trim()) && !b.disabled && b.offsetParent !== null);
+  if (inner) inner.click(); else backPublic();
+});
 
 async function load(reset) {
   const box = $('public-content');

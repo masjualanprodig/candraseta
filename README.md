@@ -732,3 +732,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v189
 - Membership: "Pesanan saya" dan riwayat bukti hanya memuat milik akun yang sedang masuk (Super Admin tidak lagi melihat pesanan jamaah lain sebagai pesanannya sendiri).
+
+## v190
+- Tombol "Kembali" di pojok atas halaman fitur: dari dalam halaman detail/layar bertingkat naik SATU tingkat (seperti tombol Kembali bawaan HP), tidak lagi loncat ke Beranda.
