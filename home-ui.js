@@ -88,7 +88,7 @@ export function bannerCarousel(slides, { id = 'banner', speed = 0 } = {}) {
     [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
   }, { passive: true });
   autoplay(track, speed);
-  return h('section', { class: 'bn' }, track, dots);
+  return h('section', { class: 'bn' + (slides.length === 1 ? ' bn-solo' : '') }, track, dots);
 }
 export const promoBanner = ({ title, text, cta, onclick, id, art }) =>
   h('section', { class: 'pb', id, 'data-art': art || '' }, h('div', { class: 'pb-txt' }, h('h2', {}, title), h('p', {}, text), h('button', { class: 'bn-cta gold', type: 'button', onclick }, cta, icon(ICONS.chev))));

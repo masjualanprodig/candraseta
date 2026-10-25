@@ -747,3 +747,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v194
 - Banner beranda (Banner gambar & Banner slide) mendukung GIF animasi: diunggah apa adanya, maksimal 600 KB. JPEG/PNG/WebP tetap dikompres maksimal 100 KB. SQL baru: banner_gif.sql (izinkan image/gif di bucket branding).
+
+## v195
+- Banner satu gambar (termasuk GIF) kini tampil utuh sesuai rasio aslinya, tidak terpotong, responsif di semua lebar layar. Banner slide (lebih dari 1 gambar) tetap 16:9.

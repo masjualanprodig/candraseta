@@ -454,3 +454,6 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 
 /* v162 - kartu utama Ramadan Center: latar hijau (sebelumnya tertimpa putih, teks tak terbaca) */
 .panel.jhero.rc-hero{background:linear-gradient(135deg,var(--emerald) 0%,var(--green-deep) 100%);color:#fff;border:0}
+/* v195: banner satu gambar mengikuti rasio asli gambar (tidak terpotong), responsif di semua lebar */
+.bn-solo .bn-slide.bn-img{aspect-ratio:auto;min-height:3.5rem;background:transparent}
+.bn-solo .bn-slide.bn-img img{height:auto;max-width:100%;object-fit:contain}
