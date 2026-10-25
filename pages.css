@@ -468,3 +468,5 @@ html.rt-lock,html.rt-lock body{overflow:hidden}
 /* pratinjau di editor: gambar utuh di atas kotak-kotak (kelihatan transparan), tidak dipotong */
 .hbe-simg .hbe-thumb{aspect-ratio:auto;max-height:200px;object-fit:contain;background:repeating-conic-gradient(#e6ebe7 0 25%,#fff 0 50%) 0 0/16px 16px}
 .hbe-simg .hbe-thumb-empty{aspect-ratio:16/9}
+/* v198: jarak atas-bawah banner satu gambar dirapatkan sedikit (nyaman di mata) */
+.home-body > .bn.bn-solo{margin-block:-8px}
