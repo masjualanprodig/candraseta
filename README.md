@@ -769,3 +769,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ### v200
 - Tanya Jawab gratis (penjawab resmi) dihapus dari menu. Kini hanya ada satu: Forum Tanya Jawab BAITUNA (AI, khusus membership), dengan ikon berkilau, di Lainnya. Pintasan lama "Tanya Jawab" di Beranda ikut membuka forum ini. Data pertanyaan lama di database tidak dihapus.
+
+### v201
+- Nama fitur jadi "Forum Tanya Jawab". Kata "AI" dan "Google Gemini" dihapus dari deskripsi kartu, halaman pengenalan, dan manfaat membership. Pemberitahuan bahwa jawaban dibuat asisten digital (kecerdasan buatan) tetap ada di "Cara kerja" dan di bawah tiap jawaban.

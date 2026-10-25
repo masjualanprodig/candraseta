@@ -71,10 +71,10 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
     const more = h('div', { class: 'ai-more', id: 'ai-benefits', hidden: '' },
       h('h3', {}, 'Cara kerja Forum Tanya Jawab'),
       h('ul', { class: 'ai-list' },
-        h('li', {}, 'Pertanyaan Anda dijawab oleh sistem AI (Google Gemini) yang diarahkan untuk menjawab dengan santun dan berdasarkan rujukan.'),
-        h('li', {}, 'Ayat Al-Qur’an yang dirujuk diambil langsung dari mushaf (teks Arab dan terjemahan), bukan diketik oleh AI. Rujukan yang tidak dapat diperiksa tidak ditampilkan.'),
+        h('li', {}, 'Pertanyaan Anda dijawab oleh asisten digital BAITUNA (kecerdasan buatan, bukan manusia) yang diarahkan menjawab dengan santun dan berdasarkan rujukan. Pertanyaan dikirim ke layanan pengolah jawaban pihak ketiga, jadi jangan menulis data pribadi.'),
+        h('li', {}, 'Ayat Al-Qur’an yang dirujuk diambil langsung dari mushaf (teks Arab dan terjemahan), bukan diketik oleh asisten. Rujukan yang tidak dapat diperiksa tidak ditampilkan.'),
         h('li', {}, 'Sumber lain (fatwa, kitab, artikel) hanya ditampilkan bila sudah dikurasi pengelola BAITUNA.'),
-        h('li', {}, 'Jawaban AI bukan fatwa dan bisa keliru. Untuk perkara besar atau pribadi, tanyakan langsung kepada ulama atau ustaz yang Anda percaya.'),
+        h('li', {}, 'Jawaban ini bukan fatwa dan bisa keliru. Untuk perkara besar atau pribadi, tanyakan langsung kepada ulama atau ustaz yang Anda percaya.'),
         h('li', {}, 'Riwayat percakapan tersimpan di akun Anda, hanya bisa dilihat oleh Anda, dan bisa dihapus kapan saja.'),
         h('li', {}, 'Batas ' + st.limit + ' pertanyaan per hari agar layanan tetap terjangkau.')),
       '');
@@ -88,12 +88,12 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
       : open ? (open.status === 'menunggu_verifikasi' ? 'Pembayaran membership Anda sedang menunggu verifikasi admin. Forum terbuka otomatis setelah pembayaran diverifikasi.' : 'Anda punya pesanan membership yang belum dibayar. Selesaikan pembayaran untuk membuka forum.') : '';
     const toggle = h('button', { class: 'ai-link', type: 'button', id: 'ai-more-btn', 'aria-expanded': 'false', 'aria-controls': 'ai-benefits',
       onclick: () => { const o = more.hidden; more.hidden = !o; toggle.setAttribute('aria-expanded', String(o)); toggle.textContent = o ? 'Tutup penjelasan' : 'Lihat Manfaat Lengkap'; } }, 'Lihat Manfaat Lengkap');
-    draw(h('h2', { class: 'wtitle ai-title' }, 'Forum Tanya Jawab BAITUNA'),
+    draw(h('h2', { class: 'wtitle ai-title' }, 'Forum Tanya Jawab'),
       h('p', { class: 'muted' }, 'Tempat bertanya dan belajar Islam dengan jawaban yang jelas, santun, dan berdasarkan rujukan tepercaya.'),
       h('section', { class: 'ai-lock', id: 'ai-lock', 'data-mode': mode },
         h('span', { class: 'ai-lock-ic', 'aria-hidden': 'true' }, ic('chat', 'ai-lock-chat'), h('span', { class: 'ai-lock-pad' }, ic('lock'))),
         h('b', { class: 'ai-lock-k' }, 'Fitur Premium'),
-        h('h3', { class: 'ai-lock-t' }, 'Tanya jawab keislaman dibantu AI'),
+        h('h3', { class: 'ai-lock-t' }, 'Tanya jawab keislaman beserta rujukannya'),
         h('p', { class: 'ai-lock-s' }, 'Khusus jamaah dengan membership aktif.'),
         h('ul', { class: 'ai-lock-l' }, ...['Jawaban disertai rujukan yang dapat diperiksa', 'Penjelasan santun dan mudah dipahami', 'Tersedia 9 kategori pertanyaan', 'Maksimal ' + st.limit + ' pertanyaan per hari'].map(t => h('li', {}, ic('check', 'ai-lock-ok'), h('span', {}, t)))),
         note ? h('p', { class: 'ai-lock-note', id: 'ai-lock-note' }, note) : '',
@@ -116,7 +116,7 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
     };
     const ex = q => h('button', { class: 'ai-ex', type: 'button', onclick: () => { st.q = q; A.saveDraft({ q, cat: st.cat }); const t = document.getElementById('ai-input'); if (t) { t.value = q; grow(t); t.focus(); } } }, q);
     draw(
-      h('div', { class: 'ai-head' }, h('h2', { class: 'wtitle ai-title' }, 'Forum Tanya Jawab BAITUNA'), h('span', { class: 'ai-prem' }, ic('star'), 'Premium')),
+      h('div', { class: 'ai-head' }, h('h2', { class: 'wtitle ai-title' }, 'Forum Tanya Jawab'), h('span', { class: 'ai-prem' }, ic('star'), 'Premium')),
       h('p', { class: 'ai-hello' }, 'Assalamu’alaikum, Saudaraku.'),
       h('p', { class: 'muted ai-desc' }, 'Mari belajar dan memahami Islam bersama melalui jawaban yang jelas, santun, dan dilengkapi rujukan yang dapat diperiksa.'),
       quota(),
@@ -127,7 +127,7 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
       h('div', { class: 'ai-acts' },
         btn([ic('clock'), 'Riwayat percakapan'], 'btn-sm ghost', 'ai-history', historyScreen),
         st.admin ? btn([ic('shield'), 'Kelola forum'], 'btn-sm ghost', 'ai-admin', () => adminScreen('laporan')) : ''),
-      h('p', { class: 'hint ai-disc' }, 'Jawaban disusun dengan bantuan AI dan bukan fatwa. Periksa rujukannya, dan tanyakan kepada ustaz atau ulama yang Anda percaya untuk perkara besar atau pribadi.'),
+      h('p', { class: 'hint ai-disc' }, 'Jawaban disusun asisten digital dan bukan fatwa. Periksa rujukannya, dan tanyakan kepada ustaz atau ulama yang Anda percaya untuk perkara besar atau pribadi.'),
       composer('Tulis pertanyaan Anda…'));
   }
 
@@ -199,7 +199,7 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
     A.paragraphs(a.penjelasan).forEach(p => body.append(h('p', {}, p)));
     if (a.perbedaan_pendapat) body.append(h('div', { class: 'ai-a-khilaf' }, h('b', {}, 'Perbedaan pendapat ulama'), ...A.paragraphs(a.perbedaan_pendapat).map(p => h('p', {}, p))));
     const long = A.answerLength(a) > 900;
-    const kids = [h('div', { class: 'ai-a-who' }, h('span', { class: 'ai-a-av', 'aria-hidden': 'true' }, ic('mosque')), h('b', {}, 'Asisten Islami BAITUNA'), h('span', { class: 'ai-tag' }, 'AI')), body];
+    const kids = [h('div', { class: 'ai-a-who' }, h('span', { class: 'ai-a-av', 'aria-hidden': 'true' }, ic('mosque')), h('b', {}, 'Asisten Islami BAITUNA'), h('span', { class: 'ai-tag' }, 'Asisten digital')), body];
     if (long) {
       body.classList.add('clip');
       const more = h('button', { class: 'ai-link ai-readmore', type: 'button', 'aria-expanded': 'false', onclick: () => { body.classList.remove('clip'); more.remove(); } }, 'Baca selengkapnya');
@@ -216,7 +216,7 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
     const refBox = h('section', { class: 'ai-refs' }, h('h4', {}, 'Dalil dan Rujukan'));
     if (refs.length) {
       refBox.append(h('ol', { class: 'ai-refl' }, ...refs));
-      if ((a.ayat || []).length) refBox.append(h('p', { class: 'hint ai-src-note' }, 'Teks dan terjemahan ayat diambil dari mushaf (AlQuran Cloud: quran-uthmani & id.indonesian), bukan ditulis AI.'));
+      if ((a.ayat || []).length) refBox.append(h('p', { class: 'hint ai-src-note' }, 'Teks dan terjemahan ayat diambil dari mushaf (AlQuran Cloud: quran-uthmani & id.indonesian), bukan ditulis asisten.'));
     } else refBox.append(h('p', { class: 'muted ai-noref' }, 'Belum ada rujukan terverifikasi untuk jawaban ini. Mohon periksa kembali kepada ustaz atau ulama yang Anda percaya.'));
     if (a.ayat_dibuang) refBox.append(h('p', { class: 'hint' }, 'Sebagian rujukan ayat tidak dapat diverifikasi sehingga tidak ditampilkan.'));
     kids.push(refBox);
@@ -233,7 +233,7 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
       h('button', { class: 'ai-mini', type: 'button', 'data-act': 'share', onclick: () => shareAnswer(m, question) }, ic('share'), 'Bagikan'),
       h('button', { class: 'ai-mini', type: 'button', 'data-act': 'report', onclick: () => reportSheet(m) }, ic('flag'), 'Laporkan'),
       h('span', { class: 'ai-time' }, hm(m.created_at))));
-    kids.push(h('p', { class: 'ai-a-disc' }, 'Dijawab dengan bantuan AI. Bukan fatwa; periksa rujukannya.'));
+    kids.push(h('p', { class: 'ai-a-disc' }, 'Dijawab oleh asisten digital (kecerdasan buatan). Bukan fatwa; periksa rujukannya.'));
     return h('article', { class: 'ai-a', 'data-id': m.id }, ...kids);
   }
   function chatScreen(scrollEnd) {
@@ -316,7 +316,7 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
     if (!ok) return;
     const text = A.shareText(m.answer || { inti: m.content }, question);
     try {
-      if (navigator.share) { await navigator.share({ title: 'Forum Tanya Jawab BAITUNA', text }); return; }
+      if (navigator.share) { await navigator.share({ title: 'Forum Tanya Jawab', text }); return; }
       await navigator.clipboard.writeText(text); toast('Jawaban disalin. Tempel di aplikasi yang Anda inginkan.');
     } catch (e) { if (!e || e.name !== 'AbortError') toast('Tidak bisa membagikan dari perangkat ini.', true); }
   }
@@ -386,9 +386,9 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
     const list = rows.map(s => h('button', { class: 'ai-srcrow', type: 'button', 'data-id': s.id, onclick: () => sourceForm(s) },
       h('b', {}, s.title), h('span', { class: 'muted' }, A.kindLabel(s.kind) + ' · ' + (A.SOURCE_STATUS.find(x => x[0] === s.status) || [0, s.status])[1] + (s.category ? ' · ' + A.catLabel(s.category) : ''))));
     box.replaceChildren(
-      h('p', { class: 'hint' }, 'AI hanya boleh mengutip sumber berstatus Disetujui. Salin kutipan dari sumber aslinya, cantumkan penulis/lembaga, edisi, dan nomor rujukan, serta pastikan izin penggunaannya.'),
+      h('p', { class: 'hint' }, 'Asisten hanya boleh mengutip sumber berstatus Disetujui. Salin kutipan dari sumber aslinya, cantumkan penulis/lembaga, edisi, dan nomor rujukan, serta pastikan izin penggunaannya.'),
       btn([ic('plus'), 'Tambah sumber'], 'btn-sm', 'ai-src-add', () => sourceForm(null)),
-      rows.length ? h('div', { class: 'ai-srclist' }, ...list) : h('div', { class: 'empty' }, h('p', { class: 'muted' }, 'Belum ada sumber rujukan. Selama kosong, AI menjawab tanpa sumber kurasi dan wajib menyatakan keterbatasannya.')));
+      rows.length ? h('div', { class: 'ai-srclist' }, ...list) : h('div', { class: 'empty' }, h('p', { class: 'muted' }, 'Belum ada sumber rujukan. Selama kosong, asisten menjawab tanpa sumber kurasi dan wajib menyatakan keterbatasannya.')));
   }
   function sourceForm(s) {
     const v = s || {};

@@ -21,7 +21,7 @@ export const EXAMPLES = ['Bagaimana cara menjaga khusyuk dalam salat?', 'Apa saj
 export const REPORT_REASONS = [['keliru', 'Jawaban keliru'], ['rujukan', 'Rujukan tidak sesuai'], ['tidak_pantas', 'Bahasa tidak pantas'], ['lainnya', 'Lainnya']];
 export const SOURCE_KINDS = [['quran', 'Al-Qur’an / terjemah'], ['hadis', 'Hadis'], ['fatwa', 'Fatwa'], ['tafsir', 'Tafsir'], ['fikih', 'Kitab fikih'], ['artikel', 'Artikel lembaga'], ['lainnya', 'Lainnya']];
 export const kindLabel = k => (SOURCE_KINDS.find(x => x[0] === k) || [k, 'Sumber'])[1];
-export const SOURCE_STATUS = [['draf', 'Draf (belum dipakai)'], ['disetujui', 'Disetujui (dipakai AI)'], ['nonaktif', 'Nonaktif']];
+export const SOURCE_STATUS = [['draf', 'Draf (belum dipakai)'], ['disetujui', 'Disetujui (dipakai asisten)'], ['nonaktif', 'Nonaktif']];
 export const REPORT_STATUS = [['baru', 'Baru'], ['ditinjau', 'Ditinjau'], ['selesai', 'Selesai']];
 
 export const isUuid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s || ''));
@@ -48,7 +48,7 @@ export function shareText(ans, question) {
   if (a.perbedaan_pendapat) parts.push('Perbedaan pendapat: ' + a.perbedaan_pendapat);
   const refs = (a.ayat || []).map(ayahLabel).concat((a.sumber || []).map(s => s.title + (s.reference ? ' (' + s.reference + ')' : '')));
   if (refs.length) parts.push('Rujukan: ' + refs.join('; '));
-  parts.push('— Dijawab dengan bantuan AI di Forum Tanya Jawab BAITUNA. Bukan fatwa; periksa rujukannya dan tanyakan kepada ustaz bila ragu.');
+  parts.push('— Dijawab asisten digital (kecerdasan buatan) di Forum Tanya Jawab BAITUNA. Bukan fatwa; periksa rujukannya dan tanyakan kepada ustaz bila ragu.');
   return parts.filter(Boolean).join('\n\n');
 }
 
@@ -77,6 +77,7 @@ export function errorText(e) {
   if (!e) return 'Belum berhasil. Coba lagi.';
   if (e.status === 0) return 'Tidak ada koneksi internet. Pertanyaan Anda tidak hilang; silakan coba lagi.';
   if (e.status === 404 && !e.message && e.error === 'http') return 'Forum Tanya Jawab belum aktif di server. Pengelola perlu memasang fungsi baituna-tanya-ai.';
+  if (e.error === 'ai_belum_diatur') return 'Layanan Forum Tanya Jawab belum diatur oleh pengelola. Silakan coba lagi nanti.';
   if (e.message) return e.message;
   if (e.status === 401) return 'Sesi Anda berakhir. Silakan masuk lagi.';
   return 'Maaf, Saudaraku. Jawaban belum dapat dimuat saat ini. Silakan coba kembali beberapa saat lagi.';

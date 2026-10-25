@@ -139,7 +139,7 @@ function renderMore() {
       card('zakat', ICONS.zakat, 'Kalkulator Zakat', 'Zakat maal dan penghasilan, nisab, haul, dan rujukan'),
       card('jadwal', ICONS.clock, 'Jadwal Salat', 'Waktu salat sesuai lokasi Anda'),
       card('buku', ICONS.book, 'Pustaka Buku', 'Buku fisik dan digital, pesan lewat WhatsApp atau link checkout'),
-      card('tanyaai', '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>', 'Forum Tanya Jawab BAITUNA', 'Tanya jawab dibantu AI beserta rujukannya (khusus membership)'),
+      card('tanyaai', '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>', 'Forum Tanya Jawab', 'Tanya jawab keislaman beserta rujukannya (khusus membership)'),
       card('adzan', ICONS.mosque, 'Adzan', 'Suara dan pengingat adzan tiap waktu salat'),
       card('kiblat', ICONS.compass, 'Arah Kiblat', 'Kompas kiblat dari lokasi Anda ke Ka’bah'),
       card('dzikir', ICONS.dzikir, 'Dzikir Pagi & Petang', 'Bacaan dan penghitung ketukan'),
