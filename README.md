@@ -772,3 +772,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ### v201
 - Nama fitur jadi "Forum Tanya Jawab". Kata "AI" dan "Google Gemini" dihapus dari deskripsi kartu, halaman pengenalan, dan manfaat membership. Pemberitahuan bahwa jawaban dibuat asisten digital (kecerdasan buatan) tetap ada di "Cara kerja" dan di bawah tiap jawaban.
+
+### v202
+- Kalimat "(kecerdasan buatan, bukan manusia)" dihapus dari "Cara kerja". Keterangan di bawah tiap jawaban tetap ada.

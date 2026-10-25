@@ -71,7 +71,7 @@ export function aiForumPage({ go, onSignIn, openRelated } = {}) {
     const more = h('div', { class: 'ai-more', id: 'ai-benefits', hidden: '' },
       h('h3', {}, 'Cara kerja Forum Tanya Jawab'),
       h('ul', { class: 'ai-list' },
-        h('li', {}, 'Pertanyaan Anda dijawab oleh asisten digital BAITUNA (kecerdasan buatan, bukan manusia) yang diarahkan menjawab dengan santun dan berdasarkan rujukan. Pertanyaan dikirim ke layanan pengolah jawaban pihak ketiga, jadi jangan menulis data pribadi.'),
+        h('li', {}, 'Pertanyaan Anda dijawab oleh asisten digital BAITUNA yang diarahkan menjawab dengan santun dan berdasarkan rujukan. Pertanyaan dikirim ke layanan pengolah jawaban pihak ketiga, jadi jangan menulis data pribadi.'),
         h('li', {}, 'Ayat Al-Qur’an yang dirujuk diambil langsung dari mushaf (teks Arab dan terjemahan), bukan diketik oleh asisten. Rujukan yang tidak dapat diperiksa tidak ditampilkan.'),
         h('li', {}, 'Sumber lain (fatwa, kitab, artikel) hanya ditampilkan bila sudah dikurasi pengelola BAITUNA.'),
         h('li', {}, 'Jawaban ini bukan fatwa dan bisa keliru. Untuk perkara besar atau pribadi, tanyakan langsung kepada ulama atau ustaz yang Anda percaya.'),
