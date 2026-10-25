@@ -729,3 +729,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v188
 - Membership: layar Pembayaran selalu memuat status pesanan terbaru; bila Batalkan pesanan gagal karena status sudah berubah di server, ditampilkan status terbaru (bukan galat buntu).
+
+## v189
+- Membership: "Pesanan saya" dan riwayat bukti hanya memuat milik akun yang sedang masuk (Super Admin tidak lagi melihat pesanan jamaah lain sebagai pesanannya sendiri).

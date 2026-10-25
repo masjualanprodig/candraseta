@@ -89,7 +89,7 @@ export async function myMembership() {
 }
 export async function myOrders() {
   await db('rpc/membership_expire_mine', { method: 'POST', body: {} }).catch(() => {});
-  return (await db('membership_orders', { query: 'select=id,ref_code,plan_code,plan_name,months,amount,full_name,phone,mosque_id,mosque_name,method,status,proof_path,reject_reason,reviewed_at,starts_at,ends_at,expires_at,created_at&order=created_at.desc&limit=50' })) || [];
+  return (await db('membership_orders', { query: 'select=id,ref_code,plan_code,plan_name,months,amount,full_name,phone,mosque_id,mosque_name,method,status,proof_path,reject_reason,reviewed_at,starts_at,ends_at,expires_at,created_at&user_id=eq.' + enc(userId() || '') + '&order=created_at.desc&limit=50' })) || [];
 }
 export const openOrder = list => (list || []).find(o => o.status === 'menunggu_pembayaran' || o.status === 'menunggu_verifikasi') || null;
 export const settingsPublic = async () => { const r = await db('rpc/membership_settings_public', { method: 'POST', body: {} }); return Array.isArray(r) && r[0] ? r[0] : {}; };
@@ -97,7 +97,7 @@ export const listAccounts = async () => (await db('membership_accounts', { query
 export const qrisUrl = s => s && s.qris_path ? publicPhotoUrl(s.qris_path, ASSET_BUCKET) : null;
 export const createOrder = f => db('rpc/membership_create_order', { method: 'POST', body: { p_plan: f.plan, p_name: f.name, p_phone: f.phone, p_mosque: f.mosque || null, p_email: f.email || null, p_method: f.method } });
 export const setMethod = (id, method) => db('rpc/membership_set_method', { method: 'POST', body: { p_order: id, p_method: method } });
-export const myProofs = async orderId => (await db('membership_payment_proofs', { query: 'select=id,order_id,method,status,reject_reason,uploaded_at,reviewed_at&order=uploaded_at.desc&limit=50' + (orderId ? '&order_id=eq.' + enc(orderId) : '') })) || [];
+export const myProofs = async orderId => (await db('membership_payment_proofs', { query: 'select=id,order_id,method,status,reject_reason,uploaded_at,reviewed_at&user_id=eq.' + enc(userId() || '') + '&order=uploaded_at.desc&limit=50' + (orderId ? '&order_id=eq.' + enc(orderId) : '') })) || [];
 // Metode yang siap dipakai: hanya bila data resminya sudah diisi Super Admin (tidak ada data contoh). Server memeriksa ulang.
 export const methodsReady = (settings, accounts) => ({ qris: !!(settings && settings.qris_path), transfer: (accounts || []).some(a => a.active !== false) });
 // Minta server segera mengirim antrean notifikasi Telegram (tidak wajib berhasil; jadwal tiap menit menjadi cadangan).
