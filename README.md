@@ -735,3 +735,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v190
 - Tombol "Kembali" di pojok atas halaman fitur: dari dalam halaman detail/layar bertingkat naik SATU tingkat (seperti tombol Kembali bawaan HP), tidak lagi loncat ke Beranda.
+
+## v191
+- Pustaka Buku: banner animasi Membership Premium di atas kolom cari (WebP 407 KB + GIF cadangan 528 KB; responsif 320-1280 px). Anggota aktif melihat kartu status membership di posisi yang sama.

@@ -120,11 +120,17 @@ export function booksPage({ go, onSignIn } = {}) {
   function openMembership(start) {
     membershipFlow({ draw, start, isAdmin: st.isAdmin, openAdmin: tab => membershipAdminPage({ draw, tab, exit: () => openMembership(start) }), signIn: () => { if (onSignIn) onSignIn(); }, exit: async () => { await refreshMember(); st.open ? showDetail(st.open) : showList(); } });
   }
-  // Banner di bawah daftar: ajakan bergabung (belum aktif) atau status membership (aktif).
+  // Banner di atas kolom cari: ajakan bergabung (belum aktif) atau status membership (aktif).
   function premiumBanner() {
     const act = MS.isActive(st.member), left = act ? MS.daysLeft(st.member) : null;
     const sub = act ? 'Berlaku sampai ' + MS.fmtDate(st.member.ends_at) + (left != null && left <= 7 ? ' (tinggal ' + Math.max(left, 0) + ' hari). Ketuk untuk memperpanjang.' : '. Ketuk untuk melihat detail.')
       : 'Dapatkan membership untuk membaca seluruh buku Premium di Pustaka Buku BAITUNA.';
+    // Belum member: banner gambar animasi (WebP; GIF untuk peramban lama). Ketuk = pilih paket.
+    if (!act) return h('div', { id: 'bk-mem', 'data-active': 'false' },
+      h('button', { class: 'bk-banner', type: 'button', id: 'bk-join', 'aria-label': 'Membership Premium. Akses semua buku Premium. Lihat paket membership.', onclick: () => { st.open = ''; openMembership('plans'); } },
+        h('picture', {}, h('source', { type: 'image/webp', srcset: 'banner-membership.webp' }),
+          h('img', { class: 'bk-banner-img', src: 'banner-membership.gif', alt: 'Membership Premium. Dapatkan akses penuh ke seluruh buku Premium di Pustaka Buku BAITUNA.', width: '900', height: '250', decoding: 'async' })),
+        h('span', { class: 'sr-only' }, 'Akses semua buku Premium')));
     return h('div', { id: 'bk-mem', 'data-active': String(act) },
       h('button', { class: 'bk-promo', type: 'button', id: act ? 'bk-promo-open' : 'bk-join', onclick: () => { st.open = ''; openMembership(act ? 'mine' : 'plans'); } },
         h('span', { class: 'bk-promo-ic' }, icon(IC.crown, 'ic-sm')),
@@ -208,7 +214,7 @@ export function booksPage({ go, onSignIn } = {}) {
     sortSel.value = st.sort; sortSel.addEventListener('change', () => { st.sort = sortSel.value; paintItems(); });
     const bar = h('div', { class: 'bk-bar' }, count, h('label', { class: 'bk-sortl', for: 'bk-sort' }, icon(IC.sort, 'ic-sm'), h('span', {}, 'Urutkan'), sortSel, icon(IC.down, 'ic-sm')));
     const box = h('div', { id: 'bk-items' });
-    kids.push(h('label', { class: 'bk-search' }, icon(ICONS.search, 'ic-sm'), search), viewSeg(), filters, bar, box, premiumBanner());
+    kids.push(premiumBanner(), h('label', { class: 'bk-search' }, icon(ICONS.search, 'ic-sm'), search), viewSeg(), filters, bar, box);
     draw(...kids); paintItems();
     function paintItems() {
       const rows = B.filterBooks(st.items || [], { kind: st.kind, q: st.q, access: st.access, sort: st.sort });
