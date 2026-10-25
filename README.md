@@ -738,3 +738,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ## v191
 - Pustaka Buku: banner animasi Membership Premium di atas kolom cari (WebP 407 KB + GIF cadangan 528 KB; responsif 320-1280 px). Anggota aktif melihat kartu status membership di posisi yang sama.
+
+## v192
+- Editor Tampilan Beranda (Super Admin): tombol "+ Banner gambar" (1 gambar, tanpa geser otomatis, bisa diberi tautan ke fitur). Gambar banner dikompres otomatis maksimal 100 KB.

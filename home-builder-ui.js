@@ -2,13 +2,13 @@
 // Editor "Tampilan Beranda" (Super Admin): atur blok beranda tiap peran dari atas ke bawah.
 // Naik/turun dengan tombol, tambah/hapus blok, ubah isi blok, pratinjau, simpan, kembalikan ke bawaan.
 import { h, toast, ask } from './ui.js';
-import { prepareImage } from './photo.js';
+import { prepareImage, prepareProductPhoto, PRODUCT_ERRORS } from './photo.js';
 import { errorText } from './branding-service.js';
 import { urlFor } from './branding-service.js';
 import { ROLES, SPEEDS, DEFAULT_SPEED, LINKS, LIMITS, BUILTINS, REQUIRED, REQUIRED_ITEMS, KMODES, AMODES, kartuKind, newKartu, builtinLabel, defaultBlocks, defaultsOf, kindOf, pruneBlocks, fetchLayout, saveLayout, resetLayout } from './home-layout-service.js';
 import { layoutNodes } from './home-builder.js';
 
-const TYPE_NAME = { banner: 'Banner slide', fitur: 'Kotak fitur', kartu: 'Kartu fitur', text: 'Teks' };
+const TYPE_NAME = { banner: 'Banner slide', banner1: 'Banner gambar', fitur: 'Kotak fitur', kartu: 'Kartu fitur', text: 'Teks' };
 const clone = o => JSON.parse(JSON.stringify(o, (k, v) => k.startsWith('_') ? undefined : v));
 const msgOf = e => (e && e.code === '22023' && e.message) ? e.message.charAt(0).toUpperCase() + e.message.slice(1) + '.' : errorText(e);
 
@@ -33,6 +33,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
 
   function summary(b) {
     if (b.t === 'b') { const ch = b.o && pruneBlocks(role, [b])[0].o; return ['Bawaan: ' + builtinLabel(role, b.id), ch ? 'Sudah Anda ubah' : 'Bagian aplikasi yang sudah ada']; }
+    if (b.t === 'banner' && b.slides.length === 1) return [TYPE_NAME.banner1, 'Satu gambar · maks. 100 KB' + (b.slides[0].link && LINKS[b.slides[0].link] ? ' · menuju ' + LINKS[b.slides[0].link][0] : '')];
     if (b.t === 'banner') return [TYPE_NAME.banner, b.slides.length + ' slide · gambar saja · ' + (b.speed > 0 ? 'geser tiap ' + b.speed + ' dtk' : 'tidak otomatis')];
     if (b.t === 'kartu') { const k = kartuKind(b.feature); return [TYPE_NAME.kartu, (b.title || LINKS[b.feature][0]) + ' · ' + (k === 'agenda' ? AMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + ' ' + b.count + ' agenda' : k === 'data' ? KMODES.find(m => m[0] === b.mode)[1].split(' (')[0] + (b.mode !== 'kartu' ? ' ' + b.count + ' item' : '') : k === 'embed' ? (b.size === 'penuh' ? 'Penuh' : 'Ringkas') : 'Kartu')]; }
     if (b.t === 'fitur') return [TYPE_NAME.fitur, (b.title || 'Akses Cepat') + ' · ' + b.items.length + ' menu'];
@@ -51,8 +52,8 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
       const fileIn = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'hb-file', 'aria-label': (s._file || s.img ? 'Ganti gambar slide ' : 'Pilih gambar slide ') + (k + 1) });
       fileIn.addEventListener('change', async () => {
         const f = fileIn.files && fileIn.files[0]; if (!f) return;
-        try { const p = await prepareImage(f); s._file = p; s._url = URL.createObjectURL(p.blob); bump(); draw(); }
-        catch (e) { toast(errorText(e), true); fileIn.value = ''; }
+        try { const p = await prepareProductPhoto(f); s._file = p; s._url = URL.createObjectURL(p.blob); bump(); draw(); }
+        catch (e) { toast(e && e.code && PRODUCT_ERRORS[e.code] ? PRODUCT_ERRORS[e.code] : errorText(e), true); fileIn.value = ''; }
       });
       const u = slideImg(s);
       return h('div', { class: 'hbe-slide hbe-simg' }, h('b', {}, 'Slide ' + (k + 1)),
@@ -66,7 +67,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
           b.slides.length > 1 ? h('button', { class: 'btn-sm alt hb-sl-del', type: 'button', onclick: () => { b.slides.splice(k, 1); bump(); draw(); } }, 'Hapus slide') : ''));
     });
     return h('div', { class: 'hbe-edit' },
-      h('small', { class: 'muted' }, 'Banner hanya berisi gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres. Tiap slide bisa diberi link ke fitur tertentu.'),
+      h('small', { class: 'muted' }, 'Banner hanya berisi gambar. Disarankan rasio 16:9 (mis. 1280 × 720). Gambar otomatis dikompres sampai maksimal 100 KB. Tiap slide bisa diberi link ke fitur tertentu.'),
       ...list,
       b.slides.length < LIMITS.slides ? h('button', { class: 'btn-sm ghost hb-sl-add', type: 'button', onclick: () => { b.slides.push({}); bump(); draw(); } }, '+ Tambah slide (' + b.slides.length + ' dari ' + LIMITS.slides + ')') : h('small', { class: 'muted' }, 'Maksimal ' + LIMITS.slides + ' slide.'),
       field('Kecepatan geser otomatis', select(SPEEDS.map(([v, l]) => [String(v), l]), String(b.speed), v => { b.speed = Number(v); })),
@@ -249,7 +250,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
     const hidden = hiddenBuiltins();
     const sel = hidden.length ? h('select', { class: 'in', id: 'hb-b-sel', 'aria-label': 'Bagian bawaan yang sudah dihapus' }, ...hidden.map(([id, l]) => h('option', { value: id }, l))) : null;
     const add = t => { if (blocks.length >= LIMITS.blocks) { toast('Maksimal ' + LIMITS.blocks + ' blok.', true); return; }
-      const nb = t === 'banner' ? { t, speed: DEFAULT_SPEED, slides: [{}] } : t === 'fitur' ? { t, title: '', items: [] } : t === 'kartu' ? newKartu() : { t, style: 'p', align: 'left', text: '' };
+      const nb = t === 'banner1' ? { t: 'banner', speed: 0, slides: [{}] } : t === 'banner' ? { t, speed: DEFAULT_SPEED, slides: [{}] } : t === 'fitur' ? { t, title: '', items: [] } : t === 'kartu' ? newKartu() : { t, style: 'p', align: 'left', text: '' };
       blocks.push(nb); open.add(nb); bump(); draw(); };
     saveBtn = h('button', { class: 'btn-sm', id: 'hb-save', type: 'button', onclick: doSave }, 'Simpan');
     bar = h('div', { class: 'hbe-bar' }, saveBtn, h('button', { class: 'btn-sm ghost', id: 'hb-prev-btn', type: 'button', onclick: () => { showPrev = !showPrev; draw(); } }, showPrev ? 'Tutup pratinjau' : 'Pratinjau'),
@@ -261,6 +262,7 @@ export async function renderHomeBuilder(box, onBack, startRole = 'jamaah') {
       h('p', { class: 'hint', id: 'hb-status' }, (saved ? 'Memakai susunan khusus.' : 'Memakai susunan bawaan aplikasi.') + (dirty ? ' Ada perubahan yang belum disimpan.' : '')),
       h('div', { id: 'hb-list' }, ...blocks.map(item)),
       h('div', { class: 'hbe-add' },
+        h('button', { class: 'btn-sm ghost', id: 'hb-add-banner1', type: 'button', onclick: () => add('banner1') }, '+ Banner gambar'),
         h('button', { class: 'btn-sm ghost', id: 'hb-add-banner', type: 'button', onclick: () => add('banner') }, '+ Banner slide'),
         h('button', { class: 'btn-sm ghost', id: 'hb-add-fitur', type: 'button', onclick: () => add('fitur') }, '+ Kotak fitur'),
         h('button', { class: 'btn-sm ghost', id: 'hb-add-kartu', type: 'button', onclick: () => add('kartu') }, '+ Kartu fitur'),
