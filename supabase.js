@@ -133,6 +133,18 @@ export async function storageBlobUrl(path, bucket) {
 
 // Berkas PDF dari bucket PRIVAT (buku): diunduh dengan token pengguna (atau kunci anon untuk tamu, khusus buku gratis),
 // lalu dijadikan alamat sementara di perangkat. Izin dijaga kebijakan Storage di server.
+// Isi PDF privat sebagai ArrayBuffer untuk pembaca di dalam aplikasi (tidak disimpan sebagai berkas unduhan).
+export async function storagePdfBytes(path, bucket) {
+  const token = await validToken();
+  let res;
+  try { res = await fetch(API + '/storage/v1/object/authenticated/' + bucket + '/' + encPath(path), { headers: { apikey: KEY, Authorization: 'Bearer ' + (token || KEY) }, cache: 'no-store' }); }
+  catch (e) { throw Object.assign(new Error('offline'), { status: 0 }); }
+  if (!res.ok) throw Object.assign(new Error('HTTP ' + res.status), { status: res.status });
+  const buf = await res.arrayBuffer();
+  const head = new Uint8Array(buf.slice(0, 5));
+  if (String.fromCharCode(...head) !== '%PDF-') throw Object.assign(new Error('bukan PDF'), { status: 415 });
+  return buf;
+}
 export async function storagePdfUrl(path, bucket) {
   const token = await validToken();
   let res;

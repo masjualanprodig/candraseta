@@ -697,3 +697,11 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Pendaftaran tidak lagi menolak nomor HP yang sudah dipakai akun lain: satu HP (mis. HP keluarga) boleh untuk beberapa akun dengan email berbeda. Yang harus unik hanya email.
 - nomor_hp_bersama.sql: menghapus indeks unik nomor HP (diganti indeks biasa) dan menambah phone_account_count(p_phone).
 - Masuk/Lupa password dengan nomor HP tetap bisa bila nomor itu hanya dipakai satu akun; bila dipakai beberapa akun, aplikasi meminta memakai email.
+
+## Tambahan v180 — Baca buku langsung di aplikasi
+- Pembaca PDF di dalam aplikasi (book-reader.js + pdf.js Mozilla 6.2.108 legacy di folder pdfjs/, lisensi Apache 2.0, dimuat hanya saat membaca). Buku tidak diunduh: isi PDF diambil ke memori lalu digambar ke kanvas; tanpa tombol unduh/cetak.
+- Fitur pembaca: geser kiri/kanan, penggeser halaman (n / total), Daftar Isi (dari PDF), Thumbnail, Kecerahan + mode Terang/Sepia/Gelap, Pengaturan (ukuran 100–200%, ke halaman), cari teks, penanda halaman, lanjut dari halaman terakhir (disimpan di perangkat), tombol Kembali HP menutup pembaca.
+- Detail buku baru: sampul + judul + penulis + chip, ringkasan (halaman, PDF, tahun — hanya data nyata), Tentang Buku + Baca Selengkapnya, info Penulis/Penerbit/Kategori/Tahun, simpan & bagikan. Tombol: Baca Buku (digital yang boleh dibaca), Buka dengan Membership (Premium belum aktif), Beli Buku (fisik, checkout di website).
+- Editor: Jenis buku Digital/Fisik; "Cara pembacaan / pemesanan": Digital = Baca langsung di aplikasi (tanpa checkout, tanpa WhatsApp/link, PDF wajib); Fisik = Full checkout di website (link). WhatsApp hanya untuk buku fisik lama. Kolom penerbit, kategori, tahun, jumlah halaman.
+- buku_baca.sql: order_type 'read', kolom info buku, aturan digital=baca/fisik=checkout; buku digital lama dipindah ke 'read' (WA/link dikosongkan).
+- Layar paket: judul "Membership Premium", tombol "Lanjutkan ke Checkout".

@@ -182,6 +182,8 @@ let exitArmed = 0;
 const guard = () => { try { history.pushState({ baituna: 1 }, '', location.href); } catch (e) {} };
 const shown = id => { const e = $(id); return !!e && !e.hidden; };
 function handleBack() {
+  // Lapisan layar penuh (mis. pembaca buku) ditutup lebih dulu.
+  const ov = document.querySelector('[data-overlay-back]'); if (ov && ov.isConnected) { ov.click(); return true; }
   // Dari dalam sebuah halaman (detail, layar pengelolaan): naik satu tingkat lewat tombol "←" di halaman itu, bukan loncat ke Beranda.
   const inner = id => [...document.querySelectorAll('#' + id + ' button')].find(b => /^←/.test(b.textContent.trim()) && !b.disabled && b.offsetParent !== null);
   if (shown('view-public')) { const b = inner('public-content'); if (b) b.click(); else $('public-back').click(); return true; }

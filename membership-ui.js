@@ -80,10 +80,10 @@ export function membershipFlow(ctx) {
           avail ? h('span', { class: 'ms-pp' }, M.rp(p.price)) : h('span', { class: 'ms-pp muted' }, 'Belum tersedia'),
           avail ? h('small', { class: 'muted' }, p.months > 1 ? '(' + M.rp(Math.round(p.price / p.months)) + '/bulan)' : 'per bulan') : ''));
     });
-    const go = h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-next', onclick: () => { if (plan() && plan().price) { toast('Paket ' + plan().months + ' bulan dipilih.'); checkoutScreen(); } } }, 'Lanjutkan');
+    const go = h('button', { class: 'btn-primary ms-cta', type: 'button', id: 'ms-next', onclick: () => { if (plan() && plan().price) { toast('Paket ' + plan().months + ' bulan dipilih.'); checkoutScreen(); } } }, 'Lanjutkan ke Checkout');
     const open = M.openOrder(S.orders);
-    const kids = [back('← Pustaka', ctx.exit), h('h2', { class: 'wtitle' }, 'Pilih Paket Membership'),
-      h('p', { class: 'muted' }, 'Buka semua buku Premium di Pustaka Buku.'), adminBar('plans')];
+    const kids = [back('← Pustaka', ctx.exit), h('div', { class: 'ms-crownhead', 'aria-hidden': 'true' }, ic(I.crown, 'ms-crownic')), h('h2', { class: 'wtitle ms-ptitle' }, 'Membership Premium'),
+      h('p', { class: 'muted ms-psub' }, 'Pilih Paket Membership. Buka semua buku Premium di Pustaka Buku.'), adminBar('plans')];
     const rej = !open && S.orders[0] && S.orders[0].status === 'ditolak' ? S.orders[0] : null;
     if (open) kids.push(h('div', { class: 'panel ms-open', id: 'ms-open' }, h('b', {}, 'Ada pesanan yang belum selesai'), h('p', { class: 'muted' }, open.ref_code + ' · ' + open.plan_name + ' · ' + M.statusLabel(open.status)),
       h('button', { class: 'btn-sm', type: 'button', id: 'ms-continue', onclick: () => route(open) }, 'Lihat pesanan')));
@@ -92,7 +92,7 @@ export function membershipFlow(ctx) {
     if (M.isActive(S.member)) kids.push(infoBox('Membership Anda aktif sampai ' + M.fmtDate(S.member.ends_at) + '. Paket baru ditambahkan setelah tanggal itu, sisa masa aktif tidak hilang.', 'ms-actnote'));
     kids.push(h('ul', { class: 'ms-ben' }, ...M.BENEFITS.map(b => h('li', {}, ic(I.checkc, 'ms-ic ms-okc'), h('span', {}, b)))));
     kids.push(cards.length ? h('div', { class: 'ms-plans', id: 'ms-plans', role: 'radiogroup', 'aria-label': 'Paket' }, ...cards) : h('p', { class: 'muted', id: 'ms-noplan' }, 'Belum ada paket yang tersedia.'));
-    kids.push(go);
+    kids.push(go, h('p', { class: 'hint ms-pnote', id: 'ms-pnote' }, 'Setelah membership aktif, Anda bisa langsung membaca semua buku Premium.'));
     if (S.orders.length) kids.push(h('button', { class: 'btn-sm ghost mt', type: 'button', id: 'ms-tomine', onclick: mineScreen }, 'Membership Saya & riwayat'));
     draw(...kids); paint();
     function paint() { const p = plan(); go.disabled = !(p && p.price) || !!open; for (const l of document.querySelectorAll('.ms-plan')) l.classList.toggle('on', l.getAttribute('data-code') === S.planCode); }

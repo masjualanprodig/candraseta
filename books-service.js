@@ -93,7 +93,11 @@ export function orderHref(b) {
   if (b.order_type === 'url') return httpsOk(b.order_url) ? b.order_url : null;
   return null;
 }
-export const orderLabel = b => (b && b.order_label) || (b && b.order_type === 'wa' ? 'Pesan via WhatsApp' : 'Pesan lewat link checkout');
+export const orderLabel = b => (b && b.order_label) || (b && b.kind === 'fisik' ? 'Beli Buku' : b && b.order_type === 'wa' ? 'Pesan via WhatsApp' : 'Pesan lewat link checkout');
+// Cara baca / pemesanan untuk editor (v180). Digital: baca langsung di aplikasi. Fisik: full checkout di website (link).
+export const ORDER_MODES = { digital: [{ key: 'read', label: 'Baca langsung di aplikasi (tanpa checkout)' }], fisik: [{ key: 'url', label: 'Full checkout di website (link)' }] };
+export const isReadable = b => !!b && b.kind === 'digital';
+export const LIMIT_INFO = { pubMax: 80, catMax: 40, yearMin: 1900, yearMax: 2100, pagesMax: 5000 };
 export const orderTarget = b => b.order_type === 'wa' ? 'WhatsApp ' + waDisplay(b.order_wa) : 'link checkout';
 
 // Hasil: { ok:{...} } | { error, field }
@@ -102,7 +106,7 @@ export function validate(f) {
   if (title.length < LIMIT.titleMin || title.length > LIMIT.titleMax) return { error: 'Nama buku ' + LIMIT.titleMin + ' sampai ' + LIMIT.titleMax + ' huruf.', field: 'title' };
   if (plain.length < LIMIT.descMin || plain.length > LIMIT.descMax || description.length > LIMIT.htmlMax) return { error: 'Deskripsi ' + LIMIT.descMin + ' sampai ' + LIMIT.descMax + ' huruf (format yang terlalu banyak juga bisa melewati batas).', field: 'description' };
   if (!KINDS.some(k => k.key === f.kind)) return { error: 'Pilih jenis buku.', field: 'kind' };
-  const price = parsePrice(f.price);
+  const price = f.kind === 'digital' && f.orderType === 'read' ? 0 : parsePrice(f.price); // buku digital: harga tidak dipakai
   if (price == null) return { error: 'Harga belum benar. Isi angka, mis. 85000 (atau 0 / "gratis"). Maksimal Rp 100.000.000.', field: 'price' };
   const author = oneLine(f.author);
   if (author.length > LIMIT.authorMax) return { error: 'Nama penulis maksimal ' + LIMIT.authorMax + ' huruf.', field: 'author' };
@@ -110,6 +114,17 @@ export function validate(f) {
   if (label.length > LIMIT.labelMax) return { error: 'Teks tombol maksimal ' + LIMIT.labelMax + ' huruf.', field: 'label' };
   const out = { title, description, kind: f.kind, price, access: f.access === 'premium' ? 'premium' : 'gratis', active: f.active !== false, order_type: f.orderType, order_label: label || null };
   if (f.author !== undefined) out.author = author || null; // hanya dikirim bila kolom penulis ada di server
+  if (f.info !== undefined) {
+    const i = f.info || {}, pub = oneLine(i.publisher), cat = oneLine(i.category), yr = String(i.year == null ? '' : i.year).trim(), pg = String(i.pages == null ? '' : i.pages).trim();
+    if (pub && (pub.length < 2 || pub.length > LIMIT_INFO.pubMax)) return { error: 'Penerbit 2 sampai ' + LIMIT_INFO.pubMax + ' huruf.', field: 'publisher' };
+    if (cat && (cat.length < 2 || cat.length > LIMIT_INFO.catMax)) return { error: 'Kategori 2 sampai ' + LIMIT_INFO.catMax + ' huruf.', field: 'category' };
+    if (yr && !(/^\d{4}$/.test(yr) && +yr >= LIMIT_INFO.yearMin && +yr <= LIMIT_INFO.yearMax)) return { error: 'Tahun terbit 4 angka, mis. 2024.', field: 'year' };
+    if (pg && !(/^\d{1,4}$/.test(pg) && +pg >= 1 && +pg <= LIMIT_INFO.pagesMax)) return { error: 'Jumlah halaman 1 sampai ' + LIMIT_INFO.pagesMax + '.', field: 'pages' };
+    Object.assign(out, { publisher: pub || null, category: cat || null, published_year: yr ? +yr : null, pages: pg ? +pg : null });
+  }
+  // Buku digital: dibaca langsung di aplikasi, tanpa checkout (harga tidak dipakai; akses diatur Gratis/Premium).
+  if (f.kind === 'digital' && f.orderType === 'read') { out.order_type = 'read'; out.order_wa = null; out.order_url = null; out.price = 0; return { ok: out }; }
+  if (f.orderType === 'read') return { error: 'Buku fisik memakai checkout di website. Isi link checkout.', field: 'orderType' };
   if (f.orderType === 'wa') {
     const wa = normalizeWa(f.orderTarget);
     if (!wa) return { error: 'Nomor WhatsApp tidak valid. Contoh: 0812 3456 7890.', field: 'target' };
@@ -124,12 +139,15 @@ export function validate(f) {
 
 /* ===== Baca (siapa saja) ===== */
 // Kolom penulis (buku_penulis.sql) opsional: bila belum dijalankan, daftar tetap dimuat tanpa penulis.
-let authorOk = false;
-export const authorSupported = () => authorOk;
+// Kolom info lengkap (buku_baca.sql v180): penerbit, kategori, tahun, halaman + cara 'read'. Tingkat: 2 = lengkap, 1 = penulis saja, 0 = dasar.
+const LEVELS = [',author,publisher,category,published_year,pages', ',author', ''];
+let level = 0;
+export const authorSupported = () => level >= 1;
+export const infoSupported = () => level >= 2;
 export async function listBooks() {
   const q = c => '/rest/v1/books?select=' + c + '&active=eq.true&order=created_at.desc&limit=300';
-  let r = await request(q(COLS + ',author')); authorOk = r.ok;
-  if (!r.ok && r.status === 400) r = await request(q(COLS));
+  let r;
+  for (let i = 0; i < LEVELS.length; i++) { r = await request(q(COLS + LEVELS[i])); if (r.ok) { level = 2 - i; break; } if (r.status !== 400) break; }
   if (!r.ok) throw Object.assign(new Error('HTTP ' + r.status), { status: r.status, code: r.data && r.data.code });
   return r.data || [];
 }
@@ -152,8 +170,11 @@ export function saveView(view) { try { localStorage.setItem(VIEW_KEY, JSON.strin
 
 /* ===== Kelola (Super Admin) ===== */
 export const listAllBooks = async () => {
-  try { const r = (await db('books', { query: 'select=' + ADMIN_COLS + ',author&order=created_at.desc&limit=500' })) || []; authorOk = true; return r; }
-  catch (e) { if (e && e.status !== 400) throw e; authorOk = false; return (await db('books', { query: 'select=' + ADMIN_COLS + '&order=created_at.desc&limit=500' })) || []; }
+  for (let i = 0; i < LEVELS.length; i++) {
+    try { const r = (await db('books', { query: 'select=' + ADMIN_COLS + LEVELS[i] + '&order=created_at.desc&limit=500' })) || []; level = 2 - i; return r; }
+    catch (e) { if (!e || e.status !== 400 || i === LEVELS.length - 1) throw e; }
+  }
+  return [];
 };
 export const createBook = (f, coverPath, filePath) => db('books', { method: 'POST', body: { ...f, cover_path: coverPath || null, file_path: filePath || null }, prefer: 'return=minimal' });
 export const updateBook = (id, patch) => db('books', { method: 'PATCH', query: 'id=eq.' + encodeURIComponent(id), body: patch, prefer: 'return=minimal' });
@@ -164,6 +185,6 @@ export function saveError(e) {
   if (e && e.status === 0) return 'Tidak ada koneksi internet.';
   if (e && (e.status === 403 || e.code === '42501')) return 'Hanya Super Admin yang boleh mengelola buku.';
   if (notReady(e)) return 'Pustaka Buku belum aktif di server. Jalankan buku.sql.';
-  if (e && e.code === '23514') return 'Ada isian yang ditolak server. Periksa harga, link, dan nomor WhatsApp.';
+  if (e && e.code === '23514') return 'Ada isian yang ditolak server. Periksa harga, link, dan data buku. Untuk buku digital "Baca langsung di aplikasi", pastikan buku_baca.sql sudah dijalankan.';
   return 'Belum tersimpan. Coba lagi.';
 }
