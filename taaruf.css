@@ -7,18 +7,20 @@
 .mc-new{display:inline-block;margin-left:.4rem;padding:.08rem .45rem;border-radius:999px;background:var(--gold,#c9a227);color:#fff;font-size:.66rem;font-weight:800;vertical-align:2px;letter-spacing:.02em}
 
 /* Halaman utama */
-.tf-hero{position:relative;margin:-.25rem 0 0;padding:1rem 1rem 3.2rem;border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,#0f6a52 0%,var(--tf-green) 70%);color:#fff;overflow:hidden}
-.tf-hero::after{content:"";position:absolute;inset:auto -10% -40% -10%;height:70%;background:radial-gradient(60% 60% at 50% 0%,rgba(232,199,102,.25),transparent 70%)}
-.tf-brand{display:flex;align-items:center;gap:.55rem;position:relative;z-index:1}
+/* Hero: ilustrasi hijau zamrud + krem + emas (aset SVG sebagai latar; teks dan tombol tetap elemen HTML) */
+/* Hero: gambar ilustrasi (art-taaruf-hero.webp) sebagai latar; judul dan deskripsi tetap teks HTML.
+   Ukuran teks memakai satuan lebar hero (cqw) agar selalu pas dengan lengkung mihrab di semua ukuran layar. */
+.tf-hero{position:relative;container-type:inline-size;margin:0 auto;max-width:34rem;aspect-ratio:1024/1230;border-radius:22px;overflow:hidden;background:#f6e7b6 url(art-taaruf-hero.webp) center top/100% auto no-repeat;color:#0b5a40}
+@media (max-width:600px){.tf-hero{max-width:none;width:100vw;margin:-1rem 0 0 calc(50% - 50vw);border-radius:0}}
+.tf-brand{display:none}
 .tf-brand b{display:block;font-size:1rem;letter-spacing:.04em}
 .tf-brand small{display:block;font-size:.85rem;color:#d9efe4}
 .tf-brandic{width:30px!important;height:30px!important;stroke:#fff}
-.tf-arch{position:relative;z-index:1;margin:1rem auto 0;max-width:22rem;padding:1.4rem 1rem 1rem;border-radius:999px 999px 18px 18px;background:var(--tf-cream);color:var(--tf-green);text-align:center;border:2px solid var(--tf-gold-soft)}
-.tf-arch h2{margin:.4rem 0 .35rem;font-size:1.3rem;line-height:1.25}
-.tf-arch p{margin:0;color:var(--tf-muted);font-size:.86rem;line-height:1.5}
-.tf-archic{display:inline-grid;place-items:center;width:3rem;height:3rem;border-radius:50%;background:var(--tf-mint)}
-.tf-archic .ic{width:28px;height:28px;stroke:var(--tf-em)}
-.tf-land{position:relative;margin:-2.2rem .25rem 0;padding:1.1rem 1rem 1rem;border-radius:22px;background:#fff;box-shadow:0 8px 24px rgba(6,75,61,.12)}
+.tf-arch{position:relative;padding:22.5cqw 0 0;text-align:center}
+.tf-arch h2{margin:0 auto;max-width:56cqw;font-size:4.6vw;font-size:5.4cqw;line-height:1.15;text-wrap:balance;color:#0b5a40}
+.tf-arch p{margin:2.2cqw auto 0;max-width:58cqw;font-size:max(3.1vw,11px);font-size:max(3.1cqw,11px);line-height:1.32;text-wrap:balance;color:#2b4a3d}
+.tf-archic{display:none}
+.tf-land{position:relative;z-index:2;margin:-1.2rem .25rem 0;padding:1.1rem 1rem 1rem;border-radius:22px;background:#fff;box-shadow:0 8px 24px rgba(6,75,61,.12)}
 .tf-checks{list-style:none;margin:0 0 .9rem;padding:0;display:flex;flex-direction:column;gap:.5rem}
 .tf-checks li{display:flex;align-items:flex-start;gap:.55rem;font-size:.9rem;line-height:1.4;color:var(--tf-text)}
 .tf-okc{flex:0 0 auto;stroke:var(--tf-em)}
