@@ -10,15 +10,15 @@
 /* Hero: ilustrasi hijau zamrud + krem + emas (aset SVG sebagai latar; teks dan tombol tetap elemen HTML) */
 /* Hero: gambar ilustrasi (art-taaruf-hero.webp) sebagai latar; judul dan deskripsi tetap teks HTML.
    Ukuran teks memakai satuan lebar hero (cqw) agar selalu pas dengan lengkung mihrab di semua ukuran layar. */
-.tf-hero{position:relative;container-type:inline-size;margin:0 auto;max-width:34rem;aspect-ratio:1024/1230;border-radius:22px;overflow:hidden;background:#f6e7b6 url(art-taaruf-hero.webp) center top/100% auto no-repeat;color:#0b5a40}
+.tf-hero{position:relative;container-type:inline-size;margin:0 auto;max-width:34rem;aspect-ratio:1024/1060;border-radius:22px;overflow:hidden;background:#f6e7b6 url(art-taaruf-hero.webp) center top/100% auto no-repeat;color:#0b5a40}
 @media (max-width:600px){.tf-hero{max-width:none;width:100vw;margin:-1rem 0 0 calc(50% - 50vw);border-radius:0}}
 .tf-brand{display:none}
 .tf-brand b{display:block;font-size:1rem;letter-spacing:.04em}
 .tf-brand small{display:block;font-size:.85rem;color:#d9efe4}
 .tf-brandic{width:30px!important;height:30px!important;stroke:#fff}
-.tf-arch{position:relative;padding:22.5cqw 0 0;text-align:center}
+.tf-arch{position:relative;padding:38cqw 0 0;text-align:center;text-shadow:0 0 .7em rgba(255,250,228,1),0 0 .3em rgba(255,250,228,1),0 0 .12em rgba(255,250,228,.9)}
 .tf-arch h2{margin:0 auto;max-width:56cqw;font-size:4.6vw;font-size:5.4cqw;line-height:1.15;text-wrap:balance;color:#0b5a40}
-.tf-arch p{margin:2.2cqw auto 0;max-width:58cqw;font-size:max(3.1vw,11px);font-size:max(3.1cqw,11px);line-height:1.32;text-wrap:balance;color:#2b4a3d}
+.tf-arch p{margin:2.2cqw auto 0;max-width:58cqw;font-size:max(3.1vw,11px);font-size:max(3.1cqw,11px);line-height:1.32;text-wrap:balance;font-weight:600;color:#123628}
 .tf-archic{display:none}
 .tf-land{position:relative;z-index:2;margin:-1.2rem .25rem 0;padding:1.1rem 1rem 1rem;border-radius:22px;background:#fff;box-shadow:0 8px 24px rgba(6,75,61,.12)}
 .tf-checks{list-style:none;margin:0 0 .9rem;padding:0;display:flex;flex-direction:column;gap:.5rem}
