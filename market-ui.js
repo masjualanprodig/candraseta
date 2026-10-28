@@ -66,7 +66,7 @@ export function marketPage(opts = {}) {
   const loading = () => draw(h('p', { class: 'muted pu-loading', id: 'pu-loading', role: 'status' }, 'Memuat…'));
   const note = (t, id, cls) => h('div', A({ class: 'pu-note ' + (cls || ''), id }), ic('shield', 'ic pu-nic'), h('span', {}, t));
   const chip = (t, tone, id) => h('span', A({ class: 'pu-chip pu-' + (tone || 'off'), id }), t);
-  const field = (label, input, req, id, extra) => h('div', { class: 'pu-field' }, h('label', A({ class: 'pu-lab', for: id }), label, req ? h('span', { class: 'pu-req' }, ' *') : ''), input, extra || '');
+  const field = (label, input, req, id, extra) => h('div', { class: 'pu-field' }, h('label', A({ class: 'pu-flab', for: id }), label, req ? h('span', { class: 'pu-req' }, ' *') : ''), input, extra || '');
   const errBox = id => h('p', { class: 'pu-err', id: id || 'pu-err', role: 'alert' }, '');
   const failView = (e, retry) => draw(back('← Pasar Umat', home), h('div', { class: 'empty', id: 'pu-fail' }, h('p', { class: 'muted' }, M.errorText(e)),
     M.notReady(e) ? '' : btn('Coba lagi', 'btn-sm', 'pu-retry', retry || home)));
@@ -263,6 +263,7 @@ export function marketPage(opts = {}) {
     prov.addEventListener('change', () => { val.province = prov.value; val.regency = ''; val.district = ''; loadReg(); });
     reg.addEventListener('change', () => { val.regency = reg.value; val.district = ''; loadDis(); });
     dis.addEventListener('change', () => { val.district = dis.value; });
+    reg.replaceChildren(...opt([], '', 'Pilih kabupaten/kota')); dis.replaceChildren(...opt([], '', needDistrict ? 'Pilih kecamatan' : 'Kecamatan (opsional)'));
     box.append(prov, reg, dis);
     prov.replaceChildren(h('option', { value: '' }, 'Memuat provinsi…'));
     listProvinces().then(list => { if (manual) return; prov.replaceChildren(...opt(list, val.province, 'Pilih provinsi')); if (val.province) loadReg(); }).catch(textMode);

@@ -19,8 +19,10 @@
 .pu-feat{display:flex;flex-direction:column;align-items:center;gap:.3rem;text-align:center;font-size:.72rem;font-weight:600;line-height:1.2;color:var(--pu-green)}
 .pu-fic{display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:12px;background:var(--pu-mint)}
 .pu-fic .ic{width:22px;height:22px;stroke:var(--pu-em)}
-.pu-cta{display:grid;grid-template-columns:1.25fr 1fr;gap:.55rem;margin:0 0 .6rem}
-.pu-sell,.pu-rulesb{display:flex;align-items:center;justify-content:center;gap:.4rem;min-height:2.9rem}
+.pu-cta{display:grid;grid-template-columns:1.25fr 1fr;gap:.5rem;margin:0 .1rem .5rem}
+.pu-cta .pu-sell,.pu-cta .pu-rulesb{display:flex;align-items:center;justify-content:center;gap:.35rem;height:44px;min-height:44px;padding:0 .9rem;font-size:.92rem;line-height:1.2;border-radius:999px}
+.pu-cta .pu-sell{box-shadow:0 3px 10px rgba(8,102,83,.22)}
+.pu-cta .pu-sell .ic{width:16px;height:16px}
 .pu-sell .ic{stroke:#fff}
 .pu-own,.pu-adm{display:flex;align-items:center;gap:.4rem;margin:.1rem 0 .6rem}
 .pu-sbox{position:relative;margin:.5rem 0}
@@ -80,6 +82,7 @@
 .pu-field{display:flex;flex-direction:column;gap:.3rem}
 .pu-lab{display:flex;flex-direction:column;gap:.3rem;font-weight:700;font-size:.86rem;color:var(--pu-text)}
 .pu-req{color:#b3261e}
+.pu-flab{display:block;font-weight:700;font-size:.86rem;color:var(--pu-text)}
 .pu-locbox{display:grid;gap:.45rem}
 .pu-drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;min-height:8rem;padding:1rem;border:2px dashed #b9d8c8;border-radius:14px;background:#f5fbf7;text-align:center;cursor:pointer}
 .pu-dropic{width:32px!important;height:32px!important;stroke:var(--pu-em)}

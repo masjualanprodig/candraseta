@@ -1,7 +1,7 @@
 // BAITUNA - service-worker.js
 // Cache aset statis agar aplikasi cepat dan bisa dibuka offline (hanya tampilan dasar).
 // Data Supabase TIDAK pernah disimpan di cache.
-const CACHE = 'baituna-static-v183';
+const CACHE = 'baituna-static-v184';
 const ASSETS = [
   './', 'index.html', 'style.css', 'ai.css', 'ai-ui.js', 'ai-service.js', 'taaruf.css', 'taaruf-ui.js', 'taaruf-service.js', 'components.css', 'responsive.css',
   'config.js', 'supabase.js', 'auth.js', 'router.js', 'permissions.js', 'ui.js',

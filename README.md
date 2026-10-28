@@ -804,3 +804,6 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Penjual lama wajib verifikasi ulang; produknya tidak tayang sampai disetujui (tidak dihapus).
 - membership-ui.js / membership-service.js: dukungan produk 'pasar' (teks Membership & Ta'aruf tidak berubah). taaruf.sql diselaraskan (membership_review & batasan pesanan mengenal produk 'pasar').
 - page-defaults.js: bagian Privasi "Pasar Umat" menjelaskan data verifikasi & KTP.
+
+### v210
+- Pasar Umat: tombol "Jualan di sini" & "Aturan & tips" diperkecil (44 px), tanda wajib (*) sebaris dengan label, kotak kabupaten/kota & kecamatan menampilkan petunjuk sebelum provinsi dipilih.
