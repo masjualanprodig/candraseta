@@ -17,7 +17,7 @@ Anda dapat menghapusnya kapan saja lewat Profil, Pengaturan, "Hapus data di pera
 ## Data yang disimpan di server
 - Data akun pengurus: email, nama, nomor telepon (bila diisi), foto profil (bila diunggah), dan peran. Hanya pemilik akun dan admin yang berwenang yang dapat mengubahnya.
 - Konten yang dibuat pengurus: profil masjid, agenda, pengumuman, dan foto.
-- Pasar Umat: data penjual, produk, foto produk, alamat, dan kontak yang dicantumkan penjual agar dapat dilihat pengguna lain.
+- Pasar Umat: data toko, iklan, foto iklan, dan kontak yang dicantumkan penjual agar dapat dilihat pengguna lain; data verifikasi penjual (termasuk foto KTP) disimpan privat. Lihat bagian Pasar Umat.
 BAITUNA tidak menjual data pribadi dan tidak menampilkan iklan.
 
 ## Lokasi
@@ -88,7 +88,13 @@ Teks Al-Qur’an dan audio dimuat dari layanan pihak ketiga. Pertanyaan di Forum
 - Tanpa push, pengingat dan notifikasi hanya berbunyi saat BAITUNA terbuka. Dengan push pun, pengiriman bisa terlambat atau gagal (mode hemat baterai, jaringan, pengaturan HP), dan suara adzan penuh hanya terputar saat BAITUNA terbuka. Jangan mengandalkannya sebagai satu-satunya alarm ibadah.
 
 ## Pasar Umat
-BAITUNA hanya mempertemukan penjual dan pembeli. Transaksi, pembayaran, pengiriman, dan klaim halal menjadi tanggung jawab penjual dan pembeli. BAITUNA tidak memproses pembayaran dan tidak menjamin kualitas produk. Laporkan produk yang tidak pantas kepada pengelola.
+BAITUNA mempertemukan penjual dan pembeli. Transaksi barang/jasa, pembayaran produk, pengiriman, dan klaim halal menjadi tanggung jawab penjual dan pembeli. BAITUNA tidak memproses pembayaran produk dan tidak menjamin kualitas produk. Laporkan iklan yang tidak pantas lewat tombol Laporkan.
+Untuk berjualan, penjual wajib verifikasi identitas. Data yang disimpan: nama toko, nama lengkap sesuai KTP, nomor WhatsApp, lokasi usaha (provinsi, kabupaten/kota, kecamatan), dan foto KTP.
+- Tujuan: memeriksa bahwa penjual adalah orang yang nyata, untuk mengurangi risiko penipuan. Data KTP tidak dipakai untuk tujuan lain.
+- Foto KTP disimpan di penyimpanan privat, tidak memiliki tautan publik, dan hanya dapat dibuka oleh pemiliknya dan Super Admin. Setiap kali Super Admin membuka KTP, tindakan itu tercatat di log.
+- Pembeli hanya melihat nama toko, kota, deskripsi toko, label "penjual terverifikasi", dan iklan yang tayang. Nama lengkap sesuai KTP dan foto KTP tidak ditampilkan. Nomor WhatsApp penjual hanya muncul sebagai tombol untuk pengguna yang sudah masuk.
+- Foto KTP disimpan selama profil toko ada. Penjual dapat menghapus tokonya (Toko Saya, lalu Profil, lalu Hapus toko); foto KTP, iklan, dan foto iklan ikut dihapus.
+Iklan menyimpan judul, deskripsi, harga, kategori, kondisi, lokasi, info tambahan, foto iklan (penyimpanan publik agar bisa tampil), serta jumlah tayangan dan klik WhatsApp sebagai statistik untuk penjual. Langganan penjual dibayar lewat pembayaran manual yang diperiksa pengelola; data pesanan dan bukti pembayaran mengikuti bagian Pustaka Buku dan Membership di atas. Laporan pembeli dibaca pengelola; identitas pelapor tidak ditampilkan ke penjual.
 
 ## Batas tanggung jawab
 Aplikasi disediakan apa adanya untuk kemaslahatan umat. Pengelola berupaya menjaga ketepatan isi, tetapi tidak bertanggung jawab atas kerugian akibat kesalahan isi, gangguan layanan, atau penggunaan di luar tujuannya.

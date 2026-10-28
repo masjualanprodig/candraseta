@@ -782,13 +782,25 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 - Ta'aruf Premium terpisah dari Membership BAITUNA (Rp19.900/1 bln, Rp99.000/6 bln, bisa diubah Super Admin), dibayar lewat alur QRIS/transfer + verifikasi admin yang sama (membership_orders.product = 'taaruf').
 - membership-ui.js / membership-service.js: alur bayar menerima produk 'taaruf'; perilaku Membership BAITUNA tidak berubah.
 
-### v208
-- Halaman utama BAITUNA Ta'aruf: gambar hero diganti dengan versi baru dari pengelola (pasangan lebih dekat ke lengkung mihrab, ornamen hijau di bawah lengkung). Judul dan deskripsi tetap teks HTML, diletakkan di bawah ornamen; hero dipendekkan agar tombol "Mulai Ta'aruf" lebih cepat terlihat. Hanya halaman utama Ta'aruf yang berubah.
+### v204
+- Atur Membership > Pengaturan kini memuat dua bagian: "Paket Membership BAITUNA" dan "Paket BAITUNA Ta'aruf Premium". Super Admin bisa mengubah harga & menampilkan/menyembunyikan paket Ta'aruf di sana (fungsi server tf_admin_plan, histori harga tercatat). Kelola Ta'aruf > Pengaturan tetap bisa dipakai.
+- Teks bawaan Privasi & Disclaimer: bagian baru "BAITUNA Ta'aruf".
 
-## v205
+### v205
 - Forum Tanya Jawab: pesan error dibedakan (HP offline vs layanan tidak terjangkau). Fungsi `baituna-tanya-ai` mencatat alasan kegagalan Gemini ke Logs (tanpa kunci rahasia) dan mencoba ulang sekali bila Gemini sibuk (429/5xx). Fungsi perlu ditempel ulang di Supabase.
 - Teks Privasi: bagian "Forum Tanya Jawab" dan "Pustaka Buku dan Membership" ditulis ulang, "Layanan pihak ketiga" dan kartu "Privasi singkat" diperbarui.
 
-## v204
-- Atur Membership > Pengaturan kini memuat dua bagian: "Paket Membership BAITUNA" dan "Paket BAITUNA Ta'aruf Premium". Super Admin bisa mengubah harga & menampilkan/menyembunyikan paket Ta'aruf di sana (fungsi server tf_admin_plan, histori harga tercatat). Kelola Ta'aruf > Pengaturan tetap bisa dipakai.
-- Teks bawaan Privasi & Disclaimer: bagian baru "BAITUNA Ta'aruf".
+### v206
+- Halaman utama BAITUNA Ta'aruf: hero berilustrasi (diganti di v207/v208).
+
+### v207
+- Hero BAITUNA Ta'aruf memakai gambar dari pengelola (art-taaruf-hero.webp); judul & deskripsi tetap teks HTML.
+
+### v208
+- Halaman utama BAITUNA Ta'aruf: gambar hero diganti dengan versi baru dari pengelola (pasangan lebih dekat ke lengkung mihrab, ornamen hijau di bawah lengkung). Judul dan deskripsi tetap teks HTML, diletakkan di bawah ornamen; hero dipendekkan agar tombol "Mulai Ta'aruf" lebih cepat terlihat. Hanya halaman utama Ta'aruf yang berubah.
+
+### v209
+- Perombakan Pasar Umat (pasar_v2.sql + market-ui.js, market-service.js, market-admin-ui.js, market.css, art-pasar-hero.webp): hero foto bazar, 12 kategori, verifikasi penjual dengan KTP di bucket privat market-ktp, editor iklan 3 langkah (10 foto, kategori, detail) + pratinjau, iklan pertama gratis sekali (per akun & nomor WhatsApp), paket 7/15/30 iklan dengan kuota iklan aktif yang dijaga server, langganan lewat alur pembayaran Membership (produk 'pasar'), Toko Saya, Langganan Saya, statistik tayangan & klik WhatsApp, laporan, panel Kelola Pasar Umat (verifikasi + log buka KTP, moderasi, laporan, paket & harga, pengaturan, kategori, log audit), Aturan & Tips.
+- Penjual lama wajib verifikasi ulang; produknya tidak tayang sampai disetujui (tidak dihapus).
+- membership-ui.js / membership-service.js: dukungan produk 'pasar' (teks Membership & Ta'aruf tidak berubah). taaruf.sql diselaraskan (membership_review & batasan pesanan mengenal produk 'pasar').
+- page-defaults.js: bagian Privasi "Pasar Umat" menjelaskan data verifikasi & KTP.

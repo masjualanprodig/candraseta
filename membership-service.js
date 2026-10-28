@@ -72,6 +72,7 @@ export function errorText(e) {
     masjid: 'Masjid yang dipilih tidak ditemukan. Pilih lagi.', order_terbuka: 'Anda masih punya pesanan yang belum selesai. Selesaikan atau batalkan dulu.',
     tidak_bisa: 'Pesanan ini sudah tidak bisa diubah.', berkas: 'Berkas bukti tidak sah. Coba pilih gambar lagi.', metode: 'Pilih metode pembayaran.',
     sudah_diproses: 'Pembayaran ini sudah diproses sebelumnya.', email: 'Alamat email belum benar (boleh dikosongkan).', metode_belum: 'Metode pembayaran ini belum dikonfigurasi admin. Pilih metode lain.', gagal_nomor: 'Gagal membuat transaksi. Coba lagi.', alasan: 'Tulis alasan penolakan (minimal 5 huruf).', izin: 'Hanya Super Admin yang boleh melakukan ini.', tidak_ada: 'Data tidak ditemukan.',
+    whatsapp: 'Nomor WhatsApp belum benar.', belum_terverifikasi: 'Verifikasi penjual Pasar Umat belum disetujui. Paket bisa dibeli setelah verifikasi disetujui.',
   };
   if (m && map[m]) return map[m];
   if (e && (e.status === 403 || e.code === '42501')) return 'Anda tidak memiliki izin.';
@@ -84,10 +85,11 @@ export const notReady = e => !!e && (e.status === 404 || e.code === 'PGRST202' |
 export const userId = () => { const s = getSession(); return s && s.user ? s.user.id : null; };
 // v203: dua produk memakai alur bayar yang sama. 'baituna' = Membership BAITUNA (buku Premium, Forum Tanya Jawab);
 // 'taaruf' = BAITUNA Ta'aruf Premium (taaruf.sql). Kode paket Ta'aruf diawali 't' (t1b, t6b).
-export const productOf = o => o && /^t/.test(String(o.plan_code || '')) ? 'taaruf' : 'baituna';
-const PLAN_TABLE = { baituna: 'membership_plans', taaruf: 'taaruf_plans' };
-const MEMBER_TABLE = { baituna: 'memberships', taaruf: 'taaruf_memberships' };
-export async function listPlans(product = 'baituna') { return (await db(PLAN_TABLE[product], { query: 'select=' + (product === 'taaruf' ? '' : 'id,') + 'code,name,months,price,active,sort&order=sort.asc' })) || []; }
+// v209: 'pasar' = langganan Pasar Umat (pasar_v2.sql), kode paket p7/p15/p30.
+export const productOf = o => { const c = String((o && o.plan_code) || ''); return /^t/.test(c) ? 'taaruf' : /^p\d/.test(c) ? 'pasar' : 'baituna'; };
+const PLAN_TABLE = { baituna: 'membership_plans', taaruf: 'taaruf_plans', pasar: 'market_plans' };
+const MEMBER_TABLE = { baituna: 'memberships', taaruf: 'taaruf_memberships', pasar: 'market_subscriptions' };
+export async function listPlans(product = 'baituna') { return (await db(PLAN_TABLE[product], { query: 'select=' + (product === 'taaruf' || product === 'pasar' ? '' : 'id,') + 'code,name,months,price,active,sort' + (product === 'pasar' ? ',quota,description,featured' : '') + '&order=sort.asc' })) || []; }
 export async function myMembership(product = 'baituna') {
   const id = userId(); if (!id) return null;
   const r = await db(MEMBER_TABLE[product], { query: 'select=started_at,ends_at&user_id=eq.' + enc(id) });
@@ -103,7 +105,9 @@ export const openOrder = list => (list || []).find(o => o.status === 'menunggu_p
 export const settingsPublic = async () => { const r = await db('rpc/membership_settings_public', { method: 'POST', body: {} }); return Array.isArray(r) && r[0] ? r[0] : {}; };
 export const listAccounts = async () => (await db('membership_accounts', { query: 'select=id,bank,number,holder,active,sort&order=sort.asc,created_at.asc' })) || [];
 export const qrisUrl = s => s && s.qris_path ? publicPhotoUrl(s.qris_path, ASSET_BUCKET) : null;
-export const createOrder = (f, product = 'baituna') => db('rpc/' + (product === 'taaruf' ? 'taaruf_create_order' : 'membership_create_order'), { method: 'POST', body: { p_plan: f.plan, p_name: f.name, p_phone: f.phone, p_mosque: f.mosque || null, p_email: f.email || null, p_method: f.method } });
+export const createOrder = (f, product = 'baituna') => product === 'pasar'
+  ? db('rpc/mk_create_order', { method: 'POST', body: { p_plan: f.plan, p_name: f.name, p_phone: f.phone, p_email: f.email || null, p_method: f.method } })
+  : db('rpc/' + (product === 'taaruf' ? 'taaruf_create_order' : 'membership_create_order'), { method: 'POST', body: { p_plan: f.plan, p_name: f.name, p_phone: f.phone, p_mosque: f.mosque || null, p_email: f.email || null, p_method: f.method } });
 export const setMethod = (id, method) => db('rpc/membership_set_method', { method: 'POST', body: { p_order: id, p_method: method } });
 export const myProofs = async orderId => (await db('membership_payment_proofs', { query: 'select=id,order_id,method,status,reject_reason,uploaded_at,reviewed_at&user_id=eq.' + enc(userId() || '') + '&order=uploaded_at.desc&limit=50' + (orderId ? '&order_id=eq.' + enc(orderId) : '') })) || [];
 // Metode yang siap dipakai: hanya bila data resminya sudah diisi Super Admin (tidak ada data contoh). Server memeriksa ulang.
