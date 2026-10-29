@@ -110,6 +110,7 @@ export function marketPage(opts = {}) {
           h('p', { class: 'pu-hsub' }, 'Produk dan jasa usaha jamaah untuk kebutuhan sehari-hari. Belanja dari umat, untuk umat.'))),
       h('div', { class: 'pu-feats', id: 'pu-feats' }, ...feats.map(([k, t]) => h('div', { class: 'pu-feat' }, h('span', { class: 'pu-fic' }, ic(k)), h('span', {}, t)))),
       h('div', { class: 'pu-cta' }, btn([ic('store', 'ic'), 'Jualan di sini'], 'btn-primary pu-sell', 'pu-sell', sellerEntry), btn('Aturan & tips', 'btn-ghost pu-rulesb', 'pu-rules', rules)),
+      S.st.promo_on ? h('p', { class: 'pu-promo', id: 'pu-promo' }, ic('gift', 'ic'), h('span', {}, h('b', {}, 'GRATIS'), ' pasang hingga ' + (S.st.promo_quota || 10) + ' iklan aktif selama masa promo.')) : '',
       ownBtn, me() && me().admin ? btn('Kelola Pasar Umat (Super Admin)', 'btn-sm ghost pu-adm', 'pu-admin', adminView) : '',
       S.st.notReady ? note('Pasar Umat versi baru belum aktif di server. Pengelola perlu menjalankan pasar_v2.sql.', 'pu-notready', 'pu-warnnote') : '',
       h('div', { class: 'pu-sbox' }, ic('search', 'ic pu-sic'), search), cats,
@@ -342,11 +343,13 @@ export function marketPage(opts = {}) {
   }
 
   /* ===================== TOKO SAYA ===================== */
+  // v211: mode gratis (promo) dari Super Admin: kuota = yang terbesar antara langganan aktif dan kuota mode gratis (dihitung server).
+  const promo = () => !!(S.st && S.st.promo_on);
   const quotaInfo = () => {
-    const m = me() || {}, sb = sub(), act = subActive(), q = act ? sb.quota : 0, used = m.paid_used || 0;
-    return { act, q, used, left: Math.max(0, q - used), free: !!m.free_available, freeUsed: !!m.free_used, sb };
+    const m = me() || {}, sb = sub(), act = subActive(), q = m.quota != null ? m.quota : act ? sb.quota : 0, used = m.paid_used || 0;
+    return { act, q, used, left: Math.max(0, q - used), free: !promo() && !!m.free_available, freeUsed: !!m.free_used, sb, promo: promo() };
   };
-  const canPost = () => { const k = quotaInfo(); return k.free || (k.act && k.left > 0); };
+  const canPost = () => { const k = quotaInfo(); return k.promo ? k.left > 0 : (k.free || (k.act && k.left > 0)); };
   async function store(tab) {
     if (tab) S.tab = tab;
     loading();
@@ -357,14 +360,17 @@ export function marketPage(opts = {}) {
     const head = h('div', { class: 'panel pu-storehead', id: 'pu-store' }, h('span', { class: 'pu-sav pu-sav-lg' }, ic('store')),
       h('div', { class: 'pu-sh-txt' }, h('h2', { class: 'pu-sname', id: 'pu-sname' }, s.name), h('span', { class: 'muted' }, v.full_name), h('span', { class: 'pu-loc' }, ic('pin', 'ic'), [v.regency, v.province].filter(Boolean).join(', ')),
         h('div', { class: 'pu-chips' }, chip('Terverifikasi', 'ok', 'pu-verchip'), s.status === 'suspended' ? chip('Ditangguhkan', 'bad', 'pu-suschip') : '')));
+    const showQ = k.act || k.promo;
     const quota = h('div', { class: 'panel pu-quota', id: 'pu-quota' },
-      h('div', { class: 'pu-qhead' }, h('b', {}, k.act ? k.sb.plan_name.replace(/^Pasar Umat /, '') : 'Belum berlangganan'), chip(k.act ? 'Aktif' : k.sb ? 'Berakhir' : 'Gratis', k.act ? 'ok' : 'off', 'pu-subchip')),
-      k.act ? h('div', { class: 'pu-row' }, h('span', { class: 'muted' }, 'Kuota iklan aktif'), h('b', { id: 'pu-qnum' }, k.used + ' / ' + k.q)) : '',
-      k.act ? h('div', { class: 'pu-bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(k.q), 'aria-valuenow': String(k.used) }, h('span', { style: 'width:' + Math.min(100, Math.round(k.used / Math.max(1, k.q) * 100)) + '%' })) : '',
+      h('div', { class: 'pu-qhead' }, h('b', {}, k.act ? k.sb.plan_name.replace(/^Pasar Umat /, '') : k.promo ? 'Mode Gratis' : 'Belum berlangganan'),
+        chip(k.act ? 'Aktif' : k.promo ? 'Gratis' : k.sb ? 'Berakhir' : 'Gratis', k.act || k.promo ? 'ok' : 'off', 'pu-subchip')),
+      showQ ? h('div', { class: 'pu-row' }, h('span', { class: 'muted' }, 'Kuota iklan aktif'), h('b', { id: 'pu-qnum' }, k.used + ' / ' + k.q)) : '',
+      showQ ? h('div', { class: 'pu-bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(k.q), 'aria-valuenow': String(k.used) }, h('span', { style: 'width:' + Math.min(100, Math.round(k.used / Math.max(1, k.q) * 100)) + '%' })) : '',
       k.act ? h('span', { class: 'hint' }, 'Berlaku sampai ' + M.fmtDate(k.sb.ends_at) + ' · sisa ' + k.left + ' iklan') : '',
-      !k.act && k.sb ? h('span', { class: 'hint pu-warn-t', id: 'pu-subended' }, 'Langganan berakhir ' + M.fmtDate(k.sb.ends_at) + '. Iklan berbayar tidak tayang sampai diperpanjang.') : '',
-      h('span', { class: 'hint', id: 'pu-freeinfo' }, k.free ? 'Iklan pertama GRATIS masih tersedia untuk Anda.' : k.freeUsed ? 'Iklan gratis sudah dipakai.' : 'Iklan gratis tidak tersedia.'),
-      btn(k.act ? 'Langganan Saya' : 'Pilih Paket Langganan', 'btn-sm ghost', 'pu-sub', k.act || k.sb ? mySub : plans));
+      k.promo && !k.act ? h('span', { class: 'hint', id: 'pu-promoinfo' }, 'Selama masa promo, Anda bisa memasang hingga ' + k.q + ' iklan aktif tanpa biaya. Sisa ' + k.left + ' iklan.') : '',
+      !k.act && k.sb && !k.promo ? h('span', { class: 'hint pu-warn-t', id: 'pu-subended' }, 'Langganan berakhir ' + M.fmtDate(k.sb.ends_at) + '. Iklan berbayar tidak tayang sampai diperpanjang.') : '',
+      k.promo ? '' : h('span', { class: 'hint', id: 'pu-freeinfo' }, k.free ? 'Iklan pertama GRATIS masih tersedia untuk Anda.' : k.freeUsed ? 'Iklan gratis sudah dipakai.' : 'Iklan gratis tidak tersedia.'),
+      k.act || k.sb ? btn('Langganan Saya', 'btn-sm ghost', 'pu-sub', mySub) : k.promo ? '' : btn('Pilih Paket Langganan', 'btn-sm ghost', 'pu-sub', plans));
     const newBtn = btn([ic('plus', 'ic'), 'Buat Iklan Baru'], 'btn-primary pu-wide', 'pu-new', () => startEditor());
     const tabs = h('div', { class: 'pu-tabs', role: 'tablist', id: 'pu-stabs' }, ...[['iklan', 'Iklan Saya (' + S.mine.length + ')'], ['stat', 'Statistik'], ['profil', 'Profil']].map(([kk, l]) =>
       btn(l, 'pu-tab' + (S.tab === kk ? ' on' : ''), 'pu-st-' + kk, () => { S.tab = kk; for (const b of tabs.children) { b.classList.toggle('on', b.id === 'pu-st-' + kk); b.setAttribute('aria-selected', String(b.id === 'pu-st-' + kk)); } paint(); }, { role: 'tab', 'aria-selected': String(S.tab === kk) })));
@@ -434,9 +440,11 @@ export function marketPage(opts = {}) {
       }));
   }
   function quotaFull() {
+    const k = quotaInfo();
     draw(back('← Toko Saya', () => store()), h('div', { class: 'pu-hero2', id: 'pu-quotafull' }, h('span', { class: 'pu-bigic pu-goldbg' }, ic('lock')), h('h2', { class: 'wtitle' }, 'Kuota Iklan Penuh'),
-      h('p', { class: 'muted' }, 'Kuota iklan Anda sudah penuh. Pilih paket yang sesuai untuk menambahkan iklan, atau nonaktifkan iklan lain.')),
-      btn('Pilih Paket Langganan', 'btn-primary pu-wide', 'pu-qf-plans', plans), btn('Kembali ke Toko Saya', 'btn-ghost pu-wide', 'pu-qf-store', () => store()));
+      h('p', { class: 'muted' }, k.promo ? 'Selama masa promo, setiap penjual bisa memasang hingga ' + k.q + ' iklan aktif gratis, dan kuota Anda sudah terpakai semua. Nonaktifkan atau hapus iklan lain untuk memasang iklan baru.'
+        : 'Kuota iklan Anda sudah penuh. Pilih paket yang sesuai untuk menambahkan iklan, atau nonaktifkan iklan lain.')),
+      k.promo ? '' : btn('Pilih Paket Langganan', 'btn-primary pu-wide', 'pu-qf-plans', plans), btn('Kembali ke Toko Saya', k.promo ? 'btn-primary pu-wide' : 'btn-ghost pu-wide', 'pu-qf-store', () => store()));
   }
 
   /* ===================== PAKET & LANGGANAN ===================== */
@@ -677,7 +685,8 @@ export function marketPage(opts = {}) {
     draw(h('div', { class: 'pu-hero2', id: 'pu-done', 'data-status': r && r.status }, h('span', { class: 'pu-bigic' }, ic('checkc')),
       h('h2', { class: 'wtitle' }, live ? 'Iklan Berhasil Diterbitkan' : wasEdit ? 'Perubahan Berhasil Dikirim' : 'Iklan Berhasil Dikirim'),
       h('p', { class: 'muted' }, live ? 'Iklan Anda sekarang sudah tampil di Pasar Umat.' : 'Terima kasih. Iklan Anda telah diterima dan akan ditampilkan setelah proses pemeriksaan selesai.'),
-      r && r.slot === 'free' && !wasEdit ? h('p', { class: 'hint', id: 'pu-done-free' }, 'Iklan ini memakai kesempatan iklan pertama GRATIS.') : ''),
+      r && r.slot === 'free' && !wasEdit ? h('p', { class: 'hint', id: 'pu-done-free' }, 'Iklan ini memakai kesempatan iklan pertama GRATIS.') : '',
+      r && r.slot === 'paid' && !wasEdit && promo() && !subActive() ? h('p', { class: 'hint', id: 'pu-done-promo' }, 'Gratis selama masa promo.') : ''),
       btn('Lihat Iklan Saya', 'btn-primary pu-wide', 'pu-done-mine', () => { S.filter = ''; store('iklan'); }),
       btn('Buat Iklan Baru', 'btn-ghost pu-wide', 'pu-done-new', () => startEditor()),
       btn('Kelola Toko Saya', 'btn-ghost pu-wide', 'pu-done-store', () => store('profil')));
@@ -688,7 +697,9 @@ export function marketPage(opts = {}) {
     const sec = (t, ...items) => h('div', { class: 'panel pu-rule' }, h('h3', {}, t), h('ul', {}, ...items.map(x => h('li', {}, x))));
     draw(back('← Pasar Umat', home), h('h2', { class: 'wtitle', id: 'pu-rules-title' }, 'Aturan & Tips Pasar Umat'),
       h('p', { class: 'muted' }, 'Pasar Umat adalah etalase produk dan jasa jamaah. Mohon dibaca sebelum berjualan atau membeli.'),
-      sec('Ketentuan berjualan', 'Penjual wajib lolos verifikasi identitas (KTP) oleh admin sebelum iklannya tayang.', 'Iklan pertama gratis satu kali per penjual. Iklan berikutnya memakai paket langganan sesuai kuota.',
+      sec('Ketentuan berjualan', 'Penjual wajib lolos verifikasi identitas (KTP) oleh admin sebelum iklannya tayang.',
+        S.st && S.st.promo_on ? 'Selama masa promo, setiap penjual terverifikasi bisa memasang hingga ' + (S.st.promo_quota || 10) + ' iklan aktif tanpa biaya. Setelah masa promo berakhir, berlaku iklan pertama gratis dan paket langganan.'
+          : 'Iklan pertama gratis satu kali per penjual. Iklan berikutnya memakai paket langganan sesuai kuota.',
         'Setiap iklan baru atau yang diubah diperiksa admin sebelum tayang.', 'Satu iklan untuk satu produk/jasa. Jangan memasang iklan yang sama berulang kali.'),
       sec('Kejujuran informasi', 'Tulis judul, harga, kondisi, dan lokasi sesuai keadaan sebenarnya.', 'Makanan wajib menyebut keterangan halal. Itu pernyataan penjual, bukan sertifikasi dari BAITUNA.',
         'Gunakan foto milik sendiri atau foto yang Anda berhak memakainya. Jangan memakai foto yang menyesatkan.'),

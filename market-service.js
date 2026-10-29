@@ -138,7 +138,7 @@ const ERR = {
   store_name_panjang: 'Nama toko 3 sampai 80 huruf.', store_name_kosong: 'Nama toko wajib diisi.', full_name_kosong: 'Nama lengkap wajib diisi.', full_name_panjang: 'Nama lengkap 3 sampai 120 huruf.',
   district_kosong: 'Pilih kecamatan.', province_kosong: 'Pilih provinsi.', regency_kosong: 'Pilih kabupaten/kota.', bio_panjang: 'Deskripsi toko maksimal 400 huruf.', other_contact_panjang: 'Kontak lain maksimal 120 huruf.',
   izin: 'Hanya Super Admin yang boleh melakukan ini.', alasan: 'Tulis alasan (5 sampai 300 huruf).', aksi: 'Tindakan tidak dikenal.', slot: 'Iklan ini belum memiliki slot kuota.',
-  angka: 'Isi dengan angka yang benar.', ukuran: 'Ukuran foto 50 sampai 1.000 KB.', kuota: 'Kuota 1 sampai 500 iklan.', wajib_ada: 'Kategori "Lainnya" harus tetap aktif.', name_panjang: 'Nama 3 sampai 60 huruf.'
+  angka: 'Isi dengan angka yang benar.', ukuran: 'Ukuran foto 50 sampai 1.000 KB.', kuota: 'Kuota 1 sampai 500 iklan.', wajib_ada: 'Kategori "Lainnya" harus tetap aktif.', name_panjang: 'Nama 3 sampai 60 huruf.', kuota_promo: 'Batas iklan mode gratis 1 sampai 50.'
 };
 export function errorText(e) {
   if (!e) return 'Belum berhasil. Coba lagi.';

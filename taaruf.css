@@ -228,3 +228,5 @@
   .tf-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
   .tf-ov{align-items:center}.tf-sheet{border-radius:22px}
 }
+.tf-promo{display:flex;gap:.5rem;align-items:flex-start;margin:.6rem 0;padding:.65rem .8rem;border-radius:12px;background:#fff6e0;border:1px solid #f0d58f;color:#6b4a00;font-size:.85rem;line-height:1.45}
+.tf-promo .ic{stroke:#a87400;flex:0 0 auto;margin-top:.1rem}

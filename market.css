@@ -241,3 +241,6 @@
   .pu-ov{align-items:center}.pu-sheet{border-radius:22px}
   .pu-form,.pu-plans{max-width:40rem}
 }
+.pu-promo{display:flex;gap:.45rem;align-items:center;margin:0 .1rem .6rem;padding:.55rem .75rem;border-radius:12px;background:#fff6e0;border:1px solid #f0d58f;color:#6b4a00;font-size:.84rem;line-height:1.4}
+.pu-promo .ic{stroke:#c0392b;flex:0 0 auto}
+.pu-promo b{color:#9a5b00}

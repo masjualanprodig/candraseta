@@ -1,9 +1,11 @@
 // BAITUNA - taaruf-service.js
 // BAITUNA Ta'aruf: semua aturan penting (usia, kuota 2 profil unik, Premium, persetujuan dua arah, privasi) dijaga SERVER (taaruf.sql).
 // File ini hanya memanggil fungsi server dan menyiapkan label/validasi untuk tampilan.
-import { db } from './supabase.js';
+import { db, request } from './supabase.js';
 
 const rpc = (name, body) => db('rpc/' + name, { method: 'POST', body: body || {} });
+// Untuk tamu (belum masuk): info umum saja (layanan dibuka? masa gratis?), memakai kunci anon.
+export const publicState = async () => { const r = await request('/rest/v1/rpc/tf_state', { method: 'POST', body: {} }); return r.ok ? r.data : null; };
 
 /* ===== Label ===== */
 export const PROVINCES = ['Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Riau', 'Kepulauan Riau', 'Jambi', 'Bengkulu', 'Sumatera Selatan', 'Kepulauan Bangka Belitung', 'Lampung',
@@ -69,6 +71,7 @@ export function errorText(e) {
   const m = e && e.message;
   if (e && e.status === 0) return 'Tidak ada koneksi internet.';
   const map = {
+    promo_gratis: 'Saat ini masa gratis: semua fitur Premium sudah bisa dipakai tanpa membayar.',
     masuk: 'Silakan masuk dulu.', tutup: 'BAITUNA Ta’aruf sedang ditutup sementara oleh pengelola.', nonaktif: 'Profil Anda sedang dinonaktifkan pengelola. Hubungi admin bila ada pertanyaan.',
     nama: 'Nama tampilan diisi 2 sampai 40 huruf.', nama_kontak: 'Nama tampilan tidak boleh berisi nomor atau alamat kontak.', gender: 'Pilih jenis kelamin.',
     gender_tetap: 'Jenis kelamin tidak bisa diubah setelah CV diterbitkan.', lahir: 'Tanggal lahir belum benar.', usia: 'BAITUNA Ta’aruf hanya untuk usia ' + MIN_AGE + ' tahun ke atas.',
@@ -122,7 +125,7 @@ export const adminProfile = (uid, active, note) => rpc('tf_admin_profile', { p_u
 export const adminSettings = p => rpc('tf_admin_settings', { p });
 export const adminStats = () => rpc('tf_admin_stats');
 export const plans = async () => (await db('taaruf_plans', { query: 'select=code,name,months,price,active,sort&order=sort.asc' })) || [];
-export const settings = async () => { const r = await db('taaruf_settings', { query: 'select=is_open,free_quota,free_active,premium_active' }); return r && r[0] || null; };
+export const settings = async () => { const r = await db('taaruf_settings', { query: 'select=is_open,free_quota,free_active,premium_active,promo_free' }); return r && r[0] || null; };
 
 /* ===== Waktu ===== */
 const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];

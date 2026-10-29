@@ -142,15 +142,23 @@ export async function renderMarketManager(box, onBack, tabKey = 'verif') {
     const s = await M.state();
     const open = h('input', { type: 'checkbox', id: 'pa-s-open' }); open.checked = s.open !== false;
     const free = h('input', { type: 'checkbox', id: 'pa-s-free' }); free.checked = s.free_enabled !== false;
+    const promo = h('input', { type: 'checkbox', id: 'pa-s-promo' }); promo.checked = !!s.promo_on;
+    const pq = h('input', { class: 'in', id: 'pa-s-pq', inputmode: 'numeric', maxlength: '2' }); pq.value = String(s.promo_quota || 10);
     const mp = h('input', { class: 'in', id: 'pa-s-photos', inputmode: 'numeric', maxlength: '2' }); mp.value = String(s.max_photos);
     const kb = h('input', { class: 'in', id: 'pa-s-kb', inputmode: 'numeric', maxlength: '4' }); kb.value = String(s.max_photo_kb);
     frame(h('div', { class: 'panel pu-form', id: 'pa-settings' },
       h('label', { class: 'pu-check' }, open, h('span', {}, 'Terima penjual dan iklan baru')),
-      h('label', { class: 'pu-check' }, free, h('span', {}, 'Aktifkan iklan pertama gratis (satu kali per penjual)')),
+      h('label', { class: 'pu-check' }, promo, h('span', {}, 'Mode gratis (promo): penjual terverifikasi boleh memasang iklan tanpa berlangganan')),
+      h('label', { class: 'pu-lab', for: 'pa-s-pq' }, 'Batas iklan aktif per penjual selama mode gratis (1–50)', pq),
+      h('label', { class: 'pu-check' }, free, h('span', {}, 'Aktifkan iklan pertama gratis (satu kali per penjual; berlaku saat mode gratis mati)')),
       h('label', { class: 'pu-lab', for: 'pa-s-photos' }, 'Batas jumlah foto per iklan (1–10)', mp),
       h('label', { class: 'pu-lab', for: 'pa-s-kb' }, 'Ukuran maksimum per foto setelah diperkecil (50–1000 KB)', kb),
-      btn('Simpan pengaturan', 'btn-sm', 'pa-s-save', () => run(() => M.admin.settings({ open: open.checked, free_enabled: free.checked, max_photos: Number(mp.value), max_photo_kb: Number(kb.value) }), 'Pengaturan disimpan.'))),
-      h('p', { class: 'hint' }, 'Mematikan iklan gratis tidak mencabut iklan gratis yang sudah tayang.'));
+      btn('Simpan pengaturan', 'btn-sm', 'pa-s-save', async () => {
+        const off = s.promo_on && !promo.checked, lower = Number(pq.value) < (s.promo_quota || 10);
+        if ((off || lower) && !(await ask({ title: off ? 'Matikan mode gratis?' : 'Perkecil kuota mode gratis?', text: off ? 'Iklan yang dipasang gratis tidak akan tayang (tidak dihapus) sampai penjual berlangganan. Lanjutkan?' : 'Iklan aktif yang melebihi kuota baru akan dinonaktifkan otomatis (yang terbaru dulu, tidak dihapus). Lanjutkan?' }))) return;
+        run(() => M.admin.settings({ open: open.checked, promo_on: promo.checked, promo_quota: Number(pq.value), free_enabled: free.checked, max_photos: Number(mp.value), max_photo_kb: Number(kb.value) }), 'Pengaturan disimpan.');
+      })),
+      h('p', { class: 'hint' }, 'Mematikan iklan gratis tidak mencabut iklan gratis yang sudah tayang. Mematikan mode gratis membuat iklan yang dipasang gratis berhenti tayang (tidak dihapus) sampai penjual berlangganan.'));
   }
 
   /* ===== Kategori ===== */

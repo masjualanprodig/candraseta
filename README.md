@@ -807,3 +807,9 @@ Saat halaman mushaf digeser dari tengah halaman, posisi gulir kini dipertahankan
 
 ### v210
 - Pasar Umat: tombol "Jualan di sini" & "Aturan & tips" diperkecil (44 px), tanda wajib (*) sebaris dengan label, kotak kabupaten/kota & kecamatan menampilkan petunjuk sebelum provinsi dipilih.
+
+### v211 — Mode gratis (promo) Pasar Umat & BAITUNA Ta'aruf
+- Pasar Umat: mode gratis (bawaan AKTIF): penjual terverifikasi boleh memasang hingga 10 iklan aktif tanpa berlangganan (market_settings.promo_on/promo_quota; diatur di Kelola Pasar Umat > Pengaturan). Paket langganan disembunyikan selama promo; sistem langganan tetap utuh. Mematikan/memperkecil: kelebihan iklan dinonaktifkan (tidak dihapus).
+- BAITUNA Ta'aruf: mode gratis (bawaan AKTIF): semua fitur Premium berlaku untuk semua pengguna (taaruf_settings.promo_free; Kelola Ta'aruf > Pengaturan). Pembelian Premium ditolak selama promo.
+- SQL: pasar_v2.sql dan taaruf.sql diperbarui (jalankan ulang keduanya).
+

@@ -59,7 +59,11 @@ export function taarufPage({ go, onSignIn } = {}) {
 
   /* ===== Masuk ===== */
   async function start() {
-    if (!getSession()) { landing('tamu'); return; }
+    if (!getSession()) {
+      landing('tamu');
+      T.publicState().then(st => { if (st && st.promo && !getSession() && wrap.querySelector('#tf-hero') && !wrap.querySelector('#tf-promo')) { S.st = { ...(S.st || {}), promo: true }; landing('tamu'); } }).catch(() => {});
+      return;
+    }
     loading();
     try { await refresh(); } catch (e) { if (T.notReady(e)) { landing('belum'); return; } failView(e); return; }
     const p = P();
@@ -76,16 +80,17 @@ export function taarufPage({ go, onSignIn } = {}) {
       : mode === 'belum' ? h('p', { class: 'tf-warn', id: 'tf-notready' }, 'BAITUNA Ta’aruf belum aktif di server. Pengelola perlu menjalankan taaruf.sql.')
       : closed ? h('p', { class: 'tf-warn', id: 'tf-closed' }, 'BAITUNA Ta’aruf sedang ditutup sementara oleh pengelola.')
       : btn(mode === 'draf' ? 'Lanjutkan CV Ta’aruf' : 'Mulai Ta’aruf', 'btn-primary tf-cta', 'tf-start', () => { if (mode === 'draf') cvScreen(); else termsScreen(); });
+    const promoNote = s.promo ? h('p', { class: 'tf-promo', id: 'tf-promo' }, ic('crown', 'ic'), h('span', {}, 'Masa gratis: semua fitur BAITUNA Ta’aruf, termasuk fitur Premium, dapat dipakai tanpa biaya untuk sementara.')) : '';
     const statusRow = mode === 'draf' || mode === 'baru' ? h('div', { class: 'tf-statusrow', id: 'tf-status' },
       chip(mode === 'draf' ? 'CV: draf' : 'CV: belum dibuat', 'tf-c-off'), chip(s.verif && s.verif.identitas ? 'Identitas diperiksa' : 'Identitas belum diperiksa', s.verif && s.verif.identitas ? 'tf-c-ok' : 'tf-c-off'),
-      chip(s.premium ? 'Premium' : 'Gratis', s.premium ? 'tf-c-gold' : 'tf-c-off')) : '';
+      chip(s.promo ? 'Gratis penuh (masa promo)' : s.premium ? 'Premium' : 'Gratis', s.premium || s.promo ? 'tf-c-gold' : 'tf-c-off')) : '';
     draw(h('div', { class: 'tf-hero', id: 'tf-hero' },
         h('div', { class: 'tf-brand' }, ic('arch', 'ic tf-brandic'), h('span', {}, h('b', {}, 'BAITUNA'), h('small', {}, 'Ta’aruf'))),
         h('div', { class: 'tf-arch' }, h('span', { class: 'tf-archic' }, ic('hands', 'ic')),
           h('h2', {}, 'Ikhtiar Menuju Keluarga Sakinah'), h('p', {}, 'Proses ta’aruf yang terarah, aman, dan berusaha sesuai syariat Islam.'))),
       h('div', { class: 'tf-land' },
         h('ul', { class: 'tf-checks' }, ...items.map(t => h('li', {}, ic('checkc', 'ic tf-okc'), h('span', {}, t)))),
-        statusRow, main,
+        promoNote, statusRow, main,
         btn('Pelajari Lebih Lanjut', 'btn-ghost tf-link', 'tf-learn', learnSheet),
         s.admin ? btn('Kelola Ta’aruf (Super Admin)', 'btn-sm ghost tf-cta2', 'tf-admin-entry', () => adminScreen('stat')) : '',
         h('p', { class: 'hint tf-small' }, 'Khusus usia ' + T.MIN_AGE + ' tahun ke atas. BAITUNA Ta’aruf membantu perkenalan; tidak menjanjikan jodoh atau kecocokan.')));
@@ -94,7 +99,7 @@ export function taarufPage({ go, onSignIn } = {}) {
   function learnSheet() {
     sheet('Tentang BAITUNA Ta’aruf', 'tf-learnsheet',
       h('ol', { class: 'tf-steps-list' }, ...['Lengkapi CV Ta’aruf (tanpa foto). Nama lengkap, alamat, dan nomor telepon tidak ditampilkan.',
-        'Atur kriteria calon (preferensi).', 'Lihat rekomendasi calon yang sesuai. Pengguna gratis dapat membuka 2 profil calon (sekali seumur akun).',
+        'Atur kriteria calon (preferensi).', (S.st && S.st.promo) ? 'Lihat rekomendasi calon yang sesuai. Selama masa gratis, profil calon dapat dibuka tanpa batas kuota.' : 'Lihat rekomendasi calon yang sesuai. Pengguna gratis dapat membuka 2 profil calon (sekali seumur akun).',
         'Ajukan minat. Perkenalan berlanjut hanya bila calon juga setuju.', 'Bila keduanya setuju: bahas topik penting, usulkan jadwal, dan bagikan kontak (misalnya nomor wali) bila Anda mau.',
         'Libatkan wali atau keluarga, lalu putuskan: lanjut ke tahap keluarga, minta waktu, atau akhiri dengan baik.'].map(t => h('li', {}, t))),
       info('Anda bisa menolak, mengakhiri proses, melaporkan, dan memblokir kapan saja, gratis. Pendamping (ustaz/ustazah) belum tersedia pada tahap ini.'),
@@ -181,7 +186,7 @@ export function taarufPage({ go, onSignIn } = {}) {
         lab('Visi dan tujuan hidup', 'tf-vision'), area('tf-vision', 'vision', 800, ''),
         h('span', { class: 'tf-lab' }, 'Nilai dan gaya hidup'), values),
       h('div', { class: 'panel tf-form' }, h('h3', {}, 'Informasi Tambahan (opsional)'),
-        h('p', { class: 'hint' }, 'Hanya bisa dibaca calon yang berlangganan Ta’aruf Premium dan sudah membuka profil Anda. Jangan menulis kontak.'),
+        h('p', { class: 'hint' }, S.st && S.st.promo ? 'Selama masa gratis, bisa dibaca semua calon yang membuka profil Anda (fitur Premium berlaku untuk semua). Jangan menulis kontak.' : 'Hanya bisa dibaca calon yang berlangganan Ta’aruf Premium dan sudah membuka profil Anda. Jangan menulis kontak.'),
         area('tf-extra', 'extra', 800, 'Mis. hafalan, kegiatan, hal yang ingin calon ketahui.')),
       err,
       btn(published ? 'Simpan Perubahan' : 'Lanjutkan', 'btn-primary tf-cta', 'tf-cv-next', () => published ? save(false) : save(true)),
@@ -281,13 +286,14 @@ export function taarufPage({ go, onSignIn } = {}) {
     const s = S.st || {}, p = P() || {};
     const tile = (id, iconN, title, sub, onclick, badge) => h('button', { class: 'tf-tile', type: 'button', id, onclick }, h('span', { class: 'tf-tic' }, ic(iconN)),
       h('span', { class: 'tf-tt' }, h('b', {}, title), h('span', { class: 'muted' }, sub)), badge ? h('span', { class: 'tf-badge', id: id + '-badge' }, String(badge)) : '', ic(ICONS.chev, 'ic tf-chev'));
-    const quota = s.premium ? 'Premium aktif' : Math.min(s.quota_used || 0, s.free_quota) + ' dari ' + s.free_quota + ' profil gratis telah dilihat';
+    const quota = s.promo ? 'Gratis penuh selama masa promo' : s.premium ? 'Premium aktif' : Math.min(s.quota_used || 0, s.free_quota) + ' dari ' + s.free_quota + ' profil gratis telah dilihat';
     draw(back('← Lainnya', () => go && go('more'), 'tf-exit'),
       h('div', { class: 'tf-hubhead' }, ic('arch', 'ic tf-hubic'), h('div', {}, h('h2', { class: 'wtitle' }, 'BAITUNA Ta’aruf'), h('p', { class: 'muted' }, 'Ikhtiar menuju keluarga sakinah'))),
       h('div', { class: 'tf-statusrow', id: 'tf-status' },
         chip(p.status === 'aktif' ? 'CV aktif' : p.status === 'jeda' ? 'CV dijeda' : 'CV dinonaktifkan pengelola', p.status === 'aktif' ? 'tf-c-ok' : 'tf-c-off'),
         chip(s.verif && s.verif.identitas ? 'Identitas diperiksa' : 'Identitas belum diperiksa', s.verif && s.verif.identitas ? 'tf-c-ok' : 'tf-c-off'),
-        chip(s.premium ? 'Premium' : 'Gratis', s.premium ? 'tf-c-gold' : 'tf-c-off')),
+        chip(s.promo ? 'Gratis penuh (masa promo)' : s.premium ? 'Premium' : 'Gratis', s.premium || s.promo ? 'tf-c-gold' : 'tf-c-off')),
+      s.promo ? h('p', { class: 'tf-promo', id: 'tf-promo' }, ic('crown', 'ic'), h('span', {}, 'Masa gratis: semua fitur BAITUNA Ta’aruf, termasuk fitur Premium, dapat dipakai tanpa biaya untuk sementara.')) : '',
       p.status === 'nonaktif' ? h('p', { class: 'tf-warn', id: 'tf-nonaktif' }, 'Profil Anda dinonaktifkan pengelola sehingga tidak tampil di rekomendasi. Hubungi admin BAITUNA bila ada pertanyaan.') : '',
       s.open === false ? h('p', { class: 'tf-warn', id: 'tf-closed' }, 'BAITUNA Ta’aruf sedang ditutup sementara. Proses yang berjalan tetap bisa dibuka.') : '',
       s.incoming ? h('button', { class: 'tf-alert', type: 'button', id: 'tf-incoming', onclick: () => introsScreen('masuk') }, ic('heart'), h('span', {}, 'Saudaraku, ada ' + s.incoming + ' permintaan perkenalan baru. Lihat sekarang.')) : '',
@@ -297,7 +303,7 @@ export function taarufPage({ go, onSignIn } = {}) {
         tile('tf-go-cv', 'user', 'CV Ta’aruf Saya', 'Ubah, jeda, atau hapus CV', cvScreen),
         tile('tf-go-pref', 'filter', 'Preferensi Pasangan', 'Usia ' + ((s.prefs && s.prefs.age_min) || 19) + '–' + ((s.prefs && s.prefs.age_max) || 45) + ' tahun', () => prefsScreen(false)),
         tile('tf-go-verif', 'shield', 'Verifikasi', s.verif && s.verif.identitas ? 'Identitas sudah diperiksa' : 'Lihat status verifikasi', () => verifyScreen(false)),
-        tile('tf-go-premium', 'crown', 'Ta’aruf Premium', s.premium ? 'Aktif sampai ' + T.fmtDate(s.member_ends) : 'Rp19.900/bulan • lihat manfaat', () => premium('auto')),
+        s.promo ? '' : tile('tf-go-premium', 'crown', 'Ta’aruf Premium', s.premium ? 'Aktif sampai ' + T.fmtDate(s.member_ends) : 'Rp19.900/bulan • lihat manfaat', () => premium('auto')),
         tile('tf-go-guide', 'book', 'Panduan & Keselamatan', 'Adab umum, tanda bahaya, hak Anda', guideScreen),
         tile('tf-go-blocks', 'ban', 'Daftar Blokir', 'Kelola profil yang Anda blokir', blocksScreen),
         s.admin ? tile('tf-go-admin', 'gear', 'Kelola Ta’aruf', 'Super Admin: laporan, verifikasi, pengaturan', () => adminScreen('stat')) : ''));
@@ -683,17 +689,19 @@ export function taarufPage({ go, onSignIn } = {}) {
         const [set, plans] = await Promise.all([T.settings(), T.plans()]);
         const num = (id, v, min, max) => { const e = h('input', { class: 'in tf-num', id, type: 'number', min: String(min), max: String(max) }); e.value = v == null ? '' : String(v); return e; };
         const open = h('input', { type: 'checkbox', id: 'tf-set-open' }); open.checked = !!set.is_open;
+        const promo = h('input', { type: 'checkbox', id: 'tf-set-promo' }); promo.checked = !!set.promo_free;
         const fq = num('tf-set-quota', set.free_quota, 0, 20), fa = num('tf-set-free', set.free_active, 1, 10), pa = num('tf-set-prem', set.premium_active, 1, 10);
         const price = {}; plans.forEach(p => { price[p.code] = num('tf-price-' + p.code, p.price, 1000, 100000000); });
         const err = h('p', { class: 'mk-err', id: 'tf-set-err', role: 'alert' }, '');
         const lab = (t, el) => h('label', { class: 'tf-lab' }, t, el);
         body.replaceChildren(h('div', { class: 'panel tf-form', id: 'tf-settings' },
           h('label', { class: 'tf-check', for: 'tf-set-open' }, open, h('span', {}, 'Layanan dibuka (matikan untuk menutup sementara; proses yang berjalan tetap bisa dibuka)')),
+          h('label', { class: 'tf-check', for: 'tf-set-promo' }, promo, h('span', {}, 'Mode gratis (promo): semua fitur Premium gratis untuk semua pengguna. Matikan bila ingin kembali ke Premium berbayar.')),
           lab('Kuota profil gratis (seumur akun)', fq), lab('Proses aktif maksimal — gratis', fa), lab('Proses aktif maksimal — Premium', pa),
           h('h4', {}, 'Harga paket Ta’aruf Premium (Rp)'), ...plans.map(p => lab(p.name, price[p.code])),
           h('p', { class: 'hint' }, 'Perubahan harga berlaku untuk pesanan baru; pesanan lama tetap memakai harga saat dipesan.'), err,
           btn('Simpan Pengaturan', 'btn-primary', 'tf-set-save', async () => {
-            const p = { is_open: open.checked, free_quota: Number(fq.value), free_active: Number(fa.value), premium_active: Number(pa.value) };
+            const p = { is_open: open.checked, promo_free: promo.checked, free_quota: Number(fq.value), free_active: Number(fa.value), premium_active: Number(pa.value) };
             for (const k in price) p['price_' + k] = price[k].value ? Number(price[k].value) : null;
             if (!(await confirmDlg({ title: 'Simpan pengaturan?', text: 'Perubahan langsung berlaku untuk semua pengguna BAITUNA Ta’aruf.' }))) return;
             try { await T.adminSettings(p); await refresh(); toast('Pengaturan disimpan.'); adminScreen('atur'); } catch (e) { err.textContent = T.errorText(e); }
